@@ -252,7 +252,8 @@ features are computed on**), `viz` (shared artery colours, headless matplotlib h
 `scripts/` — `derive_label_map.py`, `survey_topology.py`, `make_case_figures.py`,
 `make_dominance_figure.py`, `make_tree_figure.py`.
 `docs_thesis/dataset_walkthrough.md` — narrated tour of the data; `docs_thesis/tree_construction.md` — the graph
-model and its cohort-wide validation; `figures/` — their output.
+model and its cohort-wide validation; `docs_thesis/hemodynamics.md` — how WSS/CFD turn the topology
+into a functional endpoint, and the resolution limit that bounds it; `figures/` — their output.
 Derived artifacts go to `paths.OUTPUT_ROOT` (`/dtu/blackhole/0a/224426/imagecasx_derived`, override
 with `IMAGECASX_OUT`) — never to `/zhome`, never into the dataset.
 
