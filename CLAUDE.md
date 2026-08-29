@@ -137,17 +137,27 @@ contain a cycle. See `docs_thesis/tree_construction.md`.
   `topology/coords.py`. Verified correct: 100% of centerline points land on a labelled voxel and
   100% agree with that voxel's label.
 
-### The CT images — source identified (2026-08-29), not yet downloaded
+### The CT images — RESOLVED and on disk (2026-08-29)
 
-The delivered dataset contains **only labels and derived geometry — no CT volumes**. They are the
-base ImageCAS cohort, public on
-[Kaggle](https://www.kaggle.com/datasets/xiaoweixumedicalai/imagecas): same 1000 case ids, same
-geometry. `jobs/download_imagecas.sh` fetches them; it needs a Kaggle API token at
-`~/.config/kaggle/kaggle.json`. Budget 60–100 GB and several hours, and run it through `bsub`.
+The delivered dataset carries only labels and derived geometry. The CT volumes are the base
+ImageCAS cohort from [Kaggle](https://www.kaggle.com/datasets/xiaoweixumedicalai/imagecas)
+(CC BY-NC 4.0 — cite ImageCAS alongside ImageCAS-X), downloaded 2026-08-29 by
+`jobs/download_imagecas.sh`: 83 GB of archives, 86 GB extracted, 1000 `<id>.img.nii.gz` plus 1000
+`<id>.label.nii.gz`, all present and linked into the composed root.
 
-Until `volumes/` is populated, **nothing in the framework half runs** — every entry point needs it.
-Objectives 6–9 need only the segmentations/centerlines/surfaces and can proceed regardless, which
-is why they went first. Worth asking whether the lab already has the volumes internally.
+**Not plain zips.** Five split multi-volume archives, whose final segment was uploaded as
+`.change2zip` because Kaggle refuses a second `.zip`, and Kaggle then wraps each single-file
+download in *another* zip. Info-ZIP `unzip` cannot read split archives at all; `7za` can, after the
+rename. Both layers are handled in the job — re-read it before changing anything there.
+
+**`<id>.label.nii.gz` is the original ImageCAS binary label, NOT our ground truth.** It is linked to
+`imagecas_orig_labels/`, deliberately out of the way. It is what the benchmark's "ImageCAS (labels)"
+row scores (DSC 41.8 against the ImageCAS-X labels), and is useful for nothing else here.
+
+Verified on arrival: all 800 usable cases have volume + segmentation + both centerlines + surface;
+volume and segmentation headers agree exactly (size, spacing, origin, direction) over a 25-case
+sample; and centerline points sample a **median 336 HU** in the CT — contrast-filled lumen, which
+confirms the LPS/RAS conversion in `coords.py` against the *images*, not just the segmentations.
 
 ## Environment (DTU HPC)
 
