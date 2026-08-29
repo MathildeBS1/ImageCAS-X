@@ -1,6 +1,5 @@
 __pycache__/
 /notebooks
-CLAUDE.md
 .claude/
 .github/
 utils/generate_plots.py
@@ -19,3 +18,7 @@ dist/
 *.pt
 *.pth
 *.npy
+
+# Local environment + scheduler output
+env.sh
+logs/

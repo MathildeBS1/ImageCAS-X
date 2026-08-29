@@ -23,6 +23,12 @@ dependencies = [
     "tqdm",
     "matplotlib",
     "openpyxl",
+    # Thesis-side topology layer (topology/, scripts/): pandas+openpyxl read
+    # Descriptors.xlsx, nibabel reads the NIfTI affines, and pyvista is used purely
+    # as a VTK parser -- never as a renderer, since the nodes have no DISPLAY.
+    "pandas",
+    "nibabel",
+    "pyvista",
 ]
 
 [tool.setuptools]
@@ -37,4 +43,5 @@ include = [
     "postprocessing*",
     "preprocessing*",
     "utils*",
+    "topology*",
 ]
