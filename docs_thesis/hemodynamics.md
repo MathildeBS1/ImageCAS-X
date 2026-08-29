@@ -75,32 +75,48 @@ No new computation; this is intro/discussion material that makes existing featur
 
 ## Tier 1 — geometric hemodynamic surrogates (cheap, all 800 cases)
 
-**Murray's law is the keystone, and it is worth understanding why.** For laminar flow in a tube,
+**Murray's law is the keystone — but the textbook exponent is wrong for coronaries, and that
+changes the feature definition.** For laminar flow in a tube,
 
 ```
 tau = 4 mu Q / (pi R^3)
 ```
 
 Murray's law — minimising pumping power plus the metabolic cost of blood — gives `Q ~ R^3`.
-Substituting, `tau` is **constant** throughout an optimal tree. So:
+Substituting, `tau` would be **constant** throughout the tree, which is the usual textbook claim
+that deviation from Murray's law is deviation from uniform WSS.
 
-> Deviation from Murray's law *is* deviation from uniform wall shear stress.
+**In coronaries specifically the cubic exponent does not hold.** Taylor et al. 2024, a systematic
+review and meta-analysis over 1,070 coronary trees from 372 humans and 112 animals, puts the
+pooled flow-diameter exponent at **k = 2.39 (95% CI 2.24-2.54)**, closely matching Kassab's
+theoretical 7/3 ~ 2.33 rather than Murray's 3.0. The consequence matters:
 
-That single identity converts a purely geometric measurement into a hemodynamically interpretable
-one, with no flow solver at all. Concretely, per bifurcation:
+```
+tau ~ Q / R^3 ~ R^k / R^3 = R^(k-3) = R^-0.61
+```
 
-- **Murray exponent** `k`, solving `R_0^k = R_1^k + R_2^k`. Healthy coronaries sit near 2.3-3.0.
-  Report the deviation `|k - 3|`, and the signed residual at fixed `k = 3`.
+so in a *normal* coronary tree WSS **rises toward the smaller distal vessels** rather than staying
+uniform. Uniform-WSS is therefore the wrong null hypothesis. Concretely this means:
+
+- Reference the exponent to **2.39, not 3.0**. Report per-bifurcation `k` solving
+  `R_0^k = R_1^k + R_2^k`, and the deviation `|k - 2.39|`, with the CI as a tolerance band.
+- Fitting `k` cohort-wide is itself a result worth reporting: an 800-tree estimate would be large
+  next to the studies in that meta-analysis, and it validates the segmentation and radius
+  extraction at the same time.
+- Expect and model the distal WSS rise; do not treat it as an anomaly.
+
+Alongside it, per bifurcation:
+
 - **Area ratio** `zeta = (R_1^2 + R_2^2) / R_0^2`. Values above 1 imply deceleration and
   separation-prone flow.
-- **Finet's law** `D_0 = 0.678 (D_1 + D_2)`, the coronary-specific clinical rule — useful as a
-  second reference point.
+- **Finet's law** `D_0 = 0.678 (D_1 + D_2)`, the coronary-specific clinical rule — a second
+  reference point, and the one interventional cardiologists actually use.
 - **Poiseuille resistance index** along each ostium-to-terminus path, `R ~ sum(L / r^4)`, from the
   segment lengths already in `topology/graph.py`. A crude geometric analogue of pressure loss —
   explicitly *not* FFR.
-- **WSS uniformity index**: assume Murray-distributed flow, compute `tau ~ Q / R^3` per segment,
-  and report the spread across the tree. A tree with high spread has regions of anomalously low
-  shear by construction.
+- **WSS heterogeneity index**: with `Q ~ R^2.39`, compute `tau ~ Q / R^3` per segment and report
+  the spread *relative to the expected `R^-0.61` trend*. A tree whose residual spread is large has
+  regions of anomalously low shear by construction.
 
 All of this is arithmetic over data we already have. Expect minutes for the full cohort.
 

@@ -93,3 +93,52 @@ No coronary-specific paper found — see "Research gap" above. Nearest analogues
 - [Short-term and long-term outcome prediction for CAD patients using ML and multi-center data](https://www.medrxiv.org/content/10.1101/2025.05.26.25328366.full.pdf)
   — recent (2025) multi-center outcome prediction; useful for standard outcome variables/endpoints,
   given this dataset itself lacks outcome data (see `CLAUDE.md` open questions).
+
+## Hemodynamics and geometry-plaque association (added 2026-08-29)
+
+Verified by search; none of these were in the original survey. See `hemodynamics.md` for how they
+fit the plan.
+
+**Closest prior work — read these first.**
+- [Han et al., *Association of Plaque Location and Vessel Geometry ... With Future ACS-Causing
+  Culprit Lesions*, JAMA Cardiology 2022](https://jamanetwork.com/journals/jamacardiology/fullarticle/2788006)
+  — ICONIC nested case-control. Three adverse geometric characteristics carry **incremental
+  prognostic value over stenosis severity and plaque characteristics**: more proximal location,
+  location at a bifurcation, increased tortuosity. This is the strongest published geometry ->
+  hard-outcome link and it validates the thesis premise. Compute these three.
+- [Wang et al., *Left main coronary artery morphological phenotypes and its hemodynamic
+  properties*, BioMed Eng OnLine 2024](https://biomedical-engineering-online.biomedcentral.com/articles/10.1186/s12938-024-01205-3)
+  — n=76 LMs, centerline geometry -> unsupervised clustering -> 4 phenotypes -> CFD for TAWSS per
+  phenotype. Cluster 2 (large bifurcation angle) showed low TAWSS near the LAD branch point.
+  **This is nearly our method at small scale on one bifurcation.** Not a blocker — it is a
+  template, and our differentiators are 800 vs 76 cases, whole tree vs LM only, and
+  outlier/extreme-value framing rather than clustering. Must be cited and positioned against.
+
+**Morphometric scaling.**
+- [Taylor et al., *Systematic review and meta-analysis of Murray's law in the coronary arterial
+  circulation*, AJP Heart Circ Physiol 2024](https://journals.physiology.org/doi/abs/10.1152/ajpheart.00142.2024)
+  — pooled flow-diameter exponent **2.39 (95% CI 2.24-2.54)** over 1,070 trees, matching Kassab's
+  7/3 rather than Murray's 3. Corrects the reference value for any Murray-deviation feature.
+- [van der Waal et al., *Revisiting Murray's law in human epicardial coronary arteries*, Front
+  Physiol 2022](https://pmc.ncbi.nlm.nih.gov/articles/PMC9119389/)
+
+**Geometry and plaque burden.**
+- [*Relationship between Coronary Arterial Geometry and Atherosclerotic Plaque Burden*, review,
+  2022](https://pmc.ncbi.nlm.nih.gov/articles/PMC9497479/) — the survey to read for objective 7's
+  justification. Cites Friedman 1983/1993/1997 (the origin of "geometric risk factors" and the LM
+  branch-angle correlation), Chatzizisis 2007 (ESS mechanism), Morbiducci 2016. Reports normal LM
+  bifurcation angle **76.4 +/- 16.7 deg**, and curvature **16.7% higher** in stenotic segments.
+- [Coronary artery volume index (CAVi): a novel CCTA-derived predictor of cardiovascular
+  events, Int J Cardiovasc Imaging 2020](https://link.springer.com/article/10.1007/s10554-019-01750-2)
+  — lumen volume / myocardial mass. **CAVi < 27.9 mm3/g: MACE 17.2% vs 4.5% over 5.4 y.**
+  Near-free for us: `evaluate.py` already computes `volume_gt_ml`, and the repo already wires in
+  TotalSegmentator heart masks for ADE-HTL. Best available bridge to an outcome-like endpoint.
+- [Bifurcation angle and hemodynamics by CCTA-derived CFD, 2017](https://pmc.ncbi.nlm.nih.gov/articles/PMC5682403/)
+  — WSS changes with wider angulation (>80 deg) in stenotic models. Note the literature is
+  **inconsistent on the direction** of the bifurcation-angle association; report ours, do not
+  assume a sign.
+
+**Coronary dominance reference values.**
+- [*Clinical Significance of Coronary Arterial Dominance*, JAHA 2024](https://www.ahajournals.org/doi/10.1161/JAHA.123.032851)
+  — right 70-89%, left 8-12%, codominant 2.5-17.5%. The wide codominance range reflects
+  inconsistent *definitions*, which matters for us (see `hemodynamics.md`).
