@@ -8,6 +8,10 @@ from dataclasses import dataclass, field
 # pipeline.json still works, but an exported variable wins.
 DATA_PATH_ENV = "ImageCAS_X_data_path"
 RESULTS_PATH_ENV = "ImageCAS_X_results_path"
+# Checkpoint fields are passed through os.path.expandvars, so a config can say
+# "${ImageCAS_X_weights_path}/cas_net.pt" instead of hard-coding a machine-local
+# absolute path. Nothing else in the config is expanded.
+WEIGHTS_PATH_ENV = "ImageCAS_X_weights_path"
 
 
 def _pick(cls, raw: dict) -> dict:
@@ -140,6 +144,15 @@ class BenchmarkConfig:
             self.results_root = env_results_root
 
         self.model = ModelConfig(**_pick(ModelConfig, raw.get("model", {})))
+
+        # Expand ${VAR} in checkpoint paths. A config that names a weights root by
+        # variable stays portable; an unset variable is left verbatim so the
+        # "Checkpoint not found" error shows what failed to expand.
+        for _field in ("checkpoint", "coarse_checkpoint", "dilated_checkpoint",
+                       "patch_checkpoint_16", "patch_checkpoint_32", "patch_checkpoint_64"):
+            _val = getattr(self.model, _field)
+            if _val:
+                setattr(self.model, _field, os.path.expandvars(_val))
         self.loss = LossConfig(**_pick(LossConfig, raw.get("loss", {})))
         self.training = TrainingConfig(**_pick(TrainingConfig, raw.get("training", {})))
         self.preprocessing = PreprocessingConfig(**_pick(PreprocessingConfig, raw.get("preprocessing", {})))

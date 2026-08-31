@@ -48,6 +48,12 @@ centerlines, surfaces and `Descriptors.xlsx` onto the public **ImageCAS** cohort
 Two roots, and the distinction matters:
 
 - `/dtu/blackhole/0a/224426/ImageCAS-X_dataset` (3.6 GB) — the **read-only** delivered dataset.
+  Re-delivered complete on 2026-08-31: `centerlines/` was absent during the first copy, and the
+  composed root's symlink to it dangled. All four directories now resolve, the counts below hold,
+  and `scripts/survey_topology.py` reproduces its earlier result exactly on the new files —
+  1600/1600 sides pass every check, 1584 clean trees, 13 forests, 3 cycles. Nothing recorded in this
+  file changed as a result. Note the delivered directories are group-writable (`drwxrwx---`);
+  treat them as read-only by convention, not by permission.
 - `/dtu/blackhole/0a/224426/imagecasx_data` — the **composed root** everything actually reads:
   symlinks to the four dataset directories and `Descriptors.xlsx`, plus `volumes/` and the caches
   the framework writes (`volumes_resampled/`, `segmentations_resampled/`, `centerline_samples/`).
@@ -118,11 +124,12 @@ volumes. Two traps, both handled in `graph.py`: junction points carry the *paren
 segment labels are a majority vote over interior points), and after a cycle-closing edge is dropped a
 degree-3 point is no longer a branch point (so node kind comes from the built tree, not raw degree).
 
-**11 left sides have two ostia, and they are exactly the 11 left sides with no `LM` label** — set
-equality. This is the **absent left main** variant (LAD and LCX from separate ostia), 1.4% of cases:
-anatomy, not corruption. Never assume one ostium per side. The remaining oddities are named and
-flagged, not dropped: cases 84 and 272 are genuinely fragmented, and cases 8 (L), 455 (R), 776 (L)
-contain a cycle. See `docs_thesis/tree_construction.md`.
+**13 left sides have two ostia; 11 of them are the 11 sides with no `LM` label.** Those 11 are the
+**absent left main** variant (LAD and LCX from separate ostia), 1.4% of cases: anatomy, not
+corruption. Never assume one ostium per side. The other two, 84 and 272, are genuinely fragmented —
+a component with no ostium, rooted arbitrarily — so two-ostia and no-LM are **not** the same set, and
+`survey_topology.py` prints exactly that (`identical (absent left main, not a data defect): False`).
+Cases 8 (L), 455 (R) and 776 (L) contain a cycle. See `docs_thesis/tree_construction.md`.
 
 ### Geometry
 
@@ -158,6 +165,45 @@ Verified on arrival: all 800 usable cases have volume + segmentation + both cent
 volume and segmentation headers agree exactly (size, spacing, origin, direction) over a 25-case
 sample; and centerline points sample a **median 336 HU** in the CT — contrast-filled lumen, which
 confirms the LPS/RAS conversion in `coords.py` against the *images*, not just the segmentations.
+
+## Pretrained weights — ON DISK (2026-08-31)
+
+`/dtu/blackhole/0a/224426/pretrained_weights` (370 MB + 1.2 GB nnU-Net), pointed at by
+`$ImageCAS_X_weights_path` in `env.sh`. These are the weights behind the published benchmark table,
+so they let objective 5 be *reproduced* rather than retrained — no GPU queue, no 24 h walltimes.
+
+```
+cas_net.pt                    27 MB   ffr_unet.pt                      71 MB
+swin_unetr.pt                281 MB   ade_htl/ade_htl_stage{1,2}.pt    21 + 43 MB
+imagecas/imagecas_stage2_coarse_dilated.pt          21 MB
+imagecas/imagecas_stage3_patch_{16,32,64}.pt      3 x 24 MB
+nnunet/nnUNetTrainer__nnUNetPlans__3d_fullres/fold_{0..4}/checkpoint_best.pth   5 x 247 MB
+```
+
+All are **bare `state_dict`s**, which is exactly what `BaseLumenModel.load_weights` expects. Every
+one was loaded into the model its config builds with `strict=True` and matched exactly — no missing
+and no unexpected keys — by `scripts/stage_pretrained_weights.py`.
+
+**How to use them.** `inference.py` defaults `model.checkpoint` to `<run_dir>/<method>_best.pt`, so
+the weights are staged as run dirs under `$ImageCAS_X_results_path` and need no config change:
+
+```bash
+source env.sh
+python scripts/stage_pretrained_weights.py      # re-runnable; verifies before linking
+python -m inference -c configs/cas_net.json -r cas_net_pretrained --split test
+python -m evaluate  -c configs/cas_net.json -r cas_net_pretrained
+```
+
+Nine methods are staged this way. Two exceptions:
+
+- **The ImageCAS 3-stage baseline** loads five checkpoints by name rather than one, so it is wired
+  directly in `configs/imagecas_inference.json` — an inference-only config that trains nothing.
+  **Only four of its five stages were delivered.** There is no Stage-1 coarse checkpoint, and
+  `forward()` uses `coarse_net` for the mask stage 3 votes on, so this method cannot run yet. Do
+  **not** substitute the dilated weights: Stage 1 is trained on the plain GT mask and Stage 2 on a
+  dilated one. The architecture is identical, so it would load silently and be wrong.
+- **nnU-Net** is in its own native 5-fold layout and has no model registered in this framework. It
+  runs under its own CLI and drops predictions into `<run_dir>/predictions/` for `evaluate.py`.
 
 ## Environment (DTU HPC)
 
@@ -196,9 +242,11 @@ confirms the LPS/RAS conversion in `coords.py` against the *images*, not just th
 
 ## Open questions
 
-- ~~Source of the CT images~~ — RESOLVED: base ImageCAS on Kaggle (see above). Still to *ask*:
-  does the lab already hold the volumes and the pretrained weights internally, so we can skip the
-  download entirely?
+- ~~Source of the CT images~~ — RESOLVED: base ImageCAS on Kaggle (see above).
+- ~~Do we have the pretrained weights?~~ — RESOLVED 2026-08-31: they are on blackhole, verified, and
+  staged (see Pretrained weights above). **New question in their place:** no Stage-1 coarse
+  checkpoint was delivered for the ImageCAS 3-stage baseline, so that one method cannot be
+  reproduced from the published weights. Ask the dataset authors whether the file exists.
 - Source of patient outcome data for objective 10 — `Disease` (yes/no) in `Descriptors.xlsx` is the only
   outcome-like field currently available and is coarse. Richer outcome data likely requires a separate
   cohort or a supervisor-provided linkage. Worth resolving early, since it may redirect which cohort the
@@ -208,6 +256,10 @@ confirms the LPS/RAS conversion in `coords.py` against the *images*, not just th
   Full literature survey: see `docs_thesis/literature.md`.
 - **CAS-Net is in `configs/` but absent from the benchmark table** on the project site. Is it in the
   paper? It matters because it is the method we picked to build on.
+
+Resolved (2026-08-31): the dataset was re-delivered complete (`centerlines/` had been missing) and
+revalidates unchanged; the pretrained weights arrived, were verified against every architecture and
+staged for inference; and the two-ostia/no-LM set-equality claim above was corrected.
 
 Resolved (2026-08-29): the centerline graph model, its validation over all 1600 sides, and the
 absent-left-main variant (above); the dataset's provenance and the source of the CT images, both
@@ -246,9 +298,18 @@ python -m evaluate  -c configs/<method>.json -r <run_dir> [-j 8]
   cannot corrupt it). `<method>_best.pt` deliberately stays a bare state_dict — `inference.py` and
   `BaseLumenModel.load_weights` expect exactly that. Chain jobs with
   `bsub -w "ended(<jobid>)" -env "all, RUN_DIR=<run_dir>" < jobs/train_cas_net.sh`.
-- Two configs are **unrunnable as shipped**: `imagecas_stage3_patch_*.json` have `centers_dir: ""`
-  and `imagecas_inference.json` has all five checkpoint fields `null`. ADE-HTL additionally needs
-  TotalSegmentator `heartchambers_highres` masks. Skip all of these unless actually needed.
+- **Checkpoint paths expand `${VAR}`** — ours, not upstream. `utils/config.py` runs the six
+  `model.*checkpoint` fields through `os.path.expandvars`, so a config can name
+  `${ImageCAS_X_weights_path}/...` instead of committing a machine-local absolute path. Nothing else
+  in the config is expanded, and an unset variable is left verbatim so the "Checkpoint not found"
+  error shows what failed to expand.
+- **Never put a pretrained path in a method config.** `train.py` builds its model through the same
+  `build_model(cfg)` as `inference.py`, and that loads `model.checkpoint` whenever it is set — so a
+  checkpoint left in `configs/cas_net.json` silently turns every later "fresh" run into a fine-tune,
+  and the logs look normal. Use the staged run dirs instead (see Pretrained weights).
+- Still **unrunnable as shipped**: `imagecas_stage3_patch_*.json` have `centers_dir: ""`, and
+  `imagecas_inference.json` is now wired for four of its five stages but still lacks Stage 1. ADE-HTL
+  additionally needs TotalSegmentator `heartchambers_highres` masks. Skip these unless actually needed.
 
 `jobs/` holds the LSF scripts: `download_imagecas.sh`, `resample_cache.sh`,
 `centerline_samples.sh`, `train_cas_net.sh`.
@@ -259,8 +320,14 @@ python -m evaluate  -c configs/<method>.json -r <run_dir> [-j 8]
 `io` (loaders returning `Segmentation`/`Centerline`/`Surface`), `coords` (**frame conversions — always
 use these**), `graph` (**rooted `CoronaryTree` from a centerline — the structure all topological
 features are computed on**), `viz` (shared artery colours, headless matplotlib helpers).
-`scripts/` — `derive_label_map.py`, `survey_topology.py`, `make_case_figures.py`,
-`make_dominance_figure.py`, `make_tree_figure.py`.
+`scripts/` — `derive_label_map.py`, `survey_topology.py`, `stage_pretrained_weights.py`,
+`make_case_figures.py`, `make_dominance_figure.py`, `make_tree_figure.py`.
+`thesis/` — **thesis prose, to paste into the thesis document.** Plain LaTeX fragments with no
+build system: `02_clinical_background.tex` needs only `graphicx`, `weekly_report_01.tex` needs
+nothing, `refs.bib` works with both bibtex and biblatex. No `\documentclass` — these are meant to
+be `\include`d or pasted.
+`.claude/skills/thesis-writing/SKILL.md` — how to write for the thesis, calibrated against
+`Former_students_work/` and the specific defects found there.
 `docs_thesis/dataset_walkthrough.md` — narrated tour of the data; `docs_thesis/tree_construction.md` — the graph
 model and its cohort-wide validation; `docs_thesis/hemodynamics.md` — how WSS/CFD turn the topology
 into a functional endpoint, and the resolution limit that bounds it; `figures/` — their output.

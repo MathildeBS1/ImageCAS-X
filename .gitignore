@@ -1,6 +1,7 @@
 __pycache__/
 /notebooks
-.claude/
+.claude/*
+!.claude/skills/
 .github/
 utils/generate_plots.py
 

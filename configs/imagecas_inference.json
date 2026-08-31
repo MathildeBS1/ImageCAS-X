@@ -26,11 +26,12 @@
                 64
             ]
         },
+        "_checkpoints_comment": "Delivered weights (Zenodo 21887809), staged 2026-08-31. NOTE: no Stage-1 coarse checkpoint was shipped -- only stage2_coarse_dilated and the three stage-3 patch nets. forward() uses coarse_net for the mask that stage 3 votes on, so this method cannot run until that file arrives or Stage 1 is trained locally with configs/imagecas_stage1_coarse.json. Do NOT point coarse_checkpoint at the dilated weights: Stage 1 is trained on the plain GT mask, Stage 2 on a dilated one. Same architecture, so it would load silently and be wrong.",
         "coarse_checkpoint": null,
-        "dilated_checkpoint": null,
-        "patch_checkpoint_16": null,
-        "patch_checkpoint_32": null,
-        "patch_checkpoint_64": null,
+        "dilated_checkpoint": "${ImageCAS_X_weights_path}/imagecas/imagecas_stage2_coarse_dilated.pt",
+        "patch_checkpoint_16": "${ImageCAS_X_weights_path}/imagecas/imagecas_stage3_patch_16.pt",
+        "patch_checkpoint_32": "${ImageCAS_X_weights_path}/imagecas/imagecas_stage3_patch_32.pt",
+        "patch_checkpoint_64": "${ImageCAS_X_weights_path}/imagecas/imagecas_stage3_patch_64.pt",
         "checkpoint": null
     },
     "loss": {
