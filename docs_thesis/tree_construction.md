@@ -20,9 +20,48 @@ explicit connectivity, and it is exact. Verified over the full cohort:
 - A handful of points have degree 2. Those are pass-throughs where one vessel was stored as two
   polylines; they are merged away so that one `Segment` always spans junction to junction.
 
-Because `end_points`/`branch_points` were produced by whoever built the centerlines and are entirely
-independent of the line connectivity the loader reads, their agreement is a genuine check on the
-graph rather than a restatement of it.
+That agreement is a useful check but **not an independent one**. The ImageCAS-X paper defines the
+flags by graph degree: `end_points` are the degree-1 vertices, `branch_points` the vertices of
+degree 3 or more, and `start_points` the degree-1 vertices lying within 5 mm of the aorta (the aorta
+segmented with TotalSegmentator's high-resolution heart chambers model). Matching them therefore
+confirms that this loader recovers the same connectivity the authors did — worth having, since a
+proximity-threshold reconstruction would not — but it is a restatement of their construction, not
+outside evidence for it.
+
+## Where the delivered centerlines come from
+
+They are not the hand-traced ones, and the distinction decides what a comparison against them means.
+From the Methods of the ImageCAS-X paper (`Kit_paper.pdf`):
+
+1. **Tracing.** Four trained analysts worked in **CoronaryExplorer**, a 3D Slicer (v5.10) extension.
+   Centerlines were initialized by a previously validated automated tracing method, then manually
+   refined — trimming, removing spurious segments, drawing missing vessels — until the tree conformed
+   to the 18-segment model. Each branch was then manually classified by segment name. **200 hours** of
+   manual correction.
+2. **Lumen.** Each traced centerline generated a curved multiplanar reformatting (cMPR) volume
+   (0.25 mm in-plane, 16 x 16 mm field of view, cross-sections every 0.4 mm). A 3D U-Net trained on
+   100 manually annotated cMPR volumes predicted the lumen; predictions were projected back to CCTA
+   space, voxelised, and **manually corrected slice by slice**, with every case reviewed by the lead
+   analyst. **270 hours**.
+3. **Regeneration — this is what ships.** The traced centerlines "did not always pass through the
+   centre of the corrected lumen contours", so **new centerlines were generated from the corrected
+   masks by skeletonization, followed by Gaussian smoothing (sigma = 0.5 mm, sliding window of 5
+   vertices)**. The new tree was partitioned at bifurcations and its segments matched to the original
+   named centerlines by shortest distance to recover the names; the lead analyst reviewed and
+   corrected those assignments. Segment names were propagated to every lumen voxel by nearest
+   centerline point — which is why centerline labels and voxel labels agree in 100% of points, by
+   construction rather than by luck.
+
+Three consequences:
+
+- **"Expert centerlines" is the wrong phrase.** The human effort is in the *masks* and the *segment
+  names*. The delivered centerline geometry is a skeleton of a human-corrected mask.
+- **Comparing a mask-derived tree against them largely compares two skeletonizations** on the same
+  mask. That is still the right validation for objective 6, but it bounds what it demonstrates, and
+  the claim in the thesis has to be worded accordingly.
+- **The sigma = 0.5 mm smoothing is baked in.** Smoothing lowers tortuosity, so any tortuosity
+  computed from the delivered points carries their smoothing choice. Centerlines regenerated
+  in-house must either match it or state the difference.
 
 ## What gets built
 

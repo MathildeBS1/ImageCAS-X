@@ -127,7 +127,12 @@ fit the plan.
   2022](https://pmc.ncbi.nlm.nih.gov/articles/PMC9497479/) — the survey to read for objective 7's
   justification. Cites Friedman 1983/1993/1997 (the origin of "geometric risk factors" and the LM
   branch-angle correlation), Chatzizisis 2007 (ESS mechanism), Morbiducci 2016. Reports normal LM
-  bifurcation angle **76.4 +/- 16.7 deg**, and curvature **16.7% higher** in stenotic segments.
+  bifurcation angle **76.4 +/- 16.7 deg** (verified at source 2026-08-31).
+  **CORRECTED 2026-08-31:** this entry previously read "curvature 16.7% higher in stenotic
+  segments". That figure is not in the paper -- the 16.7 was contamination from the bifurcation
+  angle's SD in the preceding clause. The paper reports curvature as higher in atherosclerotic
+  segments and higher in end-systole, without that percentage. Full citation: Rampidis et al.,
+  *Diagnostics* 12(9):2178, 2022.
 - [Coronary artery volume index (CAVi): a novel CCTA-derived predictor of cardiovascular
   events, Int J Cardiovasc Imaging 2020](https://link.springer.com/article/10.1007/s10554-019-01750-2)
   — lumen volume / myocardial mass. **CAVi < 27.9 mm3/g: MACE 17.2% vs 4.5% over 5.4 y.**

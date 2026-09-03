@@ -1,0 +1,51 @@
+% Clinical Background section. Paste into your own thesis, or \input it.
+
+\section{Coronary computed tomography angiography}
+\label{sec:ccta}
+
+Coronary computed tomography angiography (CCTA) is the non-invasive imaging test recommended
+as an initial investigation in patients with suspected chronic coronary syndrome
+\cite{knuuti2019esc}.
+An iodinated contrast agent is injected and the scan is timed so that acquisition coincides
+with peak opacification of the coronary lumen.
+The result is a three-dimensional volume in which the contrast-filled lumen is bright against
+surrounding tissue.
+
+This section treats CCTA as a measuring instrument, because the limits of the instrument
+bound any geometric claim made from these images.
+
+\subsection{Acquisition and its failure modes}
+
+The coronary arteries move throughout the cardiac cycle, so acquisition is synchronized to
+the electrocardiogram and data are reconstructed at the quiescent phase, conventionally in
+mid-diastole \cite{abbara2016scct}.
+Heart rate is commonly lowered pharmacologically before the scan to lengthen that quiescent
+window \cite{abbara2016scct}.
+When synchronization fails, or when the rhythm is irregular, motion artifact blurs or
+duplicates the vessel \cite{abbara2016scct}.
+
+Dense calcium produces blooming, in which the apparent extent of a calcified plaque exceeds
+its true extent and the adjacent lumen is obscured \cite{abbara2016scct}.
+Blooming is the reason a heavily calcified segment may be uninterpretable even in an
+otherwise excellent scan.
+
+\subsection{Resolution against vessel caliber}
+
+The ImageCAS-X volumes have in-plane spacing between 0.318 mm and 0.43 mm and a
+slice thickness of 0.5 mm, varying between cases \cite{zeng2023imagecas}.
+Proximal coronary arteries are a few millimeters in diameter and taper distally toward 1 mm
+and below.
+A vessel two or three voxels across cannot support a confident radius measurement, and this
+places a floor on the branch order at which geometric features remain meaningful.
+
+Contrast opacification in this cohort is adequate: sampling the volumes at the annotated
+centerline points, after converting them from the centerlines' LPS frame into voxel indices,
+gives a median of 336 HU, consistent with a contrast-filled lumen.
+
+\subsection{Image quality as a variable}
+
+Image quality is graded from 0 to 4 in this dataset, and the 200 cases graded 0 are excluded
+from the released cohort, leaving the 800 used here \cite{bransby2026imagecasx}.
+Among those 800 the grading remains informative rather than uniform.
+Because a lower-quality scan plausibly yields fewer traceable distal branches, image quality
+is a candidate confounder for any branch-count statistic derived from this cohort.

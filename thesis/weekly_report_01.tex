@@ -1,30 +1,13 @@
-% Weekly report 1. Paste into your own document. Plain LaTeX -- no extra packages.
+% Weekly report 1. Paste into your own document.
+% Needs: tabularx, booktabs, xcolor (amssymb optional) -- inherited from project_plan.tex.
 
 \section*{Project plan}
 
-The plan below is preliminary and will be revised with the supervisors as the project
-develops. Risk is graded 1 (routine) to 5 (may not succeed as specified). The numbered
-objectives are those of the project brief.
+The plan below is the single shared table, kept in \texttt{project\_plan.tex} and included by
+every weekly report and by the thesis appendix. It is preliminary and will be revised with the
+supervisors as the project develops.
 
-\begin{center}
-\begin{tabular}{clc}
-\hline
-Week & Activity & Risk \\
-\hline
- 1     & Project kick-off; framework and dataset validated end to end                    & 1 \\
- 1--2  & Clinical background: anatomy, dominance, variants, CAD, CCTA (obj.\ 1--3)       & 1 \\
- 2--4  & Literature review: segmentation and topological description (obj.\ 4)           & 2 \\
- 2--3  & Data chapter: cohort composition and centerline validation                      & 1 \\
- 3--5  & Reproduce the published segmentation benchmark from delivered weights (obj.\ 5) & 2 \\
- 4--7  & Topological feature extraction: branching, angles, tortuosity (obj.\ 6--7)      & 3 \\
- 6--9  & Cohort-wide feature extraction and population statistics (obj.\ 8)              & 3 \\
- 9--13 & Outlier and extreme-value detection over the feature distribution (obj.\ 9)     & 4 \\
-12--16 & Association with patient outcomes, \emph{if outcome data is obtained} (obj.\ 10)& 5 \\
-12--18 & Hemodynamic surrogates as a fallback functional endpoint                        & 4 \\
-16--20 & Consolidation, revision and thesis writing                                      & 2 \\
-\hline
-\end{tabular}
-\end{center}
+\input{project_plan}
 
 \section*{Progress this week}
 

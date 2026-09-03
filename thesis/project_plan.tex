@@ -1,0 +1,136 @@
+% ---------------------------------------------------------------
+% ONE plan table, \input into every weekly report and into the
+% thesis appendix. Revise the rows as the plan changes.
+% Risk: 1 (low) to 5 (high).
+%
+% Needs: \usepackage{tabularx} \usepackage{booktabs}
+%
+% One objective per week, in order. ImageCAS-X is used only where
+% ground truth is needed (obj. 5-7); the Rigshospitalet cohort carries
+% obj. 8-10 and is picked up from week 5. What that cohort contains is
+% not yet known, so keep every row about it general: no assumption of
+% centerlines, artery labels or a particular outcome variable.
+%
+% Week 4 implementation note, deliberately kept out of the table until it is
+% understood well enough to defend. The ImageCAS-X paper documents how the
+% delivered centerlines were actually made, and it changes this row.
+%
+% They are not hand-traced. Analysts traced and refined centerlines (200 h),
+% those drove the cMPR lumen annotation, the mask was U-Net predicted and then
+% manually corrected slice by slice (270 h) -- and then NEW centerlines were
+% regenerated from the corrected masks by skeletonization (Lee, Kashyap & Chu
+% 1994, i.e. skimage's method='lee') followed by Gaussian smoothing
+% (sigma = 0.5 mm over a 5-vertex sliding window). Those are what ships.
+%
+% Two consequences. First, the recipe is known, so it gives an exact target:
+% skeletonizing the GROUND-TRUTH mask with the same algorithm should reproduce
+% the delivered centerline closely, which is a far sharper check than "looks
+% right". Second, the reference is a skeleton of an expert-corrected mask, so
+% the human effort sits in the masks and the segment names, not in the
+% centerline geometry -- agreement with it bounds correctness rather than
+% proving it.
+%
+% Hence two extractors, built and compared rather than one chosen blind:
+%   (a) the matching recipe -- skeletonize + smooth exactly as above;
+%   (b) VMTK mesh-based, which returns branches, branch points and a radius
+%       per point as maximum inscribed sphere.
+% Comparing them is what lets a disagreement be attributed to the extractor
+% instead of being confounded with it.
+%
+% Korona & Baldachowski (Former_students_work/) are reference [26] of the
+% ImageCAS-X paper: their tracer is what initialized these centerlines. Their
+% section 5.1 used VMTK on ImageCAS segmentations and documents its weak spot
+% -- it loses accuracy where vessels narrow, so they dilated the mask there and
+% accepted overestimated radii. That is a reason to compare, not to assume.
+%
+% Calibre is new work either way: the delivered centerlines carry no radius
+% array at all (only segment_label, segment_name, start/branch/end_points), so
+% radius has to come from a distance transform on the mask.
+%
+% The row stays a 4, but for different reasons than before: two extractors plus
+% a skeleton-to-graph step that does not exist anywhere in the codebase yet,
+% and VMTK still not installed in the venv.
+%
+% \providecommand, not \newcommand: this file is \input into more than
+% one document, and would otherwise fail if two of them are combined.
+% If you \input it twice inside the SAME document, change
+% \label{tab:projectplan} in the second copy.
+% ---------------------------------------------------------------
+
+\begin{table}[htbp]
+\centering
+\footnotesize
+% Rule weights and row padding are set inside the table group, so they do not
+% leak into the rest of the document.
+\setlength{\heavyrulewidth}{1.1pt}
+\setlength{\lightrulewidth}{0.6pt}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabularx}{\linewidth}{@{}lXc@{}}
+\toprule
+\textbf{Week} & \textbf{Activity} & \textbf{Risk} \\
+\midrule
+1 & Project kick-off; ImageCAS-X and Kit's code base exploration; clinical background started & 1 \\ \midrule
+
+2 & Clinical background continued: anatomy, dominance, variants, CAD, CCTA; Topology research. Literature review and state of the art (obj.\ 1--4). Dataset chapter for ImageCAS-X & 1 \\ \midrule
+
+3 & Reproduce the deep-learning segmentation methods from the delivered weights and run inference on the test split, targeting the published benchmark table; the inter-observer agreement reported there is the ceiling, and no automated method reaches it. Data chapter (obj.\ 5) & 2 \\ \midrule
+
+4 & Turn segmentation masks into coronary trees by two independent routes --- skeletonization matching the recipe the dataset itself used, and mesh-based extraction --- so that the choice of extractor can be measured rather than assumed. Validated against the delivered centerlines on the expert masks, where the matching route should reproduce them closely, then run on the predicted masks so the two are comparable. The same step measures how wide each vessel is along its length, which the delivered centerlines do not record (obj.\ 6) & 4 \\ \midrule
+
+5 & Topology feature extraction on ImageCAS-X: branching, bifurcation angles, tortuosity and caliber. Feature reliability against the ground truths on the 160 test cases, across two axes: the segmentation method, and the centerline extractor of week~4 (obj.\ 7) & 4 \\ \midrule
+
+6 & Topology-aware fine-tune targeted at the failure modes found in week 5, using a method from the literature review chosen to address them, if the gap is large enough to justify it; re-evaluated on the same 160 test cases. Getting ready for the move to Rigshospitalet's cohort & 3 \\ \midrule
+
+7 & Topological features extracted over the Rigshospitalet cohort. Dominance taken from its annotations if it has them, otherwise predicted from geometry by a classifier trained on ImageCAS-X and reported on the test split (obj.\ 7) & 3 \\ \midrule
+
+8 & Population description and statistics on the Rigshospitalet cohort, with ImageCAS-X as the reference distribution (obj.\ 8) & 3 \\ \midrule
+
+9--10 & Outlier and extreme-value detection over the topological features (obj.\ 9): one-class and density-based models against baselines fixed in advance, validated on the ImageCAS-X variants, then applied to the cohort and adjudicated clinically & 3 \\ \midrule
+
+11 & Association of the topological features with whatever outcome variables the cohort carries (obj.\ 10) & 4 \\ \midrule
+
+12 & Hemodynamic endpoint: per-bifurcation deviation from Murray's law at the coronary exponent 2.39, area ratios and Finet's law, then a one-dimensional resistance network over the tree giving per-segment flow, pressure drop and mean wall shear stress & 3 \\ \midrule
+
+13 & Machine learning for risk prediction: models trained on the topological and hemodynamic features to predict the cohort's outcome variable, with nested cross-validation, calibration, and a clinical-variables-only baseline to show what the topology adds & 4 \\ \midrule
+
+14 & \emph{Open week.} Held for whichever objective ran long; otherwise per-territory and per-segment analysis, and the sensitivity of every result to the segmentation backbone & 1 \\ \midrule
+
+15 & Results consolidated and figures finalized; thesis assembled from the chapters written week by week; discussion and limitations & 3 \\ \midrule
+
+16 & Final revision; code released; submission & 2 \\ \midrule
+
+1--15 & \emph{Continuous:} each block is written up in the week it is produced & 1 \\ \midrule
+
+-- & Oral defense (after submission) & 1 \\
+\bottomrule
+\end{tabularx}
+\caption{Project plan over the 16 available weeks, with the risk of delay from 1 (low) to 5 (high).
+The two cohorts play different roles.
+ImageCAS-X is used where ground truth is needed --- reference centerlines, per-artery labels and an
+independent dominance annotation over 800 cases --- so the methods of objectives 5--7 are developed
+and validated there, and it remains the reference distribution afterwards.
+Those reference centerlines are an algorithmic derivative of expert-corrected masks rather than a
+hand-drawn ground truth, so agreement with them bounds correctness rather than establishing it.
+The expert effort they carry is in the lumen masks and the segment names.
+Branch-level features inherit the annotation protocol as well: side branches below 1~mm were not
+traced, and septal perforators, acute marginals and nodal arteries were not traced at all, so a
+branch count describes the protocol as much as the anatomy and has to be reported as such.
+The Rigshospitalet cohort carries objectives 8--10: the population description, the outlier
+detection and the association with outcome. What it contains is not yet known, so the plan commits
+only to methods that do not depend on it having expert centerlines, artery labels or a particular
+outcome variable.
+The schedule spends about a week per objective because objective 6 is already built and validated
+and objective 5 is reproduction from delivered weights rather than training. That is what allows the
+move to the second cohort in week~6, and what leaves week~14 open.
+The delivered weights were trained on this dataset's own 560-case training split, so every number
+that compares a predicted tree against the ground truth is quoted on the 160 test cases, and any
+fine-tune stays on the training split.
+Nothing before week~6 depends on the external data, and if it arrives late or thin, weeks 8--12
+fall back to work that needs no second cohort: per-segment and per-territory analysis, the hemodynamic
+surrogates, and a deeper study of how far the features survive automatic segmentation.
+Weeks 12--13 are what turn description into prediction. Wall shear stress is the mechanism linking
+the shape of the tree to where plaque forms, so week~12 gives a functional endpoint that does not
+depend on how rich the outcome data proves to be, and week~13 asks whether those features predict
+risk beyond the clinical variables already available.}
+\label{tab:projectplan}
+\end{table}

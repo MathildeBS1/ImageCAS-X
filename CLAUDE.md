@@ -8,10 +8,13 @@ alongside the dataset, with the thesis's topology layer merged into it (2026-08-
 
 - **Framework** (upstream): `train.py` / `inference.py` / `evaluate.py`, `configs/`, `models/`,
   `losses/`, `dataloading/`, `{pre,post}processing/`, `augmentation/`, `utils/`. Objective 5.
-- **Thesis** (ours): `topology/`, `scripts/`, `docs_thesis/`, `figures/`. Objectives 6-9.
+- **Thesis** (ours): `topology/`, `scripts/`, `docs_thesis/`, `figures/`, `thesis/`,
+  `.claude/skills/`. Objectives 6-9.
 
 Keep them separable: `git remote add upstream git@github.com:kitbransby/ImageCAS-X.git`, and extend
 the framework through its registries rather than editing its files, so upstream stays mergeable.
+Two upstream files are deliberately modified, both noted under The framework half: `train.py`
+(`--resume`) and `utils/config.py` (`${VAR}` expansion in checkpoint paths).
 See Code layout below and `docs_thesis/dataset_walkthrough.md` for a narrated tour of the data.
 
 ## Thesis objectives
@@ -37,7 +40,7 @@ established framework over inventing one. Objective 10 depends on outcome data t
 
 ## Dataset: ImageCAS-X
 
-**Provenance RESOLVED (2026-08-29):** this is the dataset of Bransby et al. 2026, *"ImageCAS-X: A
+This is the dataset of Bransby et al. 2026, *"ImageCAS-X: A
 dataset and benchmark for validating coronary vessel segmentation and centerline extraction in
 computed tomography angiography"* — DTU Compute + Rigshospitalet, i.e. our own lab. Dataset and
 pretrained weights: [Zenodo 21887809](https://zenodo.org/records/21887809); site:
@@ -48,19 +51,16 @@ centerlines, surfaces and `Descriptors.xlsx` onto the public **ImageCAS** cohort
 Two roots, and the distinction matters:
 
 - `/dtu/blackhole/0a/224426/ImageCAS-X_dataset` (3.6 GB) — the **read-only** delivered dataset.
-  Re-delivered complete on 2026-08-31: `centerlines/` was absent during the first copy, and the
-  composed root's symlink to it dangled. All four directories now resolve, the counts below hold,
-  and `scripts/survey_topology.py` reproduces its earlier result exactly on the new files —
-  1600/1600 sides pass every check, 1584 clean trees, 13 forests, 3 cycles. Nothing recorded in this
-  file changed as a result. Note the delivered directories are group-writable (`drwxrwx---`);
-  treat them as read-only by convention, not by permission.
+  All four directories resolve and the counts below hold. The directories are group-writable
+  (`drwxrwx---`), so read-only is a convention here, not a permission — do not rely on the
+  filesystem to stop you. If the dataset is ever re-copied, re-run `scripts/survey_topology.py`:
+  it rebuilds all 1600 sides in ~5 s and is the cheapest check that nothing changed.
 - `/dtu/blackhole/0a/224426/imagecasx_data` — the **composed root** everything actually reads:
   symlinks to the four dataset directories and `Descriptors.xlsx`, plus `volumes/` and the caches
   the framework writes (`volumes_resampled/`, `segmentations_resampled/`, `centerline_samples/`).
   This is what `$ImageCAS_X_data_path` points at. The indirection exists because the framework
   writes its caches *inside* `data_root`, which would otherwise violate the read-only rule.
 
-All facts below were verified by inspection on 2026-08-28.
 
 ```
 centerlines/     1600 .vtk   binary  POLYDATA  — <id>.coronary_{left,right}_centerline.vtk (2 per case)
@@ -72,12 +72,17 @@ filelist/           4 .txt                     — train.txt (560) val.txt (80) 
 Descriptors.xlsx    1000 rows, 1 sheet ("master") — columns: Scan ID, Image Quality, Dominance, Disease
 ```
 
+The automated tracer that initialized these centerlines is reference [26] of the paper:
+Baldachowski & Korona's DTU thesis, `Former_students_work/Korona_Baldachowski_Master_Thesis.pdf`.
+Two of the paper's co-authors (Jiménez, Øksnebjerg) also have work in that directory — the former
+students are upstream of this dataset, not parallel to it.
+
 Cases are keyed by a bare integer id (e.g. `100`), consistent across all four directories. The split
 files contain one id per line and partition the 800 cases 560/80/160. `exclude.txt` holds a further 200
 ids — ImageCAS ships 1000 cases, so this dataset is the 800 that survived exclusion. **Check `exclude.txt`
 before assuming an id is available**; do not silently skip missing files.
 
-### Descriptors.xlsx (verified 2026-08-28)
+### Descriptors.xlsx
 
 One sheet, `master`, 1000 rows (all of ImageCAS, including excluded cases), one row per `Scan ID`:
 
@@ -92,7 +97,7 @@ One sheet, `master`, 1000 rows (all of ImageCAS, including excluded cases), one 
 
 Read with `pandas.read_excel` (needs `openpyxl` installed; plain `pandas` alone raises on `.xlsx`).
 
-### Segmentation labels — RESOLVED (2026-08-28)
+### Segmentation labels
 
 Segmentations are **multi-label, not binary**. Labels 1–14, verified against the centerlines across 36
 cases with 100% agreement (`scripts/derive_label_map.py`, canonical copy in `docs_thesis/label_map.json`):
@@ -105,19 +110,52 @@ Labels 1–8 are the left system, 9–11 the right, 12–13 the posterior vessel
 Left and right centerline files use disjoint label ranges. **Label 14 is a catch-all** — treat it as
 unlabelled, not as a specific artery.
 
+**The right side is annotated more coarsely than the left**, and the paper documents why
+(Supplementary B) — it is a deliberate protocol, not an oversight. Only `RCA`, `R-PDA` and `R-PLA`
+exist for the right side, and label 14 `Other` never appears there (all 88 occurrences are left).
+The protocol rules, which bound every branch-level feature:
+
+- **Not traced at all: septal perforators, acute marginals and nodal arteries.** Note septal
+  perforators are *left*-sided, so this is not purely a right-side restriction.
+- A side branch was not traced where its connection to the parent was unclear, where it could not
+  be clearly delineated, or where its **distal diameter was < 1 mm**.
+- `Other` (14) is D3/D4/OM3/OM4, but only when at least as large as the first or second branch, or
+  **> 1.8 mm** at the proximal end.
+- Where a side branch itself bifurcated, only the larger was traced — unless the two were equal or
+  the smaller exceeded 1.8 mm. Same rule for multiple PDAs or PLAs.
+- Where a *main* vessel bifurcated, main-versus-side was decided **by course, not by size**: the
+  branch continuing along the atrioventricular groove is the LCX even when the OM is larger, and
+  the branch along the anterior interventricular groove is the LAD.
+
+So a branch count measures the protocol as much as the anatomy, on both sides, and any
+left-versus-right comparison must say so.
+
 Which labels a case has is real anatomy, not annotation noise: `R-PDA`/`R-PLA` never appear in
 left-dominant hearts and `L-PDA`/`L-PLA` never in right-dominant ones, because the posterior vessels
 arise from the dominant artery. This means the `Dominance` column and the label set are two independent
 records of the same fact and can be cross-validated. `IM` (ramus intermedius) appears in ~25% of cases,
 matching its textbook prevalence. See `docs_thesis/dataset_walkthrough.md`.
 
-### Centerline topology — RESOLVED (2026-08-29)
+### Centerline topology
 
 The centerlines carry **exact** connectivity: polylines meet only by sharing a point index, so the
 tree is built without any proximity threshold (`topology/graph.py`). `end_points` is exactly the
-degree-1 set and `branch_points` exactly the degree-≥3 set in **1600/1600 sides**, which makes the
-dataset's flags an independent check on the graph rather than a restatement of it. All 1600 sides pass
-every validation check in `scripts/survey_topology.py`; 1584 are one clean rooted tree.
+degree-1 set and `branch_points` exactly the degree-≥3 set in **1600/1600 sides**. That agreement is
+**not independent evidence**: the paper defines the flags by degree (`end_points` = degree 1,
+`branch_points` = degree ≥ 3, `start_points` = degree-1 within 5 mm of the aorta), so matching them
+confirms our loader reproduces their connectivity and nothing more. All 1600 sides pass every
+validation check in `scripts/survey_topology.py`; 1584 are one clean rooted tree.
+
+**Provenance of the centerlines** (Kit_paper.pdf, Methods): the delivered centerlines are *not* the
+hand-traced ones. Analysts traced centerlines in CoronaryExplorer from an automated method and
+manually refined them (200 h), those drove cMPR lumen annotation, the lumen mask was U-Net predicted
+then manually corrected slice by slice (270 h) — and then **new centerlines were regenerated from
+the corrected masks by skeletonization + Gaussian smoothing (σ = 0.5 mm, 5-vertex window)** because
+the traced ones did not run through the centre of the corrected lumen. Segment names were carried
+over by nearest-match to the traced centerlines and reviewed by the lead analyst; voxel labels were
+propagated from the centerline by nearest point. So the human effort sits in the **masks** and the
+**segment names**, not in the centerline geometry, and the σ = 0.5 mm smoothing is baked into any
+tortuosity computed from the delivered points. See `docs_thesis/tree_construction.md`.
 
 **Centerline points are already in physical mm (LPS)** — no affine, unlike anything touching the
 volumes. Two traps, both handled in `graph.py`: junction points carry the *parent* vessel's label (so
@@ -144,7 +182,7 @@ Cases 8 (L), 455 (R) and 776 (L) contain a cycle. See `docs_thesis/tree_construc
   `topology/coords.py`. Verified correct: 100% of centerline points land on a labelled voxel and
   100% agree with that voxel's label.
 
-### The CT images — RESOLVED and on disk (2026-08-29)
+### The CT images
 
 The delivered dataset carries only labels and derived geometry. The CT volumes are the base
 ImageCAS cohort from [Kaggle](https://www.kaggle.com/datasets/xiaoweixumedicalai/imagecas)
@@ -166,23 +204,18 @@ volume and segmentation headers agree exactly (size, spacing, origin, direction)
 sample; and centerline points sample a **median 336 HU** in the CT — contrast-filled lumen, which
 confirms the LPS/RAS conversion in `coords.py` against the *images*, not just the segmentations.
 
-## Pretrained weights — ON DISK (2026-08-31)
+## Pretrained weights
 
 `/dtu/blackhole/0a/224426/pretrained_weights` (370 MB + 1.2 GB nnU-Net), pointed at by
 `$ImageCAS_X_weights_path` in `env.sh`. These are the weights behind the published benchmark table,
 so they let objective 5 be *reproduced* rather than retrained — no GPU queue, no 24 h walltimes.
 
-```
-cas_net.pt                    27 MB   ffr_unet.pt                      71 MB
-swin_unetr.pt                281 MB   ade_htl/ade_htl_stage{1,2}.pt    21 + 43 MB
-imagecas/imagecas_stage2_coarse_dilated.pt          21 MB
-imagecas/imagecas_stage3_patch_{16,32,64}.pt      3 x 24 MB
-nnunet/nnUNetTrainer__nnUNetPlans__3d_fullres/fold_{0..4}/checkpoint_best.pth   5 x 247 MB
-```
+Single-file weights for CAS-Net, FFR-UNet, Swin UNETR, the two ADE-HTL stages and four of the five
+ImageCAS baseline stages, plus nnU-Net in its own 5-fold layout.
 
-All are **bare `state_dict`s**, which is exactly what `BaseLumenModel.load_weights` expects. Every
-one was loaded into the model its config builds with `strict=True` and matched exactly — no missing
-and no unexpected keys — by `scripts/stage_pretrained_weights.py`.
+All are **bare `state_dict`s**, which is what `BaseLumenModel.load_weights` expects. Every one was
+loaded into the model its config builds with `strict=True` and matched exactly — no missing and no
+unexpected keys — by `scripts/stage_pretrained_weights.py`.
 
 **How to use them.** `inference.py` defaults `model.checkpoint` to `<run_dir>/<method>_best.pt`, so
 the weights are staged as run dirs under `$ImageCAS_X_results_path` and need no config change:
@@ -198,18 +231,17 @@ Nine methods are staged this way. Two exceptions:
 
 - **The ImageCAS 3-stage baseline** loads five checkpoints by name rather than one, so it is wired
   directly in `configs/imagecas_inference.json` — an inference-only config that trains nothing.
-  **Only four of its five stages were delivered.** There is no Stage-1 coarse checkpoint, and
-  `forward()` uses `coarse_net` for the mask stage 3 votes on, so this method cannot run yet. Do
-  **not** substitute the dilated weights: Stage 1 is trained on the plain GT mask and Stage 2 on a
-  dilated one. The architecture is identical, so it would load silently and be wrong.
+  Only four of its five stages were delivered, so it cannot run; that config's own comment explains
+  why the dilated weights must not be substituted for the missing Stage 1.
 - **nnU-Net** is in its own native 5-fold layout and has no model registered in this framework. It
   runs under its own CLI and drops predictions into `<run_dir>/predictions/` for `evaluate.py`.
 
 ## Environment (DTU HPC)
 
-- Login node has no GPU. System `python` is 3.9.25 with numpy/scipy/torch 2.8.0+cu128/networkx/matplotlib.
-  **Missing everything imaging: nibabel, SimpleITK, vtk, pyvista, monai, scikit-image, scikit-learn,
-  nnU-Net.** No conda on PATH.
+- Login node has no GPU. System `python` is 3.9.25 and is missing everything imaging (nibabel,
+  SimpleITK, vtk, pyvista, scikit-image) — use the venv, never the system interpreter. No conda on
+  PATH. Note the framework imports neither monai nor nnU-Net; only torch, SimpleITK, scipy, numpy,
+  matplotlib and tqdm.
 - **`source env.sh` before anything.** It sets `ImageCAS_X_data_path` / `ImageCAS_X_results_path`
   (the only two paths any config reads) and points uv at blackhole. It is gitignored — machine-local.
 - Env is **uv**-managed, Python 3.11, torch 2.11.0+cu128. **The venv lives at
@@ -242,34 +274,38 @@ Nine methods are staged this way. Two exceptions:
 
 ## Open questions
 
-- ~~Source of the CT images~~ — RESOLVED: base ImageCAS on Kaggle (see above).
-- ~~Do we have the pretrained weights?~~ — RESOLVED 2026-08-31: they are on blackhole, verified, and
-  staged (see Pretrained weights above). **New question in their place:** no Stage-1 coarse
-  checkpoint was delivered for the ImageCAS 3-stage baseline, so that one method cannot be
-  reproduced from the published weights. Ask the dataset authors whether the file exists.
-- Source of patient outcome data for objective 10 — `Disease` (yes/no) in `Descriptors.xlsx` is the only
-  outcome-like field currently available and is coarse. Richer outcome data likely requires a separate
-  cohort or a supervisor-provided linkage. Worth resolving early, since it may redirect which cohort the
-  framework is ultimately run on.
-- ~~Provenance of "ImageCAS-X"~~ — RESOLVED 2026-08-29 by getting access to this repo: Bransby et
-  al. 2026, our own lab. The guess in the literature survey ("likely a local extension") was right.
-  Full literature survey: see `docs_thesis/literature.md`.
-- **CAS-Net is in `configs/` but absent from the benchmark table** on the project site. Is it in the
-  paper? It matters because it is the method we picked to build on.
-
-Resolved (2026-08-31): the dataset was re-delivered complete (`centerlines/` had been missing) and
-revalidates unchanged; the pretrained weights arrived, were verified against every architecture and
-staged for inference; and the two-ostia/no-LM set-equality claim above was corrected.
-
-Resolved (2026-08-29): the centerline graph model, its validation over all 1600 sides, and the
-absent-left-main variant (above); the dataset's provenance and the source of the CT images, both
-settled by gaining access to the ImageCAS-X repo.
-
-Resolved (2026-08-28): exclusion is by `Image Quality == 0` in `Descriptors.xlsx`, exactly matching
-`exclude.txt`; dominance ground truth is the `Dominance` column, and it agrees with the label set;
-the label→artery mapping is established (above); the RAS/LPS frame difference is handled in `coords.py`.
+- **Outcome data for objective 10.** `Disease` (yes/no) in `Descriptors.xlsx` is the only
+  outcome-like field available, and it is coarse. Richer data needs a separate cohort or a
+  supervisor-provided linkage. This is the highest-risk dependency in the project — it may redirect
+  which cohort the framework is ultimately run on.
+- **The Rigshospitalet cohort.** The project is expected to move to a Rigshospitalet dataset whose
+  ground truth is unknown. The precedent is CGPS, which the previous group used: 939 scans carrying
+  left-tree segmentations only — no centerlines, no artery labels, no right tree, and limited access
+  to the images. If the new cohort looks like that, dominance is uncomputable and centerlines must be
+  derived first. Ask early; it changes the plan.
+- **No Stage-1 coarse checkpoint** was delivered for the ImageCAS 3-stage baseline (four of five
+  stages arrived), so that one method cannot be reproduced from the published weights. Ask the
+  dataset authors whether the file exists.
+- **Is the objective-9 research gap real?** See Research gap below — worth confirming with someone
+  who knows the field before leaning on it in the writeup.
 
 ## The framework half (objective 5)
+
+**What objective 5 is reproducing** (Kit_paper.pdf, Table 2, on the 160 test cases):
+
+| | DSC | HD95 mm | β_err | clDice | ASSD mm | cl-HD95 mm |
+|---|---|---|---|---|---|---|
+| **CAS-Net** (best) | 91.2 | 2.99 | 1.9 | 93.3 | 0.73 | 5.75 |
+| **Inter-observer** (ceiling) | 92.8 | 2.46 | 0.4 | 95.4 | 0.53 | 4.58 |
+| ImageCAS original labels | 41.8 | 16.15 | 7.0 | 78.2 | 2.23 | 18.89 |
+
+**CAS-Net is in the paper and is the best method** — this answers the old open question. It is also
+the cheapest to run (6.8 M params, 15.5 s per scan), which is why it is the one to build on. **No
+automated method reaches inter-observer agreement**: every CAS-Net-vs-analyst difference is
+significant (p < 0.001 on DSC, clDice and ASSD). The paper's own caveat is that both annotators
+edited the *same* automatically generated centerlines and initialized from the same 3D U-Net, so
+the DSC inter-observer figure is an **upper bound** on agreement rather than a neutral reference.
+Analysts averaged 35 minutes per scan; every model is under 2 minutes.
 
 Three entry points, all `python -m`, all driven by one JSON config, all needing `source env.sh`:
 
@@ -320,14 +356,27 @@ python -m evaluate  -c configs/<method>.json -r <run_dir> [-j 8]
 `io` (loaders returning `Segmentation`/`Centerline`/`Surface`), `coords` (**frame conversions — always
 use these**), `graph` (**rooted `CoronaryTree` from a centerline — the structure all topological
 features are computed on**), `viz` (shared artery colours, headless matplotlib helpers).
-`scripts/` — `derive_label_map.py`, `survey_topology.py`, `stage_pretrained_weights.py`,
-`make_case_figures.py`, `make_dominance_figure.py`, `make_tree_figure.py`.
+`scripts/` — `derive_label_map.py`, `survey_topology.py` (validates the trees),
+`cohort_numbers.py` (**describes them: every cohort number quoted in the thesis, printed and
+written as JSON with `code_version()`** — the chapter cites it, so re-run it before submitting),
+`stage_pretrained_weights.py`, `make_case_figures.py`, `make_dominance_figure.py`,
+`make_tree_figure.py`, `make_anatomy_figure.py`, `make_variant_figure.py`,
+`fetch_external_figures.py`.
+Borrowed figures live in `figures/external/` and are fetched by `fetch_external_figures.py`,
+which pulls the file, its licence and its author from the same Wikimedia Commons API response
+and writes `figures/external/CREDITS.md`. **Never type an attribution by hand** — re-run the
+script, and copy the credit line it generates into the caption.
 `thesis/` — **thesis prose, to paste into the thesis document.** Plain LaTeX fragments with no
-build system: `02_clinical_background.tex` needs only `graphicx`, `weekly_report_01.tex` needs
-nothing, `refs.bib` works with both bibtex and biblatex. No `\documentclass` — these are meant to
-be `\include`d or pasted.
-`.claude/skills/thesis-writing/SKILL.md` — how to write for the thesis, calibrated against
-`Former_students_work/` and the specific defects found there.
+build system and no `\documentclass`. `clinical_background/` holds one file per section, numbered
+in reading order, so a section can be worked on without touching the rest; `01_heart_anatomy.tex`
+needs `graphicx`. `weekly_report_01.tex` needs nothing. `refs.bib` is shared and works with both
+bibtex and biblatex; every entry is marked `[VERIFIED]`, `[BOOK]` or `[PARTIAL]`.
+`thesis/wordlist.txt` is the hunspell personal dictionary (`hunspell -l -t -d en_US -p
+wordlist.txt *.tex` is empty today) — domain and LaTeX words only, no prose, since a misspelling
+added there is one the check can never catch again.
+`.claude/skills/thesis-writing/SKILL.md` — how to write for the thesis, calibrated against two
+documents in `Former_students_work/` (Korona & Baldachowski's thesis for chapters, Aida's weekly
+report 1 for weekly reports) and the specific defects verified in each.
 `docs_thesis/dataset_walkthrough.md` — narrated tour of the data; `docs_thesis/tree_construction.md` — the graph
 model and its cohort-wide validation; `docs_thesis/hemodynamics.md` — how WSS/CFD turn the topology
 into a functional endpoint, and the resolution limit that bounds it; `figures/` — their output.
@@ -338,12 +387,11 @@ PyVista is used **only as a VTK file parser**, never as a renderer: the login no
 and off-screen VTK needs OSMesa/xvfb that may not be present. All rendering is matplotlib/Agg.
 Hand-rolling a binary-VTK parser was tried and silently produced garbage — use `pv.read`.
 
-## Research gap identified (2026-08-28)
+## Research gap
 
-Literature search (`literature.md`) found **no coronary-specific paper doing outlier / extreme-value
-detection on topological features** (objective 9). Vascular feature extraction and disease-status
-classification are both well covered, but treating a population's branching/tortuosity/angle features
-as a distribution and flagging population-level outliers is not represented in what was found. Nearest
-analogues are in a different organ (RETA retinal vascular tree benchmark) or use generic, un-adapted
-tooling (scikit-learn Isolation Forest / LOF). This is a plausible novel-contribution angle for the
-thesis — worth confirming it's a real gap (not a search artifact) before leaning on it in the writeup.
+Literature search (`docs_thesis/literature.md`) found **no coronary-specific paper doing outlier or
+extreme-value detection on topological features** (objective 9). Vascular feature extraction and
+disease-status classification are both well covered; treating a population's branching, tortuosity
+and angle features as a distribution and flagging population-level outliers is not. The nearest
+analogues are in a different organ (the RETA retinal benchmark) or use generic tooling without
+domain adaptation. A plausible novel-contribution angle — see Open questions before leaning on it.

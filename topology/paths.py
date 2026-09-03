@@ -24,6 +24,9 @@ DATA_ROOT = Path(
 SEGMENTATIONS = DATA_ROOT / "segmentations"
 CENTERLINES = DATA_ROOT / "centerlines"
 SURFACES = DATA_ROOT / "surfaces"
+#: CT volumes, from the base ImageCAS cohort rather than the ImageCAS-X delivery.
+#: Note the suffix differs from every other directory: "<id>.img.nii.gz".
+VOLUMES = DATA_ROOT / "volumes"
 FILELIST = DATA_ROOT / "filelist"
 DESCRIPTORS = DATA_ROOT / "Descriptors.xlsx"
 
@@ -73,6 +76,12 @@ def centerline_path(case_id: int, side: str) -> Path:
 
 def surface_path(case_id: int) -> Path:
     return SURFACES / f"{case_id}.coronary_surface.vtk"
+
+
+def volume_path(case_id: int) -> Path:
+    """The CT volume. Unlike the other three, this comes from base ImageCAS and is
+    only present for cases that were downloaded -- check ``.exists()`` before use."""
+    return VOLUMES / f"{case_id}.img.nii.gz"
 
 
 @functools.lru_cache(maxsize=None)

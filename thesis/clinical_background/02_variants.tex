@@ -1,0 +1,55 @@
+% Clinical Background section. Paste into your own thesis, or \input it.
+
+\section{Anatomical variants}
+\label{sec:variants}
+
+Beyond dominance, several variants change the connectivity of the coronary tree rather than
+only its dimensions.
+They are described here because a method that characterizes coronary topology must represent
+them rather than discard them, and because two of them occur often enough in this cohort to
+affect population statistics.
+
+\subsection{Absent left main}
+
+In a minority of people the left main artery does not exist as a discrete trunk, and the LAD
+and LCX arise instead from separate ostia in the left aortic sinus
+\cite{devos2024coronary,obrien2007anatomy}.
+The left tree then has two roots rather than one.
+
+The variant is present in 11 of the 800 cases, or 1.4\%, and it is identifiable from two
+independent signals that agree exactly: those cases carry no LM label, and their left
+centerlines resolve into two components each with its own ostium
+(\texttt{scripts/survey\_topology.py}).
+The practical consequence is that no stage of the analysis may assume a single ostium per
+side.
+
+\subsection{Ramus intermedius}
+
+When the left main trifurcates rather than bifurcates, the additional vessel arising between
+the LAD and the LCX is the ramus intermedius, labeled IM in this dataset
+\cite{obrien2007anatomy}.
+It supplies territory that would otherwise belong to a diagonal or an obtuse marginal branch.
+
+A meta-analysis over 46 cadaveric, angiographic and CCTA studies covering 25,602 hearts puts
+the aggregate prevalence at 25.5\%; restricted to CCTA cohorts it is 26.5\%, with a study
+range of 19\% to 68.8\% \cite{dai2025ramus}.
+An IM label is present in 196 of the 800 ImageCAS-X cases, or 24.5\%, consistent with that
+pooled CCTA estimate.
+The cohort figure is also stable across dominance groups, at 24.7\%, 22.0\% and 23.3\% for
+right-, left- and codominant cases respectively.
+The wide study range in the pooled estimate reflects both genuine population differences and
+the threshold at which an observer records a third branch as a ramus intermedius rather than a
+proximal diagonal \cite{dai2025ramus}.
+
+\subsection{Myocardial bridging and anomalous origin}
+
+A segment of a coronary artery may run within the myocardium rather than on its surface, a
+variant termed myocardial bridging, most often affecting the mid-LAD
+\cite{obrien2007anatomy}.
+The bridged segment is compressed during systole.
+Separately, a coronary artery may arise from the wrong sinus or from the pulmonary artery, a
+group of anomalies whose clinical significance depends on whether the anomalous vessel takes
+a course between the aorta and the pulmonary trunk \cite{obrien2007anatomy}.
+Neither variant is separately labeled in this dataset, so neither can be studied directly
+from the released annotations; both are noted because they are plausible explanations for a
+coronary tree whose geometry departs markedly from the rest of a cohort.

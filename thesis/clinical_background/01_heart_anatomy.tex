@@ -1,0 +1,255 @@
+% Clinical Background section. Paste into your own thesis, or \input it.
+%
+% Needs graphicx. Figures:
+%   figures/anatomy_ct.png       <- python scripts/make_anatomy_figure.py
+%   figures/external/*.pdf|jpg   <- python scripts/fetch_external_figures.py
+% Cohort numbers here            <- python scripts/cohort_numbers.py
+% Credits for the borrowed figures are generated into figures/external/CREDITS.md.
+% The captions below must match that file; both come from the same Commons API response.
+
+\section{Heart anatomy}
+\label{sec:anatomy}
+
+The heart drives the circulation of blood that delivers oxygen and nutrients to every tissue in the
+body and carries away metabolic waste \cite{shah2009heart}.
+It is a muscular organ that contracts rhythmically throughout life and lies in the mediastinum, the
+compartment of the chest between the lungs \cite{weinhaus2024anatomy}.
+It has four chambers: two thin-walled \emph{atria} that receive blood, the right atrium (RA) and the
+left atrium (LA), and two thicker \emph{ventricles} that pump it out, the right ventricle (RV) and
+the left ventricle (LV) \cite{weinhaus2024anatomy}.
+
+The right and left sides operate as two pumps in series, and the path blood takes between them is
+shown in Figure~\ref{fig:heart-chambers}.
+Blood that has given up its oxygen to the tissues returns through the superior and inferior venae
+cavae, the body's two largest veins, into the RA, which passes it into the RV
+\cite{weinhaus2024anatomy}.
+The RV pumps it through the lungs, where it is oxygenated --- this loop is the \emph{pulmonary
+circuit} --- and it returns to the LA, which passes it into the LV.
+The LV, the thickest-walled chamber, ejects it into the aorta, the body's largest artery, which
+begins the \emph{systemic circuit} that supplies the rest of the body \cite{weinhaus2024anatomy}.
+Blood returning from those tissues enters the venae cavae again, and the cycle repeats.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.7\textwidth]{external/heart_chambers.pdf}
+  \caption{Blood crosses the heart twice, and the coronary arteries branch off at the exit. The
+    four chambers, four valves and the direction of flow; the coronary arteries are not drawn, and
+    arise from the aorta immediately above the aortic valve at the top of the figure. Figure by
+    Wapcaplet, CC BY-SA 3.0, via Wikimedia Commons.}
+  \label{fig:heart-chambers}
+\end{figure}
+
+The heart's own muscle is not supplied by the blood within the chambers it pumps.
+A separate set of arteries, the coronary arteries, leaves the aorta and runs over the outside of the
+heart, feeding the muscle from there \cite{devos2024coronary}.
+That separate supply is what makes coronary artery disease possible.
+
+\subsection{The origin of the coronary arteries}
+\label{sec:chambers}
+
+Because the two circuits run in series through one pump, unidirectional flow is maintained by four
+valves, one at the inlet and one at the outlet of each ventricle
+\cite{weinhaus2024anatomy,shah2009heart}.
+One of them matters here beyond that mechanical role.
+The \emph{aortic valve} sits at the exit of the LV, and the coronary arteries arise from the wall of
+the aorta immediately above it \cite{devos2024coronary}, so the arterial tree studied in this thesis
+begins at the point where the LV ejects.
+
+\subsection{Coronary perfusion}
+\label{sec:perfusion}
+
+The heart alternates between two phases, and the coronary arteries are affected differently by each.
+In \emph{diastole} a chamber relaxes and fills with blood; in \emph{systole} it contracts and ejects
+what it holds \cite{shah2009heart}.
+Atria and ventricles take turns, so the ventricles are in diastole while the atria are in systole.
+
+The coronary circulation is unusual in that its supply is interrupted by the organ it supplies.
+The heart wall has three layers, shown in Figure~\ref{fig:heart-wall}: a thin inner lining, the
+\emph{endocardium}; a thick muscular middle layer, the \emph{myocardium}, which does the mechanical
+work of pumping; and a thin outer covering, the \emph{epicardium}, beneath which the coronary
+arteries run.
+Those arteries send branches down into the myocardium, so contraction compresses them: perfusion,
+the delivery of blood to the tissue, is impeded during systole, and blood is briefly forced back
+out of the compressed vessels \cite{duncker2015regulation}.
+During diastole the muscle relaxes, inflow rises, and it rises most in the \emph{subendocardium},
+the inner third of the muscle and the layer that was compressed most \cite{duncker2015regulation}.
+Coronary perfusion is therefore predominantly a diastolic event, and a fast heart rate, by
+shortening diastole, reduces the time available for it \cite{duncker2015regulation}.
+
+The heart already extracts 60--80\% of the oxygen carried past it at rest, so additional demand
+must be met by increased flow rather than by increased extraction \cite{duncker2015regulation}.
+A vessel that cannot supply that increase produces \emph{ischemia}, muscle working without enough
+oxygen, which is the mechanism by which a narrowing in a coronary artery becomes symptomatic
+\cite{duncker2015regulation}.
+The margin is narrowest in the subendocardium: it extracts 83\% of the oxygen carried past it
+against 70\% in the \emph{subepicardium}, the outer third of the muscle, and it is also the layer
+most compressed during systole \cite{duncker2015regulation}.
+
+This decides how the arteries are imaged.
+A coronary artery moves fastest during systole and is best filled during diastole, so coronary
+computed tomography angiography (CCTA) synchronizes acquisition to the electrocardiogram and
+reconstructs the images in mid-diastole (Section~\ref{sec:ccta}).
+The phase that best perfuses the arteries is also the phase in which they are most nearly still.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.72\textwidth]{external/heart_wall.jpg}
+  \caption{The coronary arteries run outside the muscle they supply. The muscular
+    \emph{myocardium} lies between the endocardium and the epicardium, beneath which the arteries
+    run; its inner and outer thirds are the subendocardium and subepicardium, which differ in both
+    compression and oxygen extraction. Figure by OpenStax College, CC BY 3.0, via Wikimedia
+    Commons.}
+  \label{fig:heart-wall}
+\end{figure}
+
+\subsection{The coronary arterial tree}
+\label{sec:tree}
+
+Directions on the heart are given as \emph{anterior} (toward the front of the chest),
+\emph{posterior} (toward the back), \emph{lateral} (toward the side) and \emph{inferior} (the
+underside, which rests on the diaphragm).
+Along a vessel, \emph{proximal} means near its origin at the aorta and \emph{distal} means far
+from it, toward the small branches.
+
+The coronary arteries arise from two of the three bulges in the aortic wall known as the aortic
+sinuses \cite{devos2024coronary}.
+The opening of each artery is its \emph{ostium}, and each ostium is the root of a tree: the left
+coronary ostium opens from the left sinus and the right from the right sinus, which is why the two
+systems are described separately here and stored as separate structures in ImageCAS-X
+\cite{bransby2026imagecasx}.
+
+\subsubsection{The left system}
+
+The left coronary artery begins as the left main artery (LM), a short trunk that divides into the
+left anterior descending artery (LAD) and the left circumflex artery (LCX)
+\cite{devos2024coronary}.
+In the 789 cohort cases where it is labeled, that trunk has a median length of 8.5 mm
+(interquartile range 6.0--11.6 mm, full range 1.7--30.4 mm), so the first and largest branching
+point of the left tree sits within a centimeter of the aorta.
+The LAD descends in the anterior \emph{interventricular sulcus}, the groove between the two
+ventricles.
+It supplies the anterior wall of both, together with the anterior two-thirds of the
+\emph{interventricular septum}, the muscular wall dividing them from each other
+\cite{devos2024coronary,obrien2007anatomy}.
+It does so through septal branches that penetrate that wall and a variable number of diagonal
+branches that run out across the surface \cite{devos2024coronary}.
+The LCX curves around the left side in the left \emph{atrioventricular sulcus}, the groove between
+the left atrium and ventricle, and supplies the lateral wall through one or more obtuse marginal
+branches \cite{devos2024coronary}.
+
+Both sets of branches are numbered by the order in which they leave the parent vessel rather than
+by any fixed identity: D1 and D2 are simply the first and second diagonal branches off the LAD, and
+OM1 and OM2 the first and second obtuse marginal branches off the LCX \cite{devos2024coronary}.
+Prevalence falls with position, and the cohort shows it: D1 is labeled in 98.5\% of cases and D2 in
+59.4\%, OM1 in 86.8\% and OM2 in 37.6\%.
+
+\subsubsection{The right system}
+
+The right coronary artery (RCA) runs in the right atrioventricular sulcus, the groove between the
+right atrium and the right ventricle \cite{devos2024coronary}.
+It gives off branches to the right ventricle and to the \emph{sinoatrial node}, the tissue that sets
+the heart's rhythm, then usually terminates on the underside of the heart as the posterior
+descending artery (PDA), which supplies the inferior third of the septum, and one or more posterior
+lateral arteries (PLA) \cite{devos2024coronary,obrien2007anatomy}.
+
+Those proximal right-sided branches are not represented in the ImageCAS-X label set, which names
+only the RCA trunk and the posterior vessels \cite{bransby2026imagecasx}.
+This is an annotation boundary rather than an anatomical claim, and it constrains what a comparison
+of branch counts between the left and right trees can mean.
+
+\subsubsection{Territories}
+
+The clinical weight of a lesion follows from the territory beyond it rather than from the lesion
+itself.
+An occlusion of the proximal LAD puts at risk the anterior wall and the septum, a large fraction of
+the left ventricle, whereas an occlusion far along an obtuse marginal puts at risk a limited region of
+the lateral wall \cite{devos2024coronary}.
+Distance from the ostium is therefore a risk-relevant geometric quantity, a point returned to in
+Section~\ref{sec:geometry}.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.9\textwidth]{external/coronary_arteries.pdf}
+  \caption{The named arteries of both systems, on the surface of the heart, seen from the front.
+    Two naming differences from the convention used here: the circumflex artery is labeled Cx
+    rather than LCX, and the left marginal branches M1 and M2 are the \emph{obtuse marginal}
+    branches OM1 and OM2, named for the rounded left border along which they run. The right
+    marginal artery (RMA) is drawn here but is not among the ImageCAS-X labels. Figure by Patrick
+    J. Lynch, medical illustrator; derivative work: Fred the Oyster; Mikael H\"aggstr\"om, M.D,
+    CC BY-SA 3.0, via Wikimedia Commons.}
+  \label{fig:coronary-arteries}
+\end{figure}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\textwidth]{anatomy_ct.png}
+  \caption{The left main divides within millimeters of the aorta, and the annotation locates it to
+    the voxel. Axial computed tomography (CT) slice of case 7 at the level of the coronary ostia,
+    with the delivered
+    segmentation overlaid in the per-artery colors used throughout. The ostium marker is the
+    centerline's own \texttt{start\_points} flag, converted from the coordinate frame of the
+    centerlines into voxel indices, where it samples 627 Hounsfield units (HU), the density scale of
+    a CT image. This slice cuts through the aortic root rather than the ventricles,
+    so only the aorta is named. Generated with \texttt{scripts/make\_anatomy\_figure.py}.}
+  \label{fig:anatomy-ct}
+\end{figure}
+
+\subsection{Coronary dominance}
+\label{sec:dominance}
+
+The two systems differ in which of them reaches the \emph{crux}, the point on the underside of the
+heart where the atrioventricular and interventricular sulci meet.
+That variation is called \emph{dominance}.
+It is defined by the origin of the posterior descending artery \cite{allwork1987applied}: a heart
+is right-dominant when the PDA arises from the RCA, left-dominant when it arises from the LCX, and
+codominant when the posterior territory is shared.
+Dominance is the largest source of normal topological variation in the coronary tree, which makes
+it the natural variable by which to stratify any description of coronary anatomy.
+
+Approximately 85\% of people are right-dominant, 8\% left-dominant and 7\% codominant
+\cite{wu2024dominance}.
+These proportions vary systematically with ancestry rather than randomly: among patients undergoing
+CCTA, right dominance has been reported in 96\% of East Asian, 87\% of South Asian and 87\% of
+European individuals \cite{wu2024dominance}.
+A cohort figure is therefore interpretable only alongside the population it was drawn from.
+
+The ImageCAS-X cohort is annotated as 729 right-dominant, 41 left-dominant and 30 codominant cases,
+or 91.1\%, 5.1\% and 3.8\% of the 800 usable cases \cite{bransby2026imagecasx}.
+The underlying scans were acquired at a single hospital in Guangdong, China
+\cite{zeng2023imagecas}, and the observed proportion of right dominance falls between the European
+and East Asian figures above.
+
+Dominance is recorded twice in ImageCAS-X, independently, and the two records agree
+\cite{bransby2026imagecasx}: it appears as an explicit annotation, and it is implied by which
+arteries are labeled, since the posterior vessels arise from whichever system is dominant.
+Table~\ref{tab:posterior} gives the cross-tabulation.
+The right posterior vessels appear in essentially every right-dominant case and in no left-dominant
+case, the left posterior vessels invert the pattern exactly, and codominant cases draw on both.
+
+\begin{table}[t]
+  \centering
+  \caption{The artery labels and the dominance annotation are two independent records of the same
+    anatomical fact. Prevalence of the posterior vessels by annotated dominance over the 800 usable
+    cases, from \texttt{scripts/cohort\_numbers.py}; the right and left posterior vessels are
+    mutually exclusive in the single-dominance groups.}
+  \label{tab:posterior}
+  \begin{tabular}{lrrrr}
+    \hline
+    Vessel & All (\%) & Right (\%) & Left (\%) & Co (\%) \\
+    \hline
+    R-PDA & 93.0 & 99.7 &  0.0 & 56.7 \\
+    R-PLA & 92.0 & 99.2 &  0.0 & 43.3 \\
+    L-PDA &  5.8 &  0.0 & 90.2 & 30.0 \\
+    L-PLA &  8.8 &  1.0 & 90.2 & 86.7 \\
+    \hline
+  \end{tabular}
+\end{table}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\textwidth]{05_dominance_comparison.png}
+  \caption{The posterior vessels follow the dominant system, so dominance changes which arteries
+    exist rather than how large they are. Right-, left- and codominant coronary trees from the
+    cohort; the right posterior descending artery is absent from the left-dominant tree entirely.}
+  \label{fig:dominance}
+\end{figure}

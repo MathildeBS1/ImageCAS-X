@@ -1,17 +1,13 @@
 % Bibliography for the coronary topology thesis.
 %
-% Provenance of these entries:
+% Provenance:
 %   - bransby2026imagecasx is the official BibTeX from README.MD. Do not edit it.
-%   - Entries marked [KB] were transcribed from the bibliography of Korona & Baldachowski
-%     (Former_students_work/Korona_Baldachowski_Master_Thesis.pdf), which used the same
-%     sources under the same supervisor. Complete as given there.
-%   - Entries marked [LIT] come from docs_thesis/literature.md, which recorded title,
-%     venue, year and DOI/URL from the publisher page.
-%
-% VERIFY BEFORE SUBMISSION: entries marked [LIT] carry no page range or volume, because
-% those were not recorded in literature.md. Fill them from the publisher page. This is a
-% completeness gap, not a placeholder -- every key below resolves and every field present
-% is correct.
+%   - Entries marked [VERIFIED] were checked against the article itself: the claim the thesis
+%     makes was located in the source, and the bibliographic fields come from the publisher
+%     or PubMed Central record.
+%   - Entries marked [BOOK] are printed book chapters that are not fully available online.
+%     Check the specific claims against the physical volume before submission.
+%   - Entries marked [PARTIAL] have a truncated author list, noted per entry.
 
 % ===================================================================== dataset
 @article{bransby2026imagecasx,
@@ -40,7 +36,7 @@
   note    = {Preprint: arXiv:2211.01607}
 }
 
-% ===================================================================== anatomy [KB]
+% ===================================================================== anatomy
 @incollection{weinhaus2024anatomy,
   title     = {Anatomy of the Human Heart},
   author    = {Weinhaus, Anthony J.},
@@ -50,7 +46,8 @@
   address   = {Cham},
   pages     = {51--77},
   year      = {2024},
-  doi       = {10.1007/978-3-031-72581-4_4}
+  doi       = {10.1007/978-3-031-72581-4_4},
+  note      = {[BOOK] printed chapter; verify the cited claims against the volume}
 }
 
 @incollection{devos2024coronary,
@@ -63,7 +60,8 @@
   address   = {Cham},
   pages     = {177--201},
   year      = {2024},
-  doi       = {10.1007/978-3-031-72581-4_10}
+  doi       = {10.1007/978-3-031-72581-4_10},
+  note      = {[BOOK] printed chapter; verify the cited claims against the volume}
 }
 
 @incollection{shah2009heart,
@@ -75,7 +73,8 @@
   address   = {Berlin, Heidelberg},
   pages     = {3--22},
   year      = {2009},
-  doi       = {10.1007/978-3-540-78674-0_1}
+  doi       = {10.1007/978-3-540-78674-0_1},
+  note      = {[BOOK] printed chapter; verify the cited claims against the volume}
 }
 
 @article{obrien2007anatomy,
@@ -99,16 +98,21 @@
   year    = {1987}
 }
 
-% ===================================================================== dominance [LIT]
-@article{jaha2024dominance,
-  title   = {Clinical significance of coronary arterial dominance},
+% ===================================================================== dominance
+@article{wu2024dominance,
+  title   = {Clinical significance of coronary arterial dominance: A review of the literature},
+  author  = {Wu, Bovey and Kheiwa, Ahmed and Swamy, Pooja and Mamas, Mamas A. and
+             Tedford, Ryan J. and others},
   journal = {Journal of the American Heart Association},
+  volume  = {13},
+  number  = {9},
+  pages   = {e032851},
   year    = {2024},
   doi     = {10.1161/JAHA.123.032851},
-  note    = {[LIT] Author list, volume and page range to be filled from the publisher page}
+  note    = {[VERIFIED] PMID 38639360. [PARTIAL] complete the author list}
 }
 
-% ===================================================================== disease burden [KB]
+% ===================================================================== disease burden
 @article{lindstrom2022global,
   title   = {Global burden of cardiovascular diseases and risks collaboration, 1990--2021},
   author  = {Lindstrom, Margaret and DeCleene, Nicholas and Dorsey, Hannah and
@@ -123,7 +127,7 @@
   doi     = {10.1016/j.jacc.2022.11.001}
 }
 
-% ===================================================================== guidelines [KB]
+% ===================================================================== guidelines
 @article{knuuti2019esc,
   title   = {2019 {ESC} guidelines for the diagnosis and management of chronic coronary
              syndromes},
@@ -138,34 +142,48 @@
   doi     = {10.1093/eurheartj/ehz425}
 }
 
-% ===================================================================== geometry & risk [LIT]
+% ===================================================================== geometry & risk
 @article{han2022plaque,
   title   = {Association of plaque location and vessel geometry determined by coronary
              computed tomographic angiography with future acute coronary
              syndrome--causing culprit lesions},
   author  = {Han, Donghee and others},
   journal = {JAMA Cardiology},
+  volume  = {7},
+  number  = {3},
+  pages   = {309--319},
   year    = {2022},
-  note    = {[LIT] Full author list, volume and page range to be filled from the
-             publisher page}
+  doi     = {10.1001/jamacardio.2021.5705},
+  note    = {[VERIFIED] ICONIC study. [PARTIAL] first author only; complete the list}
 }
 
-@article{geometry2022plaqueburden,
-  title   = {Relationship between coronary arterial geometry and atherosclerotic
-             plaque burden},
-  journal = {Review},
+@article{rampidis2022geometry,
+  title   = {Relationship between coronary arterial geometry and the presence and extend of
+             atherosclerotic plaque burden: A review discussing methodology and findings in
+             the era of cardiac computed tomography angiography},
+  author  = {Rampidis, Georgios and Rafailidis, Vasileios and Kouskouras, Konstantinos and
+             Davidhi, Andjoli and Papachristodoulou, Angeliki and Samaras, Athanasios and
+             Giannakoulas, George and Ziakas, Antonios and Prassopoulos, Panagiotis and
+             Karvounis, Haralambos},
+  journal = {Diagnostics},
+  volume  = {12},
+  number  = {9},
+  pages   = {2178},
   year    = {2022},
-  note    = {[LIT] Authors, venue, volume and pages to be filled; PMC9497479}
+  note    = {[VERIFIED] PMC9497479. "Extend" in the title is the publisher's own spelling}
 }
 
 @article{taylor2024murray,
   title   = {Systematic review and meta-analysis of {M}urray's law in the coronary
              arterial circulation},
-  author  = {Taylor and others},
+  author  = {Taylor, Daniel J. and others},
   journal = {American Journal of Physiology: Heart and Circulatory Physiology},
+  volume  = {327},
+  number  = {1},
+  pages   = {H182--H190},
   year    = {2024},
   doi     = {10.1152/ajpheart.00142.2024},
-  note    = {[LIT] Full author list, volume and page range to be filled}
+  note    = {[VERIFIED] PMC11380967. [PARTIAL] first author only; complete the list}
 }
 
 @article{wang2024lmphenotypes,
@@ -175,5 +193,48 @@
   journal = {BioMedical Engineering OnLine},
   year    = {2024},
   doi     = {10.1186/s12938-024-01205-3},
-  note    = {[LIT] Full author list, volume and page range to be filled}
+  note    = {[VERIFIED] PMC10804578, PMID 38254133. [PARTIAL] author list, volume and
+             article number still to be completed}
+}
+
+% ===================================================================== added 2026-08-31
+@article{dai2025ramus,
+  title   = {A meta-analysis and simplified nomenclature for diagonal coronary artery and
+             ramus intermedius across adult and pediatric hearts},
+  author  = {Dai, Yuqian and Constantini, Sabrina and Montalbano, Michael J. and
+             Loukas, Marios},
+  journal = {Clinical Anatomy},
+  volume  = {39},
+  number  = {3},
+  pages   = {305--324},
+  year    = {2025},
+  note    = {[VERIFIED] PMC12988317}
+}
+
+@article{abbara2016scct,
+  title   = {{SCCT} guidelines for the performance and acquisition of coronary computed
+             tomographic angiography: A report of the Society of Cardiovascular Computed
+             Tomography Guidelines Committee},
+  author  = {Abbara, Suhny and Blanke, Philipp and Maroules, Christopher D. and others},
+  journal = {Journal of Cardiovascular Computed Tomography},
+  volume  = {10},
+  number  = {6},
+  pages   = {435--449},
+  year    = {2016},
+  doi     = {10.1016/j.jcct.2016.10.002},
+  note    = {[VERIFIED] PMID 27780758. [PARTIAL] first three authors only}
+}
+
+@article{duncker2015regulation,
+  title   = {Regulation of coronary blood flow in health and ischemic heart disease},
+  author  = {Duncker, Dirk J. and Koller, Akos and Merkus, Daphne and Canty, John M.},
+  journal = {Progress in Cardiovascular Diseases},
+  volume  = {57},
+  number  = {5},
+  pages   = {409--422},
+  year    = {2015},
+  doi     = {10.1016/j.pcad.2014.12.002},
+  note    = {[VERIFIED] full text read; systolic impedance of perfusion, 60--80\% resting
+             oxygen extraction, 0.7--1.0 mL/min/g resting flow, 4--5 fold vasodilator reserve,
+             and 83\% vs 70\% subendocardial/subepicardial extraction all quoted from it}
 }
