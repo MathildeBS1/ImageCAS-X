@@ -1,0 +1,72 @@
+% Clinical Background section. Paste into your own thesis, or \input it.
+
+\section{Geometry as a risk factor}
+\label{sec:geometry}
+
+The shape of the coronary tree is a clinical quantity rather than an incidental descriptor, and
+the accepted causal chain explains why: geometry and topology determine wall shear stress, wall
+shear stress drives the endothelial response, and the endothelial response produces plaque
+\cite{rampidis2022geometry}.
+Section~\ref{sec:hemodynamics} sets out the mechanics of the first two links; evidence that the
+chain holds in patients is the reason particular geometric quantities are worth measuring.
+
+Three geometric characteristics carry prognostic value beyond stenosis severity and plaque
+composition: a more proximal lesion location, location at a bifurcation, and increased
+tortuosity.
+They were identified in patients who subsequently experienced an acute coronary syndrome, against
+plaque characteristics measured on the same scans \cite{han2022plaque}.
+Each is a property of the tree rather than of the lesion, which licenses treating the geometry of
+the coronary tree as an object of study in its own right.
+
+The left main bifurcation angle is the geometric quantity with the firmest evidence behind it.
+Juan et al.\ measured it on CCTA in 313 patients grouped by disease severity and found a gradient:
+$75.5^\circ \pm 14.7^\circ$ in 40 patients with normal arteries and a coronary calcium score of
+zero (a CT-based count of calcified plaque, so zero means none was found),
+$81.2^\circ \pm 20.1^\circ$ in 62 with non-obstructive plaque, and $87.3^\circ \pm 18.8^\circ$ in
+211 with a stenosis of at least 50\% \cite{juan2017bifurcation}.
+Wang et al.\ supply a mechanism for that gradient: they extracted centerline geometry from 76 left
+main arteries, clustered it into four morphological phenotypes, and computed time-averaged wall
+shear stress for each by computational fluid dynamics, finding the lowest shear around the branch
+points of the LAD and most markedly so in the phenotype characterized by a large bifurcation angle
+\cite{wang2024lmphenotypes}.
+An anatomical gradient and a hemodynamic mechanism pointing the same way are what make left main
+bifurcation angle worth extracting here as a feature in its own right, rather than as one of several
+junction measurements.
+Effect sizes and angle cut-offs differ between studies, so this thesis takes the direction of the
+association from the literature but not a threshold.
+
+Tortuosity is the second such quantity.
+In 131 patients investigated for suspected coronary artery disease, severe tortuosity --- defined
+as three or more consecutive bends of at least $45^\circ$ --- was the factor most strongly and
+independently associated with non-obstructive coronary artery disease: patients with it had
+roughly eight times the odds of disease (odds ratio 7.96, 95\% confidence interval 1.79 to 35.40)
+\cite{zebicmihic2023tortuosity}.
+That interval is very wide on 131 patients, so the size of the effect is poorly constrained even
+though its presence is not, and the finding is best read as a reason to measure tortuosity rather
+than as a coefficient to reproduce.
+
+Dominance completes the set.
+Veltman et al.\ followed 1425 patients after CCTA for a median of 24 months, tracking non-fatal
+myocardial infarction and death from any cause, and found left dominance carried roughly three
+times the risk of one of those events after accounting for other risk factors (adjusted hazard
+ratio 3.20, 95\% confidence interval 1.67 to 6.13) \cite{veltman2012dominance}.
+The effect was confined to patients who already had significant disease, among whom three-year
+event rates were 35\% in left-dominant and 9.5\% in right-dominant circulations; among patients
+without significant disease the two groups did not differ \cite{veltman2012dominance}.
+Dominance is therefore a modifier of risk in the presence of disease rather than a risk factor on
+its own, which is why this thesis treats it as a stratifying variable for the other features rather
+than as a predictor to be reported alone.
+
+One reference value resists this treatment.
+Curvature is higher in atherosclerotic than in non-atherosclerotic segments, and higher in
+end-systole than in diastole \cite{rampidis2022geometry}; the review reporting both does not give
+the cohort sizes behind them, so they set a scale rather than a population baseline.
+The cardiac-phase dependence matters methodologically regardless: images here are reconstructed in
+mid-diastole (Section~\ref{sec:ccta}), which fixes the phase at which every curvature and tortuosity
+feature in this thesis is measured, and makes those values comparable to each other but not directly
+to values measured in systole.
+
+Angle, tortuosity and dominance each carry outcome evidence of the kind quoted above.
+Descriptors of branching pattern --- how many branches a tree carries and how they are arranged ---
+do not, to anything like the same degree, which is part of why describing their distribution across
+a large cohort is worth doing at all.

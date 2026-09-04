@@ -1,0 +1,64 @@
+% ===============================================================
+% WEEKLY REPORT — copy this file to week02.tex, week03.tex, ...
+% In Overleaf: use the file dropdown above the editor (or
+% Menu > Settings > Main document) to pick which root to compile.
+% ===============================================================
+\documentclass[11pt,a4paper]{article}
+
+\input{setup/project}
+\input{setup/preamble}
+\input{setup/weekly}
+
+
+% Date for this report: appears on the title page and in the header
+% of every body page.
+
+
+\begin{document}
+
+\weeklytitle{1}
+
+\section{Week 1: 31-4. September 2026}
+
+
+\input{content/projectplan}
+
+\section*{}
+\newpage
+
+\sectionprogress
+
+\textbf{Dataset and codebase explored.} I received and explored ImageCAS-X dataset and uploaded to my blackhole folder. It might be deleted soon, so maybe I should obtain another space :)). I forked Kit's repository so I could make my own mess (I mean important contributions) and besides that looked into what preprocessing, models and post processing steps were used. 
+
+\textbf{Clinical background chapter started.} I made first draft sections for heart anatomy, variants, CAD, CCTA, hemodynamics, and geometry risk.
+
+\textbf{Project plan developed.} Finally a first version of the plan is in \Cref{tab:project_plan}, based
+on what is known so far. It might be too ambitious, depending on how hard getting started with CGPS will be.
+
+
+\subsection{Questions}
+
+\begin{itemize}
+  \item What is the timeline for getting started with CGPS?
+  \item Which segmentation method should I focus on in the repository -- is CAS-Net, the
+    paper's best-performing method, the one to build the topology pipeline (and any later
+    fine-tuning) on?
+  \item Phillip -- do you already know what CGPS contains (repeat-scan intervals, MACE outcome
+    coding, available covariates), or is that still to be worked out?
+\end{itemize}
+\newpage
+\input{content/background/heart_anatomy}
+\newpage
+\input{content/background/cad}
+\newpage
+\input{content/background/ccta}
+\newpage
+\input{content/background/hemodynamics}
+\newpage
+\input{content/background/geometry_risk}
+\newpage 
+
+\printbibliography
+
+
+\end{document}

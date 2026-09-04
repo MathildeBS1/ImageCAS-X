@@ -9,3 +9,5 @@ The plan was always to label the lumen ImageCAS (done), train lumen segmentation
 Either way I suggest that we get both you and Danina to use our in-house labelling software to label the coronary centerlines, lumen and plaque in a small subset of CGPS. This will be a good learning experience for you to understand the data, and can be one way that you validate any methods you develop.  
 
 There are repeat scans of the same patient over time. Around 2000 I believe, and that number is increasing. There are also outcome statistics which describe major adverse cardiac events, amongst many other things. Phillip will know and we can ask him during the meeting tomorrow. 
+
+Hope that helps, we can discuss more tomorrow. 

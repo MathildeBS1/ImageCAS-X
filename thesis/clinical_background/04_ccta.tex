@@ -1,0 +1,40 @@
+% Clinical Background section. Paste into your own thesis, or \input it.
+
+\section{Coronary computed tomography angiography}
+\label{sec:ccta}
+
+Coronary computed tomography angiography (CCTA) is the non-invasive imaging test recommended
+as an initial investigation in patients with suspected chronic coronary syndrome
+\cite{knuuti2019esc}.
+An iodinated contrast agent is injected and the scan is timed so that acquisition coincides
+with peak opacification of the coronary lumen.
+The result is a three-dimensional volume in which the contrast-filled lumen is bright against
+surrounding tissue.
+
+\subsection{Acquisition}
+
+CCTA builds that volume the way any CT scan does: the X-ray tube and detector rotate around
+the patient while the tube emits radiation, and the projections collected over that rotation are
+reconstructed into the three-dimensional image \cite{abbara2016scct}.
+The limits of CCTA as a measuring instrument bound every geometric claim made from these
+images, and the first of them is motion.
+The coronary arteries move throughout the cardiac cycle, so acquisition is synchronized to
+the electrocardiogram and data are reconstructed at the quiescent phase, conventionally in
+mid-diastole \cite{abbara2016scct}.
+Heart rate is commonly lowered pharmacologically before the scan to lengthen that quiescent
+window \cite{abbara2016scct}.
+When synchronization fails, or when the rhythm is irregular, motion artifact blurs or
+duplicates the vessel \cite{abbara2016scct}.
+
+Dense calcium produces blooming, in which the apparent extent of a calcified plaque exceeds
+its true extent and the adjacent lumen is obscured \cite{abbara2016scct}.
+Blooming can render a heavily calcified segment uninterpretable even in an otherwise
+high-quality scan.
+
+\subsection{Resolution}
+
+Resolution bounds the measurement more fundamentally than either artifact.
+Proximal coronary arteries are a few millimeters in diameter and taper distally toward 1 mm
+and below.
+A vessel spanning only two or three voxels cannot support a reliable radius measurement, which
+places a floor on the branch order at which geometric features remain meaningful.

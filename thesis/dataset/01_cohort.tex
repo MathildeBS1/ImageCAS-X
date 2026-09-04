@@ -1,0 +1,13 @@
+% Dataset section. Paste into your own thesis, or \input it.
+
+\section{Cohort and image quality}
+\label{sec:dataset-cohort}
+
+ImageCAS-X annotates coronary centerlines, segmentation labels and a descriptor table over the
+ImageCAS cohort of CCTA scans \cite{zeng2023imagecas,bransby2026imagecasx}.
+Image quality is graded from 0 to 4, and the 200 cases graded 0 are excluded from the released
+cohort, leaving the 800 usable cases used throughout this thesis \cite{bransby2026imagecasx}.
+
+Among those 800 the grading remains informative rather than uniform.
+Because a lower-quality scan plausibly yields fewer traceable distal branches, image quality is a
+candidate confounder for any branch-count statistic derived from this cohort.

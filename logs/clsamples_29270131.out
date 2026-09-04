@@ -1,0 +1,231 @@
+[samples] 160 scans  split=test  step_vertices=5
+[samples] vol_dir=/dtu/blackhole/0a/224426/imagecasx_data/volumes
+[samples] mask_dir=/dtu/blackhole/0a/224426/imagecasx_data/segmentations
+[samples] centerlines_dir=/dtu/blackhole/0a/224426/imagecasx_data/centerlines
+[samples] out_dir=/dtu/blackhole/0a/224426/imagecasx_data/centerline_samples
+[samples] 0 already cached, 160 to process (workers=8)
+
+  [1/160] 80: ok  196 samples, dropped=0; left: 100 pts, trees=1, vertices=485, max_dist=109mm; right: 96 pts, trees=1, vertices=472, max_dist=165mm
+  [2/160] 87: ok  240 samples, dropped=0; left: 155 pts, trees=1, vertices=752, max_dist=127mm; right: 85 pts, trees=1, vertices=412, max_dist=123mm
+  [3/160] 878: ok  217 samples, dropped=0; left: 118 pts, trees=1, vertices=569, max_dist=117mm; right: 99 pts, trees=1, vertices=484, max_dist=186mm
+  [4/160] 686: ok  235 samples, dropped=0; left: 176 pts, trees=1, vertices=846, max_dist=161mm; right: 59 pts, trees=1, vertices=289, max_dist=123mm
+  [5/160] 844: ok  232 samples, dropped=0; left: 132 pts, trees=1, vertices=631, max_dist=152mm; right: 100 pts, trees=1, vertices=488, max_dist=175mm
+  [6/160] 789: ok  239 samples, dropped=0; left: 149 pts, trees=1, vertices=727, max_dist=167mm; right: 90 pts, trees=1, vertices=437, max_dist=168mm
+  [7/160] 448: ok  248 samples, dropped=0; left: 134 pts, trees=1, vertices=649, max_dist=165mm; right: 114 pts, trees=1, vertices=565, max_dist=232mm
+  [8/160] 625: ok  301 samples, dropped=0; left: 153 pts, trees=1, vertices=746, max_dist=151mm; right: 148 pts, trees=1, vertices=728, max_dist=225mm
+  [9/160] 954: ok  234 samples, dropped=0; left: 109 pts, trees=1, vertices=527, max_dist=99mm; right: 125 pts, trees=1, vertices=615, max_dist=177mm
+  [10/160] 580: ok  235 samples, dropped=0; left: 183 pts, trees=1, vertices=881, max_dist=156mm; right: 52 pts, trees=1, vertices=255, max_dist=120mm
+  [11/160] 85: ok  220 samples, dropped=0; left: 123 pts, trees=1, vertices=588, max_dist=129mm; right: 97 pts, trees=1, vertices=477, max_dist=163mm
+  [12/160] 88: ok  258 samples, dropped=0; left: 174 pts, trees=1, vertices=846, max_dist=155mm; right: 84 pts, trees=1, vertices=411, max_dist=143mm
+  [13/160] 806: ok  257 samples, dropped=0; left: 197 pts, trees=1, vertices=962, max_dist=145mm; right: 60 pts, trees=1, vertices=287, max_dist=128mm
+  [14/160] 368: ok  261 samples, dropped=0; left: 180 pts, trees=1, vertices=879, max_dist=146mm; right: 81 pts, trees=1, vertices=399, max_dist=129mm
+  [15/160] 423: ok  260 samples, dropped=0; left: 165 pts, trees=1, vertices=804, max_dist=135mm; right: 95 pts, trees=1, vertices=465, max_dist=181mm
+  [16/160] 509: ok  372 samples, dropped=0; left: 229 pts, trees=1, vertices=1110, max_dist=175mm; right: 143 pts, trees=1, vertices=697, max_dist=207mm
+  [17/160] 316: ok  270 samples, dropped=0; left: 140 pts, trees=1, vertices=672, max_dist=130mm; right: 130 pts, trees=1, vertices=640, max_dist=153mm
+  [18/160] 775: ok  222 samples, dropped=0; left: 121 pts, trees=1, vertices=588, max_dist=145mm; right: 101 pts, trees=1, vertices=491, max_dist=176mm
+  [19/160] 488: ok  261 samples, dropped=0; left: 160 pts, trees=1, vertices=767, max_dist=143mm; right: 101 pts, trees=1, vertices=499, max_dist=153mm
+  [20/160] 680: ok  289 samples, dropped=0; left: 210 pts, trees=1, vertices=1021, max_dist=152mm; right: 79 pts, trees=1, vertices=380, max_dist=124mm
+  [21/160] 676: ok  211 samples, dropped=0; left: 132 pts, trees=1, vertices=642, max_dist=123mm; right: 79 pts, trees=1, vertices=383, max_dist=136mm
+  [22/160] 832: ok  299 samples, dropped=0; left: 186 pts, trees=1, vertices=907, max_dist=153mm; right: 113 pts, trees=1, vertices=551, max_dist=170mm
+  [23/160] 790: ok  214 samples, dropped=0; left: 146 pts, trees=1, vertices=711, max_dist=148mm; right: 68 pts, trees=1, vertices=325, max_dist=127mm
+  [24/160] 909: ok  296 samples, dropped=0; left: 182 pts, trees=1, vertices=885, max_dist=163mm; right: 114 pts, trees=1, vertices=558, max_dist=169mm
+  [25/160] 808: ok  191 samples, dropped=0; left: 104 pts, trees=1, vertices=505, max_dist=120mm; right: 87 pts, trees=1, vertices=418, max_dist=165mm
+  [26/160] 465: ok  280 samples, dropped=0; left: 165 pts, trees=1, vertices=799, max_dist=153mm; right: 115 pts, trees=1, vertices=554, max_dist=210mm
+  [27/160] 335: ok  254 samples, dropped=0; left: 159 pts, trees=1, vertices=782, max_dist=151mm; right: 95 pts, trees=1, vertices=465, max_dist=177mm
+  [28/160] 937: ok  232 samples, dropped=0; left: 206 pts, trees=1, vertices=994, max_dist=145mm; right: 26 pts, trees=1, vertices=123, max_dist=63mm
+  [29/160] 42: ok  259 samples, dropped=0; left: 161 pts, trees=1, vertices=779, max_dist=139mm; right: 98 pts, trees=1, vertices=474, max_dist=190mm
+  [30/160] 727: ok  268 samples, dropped=0; left: 121 pts, trees=1, vertices=591, max_dist=144mm; right: 147 pts, trees=1, vertices=724, max_dist=210mm
+  [31/160] 280: ok  226 samples, dropped=0; left: 139 pts, trees=1, vertices=671, max_dist=153mm; right: 87 pts, trees=1, vertices=427, max_dist=157mm
+  [32/160] 103: ok  267 samples, dropped=0; left: 146 pts, trees=1, vertices=708, max_dist=116mm; right: 121 pts, trees=1, vertices=593, max_dist=177mm
+  [33/160] 496: ok  284 samples, dropped=0; left: 207 pts, trees=1, vertices=1007, max_dist=154mm; right: 77 pts, trees=1, vertices=379, max_dist=150mm
+  [34/160] 738: ok  307 samples, dropped=0; left: 222 pts, trees=1, vertices=1083, max_dist=157mm; right: 85 pts, trees=1, vertices=412, max_dist=145mm
+  [35/160] 874: ok  230 samples, dropped=0; left: 162 pts, trees=1, vertices=787, max_dist=151mm; right: 68 pts, trees=1, vertices=331, max_dist=144mm
+  [36/160] 30: ok  287 samples, dropped=0; left: 142 pts, trees=1, vertices=688, max_dist=105mm; right: 145 pts, trees=1, vertices=707, max_dist=173mm
+  [37/160] 52: ok  274 samples, dropped=0; left: 195 pts, trees=1, vertices=941, max_dist=141mm; right: 79 pts, trees=1, vertices=382, max_dist=142mm
+  [38/160] 512: ok  239 samples, dropped=0; left: 133 pts, trees=1, vertices=645, max_dist=141mm; right: 106 pts, trees=1, vertices=520, max_dist=179mm
+  [39/160] 995: ok  224 samples, dropped=0; left: 130 pts, trees=1, vertices=633, max_dist=111mm; right: 94 pts, trees=1, vertices=458, max_dist=146mm
+  [40/160] 932: ok  286 samples, dropped=0; left: 210 pts, trees=1, vertices=1029, max_dist=182mm; right: 76 pts, trees=1, vertices=368, max_dist=142mm
+  [41/160] 175: ok  238 samples, dropped=0; left: 159 pts, trees=1, vertices=770, max_dist=135mm; right: 79 pts, trees=1, vertices=384, max_dist=151mm
+  [42/160] 324: ok  294 samples, dropped=0; left: 143 pts, trees=1, vertices=699, max_dist=125mm; right: 151 pts, trees=1, vertices=732, max_dist=197mm
+  [43/160] 218: ok  257 samples, dropped=0; left: 183 pts, trees=1, vertices=885, max_dist=145mm; right: 74 pts, trees=1, vertices=358, max_dist=133mm
+  [44/160] 544: ok  171 samples, dropped=0; left: 110 pts, trees=1, vertices=534, max_dist=118mm; right: 61 pts, trees=1, vertices=295, max_dist=127mm
+  [45/160] 675: ok  232 samples, dropped=0; left: 134 pts, trees=1, vertices=647, max_dist=110mm; right: 98 pts, trees=1, vertices=483, max_dist=170mm
+  [46/160] 758: ok  258 samples, dropped=0; left: 179 pts, trees=1, vertices=864, max_dist=164mm; right: 79 pts, trees=1, vertices=386, max_dist=163mm
+  [47/160] 759: ok  196 samples, dropped=0; left: 120 pts, trees=1, vertices=589, max_dist=121mm; right: 76 pts, trees=1, vertices=369, max_dist=147mm
+  [48/160] 417: ok  259 samples, dropped=0; left: 171 pts, trees=1, vertices=822, max_dist=167mm; right: 88 pts, trees=1, vertices=428, max_dist=164mm
+  [49/160] 768: ok  257 samples, dropped=0; left: 126 pts, trees=1, vertices=614, max_dist=93mm; right: 131 pts, trees=1, vertices=638, max_dist=179mm
+  [50/160] 138: ok  243 samples, dropped=0; left: 147 pts, trees=1, vertices=713, max_dist=160mm; right: 96 pts, trees=1, vertices=473, max_dist=220mm
+  [51/160] 687: ok  257 samples, dropped=0; left: 178 pts, trees=1, vertices=868, max_dist=167mm; right: 79 pts, trees=1, vertices=383, max_dist=164mm
+  [52/160] 341: ok  336 samples, dropped=0; left: 201 pts, trees=1, vertices=984, max_dist=128mm; right: 135 pts, trees=1, vertices=663, max_dist=177mm
+  [53/160] 377: ok  285 samples, dropped=0; left: 211 pts, trees=1, vertices=1032, max_dist=140mm; right: 74 pts, trees=1, vertices=355, max_dist=137mm
+  [54/160] 436: ok  218 samples, dropped=0; left: 144 pts, trees=1, vertices=694, max_dist=115mm; right: 74 pts, trees=1, vertices=359, max_dist=155mm
+  [55/160] 842: ok  266 samples, dropped=0; left: 163 pts, trees=1, vertices=786, max_dist=143mm; right: 103 pts, trees=1, vertices=504, max_dist=166mm
+  [56/160] 474: ok  241 samples, dropped=0; left: 149 pts, trees=1, vertices=716, max_dist=117mm; right: 92 pts, trees=1, vertices=450, max_dist=152mm
+  [57/160] 251: ok  270 samples, dropped=0; left: 187 pts, trees=1, vertices=907, max_dist=161mm; right: 83 pts, trees=1, vertices=407, max_dist=133mm
+  [58/160] 569: ok  238 samples, dropped=0; left: 149 pts, trees=1, vertices=715, max_dist=133mm; right: 89 pts, trees=1, vertices=433, max_dist=189mm
+  [59/160] 431: ok  228 samples, dropped=0; left: 136 pts, trees=1, vertices=662, max_dist=159mm; right: 92 pts, trees=1, vertices=453, max_dist=178mm
+  [60/160] 211: ok  297 samples, dropped=0; left: 211 pts, trees=1, vertices=1028, max_dist=201mm; right: 86 pts, trees=1, vertices=419, max_dist=159mm
+  [61/160] 616: ok  277 samples, dropped=0; left: 188 pts, trees=1, vertices=899, max_dist=141mm; right: 89 pts, trees=1, vertices=437, max_dist=167mm
+  [62/160] 396: ok  262 samples, dropped=0; left: 139 pts, trees=1, vertices=652, max_dist=109mm; right: 123 pts, trees=1, vertices=598, max_dist=202mm
+  [63/160] 828: ok  293 samples, dropped=0; left: 126 pts, trees=1, vertices=612, max_dist=135mm; right: 167 pts, trees=1, vertices=819, max_dist=230mm
+  [64/160] 911: ok  235 samples, dropped=0; left: 142 pts, trees=1, vertices=683, max_dist=144mm; right: 93 pts, trees=1, vertices=453, max_dist=173mm
+  [65/160] 63: ok  201 samples, dropped=0; left: 133 pts, trees=1, vertices=646, max_dist=133mm; right: 68 pts, trees=1, vertices=325, max_dist=123mm
+  [66/160] 543: ok  233 samples, dropped=0; left: 159 pts, trees=1, vertices=775, max_dist=167mm; right: 74 pts, trees=1, vertices=361, max_dist=150mm
+  [67/160] 300: ok  211 samples, dropped=0; left: 122 pts, trees=1, vertices=592, max_dist=147mm; right: 89 pts, trees=1, vertices=433, max_dist=170mm
+  [68/160] 698: ok  203 samples, dropped=0; left: 122 pts, trees=1, vertices=591, max_dist=145mm; right: 81 pts, trees=1, vertices=393, max_dist=156mm
+  [69/160] 114: ok  320 samples, dropped=0; left: 278 pts, trees=1, vertices=1356, max_dist=171mm; right: 42 pts, trees=1, vertices=205, max_dist=105mm
+  [70/160] 244: ok  175 samples, dropped=0; left: 101 pts, trees=1, vertices=496, max_dist=93mm; right: 74 pts, trees=1, vertices=363, max_dist=173mm
+  [71/160] 985: ok  263 samples, dropped=0; left: 163 pts, trees=1, vertices=792, max_dist=178mm; right: 100 pts, trees=1, vertices=490, max_dist=199mm
+  [72/160] 461: ok  319 samples, dropped=0; left: 168 pts, trees=1, vertices=818, max_dist=166mm; right: 151 pts, trees=1, vertices=746, max_dist=247mm
+  [73/160] 45: ok  265 samples, dropped=0; left: 240 pts, trees=1, vertices=1168, max_dist=167mm; right: 25 pts, trees=1, vertices=120, max_dist=66mm
+  [74/160] 993: ok  339 samples, dropped=0; left: 168 pts, trees=1, vertices=807, max_dist=116mm; right: 171 pts, trees=1, vertices=838, max_dist=210mm
+  [75/160] 252: ok  261 samples, dropped=0; left: 149 pts, trees=1, vertices=720, max_dist=145mm; right: 112 pts, trees=1, vertices=550, max_dist=153mm
+  [76/160] 43: ok  305 samples, dropped=0; left: 226 pts, trees=1, vertices=1101, max_dist=175mm; right: 79 pts, trees=1, vertices=381, max_dist=145mm
+  [77/160] 471: ok  188 samples, dropped=0; left: 134 pts, trees=1, vertices=644, max_dist=152mm; right: 54 pts, trees=1, vertices=260, max_dist=129mm
+  [78/160] 621: ok  314 samples, dropped=0; left: 228 pts, trees=1, vertices=1093, max_dist=161mm; right: 86 pts, trees=1, vertices=411, max_dist=143mm
+  [79/160] 757: ok  252 samples, dropped=0; left: 181 pts, trees=1, vertices=881, max_dist=169mm; right: 71 pts, trees=1, vertices=345, max_dist=162mm
+  [80/160] 725: ok  224 samples, dropped=0; left: 153 pts, trees=1, vertices=750, max_dist=152mm; right: 71 pts, trees=1, vertices=341, max_dist=147mm
+  [81/160] 549: ok  209 samples, dropped=0; left: 130 pts, trees=1, vertices=626, max_dist=128mm; right: 79 pts, trees=1, vertices=388, max_dist=150mm
+  [82/160] 102: ok  241 samples, dropped=0; left: 155 pts, trees=1, vertices=744, max_dist=162mm; right: 86 pts, trees=1, vertices=417, max_dist=203mm
+  [83/160] 657: ok  275 samples, dropped=0; left: 201 pts, trees=1, vertices=970, max_dist=174mm; right: 74 pts, trees=1, vertices=363, max_dist=132mm
+  [84/160] 95: ok  238 samples, dropped=0; left: 144 pts, trees=1, vertices=696, max_dist=140mm; right: 94 pts, trees=1, vertices=456, max_dist=157mm
+  [85/160] 173: ok  242 samples, dropped=0; left: 139 pts, trees=1, vertices=686, max_dist=147mm; right: 103 pts, trees=1, vertices=502, max_dist=174mm
+  [86/160] 980: ok  220 samples, dropped=0; left: 105 pts, trees=1, vertices=504, max_dist=134mm; right: 115 pts, trees=1, vertices=565, max_dist=209mm
+  [87/160] 354: ok  208 samples, dropped=0; left: 135 pts, trees=1, vertices=650, max_dist=102mm; right: 73 pts, trees=1, vertices=355, max_dist=135mm
+  [88/160] 984: ok  287 samples, dropped=0; left: 173 pts, trees=1, vertices=836, max_dist=163mm; right: 114 pts, trees=1, vertices=557, max_dist=255mm
+  [89/160] 466: ok  277 samples, dropped=0; left: 137 pts, trees=1, vertices=657, max_dist=122mm; right: 140 pts, trees=1, vertices=693, max_dist=236mm
+  [90/160] 813: ok  199 samples, dropped=0; left: 131 pts, trees=1, vertices=638, max_dist=106mm; right: 68 pts, trees=1, vertices=330, max_dist=133mm
+  [91/160] 124: ok  247 samples, dropped=0; left: 153 pts, trees=1, vertices=731, max_dist=108mm; right: 94 pts, trees=1, vertices=464, max_dist=152mm
+  [92/160] 901: ok  229 samples, dropped=0; left: 135 pts, trees=1, vertices=651, max_dist=127mm; right: 94 pts, trees=1, vertices=464, max_dist=164mm
+  [93/160] 363: ok  256 samples, dropped=0; left: 177 pts, trees=1, vertices=862, max_dist=148mm; right: 79 pts, trees=1, vertices=383, max_dist=152mm
+  [94/160] 507: ok  233 samples, dropped=0; left: 152 pts, trees=1, vertices=735, max_dist=175mm; right: 81 pts, trees=1, vertices=397, max_dist=159mm
+  [95/160] 799: ok  243 samples, dropped=0; left: 155 pts, trees=1, vertices=753, max_dist=161mm; right: 88 pts, trees=1, vertices=422, max_dist=163mm
+  [96/160] 773: ok  242 samples, dropped=0; left: 163 pts, trees=1, vertices=797, max_dist=167mm; right: 79 pts, trees=1, vertices=380, max_dist=174mm
+  [97/160] 890: ok  204 samples, dropped=0; left: 106 pts, trees=1, vertices=520, max_dist=145mm; right: 98 pts, trees=1, vertices=477, max_dist=149mm
+  [98/160] 941: ok  226 samples, dropped=0; left: 119 pts, trees=1, vertices=572, max_dist=109mm; right: 107 pts, trees=1, vertices=526, max_dist=181mm
+  [99/160] 69: ok  242 samples, dropped=0; left: 140 pts, trees=1, vertices=689, max_dist=117mm; right: 102 pts, trees=1, vertices=500, max_dist=185mm
+  [100/160] 947: ok  285 samples, dropped=0; left: 150 pts, trees=1, vertices=724, max_dist=145mm; right: 135 pts, trees=1, vertices=668, max_dist=257mm
+  [101/160] 196: ok  244 samples, dropped=0; left: 163 pts, trees=2, vertices=784, max_dist=148mm; right: 81 pts, trees=1, vertices=394, max_dist=159mm
+  [102/160] 554: ok  215 samples, dropped=0; left: 127 pts, trees=1, vertices=615, max_dist=143mm; right: 88 pts, trees=1, vertices=432, max_dist=152mm
+  [103/160] 125: ok  262 samples, dropped=0; left: 156 pts, trees=1, vertices=762, max_dist=191mm; right: 106 pts, trees=1, vertices=516, max_dist=180mm
+  [104/160] 151: ok  301 samples, dropped=0; left: 231 pts, trees=1, vertices=1128, max_dist=169mm; right: 70 pts, trees=1, vertices=339, max_dist=152mm
+  [105/160] 100: ok  276 samples, dropped=0; left: 191 pts, trees=1, vertices=923, max_dist=130mm; right: 85 pts, trees=1, vertices=417, max_dist=163mm
+  [106/160] 265: ok  214 samples, dropped=0; left: 136 pts, trees=1, vertices=661, max_dist=115mm; right: 78 pts, trees=1, vertices=378, max_dist=137mm
+  [107/160] 454: ok  243 samples, dropped=0; left: 135 pts, trees=1, vertices=656, max_dist=145mm; right: 108 pts, trees=1, vertices=527, max_dist=186mm
+  [108/160] 271: ok  283 samples, dropped=0; left: 190 pts, trees=1, vertices=915, max_dist=144mm; right: 93 pts, trees=1, vertices=455, max_dist=161mm
+  [109/160] 958: ok  257 samples, dropped=0; left: 162 pts, trees=1, vertices=792, max_dist=158mm; right: 95 pts, trees=1, vertices=470, max_dist=186mm
+  [110/160] 473: ok  283 samples, dropped=0; left: 181 pts, trees=1, vertices=877, max_dist=146mm; right: 102 pts, trees=1, vertices=499, max_dist=172mm
+  [111/160] 546: ok  271 samples, dropped=0; left: 169 pts, trees=1, vertices=820, max_dist=138mm; right: 102 pts, trees=1, vertices=504, max_dist=175mm
+  [112/160] 661: ok  215 samples, dropped=0; left: 108 pts, trees=1, vertices=511, max_dist=84mm; right: 107 pts, trees=1, vertices=529, max_dist=170mm
+  [113/160] 112: ok  272 samples, dropped=0; left: 156 pts, trees=1, vertices=749, max_dist=132mm; right: 116 pts, trees=1, vertices=572, max_dist=172mm
+  [114/160] 908: ok  279 samples, dropped=0; left: 210 pts, trees=1, vertices=1016, max_dist=162mm; right: 69 pts, trees=1, vertices=339, max_dist=153mm
+  [115/160] 139: ok  250 samples, dropped=0; left: 136 pts, trees=1, vertices=659, max_dist=144mm; right: 114 pts, trees=1, vertices=559, max_dist=201mm
+  [116/160] 14: ok  292 samples, dropped=0; left: 179 pts, trees=1, vertices=869, max_dist=153mm; right: 113 pts, trees=1, vertices=550, max_dist=182mm
+  [117/160] 669: ok  235 samples, dropped=0; left: 175 pts, trees=1, vertices=839, max_dist=160mm; right: 60 pts, trees=1, vertices=289, max_dist=141mm
+  [118/160] 973: ok  261 samples, dropped=0; left: 138 pts, trees=1, vertices=664, max_dist=93mm; right: 123 pts, trees=1, vertices=605, max_dist=208mm
+  [119/160] 272: ok  279 samples, dropped=0; left: 142 pts, trees=1, vertices=693, max_dist=162mm [FLAG] left: 15/693 vertices unreachable from any marked start point — they are excluded from sampling; right: 137 pts, trees=1, vertices=663, max_dist=168mm
+  [120/160] 502: ok  196 samples, dropped=0; left: 130 pts, trees=1, vertices=623, max_dist=95mm; right: 66 pts, trees=1, vertices=325, max_dist=136mm
+  [121/160] 408: ok  252 samples, dropped=0; left: 193 pts, trees=1, vertices=937, max_dist=145mm; right: 59 pts, trees=1, vertices=286, max_dist=126mm
+  [122/160] 306: ok  253 samples, dropped=0; left: 184 pts, trees=1, vertices=891, max_dist=156mm; right: 69 pts, trees=1, vertices=338, max_dist=132mm
+  [123/160] 148: ok  283 samples, dropped=0; left: 184 pts, trees=1, vertices=895, max_dist=161mm; right: 99 pts, trees=1, vertices=488, max_dist=184mm
+  [124/160] 907: ok  311 samples, dropped=0; left: 217 pts, trees=1, vertices=1046, max_dist=150mm; right: 94 pts, trees=1, vertices=460, max_dist=119mm
+  [125/160] 273: ok  221 samples, dropped=0; left: 198 pts, trees=1, vertices=964, max_dist=146mm; right: 23 pts, trees=1, vertices=108, max_dist=52mm
+  [126/160] 41: ok  234 samples, dropped=0; left: 141 pts, trees=1, vertices=683, max_dist=122mm; right: 93 pts, trees=1, vertices=455, max_dist=148mm
+  [127/160] 328: ok  252 samples, dropped=0; left: 146 pts, trees=1, vertices=712, max_dist=181mm; right: 106 pts, trees=1, vertices=507, max_dist=177mm
+  [128/160] 830: ok  236 samples, dropped=0; left: 169 pts, trees=1, vertices=820, max_dist=155mm; right: 67 pts, trees=1, vertices=327, max_dist=142mm
+  [129/160] 754: ok  220 samples, dropped=0; left: 191 pts, trees=1, vertices=935, max_dist=144mm; right: 29 pts, trees=1, vertices=141, max_dist=72mm
+  [130/160] 342: ok  274 samples, dropped=0; left: 161 pts, trees=1, vertices=782, max_dist=127mm; right: 113 pts, trees=1, vertices=557, max_dist=173mm
+  [131/160] 381: ok  288 samples, dropped=0; left: 209 pts, trees=1, vertices=1007, max_dist=145mm; right: 79 pts, trees=1, vertices=390, max_dist=133mm
+  [132/160] 837: ok  255 samples, dropped=0; left: 156 pts, trees=1, vertices=756, max_dist=158mm; right: 99 pts, trees=1, vertices=486, max_dist=152mm
+  [133/160] 109: ok  217 samples, dropped=0; left: 113 pts, trees=1, vertices=548, max_dist=150mm; right: 104 pts, trees=1, vertices=512, max_dist=199mm
+  [134/160] 869: ok  238 samples, dropped=0; left: 148 pts, trees=1, vertices=713, max_dist=99mm; right: 90 pts, trees=1, vertices=438, max_dist=170mm
+  [135/160] 389: ok  239 samples, dropped=0; left: 139 pts, trees=1, vertices=673, max_dist=135mm; right: 100 pts, trees=1, vertices=484, max_dist=190mm
+  [136/160] 527: ok  258 samples, dropped=0; left: 151 pts, trees=1, vertices=721, max_dist=156mm; right: 107 pts, trees=1, vertices=519, max_dist=163mm
+  [137/160] 645: ok  258 samples, dropped=0; left: 164 pts, trees=1, vertices=791, max_dist=138mm; right: 94 pts, trees=1, vertices=458, max_dist=169mm
+  [138/160] 817: ok  234 samples, dropped=0; left: 158 pts, trees=1, vertices=771, max_dist=137mm; right: 76 pts, trees=1, vertices=373, max_dist=154mm
+  [139/160] 406: ok  217 samples, dropped=0; left: 129 pts, trees=1, vertices=630, max_dist=127mm; right: 88 pts, trees=1, vertices=429, max_dist=153mm
+  [140/160] 952: ok  299 samples, dropped=0; left: 171 pts, trees=1, vertices=831, max_dist=146mm; right: 128 pts, trees=1, vertices=624, max_dist=208mm
+  [141/160] 274: ok  254 samples, dropped=0; left: 181 pts, trees=1, vertices=885, max_dist=148mm; right: 73 pts, trees=1, vertices=353, max_dist=156mm
+  [142/160] 683: ok  166 samples, dropped=0; left: 71 pts, trees=1, vertices=331, max_dist=62mm; right: 95 pts, trees=1, vertices=462, max_dist=154mm
+  [143/160] 618: ok  217 samples, dropped=0; left: 188 pts, trees=1, vertices=898, max_dist=158mm; right: 29 pts, trees=1, vertices=138, max_dist=73mm
+  [144/160] 593: ok  200 samples, dropped=0; left: 131 pts, trees=1, vertices=635, max_dist=141mm; right: 69 pts, trees=1, vertices=334, max_dist=151mm
+  [145/160] 9: ok  219 samples, dropped=0; left: 149 pts, trees=1, vertices=715, max_dist=146mm; right: 70 pts, trees=1, vertices=343, max_dist=169mm
+  [146/160] 422: ok  262 samples, dropped=0; left: 179 pts, trees=1, vertices=870, max_dist=152mm; right: 83 pts, trees=1, vertices=405, max_dist=151mm
+  [147/160] 284: ok  245 samples, dropped=0; left: 150 pts, trees=1, vertices=726, max_dist=137mm; right: 95 pts, trees=1, vertices=463, max_dist=161mm
+  [148/160] 129: ok  256 samples, dropped=0; left: 159 pts, trees=1, vertices=766, max_dist=163mm; right: 97 pts, trees=1, vertices=477, max_dist=165mm
+  [149/160] 825: ok  200 samples, dropped=0; left: 122 pts, trees=1, vertices=583, max_dist=109mm; right: 78 pts, trees=1, vertices=376, max_dist=138mm
+  [150/160] 690: ok  263 samples, dropped=0; left: 148 pts, trees=1, vertices=721, max_dist=145mm; right: 115 pts, trees=1, vertices=559, max_dist=155mm
+  [151/160] 812: ok  267 samples, dropped=0; left: 164 pts, trees=1, vertices=792, max_dist=150mm; right: 103 pts, trees=1, vertices=500, max_dist=203mm
+  [152/160] 751: ok  271 samples, dropped=0; left: 214 pts, trees=1, vertices=1049, max_dist=159mm; right: 57 pts, trees=1, vertices=278, max_dist=129mm
+  [153/160] 667: ok  232 samples, dropped=0; left: 165 pts, trees=1, vertices=793, max_dist=133mm; right: 67 pts, trees=1, vertices=324, max_dist=132mm
+  [154/160] 972: ok  225 samples, dropped=0; left: 161 pts, trees=1, vertices=779, max_dist=104mm; right: 64 pts, trees=1, vertices=310, max_dist=108mm
+  [155/160] 997: ok  312 samples, dropped=0; left: 180 pts, trees=1, vertices=870, max_dist=138mm; right: 132 pts, trees=1, vertices=643, max_dist=164mm
+  [156/160] 3: ok  248 samples, dropped=0; left: 163 pts, trees=1, vertices=790, max_dist=143mm; right: 85 pts, trees=1, vertices=413, max_dist=147mm
+  [157/160] 928: ok  235 samples, dropped=0; left: 164 pts, trees=1, vertices=787, max_dist=170mm; right: 71 pts, trees=1, vertices=345, max_dist=131mm
+  [158/160] 935: ok  234 samples, dropped=0; left: 143 pts, trees=1, vertices=701, max_dist=163mm; right: 91 pts, trees=1, vertices=444, max_dist=176mm
+  [159/160] 659: ok  250 samples, dropped=0; left: 142 pts, trees=1, vertices=681, max_dist=148mm; right: 108 pts, trees=1, vertices=529, max_dist=175mm
+  [160/160] 847: ok  188 samples, dropped=0; left: 136 pts, trees=1, vertices=662, max_dist=175mm; right: 52 pts, trees=1, vertices=256, max_dist=142mm
+
+[samples] done in 140.3s  ok=160  failed=0  skipped=0
+
+------------------------------------------------------------
+Sender: LSF System <lsfadmin@hpc.dtu.dk>
+Subject: Job 29270131: <imagecasx_clsamples> in cluster <dcc> Done
+
+Job <imagecasx_clsamples> was submitted from host <hpclogin1> by user <s254124> in cluster <dcc> at Sat Aug 29 22:53:01 2026
+Job was executed on host(s) <8*n-62-31-21>, in queue <hpc>, as user <s254124> in cluster <dcc> at Sat Aug 29 22:53:01 2026
+</zhome/e2/6/224426> was used as the home directory.
+</zhome/e2/6/224426/project/ImageCAS-X> was used as the working directory.
+Started at Sat Aug 29 22:53:01 2026
+Terminated at Sat Aug 29 22:55:24 2026
+Results reported at Sat Aug 29 22:55:24 2026
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+#!/bin/sh
+
+#BSUB -q hpc
+#BSUB -J imagecasx_clsamples
+#BSUB -n 8
+#BSUB -R "span[hosts=1]"
+#BSUB -R "rusage[mem=8GB]"
+#BSUB -W 8:00
+#BSUB -o logs/clsamples_%J.out
+#BSUB -e logs/clsamples_%J.err
+
+# Step 4: GT centerline sample points + covariates (dist_mm, segment_name,
+# diameter_mm, hu). Feeds evaluate.py's per-segment / per-diameter / per-HU local Dice
+# -- the stratified breakdown that makes the benchmark table reproducible.
+
+cd /zhome/e2/6/224426/project/ImageCAS-X
+source env.sh
+
+python -m utils.precompute_centerline_samples -c configs/cas_net.json --split test --workers 8
+
+------------------------------------------------------------
+
+Successfully completed.
+
+Resource usage summary:
+
+    CPU time :                                   1051.58 sec.
+    Max Memory :                                 5341 MB
+    Average Memory :                             2831.67 MB
+    Total Requested Memory :                     65536.00 MB
+    Delta Memory :                               60195.00 MB
+    Max Swap :                                   -
+    Max Processes :                              12
+    Max Threads :                                53
+    Run time :                                   143 sec.
+    Turnaround time :                            143 sec.
+
+The output (if any) is above this job summary.
+
+
+
+PS:
+
+Read file <logs/clsamples_29270131.err> for stderr output of this job.
+

@@ -1,0 +1,20 @@
+% Dataset -- chapter opening. Paste into your own thesis, or \input it.
+% Section files in this folder are meant to be included in numeric order.
+% Follows the Clinical Background chapter: LM, LAD, LCX, RCA, PDA, PLA, IQR and HU are already
+% defined there and are not redefined here.
+
+\chapter{Dataset}
+\label{ch:dataset}
+
+This chapter describes ImageCAS-X \cite{bransby2026imagecasx}, the dataset every cohort number in
+this thesis is drawn from, and the cohort statistics computed over it.
+Section~\ref{sec:dataset-cohort} covers what the dataset delivers, how cases were selected, and
+image quality.
+Section~\ref{sec:dataset-tree} gives the cohort's coronary tree structure: the left system's trunk
+length and branch prevalence, and the annotation boundary that limits the right system.
+Section~\ref{sec:dataset-dominance} gives the cohort's dominance and anatomical variant statistics.
+Section~\ref{sec:dataset-imaging} covers the imaging parameters and what they do not record.
+
+Cohort figures were computed over the 800 usable cases from the released centerline labels and
+descriptor table by \texttt{scripts/cohort\_numbers.py}, which writes every number quoted here to
+a JSON file tagged with the version of the code that produced it.
