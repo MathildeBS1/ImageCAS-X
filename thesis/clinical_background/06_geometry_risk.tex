@@ -1,72 +1,113 @@
 % Clinical Background section. Paste into your own thesis, or \input it.
+%
+% Figure: figures/external/bifurcation_angle.png <- python scripts/fetch_external_figures.py
+% Credit line copied verbatim from figures/external/CREDITS.md -- never typed by hand.
+%
+% STILL WANTED, ours not external: the four measurements this section argues for, drawn
+% on one tree -- bifurcation angle at the left main, a tortuous segment, and the two
+% dominance patterns (scripts/make_tree_figure.py, part of the topology rebuild).
+% Do not add a \ref until that figure exists.
 
 \section{Geometry as a risk factor}
 \label{sec:geometry}
 
-The shape of the coronary tree is a clinical quantity rather than an incidental descriptor, and
-the accepted causal chain explains why: geometry and topology determine wall shear stress, wall
-shear stress drives the endothelial response, and the endothelial response produces plaque
-\cite{rampidis2022geometry}.
-Section~\ref{sec:hemodynamics} sets out the mechanics of the first two links; evidence that the
-chain holds in patients is the reason particular geometric quantities are worth measuring.
+The shape of the coronary tree is a clinical quantity, not just a description of it.
+Shape sets the drag on the wall, the drag decides how the lining behaves, and the lining is what
+produces plaque (Section~\ref{sec:hemodynamics}) \cite{rampidis2022geometry}.
+What makes a particular measurement worth taking is evidence that the chain holds in patients, and
+three measurements have it.
 
-Three geometric characteristics carry prognostic value beyond stenosis severity and plaque
-composition: a more proximal lesion location, location at a bifurcation, and increased
-tortuosity.
-They were identified in patients who subsequently experienced an acute coronary syndrome, against
-plaque characteristics measured on the same scans \cite{han2022plaque}.
-Each is a property of the tree rather than of the lesion, which licenses treating the geometry of
-the coronary tree as an object of study in its own right.
+\subsection{Evidence from patients}
 
-The left main bifurcation angle is the geometric quantity with the firmest evidence behind it.
-Juan et al.\ measured it on CCTA in 313 patients grouped by disease severity and found a gradient:
-$75.5^\circ \pm 14.7^\circ$ in 40 patients with normal arteries and a coronary calcium score of
-zero (a CT-based count of calcified plaque, so zero means none was found),
-$81.2^\circ \pm 20.1^\circ$ in 62 with non-obstructive plaque, and $87.3^\circ \pm 18.8^\circ$ in
-211 with a stenosis of at least 50\% \cite{juan2017bifurcation}.
-Wang et al.\ supply a mechanism for that gradient: they extracted centerline geometry from 76 left
-main arteries, clustered it into four morphological phenotypes, and computed time-averaged wall
-shear stress for each by computational fluid dynamics, finding the lowest shear around the branch
-points of the LAD and most markedly so in the phenotype characterized by a large bifurcation angle
-\cite{wang2024lmphenotypes}.
-An anatomical gradient and a hemodynamic mechanism pointing the same way are what make left main
-bifurcation angle worth extracting here as a feature in its own right, rather than as one of several
-junction measurements.
-Effect sizes and angle cut-offs differ between studies, so this thesis takes the direction of the
-association from the literature but not a threshold.
+Han et al.\ looked at patients who went on to have a heart attack and asked what about the culprit
+lesion predicted it, beyond how narrow the vessel was and what the plaque was made of
+\cite{han2022plaque}.
+Three things did: the lesion sitting closer to the ostium, the lesion sitting at a bifurcation, and
+higher tortuosity.
+None of the three is a property of the plaque; all three describe the tree it grew in, which is
+why the shape of the tree is worth studying on its own.
 
-Tortuosity is the second such quantity.
-In 131 patients investigated for suspected coronary artery disease, severe tortuosity --- defined
-as three or more consecutive bends of at least $45^\circ$ --- was the factor most strongly and
-independently associated with non-obstructive coronary artery disease: patients with it had
-roughly eight times the odds of disease (odds ratio 7.96, 95\% confidence interval 1.79 to 35.40)
-\cite{zebicmihic2023tortuosity}.
-That interval is very wide on 131 patients, so the size of the effect is poorly constrained even
-though its presence is not, and the finding is best read as a reason to measure tortuosity rather
-than as a coefficient to reproduce.
+Stone et al.\ then showed the shape comes first.
+They measured shear inside the arteries of 506 patients and reimaged 374 of them six to ten months
+later \cite{stone2012prediction}.
+Low shear at baseline predicted which segments went on to lose lumen area.
+Two limits matter: it did not predict the primary endpoint, growth in plaque area, which went with
+how much plaque was already there; and every patient had already had a heart attack and been
+stented, so this does not transfer unchanged to people who are still well.
+Even so, it is the closest the literature comes to what this thesis proposes --- measure the shape
+first, then see where disease appears.
 
-Dominance completes the set.
-Veltman et al.\ followed 1425 patients after CCTA for a median of 24 months, tracking non-fatal
-myocardial infarction and death from any cause, and found left dominance carried roughly three
-times the risk of one of those events after accounting for other risk factors (adjusted hazard
-ratio 3.20, 95\% confidence interval 1.67 to 6.13) \cite{veltman2012dominance}.
-The effect was confined to patients who already had significant disease, among whom three-year
-event rates were 35\% in left-dominant and 9.5\% in right-dominant circulations; among patients
-without significant disease the two groups did not differ \cite{veltman2012dominance}.
-Dominance is therefore a modifier of risk in the presence of disease rather than a risk factor on
-its own, which is why this thesis treats it as a stratifying variable for the other features rather
-than as a predictor to be reported alone.
+\subsection{Bifurcation angle}
 
-One reference value resists this treatment.
-Curvature is higher in atherosclerotic than in non-atherosclerotic segments, and higher in
-end-systole than in diastole \cite{rampidis2022geometry}; the review reporting both does not give
-the cohort sizes behind them, so they set a scale rather than a population baseline.
-The cardiac-phase dependence matters methodologically regardless: images here are reconstructed in
-mid-diastole (Section~\ref{sec:ccta}), which fixes the phase at which every curvature and tortuosity
-feature in this thesis is measured, and makes those values comparable to each other but not directly
-to values measured in systole.
+The left main bifurcation angle has the firmest evidence of the three.
+Juan et al.\ measured it on CCTA in 313 patients, sorted by how much disease they had, and the
+angle widened as the disease grew \cite{juan2017bifurcation}.
+It was $75.5^\circ \pm 14.7^\circ$ in the 40 patients with clean arteries and no calcium at all,
+$81.2^\circ \pm 20.1^\circ$ in the 62 whose plaque did not block the vessel, and
+$87.3^\circ \pm 18.8^\circ$ in the 211 with a stenosis of at least half the vessel.
+Wang et al.\ supplied the reason.
+They took the centerlines of 76 left main arteries, sorted them into four shapes, and simulated the
+blood flow through each \cite{wang2024lmphenotypes}.
+Shear was lowest around the branch points of the LAD, and lowest of all in the wide-angled shape.
+A gradient in patients and a mechanism in simulation pointing the same way is what makes this
+angle worth measuring in its own right.
+Studies disagree on the size of the effect and on where to put a cut-off, so this thesis takes the
+direction of the association and not a threshold.
+
+Part of that disagreement is that \emph{bifurcation angle} is not one measurement.
+Figure~\ref{fig:bifurcation-angle} shows two conventions in use: the angle between the side branch
+and the continuation of the parent vessel, and the angle between the side branch and the parent's
+onward course.
+They agree on a straight vessel and diverge on a curved one \cite{murasato2022bifurcation}.
+Any angle extracted here therefore has to name which convention it follows before it can be compared
+with a published value.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.85\textwidth]{content/background/figures/bifurcation_angle.png}
+  \caption{Two vessels can share a bifurcation angle and disagree about what it is. Panels A and B
+    measure the same junction by different conventions --- $\alpha$ from the extension of the
+    proximal main vessel, $\beta$ from the distal main vessel --- and panel C shows the two
+    diverging once the main vessel curves. MV: main vessel; SB: side branch. Figure from
+    Murasato Y, Meno K, Mori T, Tanenaka K, PLOS ONE 2022, doi:10.1371/journal.pone.0273157,
+    CC BY 4.0.}
+  \label{fig:bifurcation-angle}
+\end{figure}
+
+\subsection{Tortuosity}
+
+Tortuosity is the second.
+Zebi\'c Mihi\'c et al.\ studied 131 patients being investigated for suspected coronary artery
+disease, counting a vessel as severely tortuous if it had three or more consecutive bends of at
+least $45^\circ$ \cite{zebicmihic2023tortuosity}.
+It was the factor most strongly associated with non-obstructive disease, at roughly eight times
+the odds --- an odds ratio of 7.96, 95\% confidence interval 1.79 to 35.40.
+That interval is very wide on 131 patients, so the effect is clearly there but its size is not,
+making this a reason to measure tortuosity rather than a number to reproduce.
+
+\subsection{Dominance}
+
+Dominance is the third.
+Veltman et al.\ followed 1425 patients after CCTA for a median of two years, recording heart
+attacks and deaths from any cause \cite{veltman2012dominance}.
+Left-dominant patients reached one of those about three times as often as right-dominant ones once
+other risk factors were accounted for, a hazard ratio of 3.20 with a 95\% confidence interval of
+1.67 to 6.13.
+The effect appeared only in patients who already had significant disease, among whom three-year
+event rates were 35\% in left-dominant and 9.5\% in right-dominant circulations; without
+significant disease the two groups did not differ \cite{veltman2012dominance}.
+Dominance therefore changes how dangerous existing disease is rather than causing it, so this
+thesis stratifies the other features by it rather than reporting it alone.
+
+Curvature and tortuosity both change with the heartbeat, so the phase an image is taken in decides
+what they measure \cite{rampidis2022geometry}.
+Every image here is reconstructed in mid-diastole (Section~\ref{sec:ccta}), which fixes that phase.
+The values in this thesis are therefore comparable to each other, but not to values measured in
+systole.
+
+\subsection{Branching pattern}
 
 Angle, tortuosity and dominance each carry outcome evidence of the kind quoted above.
-Descriptors of branching pattern --- how many branches a tree carries and how they are arranged ---
-do not, to anything like the same degree, which is part of why describing their distribution across
-a large cohort is worth doing at all.
+Descriptors of branching pattern --- how many branches a tree carries, and how they are arranged
+--- do not, to anything like the same degree.
+That gap is part of why describing their distribution across a large cohort is worth doing at all.

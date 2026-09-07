@@ -1,53 +1,57 @@
 % Clinical Background section. Paste into your own thesis, or \input it.
+%
+% FIGURE WANTED: a stage diagram of atherosclerosis -- healthy wall, fatty streak,
+% fibrous cap, rupture with thrombus. Korona fig. 3.4 uses one and it carries the
+% section. Not added yet: an external figure needs a licensed credit generated into
+% figures/external/CREDITS.md by scripts/fetch_external_figures.py, which does not
+% exist on this branch. Do not add a \ref until the figure and its credit exist.
+% Clinical Background section. Paste into your own thesis, or \input it.
+%
+% FIGURE WANTED: a stage diagram of atherosclerosis -- healthy wall, fatty streak,
+% fibrous cap, rupture with thrombus. Korona fig. 3.4 uses one and it carries the
+% section. Not added yet: an external figure needs a licensed credit generated into
+% figures/external/CREDITS.md by scripts/fetch_external_figures.py, which does not
+% exist on this branch. Do not add a \ref until the figure and its credit exist.
 
 \section{Coronary artery disease}
 \label{sec:cad}
 
-Cardiovascular disease remains the leading cause of death worldwide, accounting for
-approximately 20.5 million deaths in 2021 \cite{lindstrom2022global}.
-Coronary artery disease (CAD) is the largest component of that total.
+Cardiovascular disease is the leading cause of death worldwide and accounted for approximately
+20.5 million deaths in 2021 \cite{lindstrom2022global}.
+Coronary artery disease \textbf{(CAD)} is its largest single component.
+It is what happens when \emph{atherosclerosis} develops in the arteries that supply the heart
+muscle.
 
-CAD is the manifestation of atherosclerosis in the coronary arteries, and atherosclerosis is a
-slow process rather than an event.
-It begins with injury to the \emph{endothelium}, the single cell layer lining the arterial lumen,
-which allows circulating lipid to enter the vessel wall and be retained there
+Atherosclerosis is slow.
+Over years the inner wall of an artery takes up fat and calcium, and the deposit that builds up
+there is called a \emph{plaque} \cite{libby2019atherosclerosis}.
+As the deposit grows, a cap of fibrous tissue forms over it and walls it off from the blood
 \cite{libby2019atherosclerosis}.
-Inflammatory cells are recruited to the site and take up that lipid, forming the fatty deposit that
-is the earliest recognizable lesion \cite{libby2019atherosclerosis}.
-Over years the lesion grows: smooth muscle cells migrate across it to build a fibrous cap, and
-calcium is deposited within the body of the plaque
-\cite{libby2019atherosclerosis,rampidis2022geometry}.
-The plaque that results may encroach on the lumen and restrict flow.
+The plaque bulges inward as it enlarges and narrows the \emph{lumen}, the open channel the blood
+flows through, so less blood can get past \cite{libby2019atherosclerosis}.
 
-A plaque threatens the myocardium by two distinct routes.
-The first is gradual.
-The plaque grows until the vessel can no longer raise flow to meet demand, and the muscle it
-supplies becomes ischemic whenever that demand rises --- the mechanism set out in
-Section~\ref{sec:anatomy}.
-The second is abrupt.
-The plaque ruptures, exposing thrombogenic material to the bloodstream; a clot, or \emph{thrombus},
-forms on the exposed surface and occludes the vessel \cite{rampidis2022geometry}.
-The myocardium beyond the occlusion is cut off from oxygen and dies, which is a \emph{myocardial
-infarction}, or heart attack.
+The coronary arteries are the dedicated supply of the myocardium (Section~\ref{sec:anatomy}), so a plaque in one of them is dangerous in two ways, which differ in speed. 
+The first is gradual. Most tissues can take extra oxygen out of the blood already reaching them when demand rises, but
+the heart cannot: it is already taking 60--80\% of what arrives, even at rest
+\cite{duncker2015regulation}. Its only option is to receive more blood, and the plaque is what prevents that. The muscle beyond the plaque is left short of oxygen whenever the heart works harder, a state
+called \emph{ischemia}.
+The second is abrupt and far more dangerous. The fibrous cap tears, which
+exposes the material inside the plaque to the bloodstream; blood clots on contact with that
+material, and the clot, or thrombus, occludes the vessel \cite{rampidis2022geometry}. The muscle beyond the blockage is cut off from oxygen and dies within minutes. That is a myocardial infarction, also known as a heart attack.
 
-Because the acute event is usually a rupture rather than the gradual closure of a lumen
-\cite{rampidis2022geometry}, the character of a plaque matters as much as its size.
-Calcified, non-calcified and mixed plaques differ in their risk of rupture, and the non-calcified
-plaques that are least conspicuous on imaging are the more dangerous \cite{rampidis2022geometry}.
+All of this happens quietly.
+CAD can advance for years without causing a single symptom \cite{knuuti2019esc}, and by the time symptoms do appear the disease is usually well established.
+For some people the first sign of it is the heart attack.
+Waiting for symptoms therefore means waiting too long.
+The patients worth finding are the ones who still feel completely well, and finding them means
+having something measurable that marks them out in advance.
 
-A separate distinction runs between anatomical stenosis and functional ischemia: a narrowing that
-appears severe on an image does not necessarily restrict flow sufficiently to render the myocardium
-ischemic, which is why the diagnostic pathway distinguishes anatomical from functional testing
-\cite{knuuti2019esc}; the functional measurement is defined in Section~\ref{sec:ffr}.
+The shape of the arteries is a candidate.
+Plaque does not form just anywhere: the \emph{endothelium}, the layer of cells lining the artery,
+reacts to how blood flows over it and turns inflamed where that flow is slow or unsteady
+\cite{rampidis2022geometry}.
+Those conditions arise at bends and where an artery branches, which are properties of the shape of
+the tree (Sections~\ref{sec:hemodynamics} and~\ref{sec:geometry}).
+Unlike a symptom, that shape can be measured on a scan of someone who feels perfectly healthy, and
+Section~\ref{sec:ccta} describes the scan used to do it.
 
-Compounding both, CAD can progress through long, clinically silent periods even as the underlying
-atherosclerosis advances \cite{knuuti2019esc}.
-A patient may therefore reach a substantial plaque burden without ever having had a symptom to
-prompt investigation, which is why the diagnostic pathway begins with a non-invasive anatomical test
-rather than an invasive one, reserving invasive coronary angiography for patients in whom clinical
-likelihood or symptoms already justify it \cite{knuuti2019esc}; Section~\ref{sec:ccta} treats the
-non-invasive modality used for that first step.
-
-Taken together, these are the reasons the location and character of plaque, rather than the degree
-of narrowing alone, predict clinical events, and it is by this route that vessel geometry becomes
-prognostically relevant (Section~\ref{sec:geometry}).

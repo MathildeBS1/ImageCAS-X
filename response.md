@@ -11,3 +11,6 @@ Either way I suggest that we get both you and Danina to use our in-house labelli
 There are repeat scans of the same patient over time. Around 2000 I believe, and that number is increasing. There are also outcome statistics which describe major adverse cardiac events, amongst many other things. Phillip will know and we can ask him during the meeting tomorrow. 
 
 Hope that helps, we can discuss more tomorrow. 
+
+ejection fraction
+heart failure with reduced 

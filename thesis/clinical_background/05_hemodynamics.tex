@@ -1,108 +1,83 @@
 % Clinical Background section. Paste into your own thesis, or \input it.
 %
+% SCOPE: this section is the clinical account of coronary flow only -- what wall shear
+% stress and FFR are, and what they do to an artery. The argument that the thesis should
+% therefore measure bifurcation angle and tortuosity, and that shear is recoverable from
+% geometry without CFD (griffo2026wss), lives in the state of the art / literature review,
+% not here. Sentences licensing this thesis's feature choices were deliberately removed on
+% 2026-09-07; the earlier version is in git if any of it is wanted back.
+%
 % NOTE for the methods chapter: models/ffr_unet.py and configs/ffr_unet.json do NOT compute FFR.
 % "FFR-UNet" is Feature-Fusion-and-Rectification 3D-UNet, a lumen segmentation architecture named
 % for the group's downstream application. Never describe it as an FFR estimator.
 %
-% References worth obtaining before this section is submitted:
-%   - Ku, Giddens, Zarins & Glagov 1985 -- the origin of the oscillatory shear index. Needed
-%     before the OSI formula and its 0--0.5 range can be written; only the qualitative
-%     description is used below, which rampidis2022geometry supports.
-%   - Pijls et al. / the DEFER and FAME trials -- the origin of the 0.80 FFR threshold. It is
-%     cited to the ESC guideline below, which is legitimate for a practice threshold, but the
-%     trials are where the number comes from.
+% FIGURE WANTED: flow separating at a bifurcation, with the low-shear region on the
+% lateral wall marked, and the same for the inner wall of a bend. This one could be
+% ours rather than external -- a schematic drawn in matplotlib, no licence needed.
+% Do not add a \ref until the figure exists.
 
 \section{Coronary hemodynamics}
 \label{sec:hemodynamics}
 
-Shape cannot injure a vessel by itself.
-It acts through the forces blood exerts on the wall as it flows past, and those forces are the
-middle link in the chain running from the geometry of the tree to the disease that forms in it.
-Two quantities describe them, at different scales.
-\emph{Wall shear stress} (WSS) is a local mechanical stimulus on the cells lining the vessel,
-varying from point to point within a single artery.
-\emph{Fractional flow reserve} (FFR) is a lesion-level measurement of whether one narrowing limits
-flow.
-The first explains where disease begins, the second how an established narrowing is treated.
+Blood does not simply pass through an artery; it pulls on the wall as it goes.
+Two measurements describe what the flow does to the vessel, at two different scales.
+Wall shear stress is the force the moving blood exerts on the lining, and it varies from point to
+point inside a single artery.
+Fractional flow reserve is a whole-lesion measurement of whether one narrowing is starving the
+muscle behind it.
 
 \subsection{Wall shear stress}
 
 Blood flowing along an artery drags on the wall it passes, much as wind drags on a surface it blows
 across.
-WSS is that drag: the tangential frictional force per unit area exerted by flowing blood on the
-endothelium, measured in pascals (Pa).
-For steady laminar flow of a fluid of viscosity $\mu$ at flow rate $Q$ through a tube of radius
-$R$,
+That drag is wall shear stress \textbf{(WSS)}.
+For steady flow of a fluid of viscosity $\mu$ at flow rate $Q$ through a tube of radius $R$,
 %
 \begin{equation}
   \tau = \frac{4 \mu Q}{\pi R^{3}},
   \label{eq:wss}
 \end{equation}
 %
-so shear falls with the cube of the radius: at a fixed flow rate, halving a vessel's radius raises
-the drag on its wall eightfold.
-Radius and the branching pattern that distributes $Q$ between vessels therefore fix the shear the
-wall experiences, which makes the geometry of the tree a hemodynamic quantity and not a merely
-descriptive one.
-The endothelium senses that shear rather than passively enduring it, and responds to disturbed
-shear by switching into a pro-inflammatory state \cite{rampidis2022geometry}.
+so the drag depends on how wide the vessel is and how much blood it carries
+\cite{rampidis2022geometry}: halve the radius at the same flow and the drag goes up eightfold.
+An artery therefore does not feel one uniform drag along its length.
+It changes wherever the vessel narrows, widens or divides.
 
-Early atherosclerotic lesions develop preferentially where shear is low or oscillatory
-\cite{rampidis2022geometry}.
-Shear is \emph{oscillatory} where flow reverses over the cardiac cycle, dragging the wall
-alternately forward and backward rather than steadily in one direction.
-The oscillatory shear index is the standard way of summarizing how much reversal a given point on
-the wall experiences.
+The whole coronary tree is exposed to the same cholesterol and the same blood pressure, yet plaque
+forms in particular places and not others \cite{chatzizisis2007ess}.
+The lining of the artery is what makes the difference.
+It senses the drag passing over it, and where that drag is weak or reverses through the cardiac
+cycle the cells turn inflamed and plaque-prone \cite{chatzizisis2007ess}.
 
-Low and oscillatory shear both arise from vessel geometry and are therefore predictable from an
-image: flow separates at a bifurcation, leaving a low-shear region on the lateral walls away from
-the flow divider, and curvature drives secondary flows that leave one on the inner wall of a bend
-\cite{rampidis2022geometry}.
-Bifurcation angle and tortuosity are consequently not arbitrary descriptors of morphology: each
-governs the size and position of a region in which lesions are expected to form.
+Those places can be pointed to on a real artery.
+Asakura and Karino traced the flow through five human coronary trees taken after death and recorded
+where the plaques sat \cite{asakura1990flow}.
+Almost all of them were in two places: on the outer wall of the vessels leaving a bifurcation, with
+the divider between them left clean, and along the inner wall of curved segments.
+Those were exactly the places where the flow ran slow or broke up into recirculation, and where the
+drag on the wall was lowest.
+Five trees is a small sample, but the pattern is the one the mechanism predicts.
 
-Equation~\eqref{eq:wss} leaves one question open, and the answer decides what counts as a normal
-tree.
-Radius falls at every branching, and shear depends on radius, so does shear rise, fall or hold
-level as blood works its way out toward the small vessels?
-
-The textbook answer is that it holds level.
-Murray's law, derived by minimizing the power dissipated in driving the flow plus the metabolic
-cost of maintaining the blood itself, gives $Q \propto R^{3}$.
-Substituted into Equation~\eqref{eq:wss}, this makes $\tau$ constant everywhere: as vessels narrow,
-the flow they carry drops by exactly the amount needed to leave the drag on the wall unchanged.
-On this account a healthy arterial tree holds every endothelial cell under the same mechanical load.
-
-The coronary circulation does not follow the cubic law.
-A systematic review and meta-analysis pooling 1070 coronary trees places the flow--diameter
-exponent at $k = 2.39$, with a 95\% confidence interval of 2.24 to 2.54
-\cite{taylor2024murray}.
-Since $\tau \propto Q / R^{3} \propto R^{\,k-3}$, an exponent below three gives
-$\tau \propto R^{-0.61}$: in a normal coronary tree wall shear stress \emph{rises} toward the
-smaller distal vessels rather than holding level.
-Uniform shear is therefore the wrong baseline for judging a coronary tree, and any feature defined
-as deviation from Murray's law must be referenced to the coronary exponent, not the cubic one.
+Low drag and high drag do different damage.
+Low drag is where plaque starts and grows.
+Over a plaque that has already narrowed the vessel, high drag is associated instead with the
+thin-capped, rupture-prone form \cite{bajraktari2021highwss}.
+Shear is therefore not a single axis running from safe to dangerous.
 
 \subsection{Fractional flow reserve}
 \label{sec:ffr}
 
-How narrow a vessel appears and how much it restricts flow are different questions, which is why the
-diagnostic pathway separates anatomical from functional testing \cite{knuuti2019esc}.
-FFR addresses the functional one: it is the ratio of mean blood pressure just downstream of a lesion
-to mean pressure upstream of it, obtained with a sensor-tipped guidewire passed across the
-stenosis during catheterization.
+Fractional flow reserve \textbf{(FFR)} answers the question an image cannot: not how narrow a
+vessel looks, but how much flow the narrowing actually costs \cite{knuuti2019esc}.
+It is the ratio of the pressure just past the narrowing to the pressure before it, measured with a
+sensor on a wire threaded across the lesion during catheterization.
 
-The measurement is made under pharmacologically induced maximal \emph{hyperemia}, a state of
-greatly increased blood flow, because at rest the narrowing would be masked by autoregulation.
-The small vessels downstream of a stenosis dilate to compensate for it, holding resting flow nearly
-constant however tight the stenosis becomes, so a pressure gradient measured at rest understates
+The measurement has to be made with blood flow driven artificially high, because at rest the
+narrowing hides itself.
+The small vessels beyond a stenosis widen to compensate for it, holding resting flow almost
+constant however tight the narrowing becomes, so a pressure difference measured at rest understates
 the lesion \cite{duncker2015regulation}.
-Only once that downstream resistance has been driven to its minimum and held there does the ratio
-of pressures track the ratio of flows.
-An FFR of 0.80, the threshold below which a lesion is treated as functionally significant
-\cite{knuuti2019esc}, then means a vessel admitting 80\% of the flow it would carry were it not
-narrowed.
 
-FFR requires a pressure wire within the artery, a measurement no CT scan can supply.
-Wall shear stress, which follows from vessel geometry, is therefore the hemodynamic quantity
-accessible from imaging.
+FFR therefore needs a catheter inside the artery.
+It is the reference standard for whether a narrowing is limiting flow, and it is not something an
+image can supply.

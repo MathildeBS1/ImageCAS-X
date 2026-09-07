@@ -1,3 +1,4 @@
+'c
 1pt
 2pt
 aggstr
@@ -5,6 +6,7 @@ al
 angiographic
 angiography
 anteriorly
+Asakura
 atherosclerotic
 atrioventricular
 autoregulation
@@ -24,6 +26,7 @@ centerlines'
 CGPS
 checkmark
 codebase
+codominance
 Codominant
 codominant
 config
@@ -40,6 +43,7 @@ dataset
 dataset's
 de
 deoxygenated
+doi
 eightfold
 endocardium
 endothelial
@@ -60,6 +64,7 @@ htbp
 HU
 hyperemia
 ifundefined
+Ihdayhid
 IM
 ImageCAS
 intermedius
@@ -76,6 +81,7 @@ ischemic
 JSON
 Kaggle
 Kaggle's
+Karino
 LCX
 LM
 LMCA
@@ -88,14 +94,19 @@ Mahalanobis
 md
 mediastinum
 Medis
+Meno
 MICCAI
 MIDL
+Mihi
 Mikael
 mitral
 mL
 modality
+Mori
 MSc
 multi
+Murasato
+MV
 Myocardial
 myocardial
 myocardium
@@ -117,6 +128,7 @@ perfusion
 pharmacologically
 phenotypes
 PLA
+PLOS
 pre
 preprint
 preprocessing
@@ -131,6 +143,8 @@ QAngio
 Ramus
 ramus
 RAS
+recirculation
+reimaged
 reportable
 Reproducibility
 reproducibility
@@ -145,6 +159,7 @@ skeletonization
 skeletonize
 skeletonizing
 stenosis
+stented
 Strahler
 subendocardium
 subepicardium
@@ -152,6 +167,7 @@ sulci
 sulcus
 supervisors'
 SVM
+Tanenaka
 tex
 thrombogenic
 Timeline
@@ -160,6 +176,7 @@ tortuosity
 transmural
 tricuspid
 trifurcates
+trifurcation
 uninterpretable
 Veltman
 vena
@@ -170,4 +187,5 @@ voxels
 Wapcaplet
 Wikimedia
 WSS
+Zebi
 Østerbro
