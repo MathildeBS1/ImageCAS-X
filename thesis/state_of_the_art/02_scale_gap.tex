@@ -1,0 +1,56 @@
+% State of the Art section. Paste into your own thesis, or \input it.
+%
+% Opens the chapter's own argument, distinct from clinical_background/00_chapter_intro.tex-style
+% roadmaps: this section carries the evidence matrix that Section~\ref{sec:geometry} (moved from
+% clinical_background/06_geometry_risk.tex) is read against. Built from
+% docs_thesis/find_research.md Stage 6, condensed -- the full per-cell citation lists are kept short
+% here; Section~\ref{sec:geometry} already carries the numbers behind the tree-scale column.
+%
+% Verification status: all entries below are [BIBLIOGRAPHY VERIFIED], abstract-level, per
+% docs_thesis/find_research.md.
+
+\section{A field concentrated at one scale}
+\label{sec:scale-gap}
+
+A coronary artery can be measured at three scales: the whole tree, a single vessel, or a single
+lesion.
+The literature reviewed in this chapter is not spread evenly across them, and where it is thin
+matters more than where it is thick.
+
+\begin{table}[h]
+  \centering
+  \caption{Where the published evidence linking coronary shape to disease actually sits. An empty
+    cell is not an absence of interest --- it is a query, recorded in
+    \texttt{docs\_thesis/find\_research.md}, that returned nothing. Cohort sizes are patients unless
+    stated otherwise.}
+  \label{tab:scale-gap}
+  \begin{tabular}{lp{3.1cm}p{2.6cm}p{3.4cm}}
+    \hline
+    Scale & Disease presence / severity & Progression or ischemia & Events / mortality \\
+    \hline
+    Tree (bifurcation angle, dominance, branch presence) &
+      5 cohorts, $n=106$--1380 \cite{temov2016bifurcation,juan2017bifurcation,mansouri2024bifurcation,zhang2023ramus,bekircavusoglu2026ramus} &
+      empty &
+      Tommasino, $n=499$, HR 4.47 \cite{tommasino2024clap}; dominance: Veltman $n=1425$ \cite{veltman2012dominance}, Gebhard $n=6382$ null \cite{gebhard2015dominance}, Khan $n=255{,}718$ \cite{khan2016dominance} \\
+    Vessel (tortuosity, curvature) &
+      Groves, $n=1221$, inverse \cite{groves2009tortuosity}; Zebi\'c Mihi\'c, $n=131$/160 \cite{zebicmihic2023tortuosity,zebicmihic2024index} &
+      Zebi\'c Mihi\'c, territory-matched \cite{zebicmihic2024index} &
+      conference abstract only \\
+    Lesion (lumen/plaque shape, radiomics) &
+      Ma et al.\ review, 10 studies \cite{ma2025mlmace} &
+      Stone, $n=506$ \cite{stone2012prediction}; Griffo, $n=748$ \cite{griffo2026wss} &
+      Griffo \cite{griffo2026wss}; Sun \cite{sun2026angiographcad}; Kim, $n=408$ \cite{kim2025dlmace}; Ma, AUC $\approx 0.80$ \cite{ma2025mlmace} \\
+    \hline
+  \end{tabular}
+\end{table}
+
+Three things follow from the table.
+The field's mass sits in the bottom row: lesion-scale plaque shape is where the cohorts, the machine
+learning and the outcome evidence all are, in the thousands of patients.
+Tree-scale geometry is studied in cohorts one to two orders of magnitude smaller, against softer
+endpoints --- no tree-scale study of progression or ischemia was found at all.
+And no cell in the table, at any scale, holds a population-distribution study.
+Every entry compares two or more groups or trains a supervised predictor; none treats a feature's
+values across a population as a distribution and asks which individuals sit in its tails.
+That last omission is this chapter's destination (Section~\ref{sec:the-gap}), reached only after the
+rest of it establishes what the field has and has not measured.

@@ -1,0 +1,30 @@
+% Clinical Background section. Paste into your own thesis, or \input it.
+
+\section{Anatomical variants}
+\label{sec:variants}
+
+A method that characterizes coronary topology must represent these variants rather than discard
+them, because each changes how the tree branches rather than whether it is diseased.
+
+In most hearts the left artery leaves the aorta as a single trunk, the LM (Section~\ref{sec:tree}),
+before splitting into the LAD and the LCX.
+In the \emph{absent left main} variant that split happens at the aorta itself: the LAD and LCX
+arise from two separate openings in the left sinus instead of from one common trunk, and no LM
+exists to label.
+Topaz et al.\ found it in 83 of 20{,}332 consecutive patients undergoing cardiac catheterization, or
+0.4\%, and reported two things that travel with it: left coronary dominance is more common in these
+hearts, and myocardial bridging, a length of artery that dips under the muscle instead of running
+over it, occurs in 6\% of them against an otherwise-typical 0.5--1.5\% \cite{topaz1991absentlm}.
+It is a variant of connectivity, not of caliber, and it means a method that assumes one root per
+side will either merge two independent trees into one or drop the smaller of them; the graph this
+thesis builds instead roots each side at however many ostia it actually has
+(Section~\ref{sec:dataset-dominance}).
+
+The ramus intermedius (IM), already introduced as an extra vessel some left main arteries send
+between the LAD and the LCX (Section~\ref{sec:tree}), is common enough that its presence or absence
+is itself a source of normal variation rather than an anomaly.
+A meta-analysis of the published coronary computed tomography angiography literature puts its
+pooled prevalence at 26.5\% \cite{dai2025ramus}.
+Because it changes how many branches a left tree carries without changing whether the tree is
+diseased, any feature that counts branches has to treat its presence as a variable to condition on,
+the same way dominance already is (Section~\ref{sec:dominance}).

@@ -1,0 +1,83 @@
+% State of the Art section. Paste into your own thesis, or \input it.
+%
+% Replaces thesis/introduction/03_motivation.tex, which held this argument temporarily in the
+% Introduction (see clinical_background/05_hemodynamics.tex's header comment) pending this chapter's
+% existence, per docs_thesis/state_of_the_art_plan.md. Rewritten against
+% docs_thesis/find_research.md Stage 3's full-text corrections to griffo2026wss -- the earlier draft
+% overstated what that paper shows; the corrected version is below. \label{sec:motivation} was not
+% referenced anywhere else in the thesis, so this section uses a fresh label instead.
+%
+% Scope check against 01_framing.tex and 05_predicts_disease.tex, so this section adds rather than
+% repeats: framing.tex states the mechanism in three sentences and cites asakura1990flow and
+% griffo2026wss's headline equivalence only; predicts_disease.tex covers Glagov remodeling under
+% "Two limits". This section is the one place the full mechanism (bifurcation and curvature
+% separately) and the fully-caveated Griffo result belong.
+%
+% Verification status: griffo2026wss is full-text read (docs_thesis/papers/). The rest --
+% murasato2022bifurcation, kahe2020tortuosity, wang2024lmphenotypes -- are abstract-level
+% [BIBLIOGRAPHY VERIFIED] per docs_thesis/literature.md Axis 5 and docs_thesis/find_research.md.
+
+\section{Why shape is enough}
+\label{sec:shape-enough}
+
+If geometry sets wall shear stress and shear sets the state of the endothelium
+(Section~\ref{sec:hemodynamics}), then arteries that share a shape should share a shear pattern, and
+therefore a similar baseline exposure to the mechanism that starts atherosclerosis.
+Two separate mechanical routes connect a tree's shape to shear, and one recent result asks whether
+the shear itself even needs to be computed once the shape is known.
+
+A bifurcation splits one stream of blood into two, and the split sets the shear independently of the
+angle at which the vessels diverge.
+Murasato et al.\ reviewed how a dividing flow behaves at a coronary bifurcation
+\cite{murasato2022bifurcation}: shear falls on the lateral wall of each daughter vessel and rises on
+the carinal side, the wedge between them, in every geometry they examined.
+What the angle changes is how sharply that gradient falls off, which is why a wide bifurcation
+exposes more lateral wall to low shear than a narrow one.
+Curvature works through a different route.
+Flow through a bend develops a secondary, helical component, and the shear it produces runs low on
+the inner wall of the bend and high on the outer one \cite{kahe2020tortuosity}.
+Two different mechanisms, and both were confirmed on real tissue in Section~\ref{sec:framing}: the
+outer wall of a vessel leaving a bifurcation and the inner wall of a curved segment are exactly where
+plaque was found in five postmortem coronary trees \cite{asakura1990flow}.
+
+If a phenotype maps onto a shear pattern this consistently, arteries sorted by shape alone should
+separate by shear.
+The closest direct test of that claim covers one anatomical site.
+Wang et al.\ simulated flow through 76 left main arteries sorted by shape into four phenotypes
+\cite{wang2024lmphenotypes}.
+Shear fell lowest around the branch points of the LAD, and lowest of all in the widest-angled
+phenotype.
+The result is exactly what the mechanism above predicts: a geometric phenotype maps onto a
+characteristic pattern of low shear, not just onto a single feature value.
+It is also, so far, the only test of it.
+The study covers one bifurcation in 76 arteries, simulated rather than measured in patients, and it
+says nothing about whether the pattern distinguishes people who go on to develop plaque from people
+who do not.
+
+None of this requires a flow simulation to use, and the strongest test of that claim comes from a
+diseased, not a healthy, cohort.
+Griffo et al.\ trained a network to reproduce computational-fluid-dynamics shear from lumen geometry
+alone, using 1078 coronary arteries reconstructed from invasive angiography in 748 patients pooled
+across three trials of coronary stenosis, median 58.5\% area stenosis \cite{griffo2026wss}.
+The network and the simulation it was trained to reproduce agreed almost exactly on which lesion in a
+patient's tree went on to cause a heart attack: an area under the curve of 0.63 for both,
+statistically indistinguishable (DeLong $p=0.84$), and 0.68 against 0.66 for the ratio between a
+lesion's shear and its parent vessel's ($p=0.37$).
+The authors call the discrimination itself modest, attributing the ceiling to how many other factors
+besides shear decide whether a plaque ruptures; what carries weight here is the equivalence, not the
+magnitude.
+Three qualifications keep that equivalence from being read as more than it is.
+The task is not population risk prediction: it discriminates 80 lesions that later became the
+culprit from 107 that did not, within patients who had all already had a heart attack, so it answers
+which lesion ruptured, not who will have an event.
+The cohort was already diseased and reconstructed from invasive angiography, not from the
+lower-resolution CCTA lumens this thesis and the Copenhagen General Population Study actually
+supply, so whether the equivalence survives that transfer is untested.
+And the spatial agreement the authors report between network and simulation, a Dice coefficient of
+0.88, is measured on the highest-shear regions of the vessel, not on the low-shear tail the
+mechanism above rests on.
+What the result licenses is narrower than a method: if a geometric phenotype is defined at all, its
+characteristic shear pattern does not need to be simulated to be inferred, because the geometry
+already carries it.
+That is the premise this thesis works from --- measuring shape directly, at population scale, rather
+than solving the flow field lesion by lesion --- not a method being reproduced at that scale.

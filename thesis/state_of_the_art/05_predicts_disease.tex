@@ -1,0 +1,160 @@
+% State of the Art section. Paste into your own thesis, or \input it.
+%
+% Moved from clinical_background/06_geometry_risk.tex per docs_thesis/state_of_the_art_plan.md.
+% \label{sec:geometry} kept alive -- referenced from clinical_background/00_chapter_intro.tex,
+% clinical_background/03_cad.tex and clinical_background/05_hemodynamics.tex. The closing
+% "Branching pattern" subsection of the original file was cut from here and expanded instead into
+% 08_the_gap.tex, which is where docs_thesis/state_of_the_art_plan.md and find_research.md's own
+% "The gap, stated for \S4" put that argument -- keeping it here would have said the same thing
+% twice in adjacent sections.
+%
+% Verification status carried over unchanged: only shen2026geometry (cited in 08_the_gap.tex, not
+% here after the split) and griffo2026wss (06_why_shape_enough.tex) are full-text read. Everything
+% else below is [BIBLIOGRAPHY VERIFIED], abstract-level, per docs_thesis/find_research.md.
+%
+% Figure: figures/external/bifurcation_angle.png <- python scripts/fetch_external_figures.py
+% Credit line copied verbatim from figures/external/CREDITS.md -- never typed by hand.
+%
+% STILL WANTED, ours not external: the four measurements drawn on one tree
+% (scripts/make_tree_figure.py, part of the topology rebuild).
+
+\section{Does tree geometry predict disease?}
+\label{sec:geometry}
+
+The shape of the coronary tree is a clinical quantity, not just a description of it.
+Shape sets the drag on the wall, the drag decides how the lining behaves, and the lining is what
+produces plaque (Section~\ref{sec:hemodynamics}) \cite{rampidis2022geometry}.
+What makes a particular measurement worth taking is evidence that the chain holds in patients.
+Three measurements have that evidence, and none of them has as much of it as a first reading
+suggests.
+
+\subsection{Evidence from patients}
+
+Han et al.\ looked at patients who went on to have a heart attack and asked what about the culprit
+lesion predicted it, beyond how narrow the vessel was and what the plaque was made of
+\cite{han2022plaque}.
+Three things did: the lesion sitting closer to the ostium, the lesion sitting at a bifurcation, and
+higher tortuosity.
+None of the three is a property of the plaque; all three describe the tree it grew in, which is
+why the shape of the tree is worth studying on its own.
+
+Stone et al.\ then showed the shape comes first.
+They measured shear inside the arteries of 506 patients and reimaged 374 of them six to ten months
+later \cite{stone2012prediction}.
+Low shear at baseline predicted which segments went on to lose lumen area.
+Two limits matter: it did not predict the primary endpoint, growth in plaque area, which went with
+how much plaque was already there; and every patient had already had a heart attack and been
+stented, so this does not transfer unchanged to people who are still well.
+
+\subsection{Bifurcation angle}
+
+The left main bifurcation angle has the firmest evidence of the three, from five separate cohorts
+pointing the same way.
+Temov and Sun measured it on CCTA in 196 patients and found a mean of
+$79.40^\circ \pm 22.97^\circ$, spanning $35.5^\circ$ to $178^\circ$ \cite{temov2016bifurcation}.
+The angle varies enormously between healthy people, and men were twice as likely to exceed
+$80^\circ$, so any distribution reported from a cohort has to be split by sex rather than pooled
+\cite{temov2016bifurcation}.
+
+The angle widens with disease.
+Juan et al.\ sorted 313 CCTA patients by how much disease they had and found
+$75.5^\circ \pm 14.7^\circ$ in the 40 with clean arteries, $81.2^\circ \pm 20.1^\circ$ in the 62
+whose plaque did not block the vessel, and $87.3^\circ \pm 18.8^\circ$ in the 211 with a stenosis of
+at least half the vessel \cite{juan2017bifurcation}.
+Mansouri et al.\ replicated the gradient against a continuous severity score in 122 patients who had
+both CCTA and invasive angiography: the angle correlated with the Gensini score at 0.684, ahead of
+plaque volume at 0.281, remodeling index at 0.438 and calcium score at 0.217
+\cite{mansouri2024bifurcation}.
+A geometric measurement outperforming the plaque measurements in the same patients is the strongest
+argument in this literature for measuring shape at all.
+
+One study reaches past disease severity to events.
+Tommasino et al.\ followed 499 consecutive CCTA patients and found a left main bifurcation angle
+above $80^\circ$ to be the strongest predictor of a major adverse cardiac event, ahead of diabetes,
+obstructive disease and high-risk plaque \cite{tommasino2024clap}.
+Wang et al.\ supply the mechanism: they simulated the flow through 76 left main arteries sorted into
+four shapes, and shear was lowest around the branch points of the LAD and lowest of all in the
+wide-angled shape \cite{wang2024lmphenotypes}.
+An anatomical gradient, an outcome association and a hemodynamic mechanism pointing the same way are
+what make this angle worth measuring in its own right.
+
+On its own the angle discriminates only modestly. Cui et al.\ measured 318 bifurcation angles in
+106 patients and found it an independent predictor of significant left coronary stenosis, at 67\%
+sensitivity and 78\% specificity \cite{cui2017bifurcation} --- a population descriptor rather than a
+diagnostic test, and treated as one here.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.85\textwidth]{content/background/figures/bifurcation_angle.png}
+  \caption{Two vessels can share a bifurcation angle and disagree about what it is. Panels A and B
+    measure the same junction by different conventions --- $\alpha$ from the extension of the
+    proximal main vessel, $\beta$ from the distal main vessel --- and panel C shows the two
+    diverging once the main vessel curves. MV: main vessel; SB: side branch. Figure from
+    Murasato Y, Meno K, Mori T, Tanenaka K, PLOS ONE 2022, doi:10.1371/journal.pone.0273157,
+    CC BY 4.0.}
+  \label{fig:bifurcation-angle}
+\end{figure}
+
+\subsection{Tortuosity}
+
+Tortuosity is the second measurement, and its association with disease runs in opposite directions
+depending on which disease is meant.
+Groves et al.\ reviewed 1221 consecutive angiograms, the largest tortuosity cohort available, and
+found severe tortuosity in 12.45\% of them --- associated with a significantly \emph{lower} rate of
+significant coronary disease \cite{groves2009tortuosity}.
+Zebi\'c Mihi\'c et al.\ studied 131 patients being investigated for suspected disease and found the
+opposite for disease that does \emph{not} obstruct the vessel, at roughly eight times the odds, an
+odds ratio of 7.96 with a 95\% confidence interval from 1.79 to 35.40
+\cite{zebicmihic2023tortuosity}.
+The two agree once the endpoint is named precisely: tortuosity tracks ischemia without obstruction,
+and tracks inversely with obstruction itself. Reporting only one would mislead every tortuosity
+number this thesis goes on to report.
+
+How tortuosity is measured decides what is found.
+A second study from the same group measured it two ways in the same 160 patients, by a continuous
+index and by the clinical count of bends sharper than $45^\circ$ \cite{zebicmihic2024index}.
+The continuous index localized to the territory that was ischemic --- highest in the circumflex with
+lateral ischemia, highest in the LAD with anterior ischemia --- while the bend count found almost
+nothing.
+This thesis therefore computes a continuous index on the centerlines rather than reproducing the
+clinical bend score.
+
+\subsection{Dominance}
+
+Dominance is the third, and the evidence for it is weaker and more conditional than the most-cited
+study suggests.
+Veltman et al.\ followed 1425 patients after CCTA for a median of two years and reported that
+left-dominant patients reached a heart attack or death about three times as often as right-dominant
+ones \cite{veltman2012dominance}.
+The CONFIRM registry does not reproduce it.
+Following 6382 CCTA patients across twelve centers for five years, survival did not differ by
+dominance in patients with obstructive disease, without it, or with normal arteries
+\cite{gebhard2015dominance}.
+The one positive result was a subgroup: left dominance together with left main disease.
+
+A meta-analysis of 255,718 patients with acute coronary syndrome finds a real but small effect,
+odds ratio 1.27 for mortality \cite{khan2016dominance}.
+Read together, the three say dominance matters once an infarct has happened --- a left-dominant
+heart has more muscle depending on the left system --- and not as a predictor of getting there. It is
+used here to stratify the other features, not reported as a risk factor.
+
+\subsection{Two limits on all three}
+
+The first is that the measurement error is the size of the effect.
+Givehchi et al.\ imaged nine phantoms with known bifurcation angles and recovered them to within a
+few degrees, then applied the same two accepted techniques to 50 real CCTA cases, where they
+disagreed with each other by $12.0^\circ \pm 10.6^\circ$ \cite{givehchi2018phantom}.
+Juan's entire gradient from clean arteries to significant stenosis spans about $12^\circ$.
+A published angle--disease association is therefore only as real as the protocol behind it, and any
+angle reported here must come from a single automatic definition computed on the centerline rather
+than from a manual reformation.
+It is also why measuring our own reproducibility is a prerequisite rather than an extra.
+
+The second is that the geometry is not fixed while the disease develops.
+Glagov et al.\ examined the left main artery in 136 hearts at autopsy and found that arteries enlarge
+as plaque grows: the lumen does not narrow at all until the lesion occupies about 40\% of the vessel,
+and only then falls sharply \cite{glagov1987remodeling}.
+Every centerline and surface in this thesis is derived from a lumen segmentation, so early disease is
+nearly invisible to it while advanced disease has already reshaped the very geometry being measured.
+A cross-sectional association between shape and disease is therefore partly the disease writing its
+own predictor.

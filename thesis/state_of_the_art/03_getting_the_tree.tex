@@ -1,0 +1,40 @@
+% State of the Art section. Paste into your own thesis, or \input it.
+%
+% Built from docs_thesis/literature.md Axis 1 and Axis 3.
+% Verification status: all entries below are [BIBLIOGRAPHY VERIFIED], abstract-level.
+
+\section{Getting the tree}
+\label{sec:getting-tree}
+
+Every feature in this thesis is computed on a tree built from a segmentation, so the segmentation
+has to support that construction before any feature definition matters.
+Voxel overlap with a reference mask is not the property that decides whether it does.
+
+CAS-Net, the segmentation method this thesis builds on (Section~\ref{sec:segmentation}),
+reaches a Dice similarity coefficient of 91.2 against expert annotation, close to the 92.8 two
+independent annotators reach against each other \cite{bransby2026imagecasx}.
+A high overlap score does not guarantee a correct tree, because Dice is computed voxel by voxel and
+cannot see whether those voxels stay connected.
+Shit et al.\ made that gap precise: two segmentations can share a Dice score and disagree completely
+on topology, since Dice has no term for connectivity \cite{shit2021cldice}.
+Their soft-clDice measure and the Betti number error it motivates, both reported in the ImageCAS-X
+benchmark alongside Dice \cite{bransby2026imagecasx}, are what actually detect a break in the vessel
+tree that overlap alone would miss.
+
+A broken prediction is not merely a lower score in a pipeline built on the tree rather than the mask.
+It is a structurally wrong tree: an extra connected component, a spurious terminus where a vessel was
+cut, or a missing bifurcation where two components should have joined --- and every one of those
+corrupts a branch count or a bifurcation angle computed downstream.
+Qiu et al.\ target exactly this failure mode with a three-stage method: a centerline-enhanced
+segmentation loss, a regularized-walk reconnection of broken segments using combined distance and
+direction similarity, and implicit-neural reconstruction of the vessels that remain missing after
+that \cite{qiu2025topology}.
+On two public datasets it reaches a Dice of 88.53 and a Hausdorff distance of 1.07~mm on ASOCA, and
+85.07 and 1.63~mm on PDSCA.
+Those numbers are not directly comparable to the CAS-Net baseline this thesis uses, since neither
+dataset is ImageCAS, so adopting the method would mean re-benchmarking it on the 160 ImageCAS-X test
+cases rather than taking the published figures on faith.
+
+What this leaves for objective 6 is a specific instruction rather than a general one: reliability
+against the ground truth has to be checked for connectivity, not only for overlap, because a
+segmentation can score well on Dice and still hand the topology pipeline the wrong tree.

@@ -1,0 +1,122 @@
+% WORKING REFERENCE -- NOT PART OF THE SUBMITTED DOCUMENT.
+%
+% Do NOT \input this into the thesis. It is an aide-memoire: the premises that govern every feature
+% decision in this project, collected in one place so they do not have to be re-derived each time
+% they matter. Where an entry restates something argued properly elsewhere, the thesis version is
+% the one that gets submitted -- this is the short form, kept self-contained on purpose.
+%
+% Each entry ends in a Consequence line. An entry without one is a note, not a concept to keep in
+% mind, and should be cut.
+%
+% Citation keys resolve against thesis/refs.bib, so any entry can be promoted into thesis prose
+% without re-finding its source.
+%
+% STANDING CONSTRAINT: no exact figure from the Copenhagen General Population Study appears here,
+% or anywhere in thesis/, until data access.
+
+\section*{Concepts to keep in mind}
+
+\subsection*{A. What each dataset is, and what it licenses}
+
+\begin{description}
+
+\item[ImageCAS-X is a clinically referred cohort, not a screening one.]
+Every scan in it was ordered because someone had a reason to order it, and the descriptor table
+records coronary artery disease in roughly half the 800 usable cases
+\cite{bransby2026imagecasx,zeng2023imagecas}.
+(The exact split recorded in \texttt{CLAUDE.md}, 388 with and 412 without, comes from the abandoned
+\texttt{week1} branch and has not been re-verified here.)
+\textit{Consequence:} it licenses building the pipeline, verifying the segmentation against
+annotations, and measuring the reproducibility of each feature. It cannot license a
+normative description of healthy coronary topology --- the population is wrong for that. The
+annotations are why the bias is worth accepting: centerlines carrying segment labels, connectivity
+that is exact rather than approximated by a distance threshold, and a dominance column recorded independently of the labels.
+
+\item[CGPS supplies what ImageCAS-X cannot, with one unknown that matters.]
+Participants are not selected for disease, the study re-scans the same people over time, and it
+carries adjudicated outcomes \cite{fuchs2023cgps}.
+\textit{Consequence:} research question~2 needs the repeat-scan subset to establish a measurement
+floor, and question~4 needs the outcome-linked subset. \textbf{Whether those two subsets overlap,
+and by how much, is unknown.} If the overlap is small, reproducibility and outcome association are
+two disjoint studies rather than one, and the plan's week ordering changes. Ask Phillip before the
+tracks merge.
+
+\end{description}
+
+\subsection*{B. The biology that governs interpretation}
+
+\begin{description}
+
+\item[Coronary artery disease reshapes the geometry it would be predicted from.]
+Examining 136 hearts at autopsy, Glagov et al.\ found the artery enlarges outward as plaque grows,
+so the lumen does not measurably narrow until the lesion occupies about 40\% of the vessel, after
+which it falls away sharply \cite{glagov1987remodeling}.
+\textit{Consequence:} any shape derived from a lumen is measured after that compensation has already
+begun, so a cross-sectional association between geometry and disease is partly the disease writing
+its own predictor. A reference distribution has to come from people free of disease rather than
+free of symptoms. This is the entire reason the work is split across two cohorts rather than one.
+
+\item[Plaque is focal, and it follows low wall shear stress.]
+The whole tree is exposed to the same cholesterol and the same blood pressure, yet lesions form in
+particular places and not others \cite{chatzizisis2007ess}.
+Tracing the flow through five human coronary trees after death put the plaques almost exclusively on
+the outer wall of the vessels leaving a bifurcation, with the divider between them left clean, and
+along the inner wall of curved segments --- exactly where shear was lowest \cite{asakura1990flow}.
+\textit{Consequence:} bifurcation angle and tortuosity are not arbitrary descriptors; each one sets
+the size and the position of a region where plaque is expected. But shear is not a single axis from
+safe to dangerous --- over an existing plaque, high shear is associated with loss of the stabilizing
+fibrous tissue \cite{bajraktari2021highwss}. A feature built only to flag low-shear geometry
+captures half the mechanism, and the write-up has to say so.
+
+\end{description}
+
+\subsection*{C. What the annotations bound}
+
+\begin{description}
+
+\item[A branch count measures the tracing protocol as much as the anatomy.]
+Septal perforators, acute marginals and nodal arteries were not traced at all. A side branch was not
+traced where its distal diameter fell below 1 mm, or where its connection to the parent was unclear.
+Where a side branch itself bifurcated only the larger was traced, unless the two were equal or the
+smaller exceeded 1.8 mm. Where a \emph{main} vessel bifurcated, main-versus-side was decided by
+course rather than size: the branch continuing along the atrioventricular groove is the LCX even
+when the obtuse marginal is larger. Recorded from the dataset paper's supplementary protocol in
+\texttt{CLAUDE.md}.
+\textit{Consequence:} every branch-level feature is a protocol measurement. Any prevalence statement
+has to name the protocol, and any comparison against another cohort --- CGPS included, where the
+labeling protocol will differ and probably will not annotate all branches --- must treat the
+protocol difference as a confounder rather than assume comparability. Note that septal perforators
+are left-sided, so this is not a right-side restriction.
+
+\item[The right side is annotated more coarsely than the left, deliberately.]
+Only \texttt{RCA}, \texttt{R-PDA} and \texttt{R-PLA} exist on the right, and the catch-all
+\texttt{Other} label never appears there.
+\textit{Consequence:} any left-versus-right comparison of branch count or branching pattern must
+state this, or it reports an annotation protocol as an anatomical finding.
+
+\item[Image quality confounds any branch-count statistic.]
+Quality is graded 0 to 4; grade 0 is exactly the 200 excluded cases, so the 800 usable ones span
+grades 1 to 4. A lower-quality scan plausibly yields fewer traceable distal branches.
+\textit{Consequence:} report branch-count distributions stratified by image quality, or demonstrate
+that the association is flat across grades before pooling them.
+
+\item[The delivered centerlines are smoothed, and the human effort is not in them.]
+They are not the hand-traced centerlines. They were regenerated from the manually corrected lumen
+masks by skeletonization and Gaussian smoothing ($\sigma = 0.5$ mm over a 5-vertex window), because
+the traced centerlines did not run through the center of the corrected lumen. Segment names were
+carried across by nearest match and reviewed by the lead analyst.
+\textit{Consequence:} that smoothing is baked into any tortuosity computed from the delivered
+points, so a tortuosity index measured here is not directly comparable to one measured on
+centerlines that were never smoothed, and the reproducibility study has to treat smoothing as part of the
+measurement chain. The trustworthy human effort sits in the masks and the segment names, not in the
+centerline geometry.
+
+\end{description}
+
+\subsection*{Not covered here}
+
+The purely technical traps live in \texttt{CLAUDE.md} and belong beside the code rather than beside
+the argument: RAS versus LPS coordinate frames and the mirrored overlay that looks entirely
+plausible; per-case anisotropic voxel spacing, which rules out measuring anything in voxel space;
+the thirteen left sides carrying two ostia, eleven of which are the absent-left-main variant rather
+than corruption; and the three cases whose centerlines contain a cycle.

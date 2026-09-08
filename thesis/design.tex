@@ -1,0 +1,43 @@
+% Thesis prose, for early in the document. Paste into your own thesis, or \input it.
+% Condensed from whole_tree.tex and healthy_cohort.tex, which are parked; everything cut is
+% recoverable there -- the bifurcation-study catalogue, the European Bifurcation Club explanation
+% for why the field looked at the junction, the referred/healthy-selected/post-event taxonomy, and
+% the stratification-density argument for cohort size.
+% No exact figure from the Copenhagen General Population Study appears here; data access is pending.
+
+\section{What this thesis measures, and in whom}
+\label{sec:design}
+
+Two choices separate this work from the literature it draws on, and each needs justifying.
+
+The first is the whole tree rather than a single junction.
+Coronary geometry is almost always measured at the left main bifurcation, and the disease is not
+confined there: mapping all three coronary arteries by optical coherence tomography in 131 patients,
+Araki et al.\ found the rupture-prone plaque phenotype clustered proximally in each of them
+\cite{araki2020plaques}.
+More decisively, most of what this thesis measures cannot be defined on a bifurcation at all.
+Dominance is a statement about which arterial system crosses the crux on the underside of the heart
+(Section~\ref{sec:dominance}), and a branch count needs something to count over.
+Measuring at the junction does not approximate the tree-scale question but discards it.
+
+The value of such a description is established in another vascular bed.
+Rudnicka et al.\ measured vessel width and tortuosity across the retinal vascular tree in 88,052 UK
+Biobank participants and predicted circulatory mortality, myocardial infarction and stroke
+\cite{rudnicka2022quartz}; the largest published analysis of a whole coronary tree covers 39
+patients \cite{shen2026geometry}.
+
+The second choice is the population.
+Calling one tree unusual requires a reference distribution, and the reference decides what the word
+means: measured in patients, unusual means unlike a patient.
+A clinically referred cohort cannot supply one, because disease alters the geometry before it
+becomes visible.
+Examining 136 hearts at autopsy, Glagov et al.\ found the vessel enlarges outward as plaque
+accumulates, so the lumen does not narrow measurably until a lesion occupies about 40\% of it
+\cite{glagov1987remodeling} --- an artery called normal in such a cohort may already have
+remodeled.
+
+No single dataset meets both requirements.
+ImageCAS-X carries the annotation needed to build the construction and measure how reproducible it
+is \cite{bransby2026imagecasx}; the Copenhagen General Population Study supplies participants not
+selected for disease, repeat scans of the same people, and adjudicated outcomes
+\cite{fuchs2023cgps}.

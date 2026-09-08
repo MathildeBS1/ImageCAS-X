@@ -294,6 +294,27 @@
   note    = {[VERIFIED] PMC12988317}
 }
 
+% ===================================================================== added 2026-09-07
+@article{topaz1991absentlm,
+  title   = {Absent left main coronary artery: Angiographic findings in 83 patients with
+             separate ostia of the left anterior descending and circumflex arteries at the
+             left aortic sinus},
+  author  = {Topaz, On and DiSciascio, Germano and Cowley, Michael J. and Soffer, Ariel and
+             Lanter, Patricia and Goudreau, Evelyn and Nath, Amar and Warner, Mark and
+             Vetrovec, George W.},
+  journal = {American Heart Journal},
+  volume  = {122},
+  number  = {2},
+  pages   = {447--452},
+  year    = {1991},
+  doi     = {10.1016/0002-8703(91)90998-w},
+  note    = {[BIBLIOGRAPHY VERIFIED] DOI resolves at Crossref. 83/20{,}332 consecutive cardiac
+             catheterization patients (0.4\%) had absent left main, i.e.\ separate LAD/LCX ostia
+             at the left sinus; associated with more frequent left dominance and myocardial
+             bridging (6\% vs.\ the otherwise-typical 0.5--1.5\%). Abstract-level only, not yet
+             read in full.}
+}
+
 @article{abbara2016scct,
   title   = {{SCCT} guidelines for the performance and acquisition of coronary computed
              tomographic angiography: A report of the Society of Cardiovascular Computed
@@ -398,6 +419,113 @@
   doi     = {10.1016/j.media.2025.103578},
   note    = {[BIBLIOGRAPHY VERIFIED] Crossref; preprint arXiv:2504.01597. Evaluated on ASOCA and
              PDSCA, not ImageCAS, so its numbers are not comparable to our benchmark}
+}
+
+% ---- the six methods bransby2026imagecasx Table 2 benchmarks against inter-observer agreement,
+% pulled from that paper's own numbered reference list (its [11], [12], [29], [31], [32], [33]),
+% added 2026-09-07. All six have bibliographic fields confirmed against Crossref; none read in
+% full, so none is [VERIFIED] (see header). Year follows Crossref's record, which for three of
+% the six (nnU-Net, Swin UNETR, ADE-HTL) differs by one year from the year printed in
+% bransby2026imagecasx's own reference list -- an online-first/print-issue mismatch, not an error.
+
+@article{dong2023casnet,
+  title   = {A novel multi-attention, multi-scale {3D} deep network for coronary artery
+             segmentation},
+  author  = {Dong, Caixia and Xu, Songhua and Dai, Duwei and Zhang, Yizhi and
+             Zhang, Chunyan and Li, Zongfang},
+  journal = {Medical Image Analysis},
+  volume  = {85},
+  pages   = {102745},
+  year    = {2023},
+  doi     = {10.1016/j.media.2023.102745},
+  note    = {[BIBLIOGRAPHY VERIFIED] Crossref. CAS-Net: the best-performing method in
+             bransby2026imagecasx Table 2 (DSC 91.2, HD95 2.99 mm, $\beta^{err}$ 1.9, clDice 93.3,
+             ASSD 0.73 mm, cl-HD95 5.75 mm) and the cheapest (6.8 M params, 15.5 s/scan, Table 3)}
+}
+
+@article{song2022ffrunet,
+  title   = {Automatic Coronary Artery Segmentation of {CCTA} Images With an Efficient
+             Feature-Fusion-and-Rectification {3D-UNet}},
+  author  = {Song, Along and Xu, Lisheng and Wang, Lu and Wang, Bin and Yang, Xiaofan and
+             Xu, Bu and Yang, Benqiang and Greenwald, Stephen E.},
+  journal = {IEEE Journal of Biomedical and Health Informatics},
+  volume  = {26},
+  number  = {8},
+  pages   = {4044--4055},
+  year    = {2022},
+  doi     = {10.1109/JBHI.2022.3169425},
+  note    = {[BIBLIOGRAPHY VERIFIED] Crossref. The 3D-FFR-UNet in bransby2026imagecasx Table 2
+             (patch-based segmentation): DSC 84.9, HD95 15.93 mm. "FFR" in the name is
+             Feature-Fusion-and-Rectification, not fractional flow reserve -- never describe it as
+             an FFR estimator}
+}
+
+@article{wasserthal2023totalsegmentator,
+  title   = {{TotalSegmentator}: Robust Segmentation of 104 Anatomic Structures in {CT} Images},
+  author  = {Wasserthal, Jakob and Breit, Hanns-Christian and Meyer, Manfred T. and
+             Pradella, Maurice and Hinck, Daniel and Sauter, Alexander W. and Heye, Tobias and
+             Boll, Daniel T. and Cyriac, Joshy and Yang, Shan and Bach, Michael and
+             Segeroth, Martin},
+  journal = {Radiology: Artificial Intelligence},
+  volume  = {5},
+  number  = {5},
+  pages   = {e230024},
+  year    = {2023},
+  doi     = {10.1148/ryai.230024},
+  note    = {[BIBLIOGRAPHY VERIFIED] Crossref. The zero-shot pretrained model in
+             bransby2026imagecasx Table 2 -- not trained on coronary lumen at all -- and its
+             worst performer (DSC 70.5, $p<0.001$ vs CAS-Net), which the authors attribute to a
+             possible distribution shift between its training data and ImageCAS}
+}
+
+@article{zhang2024adehtl,
+  title   = {An Anatomy- and Topology-Preserving Framework for Coronary Artery Segmentation},
+  author  = {Zhang, Xiao and Sun, Kaicong and Wu, Dijia and Xiong, Xiaosong and Liu, Jiameng and
+             Yao, Linlin and Li, Shufang and Wang, Yining and Feng, Jun and Shen, Dinggang},
+  journal = {IEEE Transactions on Medical Imaging},
+  volume  = {43},
+  number  = {2},
+  pages   = {723--733},
+  year    = {2024},
+  doi     = {10.1109/TMI.2023.3319720},
+  note    = {[BIBLIOGRAPHY VERIFIED] Crossref. ADE-HTL: centerline-based segmentation guided by
+             bifurcation points and connectivity, and the closest competitor to CAS-Net in
+             bransby2026imagecasx Table 2 -- significantly behind on DSC and $\beta^{err}$
+             ($p<0.001$) but not on HD95 ($p=0.87$), and ahead of CAS-Net on clDice, ASSD and
+             cl-HD95 for centerline extraction. Needs TotalSegmentator's
+             \texttt{heartchambers\_highres} masks as an input}
+}
+
+@article{isensee2021nnunet,
+  title   = {{nnU-Net}: a self-configuring method for deep learning-based biomedical image
+             segmentation},
+  author  = {Isensee, Fabian and Jaeger, Paul F. and Kohl, Simon A. A. and Petersen, Jens and
+             Maier-Hein, Klaus H.},
+  journal = {Nature Methods},
+  volume  = {18},
+  number  = {2},
+  pages   = {203--211},
+  year    = {2021},
+  doi     = {10.1038/s41592-020-01008-z},
+  note    = {[BIBLIOGRAPHY VERIFIED] Crossref. General-purpose medical segmentation method,
+             included in bransby2026imagecasx Table 2 both alone (DSC 89.8) and with the clDice
+             loss (\cite{shit2021cldice}, DSC 90.0) -- the framework this thesis's own
+             preprocessing pipeline follows the style of (CLAUDE.md), though not the method
+             itself}
+}
+
+@inproceedings{hatamizadeh2022swinunetr,
+  title     = {{Swin UNETR}: Swin Transformers for Semantic Segmentation of Brain Tumors in {MRI}
+               Images},
+  author    = {Hatamizadeh, Ali and Nath, Vishwesh and Tang, Yucheng and Yang, Dong and
+               Roth, Holger R. and Xu, Daguang},
+  booktitle = {International MICCAI Brainlesion Workshop},
+  pages     = {272--284},
+  year      = {2022},
+  doi       = {10.1007/978-3-031-08999-2_22},
+  note      = {[BIBLIOGRAPHY VERIFIED] Crossref. General-purpose transformer segmentation method,
+             originally for brain tumors on MRI; the second general-purpose method in
+             bransby2026imagecasx Table 2 (DSC 87.9)}
 }
 
 @article{asakura1990flow,
@@ -761,11 +889,23 @@
   pages   = {111583},
   year    = {2026},
   doi     = {10.1016/j.compbiomed.2026.111583},
-  note    = {[BIBLIOGRAPHY VERIFIED] PMID 41747562. 1078 arteries from 748 patients; a
-             gauge-equivariant mesh graph CNN estimates wall shear stress from geometry alone in
-             $<$ 5 s per vessel, and lesion-averaged WSS predicts myocardial infarction as well as
-             the CFD it was trained on. Normalizing by vessel-averaged WSS raises agreement from
-             R = 0.67 to R = 0.89 -- relative pattern transfers, absolute level does not}
+  note    = {[VERIFIED] Published full text (12 pp., CC BY) read 2026-09-07; PDF in
+             docs_thesis/papers/. 1078 single-branch LAD/LCX/RCA segments from 748 patients,
+             reconstructed from INVASIVE ANGIOGRAPHY (3D-QCA), not CCTA, pooled from three trials
+             (FAME 2 n=520, FIRE n=371, future-culprit study n=187; median 58.5\% area stenosis).
+             A gauge-equivariant mesh graph CNN estimates WSS from geometry alone in $<$ 5 s per
+             vessel. Normalizing by vessel-averaged WSS raises agreement with CFD from R = 0.67 to
+             R = 0.89 -- the relative pattern transfers, the absolute level does not, which is the
+             argument for defining features as ratios and within-tree z-scores. CAREFUL: the
+             abstract's "comparable MI prediction performance" is AUC 0.63 (CFD) vs 0.63 (network)
+             for lesion-averaged WSS and 0.66 vs 0.68 for the lesion-to-vessel ratio -- the
+             equivalence holds (DeLong p = 0.84 and 0.37) but the authors themselves call the
+             predictive power "moderate". CAREFUL: that analysis discriminates 80 future-culprit
+             from 107 non-culprit lesions WITHIN patients who all went on to have an MI; it is not
+             population risk prediction. CAREFUL: the paper's "Dice distance" is defined as the
+             Dice similarity coefficient, so 0.88 is good agreement, and it is measured on HIGH-WSS
+             regions (80th percentile), not low. Single vessels, never a tree. See
+             docs_thesis/papers/griffo2026wss.md}
 }
 
 @article{shen2026geometry,
@@ -779,11 +919,21 @@
   journal = {Archives of Computational Methods in Engineering},
   year    = {2026},
   doi     = {10.1007/s11831-026-10530-w},
-  note    = {[BIBLIOGRAPHY VERIFIED] Crossref; 311 references. The 2026 review of the causal
-             argument that 05\_hemodynamics.tex and 06\_geometry\_risk.tex currently take from
-             rampidis2022geometry alone. Closes on the need to understand CAD mechanism in
-             individuals representative of large populations -- objective 8 stated by the field.
-             Volume and article number not yet assigned; author given names are initials}
+  note    = {[VERIFIED] Published full text (35 pp., open access) read 2026-09-07; PDF in
+             docs_thesis/papers/. 311 references, confirmed -- the final entry is number 311.
+             Narrative review, no search protocol, no cohort: cite for framing, never for a number.
+             Section 5 names two gaps this thesis occupies -- investigations with a large population
+             are limited, and most studies cover only the main bifurcation while "vulnerable plaques
+             are most commonly located outside the left main region", so "investigating the whole
+             tree is essential". A table footnote adds that tortuosity and curvature definitions
+             overlap and that inconsistent measurement likely contributes to contradictory findings.
+             CAREFUL: its "large populations" direction means scaling up patient-specific CFD with
+             power analysis, NOT distribution-based description -- the words outlier, extreme value
+             and anomaly appear nowhere, so it does not endorse objective 9. CAREFUL: it states
+             statistical shape analysis HAS been applied to coronary bifurcation shape, citing
+             Medrano-Gracia 2017 (= medranogracia2017bifurcation, its ref 16). See
+             docs_thesis/papers/shen2026geometry.md. Volume and article number not yet assigned;
+             author given names are initials}
 }
 
 @article{sun2026angiographcad,
@@ -956,4 +1106,270 @@
              graph has patients as nodes, linked by propensity-matched features. No artery is
              modelled. Most apparent GNN competition in this literature is of this kind, or is
              segment labelling}
+}
+
+% ===================================================================== added 2026-09-07 (2)
+@article{zamfir2024anomalies,
+  title   = {Trends in Coronary Artery Anomalies Detection by Coronary Computed Tomography
+             Angiography (CCTA): A Real-Life Comparative Study before and during the {COVID-19}
+             Pandemic},
+  author  = {Zamfir, Alexandra-Simona and Cernomaz, Tudor-Andrei and Ciuntu, Bogdan Mihnea and
+             Azoic{\u{a}}i, Doina and Zamfir, Carmen L{\u{a}}cr{\u{a}}mioara and
+             Chistol, Raluca Ozana and Sava, Anca},
+  journal = {Healthcare},
+  volume  = {12},
+  number  = {11},
+  pages   = {1091},
+  year    = {2024},
+  doi     = {10.3390/healthcare12111091},
+  note    = {[BIBLIOGRAPHY VERIFIED] DOI resolves at Crossref, open access. Coronary anomalies
+             (origin, course or termination) detected in 192/8733 CCTA scans (2.2\%) 2012--2019
+             and 158/4025 (3.9\%) 2020--2022 at one centre. Cited only for the categorical,
+             clinically-defined notion of anomaly prevalence -- not a population-distribution
+             study. Abstract/results level, not read in full.}
+}
+
+@article{rudnicka2022quartz,
+  title   = {Artificial intelligence-enabled retinal vasculometry for prediction of circulatory
+             mortality, myocardial infarction and stroke},
+  author  = {Rudnicka, Alicja Regina and Welikala, Roshan and Barman, Sarah and Foster, Paul J.
+             and Luben, Robert and Hayat, Shabina and Khaw, Kay-Tee and Whincup, Peter and
+             Strachan, David and Owen, Christopher G.},
+  journal = {British Journal of Ophthalmology},
+  volume  = {106},
+  pages   = {1722--1729},
+  year    = {2022},
+  doi     = {10.1136/bjo-2022-321842},
+  note    = {[BIBLIOGRAPHY VERIFIED] DOI resolves at Crossref. QUARTZ algorithm, n = 88{,}052 UK
+             Biobank participants aged 40--69: automated retinal vessel width, area and
+             tortuosity. Arteriolar/venular width, venular tortuosity and width variation were
+             the main predictors of circulatory disease death; combined with clinical risk
+             factors, the model captured half to two-thirds of circulatory deaths in those
+             flagged highest-risk. Abstract/results level, not read in full.}
+}
+
+% ================================== does the geometry->WSS mapping hold on CCTA lumens?
+% Added 2026-09-07 from the CCTA-WSS feasibility search; see docs_thesis/find_research.md
+% Stage 3.1. Fields confirmed against Crossref, claims from abstracts only.
+
+@article{eslami2021ccta,
+  title   = {Validation of wall shear stress assessment in non-invasive coronary {CTA} versus
+             invasive imaging: a patient-specific computational study},
+  author  = {Eslami, Parastou and Hartman, Eline M. J. and Albaghdadi, Mazen and
+             Karady, Julia and Jin, Zhongyao and Thondapu, Vikas},
+  journal = {Annals of Biomedical Engineering},
+  volume  = {49},
+  number  = {4},
+  pages   = {1151--1168},
+  year    = {2021},
+  doi     = {10.1007/s10439-020-02631-9},
+  note    = {[BIBLIOGRAPHY VERIFIED] PMID 33067688. THE direct validation of CCTA-derived shear
+             against the invasive fusion gold standard, and the reason to believe shear can be
+             estimated from CCTA at all. Only n = 14 patients (10 to optimise the method, 4 to
+             test), LAD only. Segment-averaged TAESS correlated at r = 0.86 (n = 263 segments) in
+             the optimisation set and r = 0.95 (n = 117) in the four test patients; arc-averaged
+             r = 0.85 and r = 0.93. CAREFUL: tertile concordance was 78\% (segment) in the
+             optimisation set but fell to 64\% in the held-out test patients, and absolute TAESS
+             values differed between modalities -- the same relative-transfers/absolute-does-not
+             pattern as griffo2026wss. Author list truncated at 6}
+}
+
+@article{ding2023ccta,
+  title   = {Validation of hemodynamic stress calculation in coronary computed tomography
+             angiography versus intravascular ultrasound},
+  author  = {Ding, Yipu and Liu, Zinuan and Wang, Xi and Xin, Rui and Shan, Dongkai and
+             He, Bai},
+  journal = {Quantitative Imaging in Medicine and Surgery},
+  volume  = {13},
+  number  = {4},
+  pages   = {2339--2351},
+  year    = {2023},
+  doi     = {10.21037/qims-22-832},
+  note    = {[BIBLIOGRAPHY VERIFIED] PMID 37064396, open access. 13 patients / 14 arteries with
+             unstable angina, CCTA and IVUS/ICA within 7 days. WSS agreement ICC 0.769
+             (95\% CI 0.718--0.810); no significant difference in WSS magnitude (6.57 $\pm$ 6.26
+             vs 5.98 $\pm$ 5.55 Pa, p = 0.420). CAREFUL: widely quoted as "ICC 0.800" -- that is
+             the Reynolds number (0.810) or velocity (0.796), not WSS. CCTA OVERESTIMATED area
+             stenosis (50.22\% vs 36.41\%, p = 0.004), i.e. blooming, and axial plaque stress
+             agreed poorly (ICC 0.341). Author list truncated at 6}
+}
+
+@article{schultz2023ess,
+  title   = {Coronary computed tomography angiography-based endothelial wall shear stress in
+             normal coronary arteries},
+  author  = {Schultz, Jussi and van den Hoogen, Inge J. and Kuneman, Jurrien H. and
+             de Graaf, Michiel A. and Kamperidis, Vasileios},
+  journal = {The International Journal of Cardiovascular Imaging},
+  volume  = {39},
+  number  = {2},
+  pages   = {441--450},
+  year    = {2023},
+  doi     = {10.1007/s10554-022-02739-0},
+  note    = {[VERIFIED] Published full text (10 pp., CC BY) read 2026-09-07; PDF in
+             docs_thesis/papers/. Normative CCTA distribution over 349 disease-free vessels (visual
+             criterion) from 168 patients, 5223 3 mm segments; 0.4 mm in-plane / 0.625 mm slices,
+             close to ImageCAS-X. Cite it as the FORM objective 8 should take -- distribution per
+             segment, stratified by vessel, sex and calibre, with feasibility reported -- not as a
+             reference range. CAREFUL: boundary conditions are NOT patient-specific (fixed 100 mmHg
+             inlet, uniform 1 ml/s outlet for every vessel), so with $\tau \propto Q/R^3$ the
+             headline diameter gradient (3.8 vs 1.2 Pa) is largely built in; the authors themselves
+             attribute the high distal values to omitting side branches -- "this can result in
+             unrealistically high ESS values as seen in our study". CAREFUL: they explicitly did NOT
+             compare against invasive imaging, so this is not a validation of CCTA-derived shear
+             (use eslami2021ccta / ding2023ccta). The sex effect is real but tiny, 1.7 vs 1.9 Pa,
+             and p = 0.044 for maximal ESS -- it licenses stratifying by sex, not interpreting the
+             magnitude. Left main excluded and side branches unanalysed, so not a tree.
+             See docs_thesis/papers/schultz2023ess.md. Author list truncated at 5}
+}
+
+% =========================================================== CT-derived FFR
+% Added 2026-09-07. Corrects the claim in 05_hemodynamics.tex that FFR cannot be obtained from an
+% image. Metadata verified against Europe PMC; claims are abstract-level.
+
+@article{norgaard2014nxt,
+  title   = {Diagnostic performance of noninvasive fractional flow reserve derived from coronary
+             computed tomography angiography in suspected coronary artery disease: The {NXT} trial},
+  author  = {N{\o}rgaard, Bjarne L. and Leipsic, Jonathon and Gaur, Sara and
+             Seneviratne, Sujith and Ko, Brian S. and Ito, Hiroshi and Jensen, Jesper M. and
+             Mauri, Laura and De Bruyne, Bernard and Bezerra, Hiram and Osawa, Kazuhiro and
+             Marwan, Mohamed and Naber, Christoph and Erglis, Andrejs and Park, Seung-Jung and
+             Christiansen, Evald H. and Kaltoft, Anne and Lassen, Jens F. and B{\o}tker, Hans Erik
+             and Achenbach, Stephan},
+  journal = {Journal of the American College of Cardiology},
+  volume  = {63},
+  number  = {12},
+  pages   = {1145--1155},
+  year    = {2014},
+  doi     = {10.1016/j.jacc.2013.11.043},
+  note    = {[BIBLIOGRAPHY VERIFIED] PMID 24486266. Prospective multicentre, n = 254 scheduled for
+             invasive angiography; FFR-CT area under the curve 0.90 (0.87--0.94) against 0.81
+             (0.76--0.87) for CCTA stenosis reading, p = 0.0008. Per-patient specificity 79\%
+             against 34\%. NCT01757678}
+}
+
+@article{yang2023target,
+  title   = {On-site computed tomography-derived fractional flow reserve to guide management of
+             patients with stable coronary artery disease: The {TARGET} randomized trial},
+  author  = {Yang, Junjie and Shan, Dongkai and Wang, Xi and Sun, Xiaolin and Shao, Mingyu and
+             Wang, Kang and Pan, Yilong and Wang, Zhen and Schoepf, U. Joseph and
+             Savage, Rock H. and Zhang, Mingdi and Dong, Ming and Xu, Lei and Zhou, Yujie and
+             Ma, Xiaohai and Hu, Xiaoyan and Xia, Linlin and Zeng, Hesong and Liu, Zhi and
+             Chen, Yundai},
+  journal = {Circulation},
+  volume  = {147},
+  number  = {18},
+  pages   = {1369--1381},
+  year    = {2023},
+  doi     = {10.1161/CIRCULATIONAHA.123.063996},
+  note    = {[BIBLIOGRAPHY VERIFIED] PMID 36870065. Randomized, n = 1216, six Chinese centres,
+             stenosis 30--90\%. Unnecessary invasive angiography fell from 46.2\% to 28.3\%
+             (p < 0.001), but revascularization rose (49.7\% vs 42.8\%, p = 0.02) and one-year
+             MACE did not differ (HR 0.88, 0.59--1.30). The honest limit on CT-FFR. NCT03901326}
+}
+
+@article{biswas2026ffrct,
+  title   = {Prognostic value of {CT}-derived fractional flow reserve for major adverse
+             cardiovascular events in patients with suspected or known coronary artery disease:
+             A systematic review and meta-analysis},
+  author  = {Biswas, S. and Srivastava, Y. and Hamadttu, A.},
+  journal = {Open Heart},
+  volume  = {13},
+  number  = {1},
+  pages   = {e003979},
+  year    = {2026},
+  doi     = {10.1136/openhrt-2026-003979},
+  note    = {[BIBLIOGRAPHY VERIFIED] PMID 42161421, PMC13202077, open access.
+             PROSPERO CRD420261276897. 22 studies, 20,067 patients; FFR-CT at or below 0.80 gives
+             MACE hazard ratio 3.94 (2.92--5.31), I2 = 79.9\%. Hard endpoints only (k = 6) give
+             3.28 (2.25--4.79) with I2 = 0\%. Trim-and-fill for publication bias adjusts to 2.35;
+             GRADE certainty moderate. Author given names are Europe PMC initials}
+}
+
+% ================================== found via Shen 2026 Table 7, verified independently
+% Added 2026-09-07 while mining shen2026geometry's Table 7. Both were located through that table
+% and then confirmed against Europe PMC on their own record; claims are abstract-level.
+
+@article{kashyap2022tortuosity,
+  title   = {Accuracy of vascular tortuosity measures using computational modelling},
+  author  = {Kashyap, Vikas and Gharleghi, Ramtin and Li, Donna D. and
+             McGrath-Cadell, Lucy and Graham, Robert M. and Ellis, Chris and Webster, Mark and
+             Beier, Susann},
+  journal = {Scientific Reports},
+  volume  = {12},
+  number  = {1},
+  pages   = {865},
+  year    = {2022},
+  doi     = {10.1038/s41598-022-04796-w},
+  note    = {[BIBLIOGRAPHY VERIFIED] PMID 35039557, PMC8764056, open access. CTCA from n = 127
+             patients WITHOUT coronary artery disease; every previously used tortuosity metric
+             applied to the left main bifurcation and its branches, correlated against the
+             percentage of vessel area below 0.4 Pa time-averaged wall shear stress. Average
+             absolute curvature had the highest coefficient of determination across all branches
+             (p < 0.001). CAREFUL: the tortuosity index, the measure most used in the literature,
+             showed NO significant correlation with low shear (p = 0.86). This is the source for
+             objective 7 computing average absolute curvature rather than a tortuosity index}
+}
+
+@article{li2011tortuosity,
+  title   = {Clinical implication of coronary tortuosity in patients with coronary artery disease},
+  author  = {Li, Yi and Shen, Chengxing and Ji, Yong and Feng, Yiming and Ma, Genshan and
+             Liu, Naifeng},
+  journal = {PLoS ONE},
+  volume  = {6},
+  number  = {8},
+  pages   = {e24232},
+  year    = {2011},
+  doi     = {10.1371/journal.pone.0024232},
+  note    = {[BIBLIOGRAPHY VERIFIED] PMID 21904618, PMC3164184, open access. n = 1010 consecutive
+             angiography patients; tortuosity defined as three or more bends of at least 45 degrees
+             in systole and diastole, prevalence 39.1\%. NEGATIVELY correlated with CAD, odds ratio
+             0.755 (95\% CI 0.574-0.994, p = 0.045); far more common in women, OR 2.603
+             (1.897-3.607, p < 0.001); positively correlated with hypertension, OR 1.533
+             (1.131-2.076, p = 0.006). CAREFUL: major adverse events over 2-4 years did NOT differ
+             between CAD patients with and without tortuosity. The largest tortuosity cohort with
+             an effect size and a follow-up; strengthens groves2009tortuosity}
+}
+
+% ============================================ whole-tree argument, added 2026-09-07
+@article{araki2020plaques,
+  title   = {Spatial distribution of vulnerable plaques: Comprehensive in vivo coronary plaque
+             mapping},
+  author  = {Araki, Makoto and Soeda, Tsunenari and Kim, Hyung Oh and Thondapu, Vikas and
+             Russo, Michele and Kurihara, Osamu and Shinohara, Hiroki and Minami, Yoshiyasu and
+             Higuma, Takumi and Lee, Hang and Yonetsu, Taishi and Kakuta, Tsunekazu and
+             Jang, Ik-Kyung},
+  journal = {JACC: Cardiovascular Imaging},
+  volume  = {13},
+  number  = {9},
+  pages   = {1989--1999},
+  year    = {2020},
+  doi     = {10.1016/j.jcmg.2020.01.013},
+  note    = {[BIBLIOGRAPHY VERIFIED] PMID 32912472. Three-vessel OCT, n = 131 patients, images read
+             every 1 mm; 534 plaques in 393 arteries. Thin-cap fibroatheroma 18.9\%, clustering in
+             the PROXIMAL left anterior descending, with two peaks in the RCA and one in the LCx in
+             acute coronary syndrome. CAREFUL: the finding is proximal clustering per artery, not
+             distal disease --- shen2026geometry cites it for "vulnerable plaque outside the left
+             main", which is true of the LM trunk but must not be read as "plaque is distal".
+             NCT01110538}
+}
+
+@article{burzotta2024ebc,
+  title   = {Percutaneous coronary intervention for bifurcation coronary lesions using optimised
+             angiographic guidance: The 18th consensus document from the European Bifurcation Club},
+  author  = {Burzotta, Francesco and Louvard, Yves and Lassen, Jens Flensted and
+             Lef{\`e}vre, Thierry and Finet, Gerard and Collet, Carlos and Legutko, Jacek and
+             Lesiak, Maciej and Hikichi, Yutaka and Albiero, Remo and Pan, Manuel and
+             Chatzizisis, Yiannis S. and Hildick-Smith, David and Ferenc, Miroslaw and
+             Johnson, Thomas W. and Chieffo, Alaide and Darremont, Olivier and Banning, Adrian and
+             Serruys, Patrick W. and Stankovic, Goran},
+  journal = {EuroIntervention},
+  volume  = {20},
+  number  = {15},
+  pages   = {e915--e926},
+  year    = {2024},
+  doi     = {10.4244/EIJ-D-24-00160},
+  note    = {[BIBLIOGRAPHY VERIFIED] PMID 38752714, PMC11285041. Cited here only as evidence that
+             bifurcation and left main PCI carries a sustained consensus program of its own ---
+             this is its eighteenth document --- which is why the junction, not the tree, is where
+             coronary geometry got characterized}
 }

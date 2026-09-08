@@ -34,12 +34,14 @@ updates** `literature.md` it says so in bold; nothing there is silently overwrit
 | 6 | coronary artery tortuosity index CCTA quantitative 2024 2025 obstructive coronary disease | Zebić Mihić 2023b; SCCT 2024 quantitative standards; CArTI (AHA 2025 abstract); an unsupervised HMM tortuosity method. See §1.2 and §4. |
 | 7 | coronary artery ostial take-off angle origin angle atherosclerosis plaque CCTA association | **Effectively empty for normal anatomy.** Everything returned concerns *anomalous* origin. See §1.5. |
 | 8 | machine learning coronary tree geometry predict major adverse cardiac events CCTA large cohort 2025 | Ma 2025 systematic review; Kim 2025. Everything returned is **plaque radiomics**, not tree geometry. See §2. |
-| 9 | statistical shape model coronary artery anatomy population variation cohort 2024 2025 | Shen 2026 review; Sharp 2026 SSM review. **No statistical shape model of the coronary tree found** — the SSM literature is chambers and ventricles. See §4. |
+| 9 | statistical shape model coronary artery anatomy population variation cohort 2024 2025 | Shen 2026 review; Sharp 2026 SSM review. ~~No statistical shape model of the coronary tree found~~ — **corrected 2026-09-07 on reading Shen in full: SSM *has* been applied to coronary bifurcation shape — Shen's ref [16] is `medranogracia2017bifurcation` — and Shen calls it under-explored, not absent.** Defensible narrower claim: SSM has been applied to coronary *bifurcations*, not to whole trees, and never for outlier detection. See §4. |
 | 10 | Copenhagen General Population Study coronary CT angiography plaque cohort | Fuchs 2023, **the CGPS CCTA cohort itself**, n = 9533 with adjudicated MI. See §2. |
 | 11 | geometric features alone predict wall shear stress coronary ML surrogate CFD FFR-CT | Griffo 2026 (GEM-GCN, n = 748 patients) and the physics-informed line behind it. **Answers the question Axis 5 left open.** See §3. |
 | 12 | graph neural network coronary artery tree topology disease prediction centerline 2025 2026 | AngioGraphCAD (nearest competitor); otherwise patient-similarity and segment-labelling graphs, not tree topology. See §4. |
 | 13 | coronary bifurcation angle measurement reproducibility inter-observer variability CCTA | Givehchi 2018 phantom study; Cui 2017. **Between-technique disagreement is the size of the biological effect.** See §5.1. |
 | 14 | coronary geometry changes with age remodeling reverse causation atherosclerosis | Glagov 1987; Kwon 2022 (carotid, 10-year longitudinal). See §5.2. |
+| 15 | wall shear stress from CCTA validated against invasive reference (2026-09-07) | Eslami 2021 (n = 14, the direct validation, r = 0.86–0.95); Ding 2023 (13 pts/14 arteries, WSS ICC 0.769). See §3.1. |
+| 16 | CCTA-based endothelial shear stress normal coronary arteries population (2026-09-07) | Schultz 2023, **n = 349 vessels / 168 patients — the closest published precedent for objective 8**. See §3.1. |
 
 ---
 
@@ -255,19 +257,99 @@ split. After normalization by vessel-averaged WSS the correlation with CFD lesio
 from **R = 0.67 to R = 0.89 (p < 0.0001)**. Critically, **lesion-averaged WSS and the
 lesion-to-vessel WSS ratio predicted myocardial infarction equally well whether computed by CFD or by
 the network**.
-*Licenses:* the strongest single justification in this pass for extracting geometric features at all.
-The shear field is recoverable from shape, so a geometric feature is not a crude proxy for
-hemodynamics — it carries most of the information, and the prognostic content survives the
-substitution. Two limits must travel with the claim: it is **lesion-scale, single-vessel**, not
-tree-scale, so it licenses the premise and not the method; and the jump from R = 0.67 to R = 0.89 on
-normalization says the **relative** shear pattern transfers while the absolute level does not. That
-is a concrete design instruction for objective 7 — define features as ratios and within-tree z-scores
-rather than absolute quantities.
+**READ IN FULL 2026-09-07** — published version, 12 pp., CC BY, PDF in `docs_thesis/papers/`.
+Entry: `docs_thesis/papers/griffo2026wss.md`.
+
+*Licenses:* the shear field is recoverable from shape to useful accuracy, so a geometric feature is
+not a crude proxy for hemodynamics; and the R = 0.67 → 0.89 jump on normalization says the
+**relative** shear pattern transfers while the absolute level does not — a concrete design
+instruction for objective 7, define features as ratios and within-tree z-scores. The
+lesion-to-vessel ratio also out-predicts the lesion average (AUC 0.66/0.68 vs 0.63/0.63), an
+independent argument for the same choice.
+
+**Corrections from the full text — the licensing claim above was overstated:**
+
+- *"the prognostic content survives the substitution"* is true but the content is modest. Both arms
+  are **AUC 0.63–0.68**; the authors call it *"moderate predictive power … attributable to the
+  multifactorial nature of MI"*. The equivalence is solid (DeLong p = 0.84, 0.37); the magnitude is
+  not a headline.
+- **It is not population risk prediction.** The MI analysis discriminates 80 future-culprit from 107
+  non-culprit lesions **within the same patients**, all of whom had an MI. It answers which lesion
+  became the culprit.
+- **The cohort is trial-pooled and diseased** — FAME 2 (n = 520), FIRE (n = 371), future-culprit
+  study (n = 187), median 58.5% area stenosis — and reconstructed from **invasive angiography
+  (3D-QCA), not CCTA**. Transfer to a CCTA general-population cohort like CGPS is an open question.
+- Its "Dice distance" is defined as the Dice **similarity** coefficient, and is measured on
+  **high**-WSS regions (80th percentile), not the low-shear tail the mechanism story rests on.
+- Still lesion-scale, single-vessel: it licenses the premise, never the method.
 
 Supporting work in the same line, noted and not fetched: physics-informed graph neural networks for
 real-time WSS in stenotic coronaries (*Sci Rep* 2026, doi:10.1038/s41598-026-47410-z); TAWSS
 prediction across morphological variants of bifurcations (PMC11920710); and Gharleghi, Samarasinghe,
 Sowmya & Beier's ISBI 2020 paper (doi:10.1109/ISBI45749.2020.9098715) as the earliest of the line.
+
+### 3.1 Does the mapping hold on CCTA lumens? Searched 2026-09-07
+
+`griffo2026wss` works on **invasive angiography (3D-QCA)**, not CCTA, and reading it in full raised
+the question of whether any of it transfers to the lower-resolution, blooming-affected lumens this
+thesis and CGPS actually have. It does, with three bounds.
+
+**Eslami et al. 2021** (`eslami2021ccta`, *Ann Biomed Eng* 49(4):1151–1168,
+doi:10.1007/s10439-020-02631-9, PMID 33067688) is the direct validation: paired patient-specific CFD
+models of the LAD built from invasive imaging and from CCTA in the **same 14 patients** (10 to
+optimise the method, 4 held out). Segment-averaged time-averaged ESS correlated at **r = 0.86**
+(n = 263 segments) in the optimisation set and **r = 0.95** (n = 117) in the four test patients;
+arc-averaged r = 0.85 and 0.93.
+*Licenses:* CCTA-derived shear tracks the invasive gold standard closely enough to be worth
+computing. *Caveat that must travel with it:* tertile concordance was 78% in the optimisation set but
+fell to **64%** in the held-out patients, and absolute TAESS values differed between modalities —
+on n = 14 total, LAD only.
+
+**Ding et al. 2023** (`ding2023ccta`, *Quant Imaging Med Surg* 13(4):2339–2351,
+doi:10.21037/qims-22-832, PMID 37064396) compared CCTA against IVUS/ICA within 7 days in 13 patients
+/ 14 arteries: WSS agreement **ICC 0.769 (95% CI 0.718–0.810)**, with no significant difference in
+magnitude. **Correction to the secondary literature:** this study is widely quoted as "ICC 0.800" —
+that figure is the Reynolds number (0.810) or velocity (0.796), not WSS. CCTA also **overestimated
+area stenosis**, 50.22% vs 36.41% (p = 0.004), which is blooming measured directly, and axial plaque
+stress agreed poorly (ICC 0.341).
+
+**Schultz et al. 2023** (`schultz2023ess`, *Int J Cardiovasc Imaging* 39(2):441–450,
+doi:10.1007/s10554-022-02739-0, PMID 36255544) is the closest published precedent for **objective
+8**, done for shear instead of topology: a normative CCTA distribution over **349 disease-free
+vessels from 168 patients**, 5223 3-mm segments, at 0.4 mm in-plane / 0.625 mm slices — close to
+ImageCAS-X. ESS highest in LAD, then LCX, then RCA (minimal 2.3 / 1.9 / 1.6 Pa, p < 0.001); men lower
+than women after adjusting for lumen diameter; higher in small than large segments (3.8 vs 1.2 Pa).
+
+**READ IN FULL 2026-09-07** — entry `docs_thesis/papers/schultz2023ess.md`. Three corrections to the
+summary above, all from the full text:
+
+- **The diameter gradient is largely the authors' own artefact.** Boundary conditions are *not*
+  patient-specific — fixed 100 mmHg inlet, uniform 1 ml/s outlet for every vessel — so with
+  τ ∝ Q/R³ the gradient is partly built in. Their Limitations concede the rest: omitting side
+  branches means *"the simulated flow in the distal parts of the vessels is higher than in reality,
+  and this can result in unrealistically high ESS values as seen in our study."* Do not cite the
+  distal-ESS rise as a biological finding.
+- **It is not a validation of CCTA-derived shear.** They state plainly that they did not compare
+  against invasive imaging. That role belongs to `eslami2021ccta` and `ding2023ccta` alone.
+- **The sex effect is tiny** — 1.7 vs 1.9 Pa minimal, p = 0.044 for maximal — on 5223 segments from
+  168 patients with no evident clustering adjustment. Calling it an "echo" of
+  `temov2016bifurcation`'s 2.07-fold angle effect **overstated it**; it licenses stratifying by sex,
+  nothing more.
+
+Two things it does add. Its **exclusions are our inclusions** — left main excluded, side branches
+unanalysed, LAD and LCX treated as independent vessels — a third independent confirmation that even
+studies about normal coronary anatomy do not analyse a tree. And its **distal feasibility failure is
+genuine and separate** from the artefact: *"not feasible in all vessels … especially the case in
+distal segments likely due to limited resolution of CCTA and motion artefacts"*, at a voxel size
+close to ours.
+
+**Answer, for the record.** The mapping holds in the proximal, larger, less calcified part of the
+tree, and for the **relative** shear pattern rather than absolute values — the same conclusion
+`griffo2026wss` reaches by a different route (R = 0.67 → 0.89 on normalisation). It degrades with
+calcification (Ding, ICC 0.769 with area stenosis overestimated 50.2% vs 36.4%) and distal analysis
+fails outright on resolution and motion (Schultz). None of that blocks this thesis, because **this
+thesis does not compute shear**: the mapping matters as the justification for measuring geometry, and
+as a warning that any feature defined on small distal vessels inherits the same resolution limit.
 
 ## Stage 4 — learned shape: where the state of the art actually sits
 
@@ -275,15 +357,42 @@ Sowmya & Beier's ISBI 2020 paper (doi:10.1109/ISBI45749.2020.9098715) as the ear
 Disease Through Blood Flow Haemodynamics* (*Arch Comput Methods Eng*,
 doi:10.1007/s11831-026-10530-w) is the review this thesis has been missing. Author list includes
 Wentzel, Morbiducci, Chatzizisis, Serruys and Beier — the groups behind most of Axis 5 — and it
-carries **311 references**. It reviews the hemodynamic effect of coronary anatomy, imaging and
-computational analysis methods, then names the persisting gaps, closing on the need to understand CAD
-mechanism "in individuals representative of large populations".
-*Licenses:* two things. It is the review that can relieve `rampidis2022geometry` of carrying §5 and
-§6 alone — the writing skill flags both sections as single-source, and this is a 2026 review of the
-same causal argument by the primary groups. And its stated future direction, mechanism in individuals
-representative of large populations, **is objective 8 stated by the field**, which is the citation
-that makes the thesis's framing not merely our own opinion. Not read; 311 references also make it
-the best route into the primary literature for the rest of the chapter.
+carries **311 references** (verified against the published version: the final reference entry is
+number 311). It reviews the hemodynamic effect of coronary anatomy, imaging and computational
+analysis methods, then names the persisting gaps.
+
+**READ IN FULL 2026-09-07** — published version, 35 pp., open access, PDF in `docs_thesis/papers/`.
+Entry: `docs_thesis/papers/shen2026geometry.md`. (A first pass the same day read only the arXiv
+preprint and wrongly "corrected" the reference count to 295; the preprint has 295, the published
+paper has 311. **That correction is withdrawn.**) What the full text adds over the abstract:
+
+- §5 names **two** gaps, both this thesis's territory: investigations relating coronary anatomy to
+  haemodynamics *"with a large population are limited"*, and most studies cover only the main
+  bifurcation — *"vulnerable plaques are most commonly located outside the left main region … SCAD
+  occurs in the middle to distal vessel segments. Therefore, investigating the whole tree is
+  essential."* A table footnote adds that tortuosity and curvature definitions overlap and that
+  inconsistent measurement likely contributes to contradictory findings, independently corroborating
+  §1.2 and §5.3. (The preprint carried a third gap as a highlights bullet — *precise and consistent
+  anatomical feature definitions* — which the published version drops from the highlights.)
+- **The whole-tree argument cuts at us too.** §6 makes left main bifurcation angle its
+  best-evidenced feature, and Shen names left-main concentration as a limitation of the field.
+  Defensible, but §4 should say the left main is where the literature looked, not where the disease
+  mostly is.
+- **Correction to the licensing claim above.** Its "large populations" future direction, read in
+  context, means *scaling up patient-specific CFD* — better boundary conditions, larger
+  patient-specific datasets, ML to automate segmentation and haemodynamic analysis. It is objective
+  8-adjacent, but it **never mentions outlier or extreme-value detection**, so it must not be cited
+  as the field endorsing objective 9.
+- It is a **narrative review with no stated search protocol** — no PRISMA, no inclusion criteria, no
+  screening counts. "The field has not done X" cannot be sourced to it.
+- Appendix Table I tabulates ~30 in vivo and computational studies of coronary anatomy and flow
+  (Focus / Data / Method / Key Findings / Study) — the most reusable object in the paper and a route
+  into §4.3's primary literature.
+
+*Licenses:* relieving `rampidis2022geometry` of carrying §5 and §6 alone, as a 2026 review of the
+same causal argument by the primary groups; the framing that the thesis's direction is the field's
+stated direction; and an explicit, justified tortuosity definition for objective 7. **Not** evidence
+— no cohort, no pooled estimate, no number quotable with a population behind it.
 
 **Sun et al. 2026**, AngioGraphCAD (*Med Image Anal* 112:104079, doi:10.1016/j.media.2026.104079;
 preprint doi:10.21203/rs.3.rs-4344029/v1) is the **nearest competitor found in this pass**. A graph
@@ -457,9 +566,10 @@ rather than tree topology.
 
 ### Read in full, in this order
 
-1. **Griffo 2026** — licenses the whole feature-extraction premise; check whether the normalization
-   result generalizes beyond single vessels.
-2. **Shen 2026** — the anchor review for §4, and 311 references into the primary literature.
+1. ~~**Griffo 2026**~~ — **done 2026-09-07**, published full text, see `papers/griffo2026wss.md`.
+   The normalization result does *not* generalize beyond single vessels in this paper; a tree-scale
+   analogue would have to be defined and justified by us.
+2. ~~**Shen 2026**~~ — **done 2026-09-07**, published full text, see `papers/shen2026geometry.md`. Follow-up worth doing: its Table 7 lists ~3 pages of coronary anatomy-and-flow studies; check whether any tree-scale outcome study there was missed by both passes.
 3. **Sun 2026 (AngioGraphCAD)** — the nearest competitor; the novelty claim must be written against it.
 4. **Bekirçavuşoğlu 2026** — the hypothesis most directly testable on our 800 cases.
 5. **Tommasino 2024** — the only tree-scale outcome study; verify the HR 4.47 interval (§1.1).

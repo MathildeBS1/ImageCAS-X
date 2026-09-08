@@ -25,7 +25,12 @@ ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "thesis" / "abbreviations.tex"
 
 # Directories holding thesis body text, in the order a reader meets them.
-BODY_DIRS = ["thesis/clinical_background", "thesis/dataset"]
+BODY_DIRS = [
+    "thesis/introduction",
+    "thesis/clinical_background",
+    "thesis/state_of_the_art",
+    "thesis/dataset",
+]
 
 BOLD_DEF = re.compile(r"\\textbf\{([^{}]*?)\s*\(([A-Z][A-Z0-9-]*[A-Z0-9])\)\}")
 COMMENT = re.compile(r"(?<!\\)%.*$")

@@ -1,0 +1,95 @@
+% Introduction section. Paste into your own thesis, or \input it.
+%
+% STRUCTURE (after Aida Jimenez's MSc thesis ch. 1, Former_students_work/): her chapter runs
+% funnel -> state of the art -> "Aim of the Thesis". Ours splits the same way, except the state of
+% the art is its own chapter because objective 4 demands more than three pages of it. This section
+% is her 1.2: the aim in prose, then what will actually be found out, then what bounds it.
+%
+% What her aim section does NOT have, and this one does: research questions with an order and a
+% stated dependency, and an explicit limits paragraph. What it has that an earlier draft of ours
+% lacked: a plain statement of the aim before any of the detail.
+%
+% TODO (CGPS): no exact figure from the Copenhagen General Population Study appears here --
+% cohort size, repeat-scan counts, follow-up. Data access is pending.
+
+\section{Aim of the thesis}
+\label{sec:aims}
+
+The aim of this thesis is to describe the topology of the coronary artery tree across a population,
+and to establish whether an individual tree can be called unusual against that description.
+Three things are needed together and do not yet exist that way: a construction that turns a
+segmented coronary tree into a measurable object, features on that object that a machine computes
+identically every time, and a cohort large enough and healthy enough for the resulting distribution
+to carry meaning.
+
+The work runs in two stages.
+ImageCAS-X supplies 800 annotated cases on which the construction and the features are built, and
+on which their reproducibility is measured.
+The Copenhagen General Population Study then supplies what ImageCAS-X cannot: a cohort not selected
+for disease, at a scale large enough to describe a distribution rather than a sample, and
+adjudicated outcomes against which any extreme value in that distribution can be tested
+\cite{fuchs2023cgps}.
+
+Four questions run in order, and each is worth asking only once the one before it has an answer.
+
+The first is what can be measured at all.
+A coronary tree becomes a measurable object once it is a graph: vessels as edges, bifurcations and
+terminations as nodes, rooted at the ostium where the artery leaves the aorta.
+That construction is exact rather than approximate in ImageCAS-X, whose centerlines meet by sharing
+a point index and so carry the connectivity without any distance threshold
+\cite{bransby2026imagecasx}.
+What such a graph supports is still open.
+Branching pattern, bifurcation angle, tortuosity and dominance each need one definition that a
+machine computes identically every time.
+Some of them may not survive that requirement.
+
+The second is how well those features can be measured, and the answer decides what the rest is
+worth.
+Each feature carries two error terms, and neither appears in the coronary literature found by the
+searches recorded for this thesis.
+The first is segmentation error, since the tree will be extracted from a predicted lumen rather than
+a drawn one.
+Measuring it means computing every feature on both and comparing them over the 160 test cases the
+benchmark holds back.
+The second is repeated measurement: scanning the same person twice should return the same tree.
+Whatever difference remains is the floor beneath which no real change can be detected.
+The closest published equivalent is carotid rather than coronary, 177 subjects imaged twice a mean of
+$130.2 \pm 8.1$ months apart, whose bifurcation angles had widened significantly by the second scan
+\cite{kwon2022carotid}.
+The repeat scans in the Copenhagen General Population Study make the coronary version possible.
+Until that floor is known, a wide bifurcation and a measurement error are the same number.
+
+The third is what a population of coronary trees looks like.
+Normal coronary anatomy has been described before, but in selected samples of a few hundred: over 300
+angiograms chosen for absent calcium and no stenosis \cite{medranogracia2016atlas}, and 281 patients
+characterized automatically \cite{nannini2024characterization}.
+Neither covers the features extracted here, at the scale needed to call a value unusual.
+So the distributions have to be described first: how branching, angle and tortuosity are spread, and
+how much of that spread belongs to dominance, sex and age rather than to disease.
+Dominance is the test of whether the description can be trusted, because ImageCAS-X records it twice
+by independent routes \cite{bransby2026imagecasx}.
+It is annotated explicitly, and it is implied by which arteries carry labels at all.
+
+The fourth is whether the tails of those distributions mean anything.
+An extreme value is only interesting if it exceeds the measurement floor established by the second
+question.
+It is only useful if it separates people who go on to have events from people who do not.
+The Copenhagen cohort carries adjudicated outcomes, so the last step asks whether topological
+extremes add anything to the risk factors already used in clinic \cite{fuchs2023cgps}.
+A negative answer is a result, provided the second question has been answered well enough to make
+the negative believable.
+
+Two limits bound every answer above.
+The first is measurement.
+Phantoms fabricated with known bifurcation angles were recovered to within a few degrees, but the
+same two accepted measurement techniques applied to 50 real scans disagreed with each other by
+$12.0^\circ \pm 10.6^\circ$ \cite{givehchi2018phantom}, almost the entire width of the clinical
+gradient in Section~\ref{sec:framing}, $12^\circ$ from a normal artery to a significant stenosis.
+Every feature in this thesis is therefore computed by one automatic definition applied to the
+centerline, and its reproducibility is measured rather than assumed.
+The second returns to remodeling.
+Because a tree's shape keeps changing as disease grows inside it (Section~\ref{sec:framing}), a
+healthy tree found unusual today is not guaranteed to still be unusual, or still healthy, years
+later.
+That is why the outcomes the Copenhagen cohort carries, and not a single snapshot, are what will
+decide whether an unusual shape means anything.
