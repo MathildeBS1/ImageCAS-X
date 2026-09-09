@@ -2,6 +2,7 @@
 
 Usage:
     python -m train -c configs/<method>.json
+    python -m train -c configs/<method>.json --resume <run_dir>
 """
 import argparse
 import os
@@ -34,8 +35,8 @@ from augmentation.pipeline import build_augmentation
 
 class _Tee:
     """Mirror all stdout writes to a log file as well as the terminal."""
-    def __init__(self, path: str):
-        self._file = open(path, "w", buffering=1)
+    def __init__(self, path: str, append: bool = False):
+        self._file = open(path, "a" if append else "w", buffering=1)
         self._stdout = sys.stdout
         sys.stdout = self
 
@@ -96,6 +97,58 @@ def _is_better(metric_name: str, candidate: float, best: float) -> bool:
     if metric_name == "dice":
         return candidate > best
     return candidate < best
+
+
+RESUME_SUFFIX = "_last.pt"
+
+
+def _resolve_run_dir(cfg: BenchmarkConfig, run_dir: str) -> str:
+    """A --resume argument, as either an absolute path or a folder name under
+    results_root."""
+    path = run_dir if os.path.isabs(run_dir) else os.path.join(cfg.results_root or "", run_dir)
+    if not os.path.isdir(path):
+        raise FileNotFoundError(
+            f"Cannot resume: no such run directory {path}. Pass the folder name that "
+            f"train.py printed as run_dir, or an absolute path.")
+    return path
+
+
+def _resume_path(cfg: BenchmarkConfig) -> str:
+    return os.path.join(cfg.training.output_dir, f"{cfg.method_name}{RESUME_SUFFIX}")
+
+
+def _save_resume_state(cfg: BenchmarkConfig, model, optimizer, scheduler, epoch: int,
+                       best_val_score: float, history: dict) -> None:
+    """Everything needed to continue this run. Written to a temp file and renamed, so a
+    kill mid-write leaves the previous state intact rather than a truncated file."""
+    state = {
+        "epoch": epoch,
+        "model": model.state_dict(),
+        "optimizer": optimizer.state_dict(),
+        "scheduler": scheduler.state_dict() if scheduler is not None else None,
+        "best_val_score": best_val_score,
+        "history": history,
+    }
+    path = _resume_path(cfg)
+    tmp = path + ".tmp"
+    torch.save(state, tmp)
+    os.replace(tmp, path)
+
+
+def _load_resume_state(cfg: BenchmarkConfig, model, optimizer, scheduler, device):
+    """Restore a run saved by _save_resume_state. Returns (start_epoch, best, history)."""
+    path = _resume_path(cfg)
+    if not os.path.exists(path):
+        raise FileNotFoundError(
+            f"Cannot resume: {path} does not exist. Either the run predates --resume and "
+            f"has no saved state, or -c names a different method than the run in "
+            f"{cfg.training.output_dir} was trained with.")
+    state = torch.load(path, map_location=device, weights_only=False)
+    model.load_state_dict(state["model"])
+    optimizer.load_state_dict(state["optimizer"])
+    if scheduler is not None and state["scheduler"] is not None:
+        scheduler.load_state_dict(state["scheduler"])
+    return state["epoch"] + 1, state["best_val_score"], state["history"]
 
 
 def _batch_targets(batch: dict, mask: torch.Tensor, device) -> dict:
@@ -160,18 +213,22 @@ def _compute_loss(loss_fn, output: dict, targets: dict) -> torch.Tensor:
     return loss_fn(logits, mask)
 
 
-def train(config_path: str):
+def train(config_path: str, resume: str | None = None):
     seed_everything()
     cfg = BenchmarkConfig.from_json(config_path)
     cfg.validate()
 
-    if cfg.results_root:
+    # A resumed run continues in its original folder, so the checkpoints, the log and
+    # the curves stay together as one run rather than fragmenting per submitted job.
+    if resume:
+        cfg.training.output_dir = _resolve_run_dir(cfg, resume)
+    elif cfg.results_root:
         ts = datetime.now().strftime("%Y-%m-%d-%H-%M-%S-%f")
         run_dir = os.path.join(cfg.results_root, f"{cfg.method_name}_{ts}")
         cfg.training.output_dir = run_dir
 
     os.makedirs(cfg.training.output_dir, exist_ok=True)
-    tee = _Tee(os.path.join(cfg.training.output_dir, "log.txt"))
+    tee = _Tee(os.path.join(cfg.training.output_dir, "log.txt"), append=bool(resume))
 
     try:
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -202,10 +259,25 @@ def train(config_path: str):
         checkpoint_metric = cfg.training.checkpoint_metric
         best_val_score = float("-inf") if checkpoint_metric == "dice" else float("inf")
         train_losses, val_losses, val_dices, lrs = [], [], [], []
+        start_epoch = 0
+
+        if resume:
+            start_epoch, best_val_score, history = _load_resume_state(
+                cfg, model, optimizer, scheduler, device)
+            train_losses = history["train_losses"]
+            val_losses = history["val_losses"]
+            val_dices = history["val_dices"]
+            lrs = history["lrs"]
+            print(f"[train] resumed at epoch {start_epoch + 1}/{cfg.training.epochs}  "
+                  f"best {checkpoint_metric}={best_val_score:.4f}")
+            if start_epoch >= cfg.training.epochs:
+                print("[train] already at the configured epoch count; nothing to do.")
+                return
+
         plot_path = os.path.join(cfg.training.output_dir, "training_curves.png")
         train_start = time.time()
 
-        for epoch in range(cfg.training.epochs):
+        for epoch in range(start_epoch, cfg.training.epochs):
             epoch_start = time.time()
             model.train()
             train_loss = 0.0
@@ -255,6 +327,12 @@ def train(config_path: str):
                 ckpt_path = os.path.join(cfg.training.output_dir, f"{cfg.method_name}_best.pt")
                 torch.save(model.state_dict(), ckpt_path)
                 print(f"  -> saved checkpoint to {ckpt_path}  ({checkpoint_metric}={current_score:.4f})")
+
+            # _best.pt stays a bare state_dict, which is what inference.py and
+            # BaseLumenModel.load_weights load strictly. Resume state is a separate file.
+            _save_resume_state(cfg, model, optimizer, scheduler, epoch, best_val_score,
+                               {"train_losses": train_losses, "val_losses": val_losses,
+                                "val_dices": val_dices, "lrs": lrs})
 
         total_time = time.time() - train_start
         print(f"\nTraining complete.  Total time: {_fmt_time(total_time)}")
@@ -368,5 +446,9 @@ def _validate(model, loader, loss_fn, device, cfg: BenchmarkConfig,
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-c", "--config", required=True, help="Path to method config JSON")
+    parser.add_argument("--resume", metavar="RUN_DIR", default=None,
+                        help="Continue a previous run: the folder name train.py printed "
+                             "as run_dir (or an absolute path). Restores model, optimizer, "
+                             "scheduler, epoch and curves from <method>_last.pt.")
     args = parser.parse_args()
-    train(args.config)
+    train(args.config, resume=args.resume)
