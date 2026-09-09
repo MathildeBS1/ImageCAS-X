@@ -1,0 +1,1395 @@
+Archives of Computational Methods in Engineering https://doi.org/10.1007/s11831-026-10530-w
+REVIEW
+The Anatomy of Coronary Risk: How Arterial Geometry Shapes Coronary Artery Disease Through Blood Flow Haemodynamics ­ Latest Methods, Insights and Clinical Implications
+C. Shen1 · M. Zhang1,2 · H. Keramati1 · S. Zhang1 · R. Gharleghi1 · J. J. Wentzel3 · M. O. Khan4 · U. Morbiducci5 · A. Qayyum6 · S. A. Niederer6 · S. Samant7 · Y. S. Chatzizisis8 · D. Almeida9 · Tsung-Ying Tsai10 · P. Serruys10 · S. Beier1
+Received: 26 September 2025 / Revised: 22 January 2026 / Accepted: 15 February 2026 © The Author(s) 2026
+Abstract Despite tremendous advances in cardiovascular medicine, significant opportunities remain to improve coronary artery disease (CAD) prevention and treatment strategies. The key limitation lies in the understanding of disease formation and progression mechanisms. The coronary anatomy plays an important role in local haemodynamics, governing endothelial health and, thus, pathophysiological responses. The significant variation of the coronary anatomy among patients, with significant trends across different populations, increases the complexity of understanding the details of disease progression. This review covers different aspects of the current status and understanding of the blood flow investigation in coronary arteries. We summarised the current knowledge of the haemodynamic effect of coronary anatomy and its evaluation and analysis methods. We discussed recent progress across medical imaging techniques and computational haemodynamic analysis. Based on the reviewed papers, we identified the persisting knowledge gaps and challenges in the field. We then elaborated on future directions and opportunities to increase understanding of the fundamental mechanism of CAD in individuals representative of large populations and how this may translate to the patient's bedside.
+Key points · Despite being the leading cause of global morbidity and mortality, the assessment of individual risk throughout the course of coronary artery disease (CAD) remains sub-optimal. · Coronary vascular anatomy, with high variation among individuals, drives local haemodynamics that affects endothelial cellular health underlying CAD, suggesting that coronary anatomy may be a useful surrogate marker to refine and personalise CAD risk assessments at all stages of the disease. · The field increasingly focuses on haemodynamic analysis based on patient-specific coronary anatomy, considering increasing ability to characterise anatomical details and larger-scale analysis. · The understanding of the combined effect of anatomical features on CAD remains limited. The main reasons for the ambiguity are the challenges of in vivo validation, the need for more whole coronary artery tree analyses, a shortage of large-scale, population-specific studies, and the need for more precise and consistent anatomical feature definitions. · Several opportunities exist: (1) Enhance patient-specific coronary datasets by incorporating broader, population-specific factors (including boundary conditions) using advanced imaging technologies. (2) Develop innovative machine learning approaches to automate coronary artery segmentation and haemodynamic analysis on a larger scale. (3) Exploration of the interdependent effects of all anatomical features for the whole artery trees on the local haemodynamics under different conditions.
+
+Extended author information available on the last page of the article
+
+13
+
+C. Shen et al.
+
+1Introduction
+Coronary artery disease (CAD) continues to increase the social and economic burden on a global scale as a leading cause of morbidity and mortality marked by significant socio-economic disparities [1, 2]. Atherosclerotic plaque is the most common type of CAD, characterised by a chronic and progressive pathology [3], whereby the coronary blood vessels are narrowed through atherosclerosis development, progressively leading to the insufficient blood supply to the heart muscle, causing shortness of breath, chest pain, heart failure, and even death [4].
+Interestingly, atherosclerotic disease is more likely to form and progress in coronary segments with complex anatomy [5], as blood flow-induced shear forces at the vessel wall affect the endothelial function [6]. In fact, the concept of the `Anatomy of Risk' was initially proposed by Friedman et al. [7] in 1983, suggesting that the vascular geometrical features might contribute to arterial diseases among individuals and populations. The regions around bifurcations, and segments with severe curvature are at a high risk of pathophysiological processes [5, 8­10]. Computational studies have confirmed the distributions of adverse haemodynamics in these areas [11­13] and demonstrated that the effects of anatomical characteristics, such as bifurcation angle, vessel curvature, and diameter, are interdependent, exerting a combined influence on local flow patterns. [11]. Understanding the anatomy of risk can improve current risk assessment strategies by identifying individuals without Standard Modifiable Risk Factors (SMuRFs) [14, 15]. Patients without SMuRFs account for an increasing proportion of acute coronary syndrome cases and exhibit higher inhospital mortality and cardiogenic shock rates. [15]. Despite the recent advancements, the anatomy of risk has yet to be fully understood, thus limiting its clinical applications to date.
+
+Moreover, blood flow characteristics are intricately affected by the local coronary anatomy. Anatomical features are among the determining factors in disease onset and progression through their influence on haemodynamics [5]. In recent years, increasing efforts have been made to identify patient-specific coronary arterial vessel characteristics that result in adverse haemodynamics. Additionally, understanding and classifying arterial anatomical remodelling with age and disease stage would further elucidate this dynamic that has proven challenging since coronary arteries vary widely between individuals [16] and between population groups [17].
+In recent years, more complex, large-scale considerations beyond a few patient-specific cases are now in the realms of possibility due to increased access and lower cost of computational resources, more advanced imaging techniques [18], an increasing number of open-access datasets [19­21]. Furthermore, improved (although not yet standardised) segmentation capacities [22] have increased accessibility and streamlined subsequent in-depth computational blood flow analysis efforts. By integrating computational methods with clinical information, the understanding of CAD mechanisms continues to advance. This strategy is attracting growing interest from cardiovascular clinicians and shows strong promise for future clinical application [23].
+The assessment of the effect of the anatomical and haemodynamic characteristics on CAD comprises several steps (Fig. 1), each outlined here. First, we provide an overview of the rapidly developing field of the latest invasive and non-invasive imaging techniques suitable for coronary tree imaging, followed by the current and emerging segmentation methods. Next, we discuss different numerical approaches for analysing CAD, focusing on current best practices and the latest developments and opportunities. We then discuss the `Anatomy of Risk' hypothesis [7], its reappraisal in the context of these latest technological developments and approaches, their latest findings and how this may translate
+
+Fig. 1 The main steps to investigate the anatomy of risk. The two-sided arrow between the two last blocks indicates the interaction between the numerical approaches selection and the assessment of the anatomical feature(s) effects
+13
+
+The Anatomy of Coronary Risk: How Arterial Geometry Shapes Coronary Artery Disease Through Blood Flow­...
+
+into clinical practice today and in future by highlighting the remaining challenges and resulting opportunities.
+2 Image Acquisition and Reconstruction
+Relevant imaging acquisition plays a crucial role in coronary artery research. This section addresses the latest developments in imaging techniques and image post-processing relevant to this field.
+2.1 Coronary Artery Imaging Technologies
+A range of coronary imaging techniques to delineate coronary anatomy are available (Table 1), which can be categorised into non-invasive (Computed Tomographic Coronary Angiography: CTCA, and Magnetic Resonance Angiography: MRA), and invasive techniques (Invasive Coronary Angiography: ICA, Optical Coherence Tomography: OCT, Intravascular Ultrasound: IVUS). Invasive imaging is generally more costly and has a higher patient risk associated with it [28], although it traditionally provides higher resolution, thus, better diagnostic insights than non-invasive imaging. Recently, the use of non-invasive imaging modalities is increasingly recognised in its capacity to evaluate the extent and composition of plaques in coronary arteries whilst being a more conservative and less expensive approach than invasive methods [29]. Moreover, non-invasive techniques enable new assessment features to be incorporated, directly relevant for risk stratification of CAD, such as epicardial adipose tissue linked to plaque development and arrhythmias [30, 31], and myocardial fibrosis assessed through Extracellular Volume (ECV) [32]. These new features can also realise a more in-depth plaque characterisation for assessment of plaque vulnerability with the latest ultra-high spatial resolution techniques [33]. Recently, AI-augmented imaging software, such as Vitrea [34], Tera Reco [35], Artrya [36], Cleerly [37] and Medis [38], has emerged, providing machine learning-trained vessel wall assessments and enhancing risk stratification capabilities.
+However, direct haemodynamic assessment is still limited, as any minor luminal boundary uncertainties can significantly affect the efficacy of the resulting analyses [39]. Recent clinical studies have attempted to push these current boundaries, whereby the EMERALD trial [40], combining Computational Fluid Dynamics (CFD) with CTCA to predict coronary plaque rupture, developed a risk predictor superior in identifying vulnerable plaques when compared to the conventional CTCA-derived plaque dimension and characteristics assessment for both primary and secondary prevention [40]. Thus, the modality of choice to date remains non-invasive Computed Tomography (CT) considering all
+
+trade-offs, providing vascular anatomy and limited plaque calcification information [41] and is far superior in resolution compared to the only other non-invasive coronary imaging option, Magnetic Resonance Imaging (MRI).
+Nevertheless, CTCA requires extensive post-processing and exposes patients to radiation [42, 43]. MRI techniques, even with current spatial and temporal limitations, can provide artery structure, plaque diagnosis,microvascular dysfunction, myocardium perfusion, and information about blood velocity and volume flow rate without the need for contrast injection or radiation [43]. It is particularly useful for patients with contraindications to iodinated contrast or those requiring repeated imaging over time [43]. Overall, in the long-term pursuit of a comprehensive imaging evaluation that has the potential to serve as a single non-invasive, safe, and convenient approach for diagnostics, risk management, and treatment decisions, the question remains whether CT-based methods will prevail or MRI techniques will outperform them. CT-based methods require radiation, while MRI techniques face persisting challenges of providing higher temporal and spatial resolution, motion artefact with longer scan times, being still highly costly, and having limited accessibility since it precludes many patients due to claustrophobia or metal implants [44­46]. A Compressed Sensing Artificial Intelligence (CSAI) framework has been developed to overcome the limitations of MRA by accelerating acquisition time and enhancing image quality [47].
+ICA remains the gold standard for coronary stenosis detection. It has been more accurate than its non-invasive counterpart, CTCA [48], particularly as the latest ultrahighresolution scanners are still not widely available. However, ICA does not provide information about plaque composition or vessel wall characteristics, which limits its role in assessing plaque vulnerability.
+For high-risk patients requiring detailed coronary assessment beyond luminal narrowing, intravascular imaging techniques such as IVUS and OCT provide superior insights. OCT has a ten times greater resolution than IVUS and is thus ideal for analysing vulnerable plaque and assessing post-stenting complications, including stent malapposition and neointimal hyperplasia [49]. IVUS has greater vessel penetration up to 2.7 times than OCT, making it more suitable for analysing deep plaque burden, vessel remodelling, and overall plaque burden quantification [49, 50]. Spectral Virtual Histology (VH-IVUS) analysis [51] is the gold standard for plaque quantification and characterisation, enabling plaque border and volume detection and assessment of vessel remodelling - both positive (outward) and negative (inward the lumen) - across intima, media, and adventitia [52­54].
+Advanced imaging technologies have been developed to address the limitations. For example, the radiation exposure
+
+13
+
+C. Shen et al.
+13
+
+Table 1 Advantages, limitations and optimal clinical applications of coronary imaging techniques based on current evidence and clinical trends
+
+Types
+
+Techniques
+
+Advantages
+
+Limitations
+
+Clinical Scenario
+
+Non-invasive
+
+· High resolution (0.5 mm) · Short scanning time (10 min) · Semi-quantitative plaque characteristics assessment · 3D coronary anatomy
+
+· High radiation exposure
+
+· First-line for stable CAD diagnosis · Limited plaque assessment
+
+AI-assisted tools
+Machine learning models for automated plaque characterisation (e.g., Vitrea, Artrya); AI-driven FFR-CT for non-invasive haemodynamic assessment (HeartFlow, Inc.)
+
+Computed Tomography Coronary Angiogram (CTCA) [24]
+· Radiation-free · Functional assessment of myocardium · 3D coronary anatomy
+
+· Low resolution (1.0mm) · Long scanning time (30min) · Motion artefact
+
+· Patients with renal dysfunction · Repeated imaging needs
+
+Compressed Sensing AI (CSAI)-based tools (Siemens Healthineers) and AIRTM Recon DL (GE Healthcare) are emerging AI models for plaque and perfusion analysis
+
+Invasive
+
+Magnetic Resonance Angiography(MRA) [25]
+
+· High resolution (0.2mm) · Precise stenosis severity assessment (Gold standard)
+
+· High radiation exposure · Inability to characterise plaque composition · 2D projection images only
+
+· Gold standard for CAD diagnosis · Acute coronary syndrome · Urgent PCI planning
+
+AI-assisted QCA (Quantitative Coronary Angiography) tools for automated lesion severity and vessel sizing (e.g., Medis QAngio XA, Pie Medical CAAS QCA, CathWorks for physiology-assisted reconstruction)
+
+Invasive Coronary Angiography (ICA) [24]
+
+The Anatomy of Coronary Risk: How Arterial Geometry Shapes Coronary Artery Disease Through Blood Flow­...
+13
+
+Table 1(continued)
+
+Types
+
+Techniques
+
+Advantages
+
+Limitations
+
+· Ultra-high resolution (Axial: 15 µ · Low penetration depth (<
+
+m; Lateral: 50 µm)
+
+3mm)
+
+· Plaque structure assessment
+
+· 2D cross-sectional images
+
+only
+
+Clinical Scenario
+· Vulnerable plaque detection · Stent evaluation (malapposition, neointima)
+
+AI-assisted tools
+AI algorithms for automated stent apposition and neointimal coverage assessment (e.g., UltreonTM 1.0 Software by Abbott Laboratories; emerging CNN-based tools for plaque morphology analysis)
+
+Optical Coherence Tomography (OCT) [26]
+
+· Very-high resolution (Axial: 150 µm; Lateral: 200 µm) · High penetration depth (>8mm) · Plaque characteristics assessment (Gold standard)
+
+· 2D cross-sectional images only
+
+· Deeper plaque burden evaluation · Vessel remodelling analysis
+
+AI-assisted tools for plaque composition and vessel segmentation (e.g., Medis QIvus, CAAS IVUS by Pie Medical; deep learning-based segmentation models in research)
+
+Intravascular Ultrasound (IVUS) [27]
+
+C. Shen et al.
+
+associated with CTCA has been significantly reduced by recent advancements such as iterative reconstruction techniques and photon-counting CT, which lower radiation dose while improving image quality, enabling higher imaging resolution and less blooming artefact [55]. Additionally, hybrid imaging systems integrate multiple modalities to leverage their complementary advantages. The integrated IVUS-OCT catheter combines IVUS and OCT for enhanced vascular imaging [56]. NIRS-IVUS integrates NIRS (NearInfrared Spectroscopy) to enhance the differentiation of plaque rupture, plaque erosion, and calcified nodules while maintaining deep tissue penetration [57]. The novel DeepOCT-NIRS multimodal system enables high-resolution intracoronary imaging with improved depth penetration and co-registered NIRS-based lipid identification [58]. Positron Emission Tomography (PET)/CTCA enables a noninvasive assessment of plaque characteristics, including plaque inflammation and vulnerability [59, 60]. However, these technologies are not yet widely adopted in clinical practice and remain primarily confined to research settings. For patient diagnostics, imaging techniques in Table 1 are still the preferred approach due to factors such as accessibility, cost, and ease of use. It is important to note that imaging techniques are on the verge of being optimised through AI enhancements, which will allow significant strides in medical imaging, diagnosis, and thus prevention in the near future. Specifically, AI-driven plaque characterisation, automated stenosis quantification, and machine learning-based haemodynamic risk stratification are emerging applications that are expected to significantly improve diagnostic accuracy and accelerate clinical decision-making [61­65].
+2.2 Coronary Geometry Segmentation
+Coronary images require post-processing to reconstruct and delineate the three-dimensional luminal structures. For cardiac volume scanning techniques (e.g. CTCA or MRA), standard post-processing protocols, such as curved MultiPlanar Reconstruction (MPR) and Volume Rendering [66] enable semi-quantitative characterisation of the stenoses and plaques, whereby the 3D computational models of the coronary tree can be reconstructed by various manual or automated methods [22]. During intravascular imaging (e.g. IVUS or OCT), 2D arterial cross-sections are acquired. Fusion techniques combine multiple imaging techniques to enable a simultaneous assessment of the overall coronary anatomy with high-resolution plaque and vessel wall characteristics, for example, ICA combined with OCT [67], or CTCA combined with IVUS [68, 69], through calibration and registration along the vascular centreline.
+Moreover, segmentation and 3D reconstruction of the coronary tree from CTCA images [22], and other methods
+
+such as ICA [70], OCT [71, 72] and IVUS [73], have markedly progressed over the last decade. Previously, the key segmentation processes relied heavily on manual verification, utilising semi-automated segmentation tools such as open-source libraries, e.g. 3D Slicer [74], ImageJ [75], Blender [76], Vascular Modelling Toolkit (VMTK) [77], Simvascular [78] or commercial software, e.g. Materialize Mimics [79] or OsiriX [80]. AI-driven methods, particularly deep learning-based segmentation, have increasingly complemented conventional approaches.
+This labour-intensive and time-consuming procedure has recently transitioned to more automated approaches, primarily based on fully supervised deep learning methods that utilise annotated datasets for training. Full automated voxel-wise neural networks have increasingly been used for coronary artery segmentation since 2017 [22]. However, fully supervised deep learning requires large, annotated datasets, which can be costly and time-consuming to obtain. To address this limitation, semi-supervised learning has emerged, leveraging a small amount of labelled data alongside a larger pool of unlabelled data to improve model generalisation. Multi-modality learning integrates information from different imaging techniques (e.g., CTCA, OCT, IVUS) to enhance segmentation performance by capturing complementary features that may not be visible in a single modality. Additionally, domain adaptation techniques help mitigate performance degradation when applying models across different datasets, scanners, or imaging conditions by aligning feature distributions through adversarial learning, style transfer, or self-training [81]. Beyond these, unsupervised learning has gained interest as it eliminates the need for labelled data, relying on self-supervised techniques, clustering, or generative models to extract meaningful feature representations [82].
+Nonetheless, automated segmentation methods face persisting challenges: (1) Image noise, motion blurring from patients' and cardiac motions, and artefacts--significant coronary calcification and stent implants cause high blooming artefacts in CTCA images, preventing even the latest neural networks from predicting true luminal boundaries [83, 84]. Similarly, soft plaques have Hounsfield unit values close to the surrounding heart tissues, making it hard for neural networks to differentiate and characterise stenosis severity [83, 84]. (2) Variable image quality--neural networks usually have the highest predictive efficacy on native images produced by the same scanner following the same protocol as the images used to train them. When applied to external datasets, biased predictions may occur due to over- or underfitting, causing the overall performance to drop [83]. While domain adaptation techniques improve generalisability, their effectiveness remains dataset-dependent and requires further refinement. (3) Vessel
+
+13
+
+The Anatomy of Coronary Risk: How Arterial Geometry Shapes Coronary Artery Disease Through Blood Flow­...
+
+complexity--coronary arteries are intricate and tortuous, with significant variations and possible congenital irregularities across patients. Algorithms trained upon data without such samples would likely misidentify important coronary features [22, 84]. Few-shot learning has shown promise in addressing this limitation, but its effectiveness depends on the availability of diverse reference samples [85, 86]. Therefore, conventional, manual, or at least semi-manual methods are still considered more accurate when the segmentation and reconstruction have been verified by an expert multiple times (intra-observer) or by two or more experts independently (inter-observer).
+Fully automated approaches are expected to accelerate in the coming years, benefiting from this growing openness to publishing and sharing annotated datasets [19­21]. Such advances further underpin related machine learning efforts to enhance image quality and artefact handling, including noise reduction and super-resolution methods [84]. Therefore, image features of a larger, more diverse population, with variations in scanner vendors and image quality, will
+
+assist the required training efforts for future algorithms with improved overall predictive accuracy and generalisability.
+3 Computational Analysis of Coronary Haemodynamics
+After data acquisition and image segmentation, CFD simulation can be performed to assess coronary blood flow Fig. 2, providing a complete set of haemodynamic parameters further to coronary anatomy and plaque characteristics that are readily measurable from CTCA images.
+A good example of the successful translation of computational blood flow metrics into clinical practice is the development of Fractional Flow Reserve (FFR). FFR assesses the functional severity of coronary stenoses and thus guides the strategy of Percutaneous Coronary Intervention (PCI). Traditionally, measurement of FFR requires an invasive procedure in which a pressure wire is used to probe the pressure difference across a stenosis under pharmacologically induced hyperaemia. Recent advances in computational
+
+Fig. 2 Workflow of a typical CFD analysis for coronary bifurcations. (a) Generation of a virtual representation, often from medical images. (b) Selection of the region of interest and vascular surface smoothing. (c) The smoothed model can be converted to geometry into a computer-aided design file for further modification, such as virtual stent
+
+implants. This can be exported as a. STereoLithography (STL) file to be directly imported into CFD software. (d) Computational mesh generation and local grid refinement for the near-wall region. (e) Solving and visualisation of coronary haemodynamics descriptors
+
+13
+
+C. Shen et al.
+
+modelling have enabled FFR to be calculated from images, including CTCA [87, 88], ICA [89], OCT [90], and IVUS [91]. Notably, Quantitative Flow Ratio (QFR) (derived from ICA) and FFRCT (derived from CTCA) have been recommended in ESC [92] and ACC/AHA guidelines [93], respectively, supporting their clinical implementation.
+QFR enables wire-free functional assessment during ICA, but its accuracy is dependent on operator expertise and angiographic image quality [94]. QFR may not be applicable in cases of aortic-ostial lesions, severe vessel tortuosity, or overlapping vessels on angiograms [94, 95]. FFRCT provides a non-invasive assessment of lesion-specific ischaemia; however, while its performance is strong for severe stenoses, its accuracy decreases in moderate lesions [96, 97] and in patients with extensive coronary calcification [98], making it important to interpret borderline results with caution. Despite current limitations, QFR and FFRCT represent successful translation of computational haemodynamics into clinically applicable tools. Although further improvements in diagnostic performance are still required [99], QFR and FFRCT are ideal parameters to be benchmarked against when assessing new computational approaches.
+
+Obtaining clinically important haemodynamic metrics through non-invasive CTCA imaging and computational simulations brings genuine advantages to patients, such as a lower or negligible procedure risk and markedly reduced cost [100]. To do this, one should carefully consider appropriate dimensional fidelity, numerical approaches and techniques, boundary conditions, and uncertainty analysis.
+3.1 Numerical Approaches
+Coronary blood flow can be modelled with different types of fidelity (Fig. 3), using a zero-dimensional (0D) lumped parameter model, one-dimensional (1D) distributed parameter model, 2D planar model, or 3D full domain model. Lumped parameter models are reduced-order vascular models efficient in quantifying changes in blood pressure, flow, and resistance for a certain length of the blood vessels [102]. While it has the lowest computational cost, a lumped parameter model cannot resolve haemodynamic local tensors. 1D blood flow models assume uniform profile, circular cross-section and uniform material behaviour, capable of modelling blood flow with pulse wave transmission along the vessel [103­105]. 2D models
+
+Fig. 3 Overview of computational cardiovascular modelling approaches. Single-scale modelling consists of 0D, 1D, and 3D models, each with different levels of spatial dimensions. Multiscale coupling integrates these models to enable comprehensive haemodynamic
+
+simulations, balancing computational efficiency with full cardiovascular system consideration. The figures for 0D, 1D, and multiscale coupling were modified from literature [101], under the terms of the creative commons CC BY licence
+
+13
+
+The Anatomy of Coronary Risk: How Arterial Geometry Shapes Coronary Artery Disease Through Blood Flow­...
+
+characterise the local flow patterns in a plane, representing the 3D flow domain, e.g. when the fluid domains are axially symmetrical. Full-scale 3D simulation accounts for variations in all three spatial dimensions, providing the most detailed blood flow information but requiring the greatest computation cost. Different scales of models can be used independently or combined (Fig. 3). For example, multi-scale models of coronary circulation previously incorporated scale-reduced models (e.g. 0D or 1D models) to then supply dynamic boundary conditions to the full-scale 3D coronary simulations [106­109].
+Various numerical approaches can be applied to solve the governing equations of blood flow, including the Finite Volume Method (FVM), Finite Element Method (FEM), Lattice Boltzmann Method (LBM), and Smoothed Particle Hydrodynamics (SPH). Various open-source and commercial solvers are available for cardiovascular simulations, as listed in Table 2. Whilst less popular, LBM prevails in large-scale parallelisation, and SPH is suitable for problems with complex geometries and moving boundaries but has been more commonly applied to heart and brain simulations where its advantages are more appropriate [120­122]. Comparatively, LBM and SPH require significant expertise to set up using packages like OpenLB [123] and DualSPHysics [124]. To support clinical and research applications, integrated software solutions with user-friendly platforms also exist, such as the Cardiovascular Angiography Analysis System (CAAS), to provide quantitative analysis of both imaging data and blood flow [125, 126].
+Coronary haemodynamic simulation can be performed in a steady-state manner, quantifying haemodynamics at a specific time point, or in a transient manner, characterising the variations of flow over a cardiac cycle. Depending on the study objective, simulation of the FFR requires only a steady-state fluid dynamic simulation under the hyperaemic condition. However, quantification of time-dependent haemodynamic metrics, e.g. Time-Averaged Endothelial Shear Stress (TAESS), Oscillatory Shear Index (OSI), would require the entire cardiac cycle to be
+
+simulated for a couple of periods to minimise the transient startup effect, and is thus more computationally expensive.
+The recent trend in improving computational efficiency is adopting convolutional neural networks to predict the flow parameters of interest, thus allowing to partially or even entirely circumvent solving the governing equations at each time step for a complete fluid flow field [127­132]. An emerging neural network model is Physics-Informed Neural Networks (PINNs), which embed governing equations, such as the Navier-Stokes equations, directly into the neural network training process, ensuring solutions that are more consistent with underlying physics [133, 134]. By integrating physics theory with multi-fidelity and multi-modal data, PINNs demonstrate reduced dependence on large training datasets [135]. PINNs have recently been used to reconstruct velocity fields in aorta, left ventricles and cerebral aneurysms [136­139] and estimate parameters for reduce-order models [140]. Recent studies highlight that while PINNs may be adequate for estimating reduced-ordered models, accurately reconstructing velocity field can be challenging. For example, Aghaee et al. demonstrated that while PINNs could reconstruct velocity field under laminar flow conditions, the accuracy reduced substantially under disturbed and high-frequency flow conditions that can be typical of severe coronary stenosis or aortic coarctation [137]. Another recent study by Garay et al. demonstrated that PINNs could be used to reconstruct reduced-order model parameters that may have implications for assigning boundary conditions in coronary CFD simulations; however, similar to the study of Aghaee et al., these authors noted that global velocities could not be reconstructed accurately, especially the vortical structures. Other authors have noted similar observations that highlight challenges of PINNs in reconstructing complex flow patterns [139]. Recent developments in PINNs, such as adaptive sampling, domain decomposition, residual adaptive sampling of PINNs should be explored to improve PINNs accuracy.
+
+Table 2 Summary of commonly used open-source and commercial solvers for cardiovascular and multiphysics simulations
+
+Solver
+
+Open Source
+
+Application
+
+CFD
+
+FEA
+
+FSI
+
+SimVascular [78]
+
+
+
+Cardiovascular-specific
+
+
+
+×
+
+
+
+CRIMSON [110]
+
+
+
+Cardiovascular-specific
+
+
+
+×
+
+
+
+lifex[111, 112]
+
+
+
+Cardiovascular-specific
+
+
+
+
+
+
+
+HemeLB [113]
+
+
+
+Cardiovascular-specific
+
+
+
+×
+
+×
+
+FEBio [114]
+
+
+
+Biomechanics
+
+×
+
+
+
+
+
+Elmer [115]
+
+
+
+General-purpose
+
+
+
+
+
+
+
+OpenFOAM [116]
+
+
+
+General-purpose
+
+
+
+×
+
+×
+
+ANSYS (CFX / Fluent / Mechanical /Workbench) [117]
+
+×
+
+General-purpose
+
+
+
+
+
+
+
+COMSOL Multiphysics [118]
+
+×
+
+General-purpose
+
+
+
+
+
+
+
+Abaqus [119]
+
+×
+
+General-purpose
+
+×
+
+
+
+×
+
+CFD: Computational Fluid Dynamics; FEA: Finite Element Analysis; FSI: Fluid­Structure Interaction
+
+13
+
+C. Shen et al.
+
+Convolutional Neural Networks (CNNs) have been applied to predict the distribution of Endothelial Shear Stress (ESS), also known as Wall Shear Stress (WSS), around coronary bifurcations based on geometric features, achieving high accuracy with deviations of less than 5% from CFDderived values while significantly reducing simulation time from 2hours to under 2minutes [127, 128].
+Nonetheless, the accuracy of neural networks relies heavily on the quantity and quality of the training data. Consequently, they inherit uncertainties from prior simulations and cannot generate new metrics beyond what has been simulated. Moreover, rapid estimation of haemodynamic parameters for complex vascular geometries, e.g. beyond the coronary bifurcations, remains challenging. It requires larger-scale training datasets and further network development, before effective application to the entire coronary trees, stented, or stenosed arteries [63, 141­143].
+3.2 Numerical Assumptions
+3.2.1Rheology
+To solve the governing equations of the fluid flow, i.e. the Navier-Stokes and the continuity equations, the viscosity of the blood should be known. Whilst blood is a nonNewtonian fluid often modelled using the Carreau­Yasuda, Power Law and the Generalised Power Law are deemed necessary for low shear environments to resolve near-wall flow conditions [144]. However, less computationally intensive Newtonian assumptions may suffice depending on the research question [145, 146], and some studies argue that the assumptions on blood rheology have negligible impact on haemodynamics [147].
+3.2.2 Wall Compliance
+Although the coronary vascular wall is compliant and deformable, it has been modelled as a rigid surface with no-slip condition and without a thickness by the majority of existing studies [11, 148, 149]. A series of comparative studies support the rigid wall assumption based on agreement between the cycle-averaged near-wall haemodynamics for rigid and deformable vessel walls for both healthy [150], diseased [151], or stented coronary arteries [152]. Still, instantaneous haemodynamics was reported to vary between Fluid-Structure Interaction (FSI) and pure CFD [153], especially for the effects on OSI from coronary cyclic movement [154], suggesting the necessity of FSI for quantifying the wall deformation and displacement at specific time points in the cardiac cycle.
+Thus, the FSI approach should be used to consider the mutual effect of the vessel and the blood flow and simulate
+
+the forces between the fluid and solid domains [155]. The coupling between the fluid and structural domains can be `unidirectional' (one-way FSI), or `bidirectional' (two-way FSI), whereby for the former, the fluid simulation results are fed to the structural analysis as boundary conditions, but with the latter, the data is either exchanged at each time step (i.e. partitioned FSI), or resolved simultaneously (i.e. monolithic FSI) [156, 157].
+FSI is more commonly used in stent designs where wall deformation may have a larger effect [158­160], and vulnerable plaque studies [161, 162]. A key limitation in the field is the lack of understanding of material models to perform high-fidelity FSI. Whilst in vivo characterisation of cardiovascular tissues properties is possible through IVUS measurement [27, 163], extensive efforts have been made in an ex vivo manner through uniaxial or biaxial loading and indentation tests. Following these tests, parameters in a constitutive model, e.g. a hyperelastic Mooney-Rivilin Model [164], can be derived to characterise the mechanical response of arterial tissues. However, the number of parameters measured varied across studies and the inter-specimen variation is vast due to inconsistent excision protocols (e.g. post mortem excision time) and experimental conditions (e.g. temperature) [165]. Experimental data indicate that arterial tissue properties are highly nonlinear and anisotropic, to account for which Holzapfel's strain-energy model was proposed to characterise the anisotropic behaviour and collagen fibre orientation, where arterial layers are treated as different fibre-reinforced materials symmetrically disposed with respect to the cylinder axis [166]. Therefore, caution should be exercised when interpreting coronary FSI outcomes. Whilst direct comparison of endothelial shear stress on the vessel wall is not feasible, simulated flow parameters, such as flow velocity and waveform, can be used to indirectly verify the results. For example, in FSI simulations of the aorta, flow parameters were compared against in vivo [167] and in vitro measurements [168] to validate the FSI settings. To quantify impact from the variations in material properties, a parametric study on FSI or in vitro experiments can be considered, assuming different material properties covering the normal range. Ideally, the resulting blood flow field should further be validated against in vivo measurements.
+Although limitations exist in coronary FSI, this method is promising for an improved understanding of plaque vulnerability [169] and rupture risk [170], as FSI is the only simulation approach capable of modelling blood flow under the influence from both the cardiac motion and vascular wall compliance, ensuring a more realistic characterisation of in vivo plaque stress and strain [171].
+
+13
+
+The Anatomy of Coronary Risk: How Arterial Geometry Shapes Coronary Artery Disease Through Blood Flow­...
+
+3.2.3 Inlet and Outlet Boundary Conditions
+Boundary conditions are paramount in coronary CFD analysis, as they directly determine the simulation fidelity. Table 3 summarises common boundary conditions for coronary bifurcations simulation. The inlet or outlet conditions can be determined following velocity or pressure data measured in vivo. Specifically, in vivo velocity data can be obtained by Thrombolysis in Myocardial Infarction (TIMI) frame count [175], Intravascular Doppler ultrasound [173], or continuous thermodilution [174]. In vivo pressure waveforms can be obtained using a pressure wire during an ICA [172]. However, collecting these data is often challenging and not routinely performed in clinical practice, thus prohibiting large-scale patient-specific studies.
+When in vivo data is unavailable, generic boundary conditions can be applied. A common strategy is to scale the waveform or the cycle-averaged inlet flow according to the inlet diameter average at the inlet [176­178]. A flowsplit strategy can be applied at each bifurcation to derive the flow rate of the outlet [176, 184]. The commonly used scaling law and flow split ratio, referred to as Doriot's fit,is based on Murray's Law. This empirical adjustment has led to a robust correlation between flow and diameter at the inlet (R2 = 0.87) and the flow split ratio between daughter branches (R2 = 0.70) when compared to in vivo measurements [176]. Thus, the scaling law and flow split strategy based on Doriot's fit can effectively serve as boundary conditions when in vivo data is lacking. One should note that the inlet or one outlet should be set as a free outlet to
+
+avoid overconstraining the simulations when using velocity boundary conditions.
+Alternatively, reference pressure is commonly applied to the literature outlets. However, pressure or flow rate conditions might fall short in capturing flow redistribution caused by significant stenoses under the hyperaemic condition [185]. In such a scenario, multi-scale models with a lumped parameter network characterising the distal microvascular resistance may dynamically produce local haemodynamics close to that measured in vivo [185]. A well-tuned Windkessel model can produce physiological pressure waveform and values and, thus, fits the in vivo measurements better than generic boundary conditions [180, 181].
+When using reduced-order models (e.g. lumped parameter models) to provide boundary conditions for 3D coronary simulations, parameter tuning becomes a critical step to ensure physiological reality of the boundary conditions generated [186, 187]. The tuning process involves solving an inverse problem of identifying a reliable set of resistances and compliances to reproduce flow or pressure waveforms measured in vivo. Multiple optimisation approaches exist to refine parameter estimation, including least-squares optimisation [188, 189], Bayesian estimation [190, 191], and data assimilation techniques [192, 193]. Although technical developments such as the recent use of machine learning have automated this process [194], parameter tuning may still result in local optima, particularly when multiple coupling interfaces exist which significantly expand the parameter space. Incorporating certain flow parameters measured in vivo can provide additional constraints to guide
+
+Table 3 Summary of commonly used boundary conditions for coronary computational studies
+
+Boundary
+
+Type
+
+Conditions
+
+Consideration
+
+Inflow
+
+Patient-specific
+
+· Velocity or pressure measured in vivo (e.g. pressure catheter [172], Physiologically real but not rouintravascular Doppler ultrasound [173], or continuous thermodilution tinely collected in clinical practice [174], TIMI frame count [175])
+
+Generic
+
+· Flowrates calculated by the vascular diameter [176­178] · Static pressure or pressure waveforms from literature [179] · Instantaneous flowrate or pressure values generated by a reducedorder circulatory model (e.g. 0D, 1D) [180, 181]
+
+Agrees generally well with in vivo measurement [176] and is easily implemented in large-scale studies
+
+Outflow
+
+Patient-specific · Velocity or pressure measured in vivo
+
+Physiologically real but not routinely collected in clinical practice
+
+Generic
+
+· Reference pressures (e.g. a 0Pa pressure at extended outlets when flowrate condition prescribed at inlets) [179] · Flow split at bifurcations (e.g. per the daughter branches' diameters with an exponent of 2.27) [176] · Instantaneous flowrate or pressure values generated by a reducedorder (e.g. 0D, 1D) circulatory model [180, 181]
+
+Flow split strategy agrees well with in vivo measurement [176]. The reduced-order models capture phasic changes in coronary flow and pressure [180, 181]
+
+Arterial Wall Patient-specific · Heart-motion-induced arterial bending measured by ICA [182]
+
+ICA produces only 2D projections. IVUS not routinely performed in clinical practice
+
+Generic
+
+· Arterial bending assumed by a varying-radius sphere model [183]
+
+Arterial bending modelled by the sphere model only verified for the LAD-D1 segments
+
+Note: For both patient-specific or generic modelling, the arterial wall is always assumed to be rigid, with no-slip condition and no penetration for pure fluid analysis, and its mechanical properties are usually obtained from the literature for fluid-structure interaction analysis
+
+13
+
+C. Shen et al.
+
+parameter estimation [186]. In the absence of in vivo data, flow-split strategies can be used to estimate outlet flow rates to constrain the model [185].
+3.2.4 Verification, Validation, and Uncertainty Quantification
+Computational modelling is a powerful tool for investigating coronary haemodynamics, yet questions regarding its credibility remain [195]. Various factors can affect the modelling accuracy, introducing uncertainties across the mathematical and physical modelling process, including geometry reconstruction, material properties assignment, and boundary conditions specification [195, 196]. To establish the credibility of computational modelling, Verification, Validation, and Uncertainty Quantification (VVUQ) are the recommended processes to follow [197, 198].
+Verification ensures that the computational model correctly implements the underlying mathematical model, assessing numerical accuracy and reducing discretisation errors [197]. One can reduce the uncertainties contributed by the simulation setup by controlling the discretisation procedure. To keep the numerical error in an acceptable range, a fine grid in space and time is necessary [199]. A mesh convergence test can ensure a fine grid in space [199, 200]. Computational meshes of complex regions, e.g. stenosis and bifurcation, often need finer meshes to accurately resolve the flow, especially near the boundary, while ensuring numerical stability. For transient simulations, appropriate time step elections and iteration convergence at every time step with discretisation error estimation could reduce the uncertainties [199]. A mesh dependency test ensures that the spatial and temporal resolutions are fine enough to balance accuracy and computational cost, preventing unnecessary refinements that do not significantly affect results [201].
+Validation establishes whether the mathematical model accurately represents the reality of interest [197]. One of the main factors influencing validation accuracy is uncertainty in boundary conditions [199, 202]. In the absence of in vivo flow and pressure measurements, one common approach is to use generic boundary conditions scaled to the patient-specific vascular diameter, which might be the only option for assessing the near-wall haemodynamics for large retrospective datasets currently [203]. However, the generic boundary conditions may not accurately reflect the flow conditions. Even when in vivo measurements are available, uncertainties associated with the measurement contribute to the solution's accuracy. For instance, Doppler ultrasound and frame count methods require estimating the crosssectional lumen area or the hydraulic diameter to calculate the flow rate. The image quality and processing strategies influence the error of the cross-section estimation [204].
+
+Moreover, the frame count method is sensitive to image acquisition frame rate [204]. Although the thermodilution method can directly measure the blood flow rate without the issues of Doppler ultrasound and frame count methods [175, 204], it requires infusion media, wire intrusion and operation experience, which can potentially introduce new uncertainties [174, 204].
+Notably, the boundary conditions, including the generic waveform, lead to a difference in ESS magnitude, which could be decreased after normalisation of ESS [205]. Therefore, an improved analysis strategy could reduce the uncertainties of simulations. Standardised simulation setup, boundary conditions and result processing strategy in the future allow for cross-study comparisons before further developing current measurement techniques.
+Uncertainty Quantification (UQ) helps identify potential limitations in computational models due to inherent variability or lack of knowledge in input data [197]. Different approaches have been used to quantify the uncertainties in the context of numerical simulation of the arterial blood flow, such as Monte Carlo methods and Gaussian process emulators [206­208]. These methods have been used to optimise the boundary conditions [209] and calculate the sensitivity of a Quantity of Interest (QoI) to the parameters with uncertain or variable values [207, 209] to determine the confidence in the calculated. In stochastic methods such as Monte Carlo simulation, the QoI is calculated for numerous random values of the control variables. Therefore, the variation of QoI can be quantified and correlated to the variation of the input parameters [210]. The uncertainty quantification using the Gaussian process is through using the information of a limited number of data points and the variation of the interpolation values based on curves derived using the given kernel [209]. However, since numerous simulations are required to perform such uncertainty quantification analyses, reduced-order models, such as 0D [207] or 1D models [209, 210], are more commonly used.
+4 Relevance of Coronary Artery Anatomy and Blood Flow Haemodynamics
+4.1 Blood Flow, Haemodynamics and Pathophysiological Relevance
+CAD is caused by adverse remodelling of the vessel wall due to vascular dysfunction, leading to insufficient myocardial blood supply. Endothelial cells regulate the vascular function in response to the blood flow's mechanical shear forces they are directly exposed to [211]. In some instances, adverse stress distributions along the vessel wall caused by disturbed flows can lead to endothelial dysfunction and
+
+13
+
+The Anatomy of Coronary Risk: How Arterial Geometry Shapes Coronary Artery Disease Through Blood Flow­...
+
+inflammation, initiating the development and progression of CAD [212]. Thus, the disease is more likely to form in regions with complex anatomical features, where blood flow patterns are affected due to calibre variation and flow path deviations (Fig. 4).
+Several blood flow metrics and flow patterns have been identified as relevant for atherosclerotic plaque development in the coronaries (Tables 4 and 5). Haemodynamic wall-based descriptors have been developed to quantify relevant mechanical forces related to endothelial functions (Table 4), where the most well-established haemodynamic
+
+metric is ESS, as suggested by Ku et al. [234]. Recently, to better differentiate ESS from wall stress, referring to the mechanical stress inside the arterial wall, ESS has been commonly referred to as endothelial stress or ESS instead, a notation that we also adopted here. Low and oscillating ESS promotes a pro-inflammatory state [211] and remodelling of artery walls [223], while adversely high ESS is associated with the destabilisation and rupture of plaque [227]. However, ESS is a scalar measure representing the magnitude (i.e., length) of the shear stress vector acting on the vessel wall, without capturing directional changes or temporal
+
+Fig. 4 Illustration of shape factors and haemodynamics.(a) a geometry example of a left coronary artery tree. (b) The definitions of coronary shape factors. (c) Numerical definitions of curvature and tortuosity.
+
+(d) The visualisation of typical flow patterns in coronary arteries and the near-wall haemodynamics. The 3D simulation used in (d) was performed using ANSYS CFX (ANSYS Inc., Canonsburg, PA, USA)
+
+13
+
+C. Shen et al.
+13
+
+Table 4 The definitions, mathematical equations, threshold values, and clinical relevance of near-wall haemodynamic descriptors related to coronary disease development
+
+Haemodynamics Descriptor
+
+Equations
+
+Definitions
+
+Threshold
+
+Clinical Relevance
+
+Endothelial Shear Stress (ESS)
+
+n · ij
+
+Shear stress along the vessel wall
+
+Adversely low ESS threshold: 0.4Pa ·Normal physiological range: 1.2­1.5Pa [12, 148, 213, 214], 0.5Pa [11, 13, 215], ·Low and oscillatory ESS promotes a pro0.6Pa [149], 1.0Pa [216], 1.2Pa [217] inflammatory state [223] and tertile-division [218­220] Adversely ·Adversely high ESS is associated with high ESS threshold: 4.71Pa [221, 222] endothelial damage, plaque destabilisation,
+and rupture [221, 222]
+
+ESS Gradient (ESSG)
+
+1 T
+
+´T
+0
+
+| | dt
+
+Time-averaged ESS gradient -
+
+Positive ESSG can affect plaque stability [224]
+
+Haemodynamics Equations Descriptor
+
+Definitions
+
+Threshold
+
+Pathophysiological Relevance and Applications
+
+Transverse ESS (transESS)
+
+1 ´T
+T0
+
+ESS ·
+
+n×
+
+´T
+0
+|´0T
+
+ESS dt
+ESS dt|
+
+dt
+
+Description of multi-directionality of ESS during the cardiac cycle
+
+High transESS (tertile-division) indicating large changes in the flow direction and affecting the plaque composition [225]
+
+·Associated with initial plaque growth [226]
+
+Time-averaged ESS (TAESS)
+
+1 T
+
+´T
+0
+
+|ESS| dt
+
+Oscillatory Shear Index (OSI)
+
+[(
+
+)]
+
+0.5 1 -
+
+|´0T ESS dt|
+
+´T
+0
+
+|ESS|
+
+dt
+
+The cardiac cycle-averaged ESS
+
+Same as ESS
+
+Representation of the change of The adverse OSI (>0.2 [12] or>0.1
+
+the ESS vector from a predomi- [228]) relates to lipid accumulation and
+
+nant flow direction
+
+plaque erosion [229, 230]
+
+·Captures cumulative haemodynamic effects on the vascular wall ·More representative of long-term vascular remodelling [227]
+·Associated with lipid accumulation and plaque erosion [229, 230]
+
+Relative Residence Time (RRT)
+Topological Shear Variation Index (TSVI)
+
+1 (1-2·OSI)·TAESS
+
+The residence time of elements High RRT (>4.17Pa-1) is related to in the blood adjacent to the wall atherosclerotic plaque calcification and
+
+{
+1 T
+
+´T
+0
+
+[
+·
+
+(ESSu) -
+
+
+
+· (ESSu)]2
+
+}1/2
+dt
+
+The time-averaged root mean square deviation of the diver-
+
+necrosis [161, 225]
+Adverse threshold>40.5m-1. Higher risk of myocardial infarction [161]
+
+gence of the normalised ESS
+
+·Related to atherosclerotic plaque calcification and necrosis [203, 225]
+·Represents the variability of endothelial shear forces during the cardiac cycle [231] ·High TSVI indicates potential sites of future myocardial infarction [203, 222, 231]
+
+Shear rate: , local velocity: v, cardiac cycle: T
+
+The Anatomy of Coronary Risk: How Arterial Geometry Shapes Coronary Artery Disease Through Blood Flow­...
+
+Table 5 Definitions and mathematical equations of helical flow descriptors for quantification and visualisation
+
+Descriptors
+
+Equations
+
+Definitions
+
+h1
+
+1 TV
+
+´
+T
+
+´
+V
+
+v ·  dV dt
+
+Average helicity
+
+h2
+
+1 TV
+
+´
+T
+
+´
+V
+
+|v · | dV dt
+
+Average helicity intensity
+
+h3
+
+h1 h2
+
+Signed Balance of helical flow,-1  h3  1
+
+h4 Localised Normalised Helicity(LNH)
+
+|h1 | h2
+v· |v|||
+
+Unsigned Balance of helical flow,-1  h3  1 Visualisation of the orientation of velocity and vorticity vectors
+
+Local velocity:v, vorticity vector:, cardiac cycle: T, arterial volume: V
+
+The helicity-based descriptorsh1 - h4have been proposed by Gallo et al. [232]. LNH was first introduced to study the link between WallShear Stress (WSS) and helical flow in arterial haemodynamics (Morbiducci et al. [233])
+
+Fig. 5 The streamlines for the helical motion of the flow (left) and the corresponding LNH contour (right). The 3D simulations were performed using ANSYS CFX (ANSYS Inc., Canonsburg, PA, USA)
+
+variations. Other important haemodynamic metrics have additionally been developed previously, including TAESS, transverse ESS (transESS), OSI, Relative Residence Time (RRT) and Topological Shear Variation Index (TSVI). TAESS averages the ESS magnitude over one cardiac cycle. transESS quantifies the component of ESS acting perpendicular to the main direction of blood flow, capturing the multidimensional nature and complexity of shear forces within the vascular system. The OSI quantifies the oscillation in blood flow direction in the vessel [235], while the RRT is another factor indicating areas with low shear stress and high particle residence time [236]. High OSI is associated with lipid accumulation and plaque erosion [229, 230], and high RRT is related to atherosclerotic plaque calcification and necrosis [203, 225]. TSVI quantifies the variability of contraction and expansion action of endothelial shear forces along the cardiac cycle [231], with a high TSVI indicating regions of potential future myocardial infarction sites [203]. In coronary studies, ESS is quantified using its mean value across a specific lumen surface or as its time-averaged value over the cardiac cycle (TAESS). Additionally, the spatial distribution of ESS, OSI, and RRT, is often described as the proportion of the lumen surface exposed to these adverse conditions. This normalisation approach allows for
+
+cross-study comparisons across different arterial geometries and patient populations.
+Similarly, global, non-arterial wall-based metrics include helical, recirculation, secondary, and jet flows. Arterial blood flow under physiological conditions exhibits a helical pattern [237]. In coronary arteries, the helical flow patterns are characterised by the spiralling of the blood as it moves through the vessels and is affected by the artery shapes. The helical flow can regulate the shear stress distribution on the lumen surface and, thus, has a protective effect against disease formation [218, 219]. Multiple helicity metrics (Table 5) are used to quantify the intensity and rotation features that create helical flow (Fig. 5). Recirculation happens when the main flow stream encounters obstacles, leading to backward flow and vortices. Secondary flow, initially investigated by Dean in curved pipes [238], revealed the secondary flow motion from the outer to inner surfaces in curved segments. The secondary flow pattern in coronary is marked by a pair of counter-rotating vortices [13], which occurs when the flow is split in bifurcations or when it enters curved segments [239, 240]. Currently, there is no established method for quantifying secondary flow in coronary arteries. In computational studies of aneurysm rupture, vortex stability is often evaluated using the Degree of Vortex Volume Overlap
+
+13
+
+C. Shen et al.
+
+(DVO). Given the presence of vortex structures in coronary bifurcations and curved segments, DVO could be explored in future coronary studies to assess vortex stability and its potential role in CAD [241­242]. Jet flow in coronary arteries occurs due to the rapid, localised blood flow acceleration, often caused by narrowing or irregularity of the artery [243, 244].
+Blood with relatively high velocity in the main coronary vessel impacts the flow divider in bifurcation regions, resulting in asymmetric velocity profiles in the daughter branches (Fig. 4) [13]. This asymmetry is characterised by higher velocities at the inner side near the flow divider and lower ones on the opposite side. This can lead to flow separation, recirculating flows adjacent to the bifurcation point on both sides and secondary flow in downstream daughter branches. Consequently, the bifurcation regions typically show adverse haemodynamics regions at the outer side of the vessels [245]. In curved segments, curvatures induce directional flow variations due to cross-sectional pressure gradient changes, with higher pressure at the outer side of the curvature. Such changes shift the central fluid layers outward and near-wall fluid inward, creating secondary flows, resulting in low shear stress on the inner side of curvature and high shear stress on the outer side [13]. Once the arteries narrowed, the blood passing through narrowed sections experiences rapid velocity and pressure changes resulting in jet flow zone, recirculation, and secondary flow downstream of the stenosis, which can cause varied shear stress distribution there [246, 247]. Consequently, the blood flow exhibits energy transformations, particularly in kinetic and rotational energy, which have shown predictive capacity for future myocardial infarction [248].
+Although adverse haemodynamic descriptors correlate to abnormal endothelial function, their translation into clinical settings has not been routinely accomplished. However, this is the focus of ongoing efforts [249]. The lack of universally accepted values for the predictive haemodynamic descriptors limits their clinical applications. For example, different values have been proposed as the threshold for ESS to be considered adversely low (0.4Pa [12, 148, 213, 214], 0.5Pa [11, 13, 215], 0.6Pa [149], 1.0Pa [216], 1.2Pa [217], and tertile-division [218­220]). Therefore, testing the prognostic performance of the well-established haemodynamic identifiers through multi-centre randomized control trials will benefit future studies to justify the appropriate threshold values, topological markers, or coronary anatomical characteristics associated with CAD. Future studies would also benefit from considering blood flow metrics with established predictive efficacy for other vascular diseases, such as Low Shear Area and DVO for cerebral aneurysms [241­242], which share the same theoretical basis to assess
+
+the impact on endothelial pathophysiology from blood flowinduced shear stresses.
+4.2 Effects of Anatomical Characteristics
+Many studies have focused on understanding the effect of anatomical variation in coronaries on blood flow (Table 6 and more details in Appendix Table 7). Most works focused on the left main bifurcation [11, 13, 148, 214, 262, 272, 273] since it is most commonly treated by intervention. Moreover, standard imaging modalities offer higher clarity for the segment, and the vessel diameter rapidly reduces after the left main [274]. Other bodies of work considered non-bifurcating geometries [265, 275], or selected larger segments beyond the left main [215, 271]. Very few studies considered the whole tree [228, 253]. However, 90% of vulnerable plaques in patients with acute coronary syndromes commonly formed within 42mm of the left anterior descending artery (LAD) and 40mm of the left circumflex (LCx) [276]. Spontaneous Coronary Artery Dissection (SCAD) occurs more frequently in the middle to distal coronary segments [277]. These observations indicate that more comprehensive simulations of the whole coronary artery trees are needed.
+Moreover, anatomical variations within the population are significant [274]. In fact, there is an increasing awareness of anatomical differences between populations [17], and the incidence of coronary disease exhibits regional population differences [278, 279]. Besides, although clinical treatments remain the primary strategy to decrease disease mortality, the population-based prevention approach is more cost-effective, especially for those with low and middle risks [280]. All these factors highlight the need for largescale studies to develop more tailored risk assessments.
+Current research is shifting from analysing the impact of a single shape factor to studying multiple factors. Limited investigations studied three [12] or more anatomical factors [13, 228, 262], while most included one or two [148, 213, 253]. The interdependent effects between the coronary anatomical features [11, 13] have changed the study direction of the coronary artery to multifactorial analysis. Although the angles of bifurcations were previously regarded as a critical factor [149, 271] due to the distribution of disease around bifurcation regions, the magnitude of the angulations between branches showed a minor influence on haemodynamics compared to the effects of other shape factors [11, 12]. Instead, analyses have shown interdependent effects of bifurcation characteristics, curvature and branch diameter on the haemodynamics distributions [13, 281]. Bifurcations alter the path of blood flow through diversion, leading to complex flow patterns such as recirculation and secondary flow, which further generate adverse haemodynamics in nearby regions (Fig. 6.a). The large curvature also influences
+
+13
+
+The Anatomy of Coronary Risk: How Arterial Geometry Shapes Coronary Artery Disease Through Blood Flow­...
+
+Table 6 A summary of computed blood flow research relevant to coronary arteries considering flow patterns and shape factors
+
+Anatomical factors
+
+Focus and findings
+
+Multiple of factors
+
+·Complex flow patterns due to the combined effect of the bifurcation structure, continuous curvature and diameter variations [13, 239, 240, 245]
+
+·Correlation between SCAD and a combination of the short left main artery, small bifurcation angle and
+
+strongly curved segments [250]
+
+·The effect of bifurcation angle is interdependent to other geometrical features and has minimal effects
+
+when isolated [11]
+
+·Among all investigated features, curvature was a crucial factor for the disease onset [228], strong cor-
+
+relation with the recirculation zone length [213, 251], while the curvature had a moderate positive [251]
+
+or a negative [213] correlation, i.e. having a atheroprotective effect [215], curvature effect depends on the
+
+local vessel calibre/ diameter variation [252]
+
+·Limited studies considered anatomical features in entire artery trees, while curvature was found to be a
+
+crucial factor impacting disease onset [228]
+
+Tortuosity/curvature*
+
+·Unclear effect of the curvature/tortuosity on haemodynamics due to common inappropriate 3D representation [214] and a lack of standardised vessel tortuosity in literature [12, 13, 149, 253, 254]
+
+·Contradictory or inconclusive findings, i.e. large curvature led to high helicity its protective effect [253],
+
+while linking severe curvature to vessel narrowing [9], SCAD [10] and myocardial ischemia [253, 255]
+
+Narrowing/ Disease
+
+·Stenosis governs local haemodynamics, overriding anatomical effects [13] ·High ESS in narrowed regions and adverse haemodynamics (ESS, OSI, and RRT) downstream due to
+
+the disturbed flow zones [13, 256­259] ·Risk of upstream plaque progression in the proximal area and risk of new plaques formation in the downstream [260]
+
+Stent
+
+·Stent structure can adversely affect recirculations, the secondary flow and helical flow adjacent to the stent [13, 261]
+
+·Additional adverse haemodynamics formed adjacent to the stent struts, potentially leading to further
+
+disease development in stented regions [13]
+
+* The definition of tortuosity and curvature overlaps in some literature. Measurements are inconsistent and often inaccurate 3D representation,
+
+likely contributing to the contradicting findings
+
+the downstream flow (Fig. 6.b), especially with distance to the bifurcation region, causing a skew, spin and asymmetry of secondary flow vortices, increasing helical flow intensity with symmetry loss [12, 13, 253]. Adversely high TAESS distributions form after the bifurcations and coincide with the asymmetric flow patterns [13]. Besides, diameter and its variation are important shape factors that have yet to be studied in detail. The ratio between the main and daughter branches, which affects the flow split, is defined by Finet's Ratio (FR), i.e. the ratio of the diameter of the inlet over the sum of the diameters of the outlets [282]. FR strongly correlated with low TAESS (p < 0.001) [252]. An interdependent effect between diameter and curvature on haemodynamics was reported [281]. The combined influence of these factors aligns more closely with the distribution of haemodynamics than when considering each factor individually [252]. The interdependent effect of multiple specific anatomical features was also noticed in a study about SCAD, where a combination of the short left main artery, acute bifurcation angle (BA) and strongly curved segments can cause adversely high ESS distribution, which can eventually lead to intimal tear and SCAD [250]. When considering the entire coronary artery tree, the curvature showed more influences on haemodynamics [228]. However, further investigations are needed to improve understanding of coronary anatomical feature effects in the artery tree range [228, 253]. A comprehensive investigation considering the combined
+
+effects of various coronary shape factors in the whole artery trees would most robustly determine their correlation with adverse local blood flow. However, considering more shape features complicates the analysis process by increasing the data dimensions, potentially obscuring clear correlations or preventing the extraction of meaningful findings.
+Efforts have also been made to examine key anatomical features separately to gain a detailed understanding of their specific impacts. The severely curved vessels have been linked to adverse clinical outcomes, including vessel narrowing [9], SCAD [10] and myocardial ischemia [253, 255]. However, a study of 1010 patients showed that individuals with severe coronary curvature had fewer disease incidences, especially in females [267], hypothesising it as a potential reason for a lower rate of plaque occurrence in females compared to males [268]. This may be partly due to inconsistent methods used to quantify curvature, as a lack of robustness has previously been demonstrated between 2D and 3D assessments, with recent work suggesting mean absolute curvature as a more robust gold-standard metric [214]. In computational studies, tortuous vessels cause larger helicity [253], and higher pressure drops [255]. Some work also found a favourable effect on TAESS due to the high helicity intensity caused by curved segments [213, 215, 253]. In contrast, others showed the opposite in idealised and patient-specific non-bifurcating geometries [264]. The contradicting findings may partially be attributed
+
+13
+
+C. Shen et al.
+
+to the sex-specific anatomy and haemodynamics variance [262]. In addition, HF exhibits a double-edged nature as it can mitigate regions of low TAESS, but may also exacerbate excessively high TAESS in stenosed segments [283]. Because HF intensity is correlated with vessel curvature, this interaction may further confound the understanding of the role of curvature in coronary haemodynamics. Still, the biggest issue is the measurement matrix, which describes the coronary arteries and is characterised by complex, continuous, curved segments. Previous studies commonly used curvature or tortuosity as a characterisation with inconsistent measurements. Curvature is mathematically defined as the magnitude of the derivative of the unit tangent vector concerning the arc length at a given point. A more intuitive way to define the curvature at a given point is 1/R, where R is the radius of the osculating circle that approximates the vessel centreline at a point (Fig. 4.c). The mathematical definition of tortuosity, or tortuosity index, considers the overall path between two points along the curve by comparing the curve length L and the distance between curve endpoints D, which cannot capture the spatial information. In clinical practice, the measurements depend on the images and thus are simplified to the number of bendings [254] or their 2D projection as C- or S-shaped [284]. In computational studies, different measurement matrices were used, such as tortuosity index [149, 253] and average absolute curvature [149], or even only considered a single bend using the mathematical definition of curvature, neglecting the spatiality and continuity of this characteristic [12, 149, 215]. Different measures based respectively on the tortuosity index, absolute curvature, squared curvature, and square-derivative curvature were computed and compared in a recent study, where the mean absolute curvature was recommended due to its strong correlation to the adverse TAESS [214].
+In obstructive diseases (Fig. 6.c), the regions narrowed by plaques govern the local haemodynamics [13]. The narrowing increases the local flow velocity, causing higher ESS [251] and higher helicity intensity in diseased regions by an order of magnitude compared to healthy cases [12]. The increased ESS and TAESS at the site of stenosis most likely to influence plaque composition, leading to destabilisation and increasing the risk of myocardial infarction [221, 222, 227]. The anatomical feature of the narrowed region has been associated with future myocardial infarction. The Minimum Lumen Ratio (MLR), which describes the abruptness of narrowing in the proximal segment of the lesion, has been identified as a strong indicator [285]. Adverse ESS, TAESS, OSI and RRT form in disturbed flow zones downstream of the narrowing [13, 256­259] increasing the risk of accelerating the progression of the obstruction. A similar effect of narrowing was found in hyperaemic conditions [286]. An FSI study showed that the downstream of the stenosis was
+
+prone to plaque length progression [260]. Besides, LCx was found to be more atheroprone than LAD when the branch was more than 70% narrowed [260]. Moreover, the location of stenosis affects the haemodynamics within the whole bifurcation region. Specifically, severe LM-LAD stenosis causes reduced flow in LCx and lower ESS distribution [251, 257, 258]. In contrast, LCx stenosis mainly affects the distributions of velocity, ESS, and the pressure gradient of the whole bifurcation [269].
+Stents can also change the haemodynamic quantities (Fig. 6.d). Although stents are commonly used to restore blood flow, their structural elements, like rings and struts, can disturb nearby flow. Small and localised recirculation appeared adjacent to the stent struts [13, 261], which can further influence the existing secondary flow nearby, leading to a more disturbed flow condition [13]. Consequently, adverse haemodynamics occur adjacent to the stent struts, potentially developing restensosis in stented regions [13].
+5 Current Limitations and Future Opportunities
+Coronary anatomy is associated with haemodynamics, which influences the formation and progression of CAD. The clinical application of QFR and FFRCT has indicated that integrating computational methods with imaging techniques can accelerate the translation of haemodynamic insights into more effective prevention and diagnostic strategies. While QFR / FFRCT and studies focusing on flow and anatomy utilise haemodynamics to address clinical questions, their applications differ. QFR and FFRCT are primarily used to assess stenosis severity and guide PCI, whereas studies of coronary anatomy and flow can help to explain the underlying mechanisms of CAD.
+Despite various in vivo, in vitro, and in silico studies on the association between coronary anatomy, haemodynamics and CAD, the current understanding is still at an early stage and has not yet been translated into routine clinical practice. ESS can now be derived from FFRCT analysis using artificial intelligence­enabled quantitative coronary plaque and haemodynamic analysis (AI-QCPHA), which provides a comprehensive lesion-level assessment of high-risk plaque (EMERALD-II trial) [287]. In addition, coronary Radial Wall Strain (RWS) [288], defined as the radial deformation of the coronary wall induced by pulsatile blood pressure and calculated from coronary angiography aided by artificial intelligence [289], has emerged as a promising marker for plaque composition and stability, especially in patients with borderline coronary lesions [290]. This further highlights the potential of combining computational techniques with clinical imaging to improve current coronary risk
+
+13
+
+The Anatomy of Coronary Risk: How Arterial Geometry Shapes Coronary Artery Disease Through Blood Flow­...
+
+Fig. 6 Blood flow streamlines and near-wall haemodynamics distributions influenced by the coronary anatomy and implants. (a) The disturbed flow at bifurcations leads to adverse haemodynamics distributions due to the flow split. (b) The curvature leads to asymmetric secondary flow with coincided low TAESS. (c) The narrowing results
+
+in complex flow conditions with low TAESS generated before and after the disease. (d) The existence of stents influences the nearby secondary flow and leads to adverse TAESS adjacent to the struts. The 3D simulations were performed using ANSYS CFX (ANSYS Inc., Canonsburg, PA, USA)
+
+evaluation. However, detailed haemodynamic metrics such as time-averaged measurements or multidirectional haemodynamics such as TSVI still require high-fidelity computational simulations for accurate evaluation. Currently, the computational cost, lengthy segmentation procedures, multiple shape factors from patient-specific geometries, a wide range of shape variations between individuals and the absence of established thresholds for haemodynamic descriptors all limit the understanding of the correlation between coronary artery anatomy and haemodynamics and their effects on CAD development and progression.
+Nonetheless, research is increasingly focused on the role of coronary anatomy and blood flow in explaining the higher prevalence of disease in segments with complex geometries [9, 10, 250], contributing to assessments of plaque vulnerability [226, 231], informing stenting strategies [291], and
+
+supporting sex-specific risk stratification [262, 292]. This growing body of knowledge presents a promising direction for improving risk prediction, advancing preventative strategies, and enabling more personalised clinical decision-making.
+The development of automated segmentation tools has enabled researchers to perform rapid and large-scale segmentation and generate 3D models of the entire coronary artery tree in a feasible time. Therefore, the sample sizes for the previous studies that have used patient-specific models were relatively small. Another limitation is that the segments included in most studies were the main bifurcation regions or non-bifurcating vessels, and most curved segments and some regions commonly susceptible to diseases were neglected. Nevertheless, vulnerable plaques are most commonly located outside the left main region. For
+
+13
+
+C. Shen et al.
+
+example, SCAD occurs in the middle to distal vessel segments. Therefore, investigating the whole tree is essential to understanding the effect of anatomical features on haemodynamics distributions in downstream segments with potential risks [276, 277].
+Because of all the computational and segmentation challenges, investigations about the relationship between coronary anatomy and haemodynamics with a large population are limited. While patient-specific geometries have increasingly been used, the limited sample size and case selection approach may undermine the generalisability of the analyses, which consequently restricts the clinical applications of current findings. Significant challenges arise from the vast volume of data required and the complexity of analysing multiple shape factors simultaneously to encompass broader patient populations. In this context, power analysis is a valuable tool to determine the appropriate sample size needed to ensure sufficient sensitivity to detect the valid correlations in the whole dataset, thus resulting in efficiency and accuracy in research design [293, 294]. Future coronary anatomy studies are expected to focus on more extensive and diverse populations, with the representativeness and reliability of their findings supported by their power analysis. Such robust methodology will enhance the validity and applicability of the conclusions and facilitate the integration of the analyses into routine clinical practice.
+Due to the shape variations between individuals, there is a clear trend to consider the combined effects of multiple anatomical factors. However, involving multiple factors will increase the data dimension, complicate the analysis, and potentially obscure meaningful correlations. In such scenarios, statistical shape analysis [295] proposes an effective and practical method to analyse complex shapes and variations, generating representative mean shapes with variations from a group of 3D coronary models [16]. This approach has previously been used to study heart [296, 297], aorta [298, 299] or bone shapes [300, 301]. However, although its application in coronary arteries has been tested [16], such analyses have valuable potential and are worth further exploration.
+The results and findings of previous studies have proven significant effects of coronary anatomy. However, there are still many limitations that should be addressed. In summary, future studies should consider a few critical points. First, including larger patient-specific coronary datasets with broader population-specific considerations will improve the credibility of the results. Uncertainty quantification is a helpful process that allows researchers to consider the effect of anatomical and physiological variation in their simulations.
+
+Second, elucidating the potential interdependent effects of geometrical features on the local values for haemodynamics quantities is necessary for clinically helpful research. Third, developing novel algorithms to automate and accelerate coronary artery segmentation and flow analysis to expedite such studies is essential.
+While this review focuses on coronary arteries, the segmentation and computational pipelines discussed are broadly applicable across the cardiovascular system. Regardless of the vascular regions, three-dimensional geometries can be reconstructed from invasive or non-invasive imaging using the methodologies introduced earlier. By adjusting boundary conditions for different vascular territories, such as the carotid arteries, aorta, and cerebral arteries, CFD modelling can assess near-wall haemodynamics and flow patterns [302, 303], including vortices and recirculation, and their effects on atherosclerosis [302], aneurysms [304­307], dissection [308], and post-stent restenosis [309, 310], as well as the rupture risk of high-risk plaques and aneurysms [311].
+Once the link among geometric factors, flow patterns, and haemodynamics descriptors in coronary arteries with large sample sizes is established, clinicians may evaluate the risk of disease development based on vascular physiology and structure during diagnosis, thereby achieving early prevention and reducing the occurrence of severe disease.
+6Conclusion
+Numerical analyses of the haemodynamics of healthy and diseased coronary arteries have been in the spotlight for years. However, the studies faced numerous limitations due to the anatomical, physiological, and methodological complexities. Concerns about the credibility and reproducibility of computational results still remain. We summarised multiple aspects of these complexities and highlighted the current status of approaches used in relevant investigations. Our review found that larger sample size, interactions between multiple factors, and automation algorithms are the main topics that can address the current limitations. In addition, the standardisation of computational strategies is a primary effort to be pursued to gain credibility and encourage the translation of computational haemodynamics into clinical practice. The budget of uncertainty associated with modelling must be mandatorily delineated, and a comprehensive standardisation strategy should be established. Addressing these challenges will improve the clinical relevance and translation of the studies on coronary artery haemodynamics.
+
+13
+
+The Anatomy of Coronary Risk: How Arterial Geometry Shapes Coronary Artery Disease Through Blood Flow­...
+13
+
+Appendix
+
+Table 7 Reviewed in vivo and computational studies of coronary anatomy and flow
+
+Focus
+
+Data
+
+Method
+
+Key Findings
+
+Study
+
+BA, torsion, 39 patient-specific left coroinflow angle, nary trees based on CTCA diameter, curvature, Finet's ratio
+
+CFD, transient, non-Newtonian Carreau­Yasuda viscosity, scaling law velocity inlet (plug/uniform profile), flow split outlet, rigid wall
+
+- Obstructive coronary disease is correlated with average curvature and normalised area with high OSI. Curvature and OSI may predict plaque onset.
+
+Zhang et al. (2023) [228]
+
+BA, inflow angle, curvature, diameter, Finet's ratio
+
+127 patient-specific LMB based on CTCA
+
+CFD, transient, non-Newtonian Carreau­Yasuda viscosity model, scaling law velocity inlet (plug/uniform profile), 0Pa outlet, rigid wall
+
+- Anatomical features (Finet's ratio, diameters and curvatures) are correlated with lowTAESS, highOSI and highRRT and may be a surrogate of adverse haemodynamics. - Haemodynamic quantities showed high sensitivity to Finet's ration.
+
+Gharleghi et al. (2024) [252]
+
+Gender, BA, diameter, curvature, Finet's ratio
+
+127 patient-specific LMB
+
+CFD, transient, non-Newtonian Carreau­Yasuda
+
+based on CTCA (12 males and viscosity model, scaling law velocity inlet (plug/uni-
+
+85 females)
+
+form profile), 0Pa outlet, rigid wall
+
+- More area exposed to adverse OSI and RRT in males. - Low TAESS were more present along the inner wall of curvature for females and outer walls for males.
+
+Gharleghi et al. (2023) [262]
+
+Stenosis, tortuosity, curvature, length
+
+22 left and right coronary arteries based on CTCA
+
+CFD, transient, Newtonian viscosity model, coronary - The stenosis resulted in formation of recirculation zone at the bifurca- Peng et al.
+
+flow rate for inlet, lumped parameter model outlets, tion upstream. - High stenosis degree increased the maximum ESS. - The (2016) [251]
+
+rigid, non-slip wall
+
+curvature and the length of the lesion segment showed a moderate posi-
+
+tive correlation with the length of the recirculation zone.
+
+BA, curva- 10 idealised LM bifurcations ture, stenosis
+
+CFD, transient, non-Newtonian Carreau viscosity model, velocity waveform from literature for the velocity inlet (plug/uniform profile), specified flow split outlet, rigid wall
+
+- BA had a minor impact on haemodynamics in both stenosed and unste- Chiastra et al. nosed models. - Larger curvature moderately increased the area with low (2017) [12] TAESS and decreased the area with high OSI and RRT. - Large curvature led to higher helicity intensity. - Helicity intensity in diseased models was one order of magnitude higher than in healthy models.
+
+Tortuosity, curvature, stenosis
+
+Idealised non-bifurcating models
+
+CFD, Transient, Newtonian viscosity model, inlet: an - Small pulse rate resulted in adverse TAESS. - Severe stenosis increased Song et al. eight-coefficient Fourier equation fitted to data from adverse TAESS distribution. - The tortuosity reduces the area exposed to (2021) [213] the literature, outlet: constant pressure (13,330Pa), adverse low TAESS. rigid wall
+
+BA, inflow angle, stent
+
+9 patient-specific and syntheti- CFD, transient, non-Newtonian Carreau­Yasuda cally modified LM models viscosity model, scaling law inlet (parabolic profile), based on CTCA (3 idealised, 0Pa pressure outlet, rigid wall 3BA modified, 3 baseline)
+
+- The BA did not show a significant effect of adverse haemodynamics. Presence of stents outweighed anatomical effects.
+
+Beier et al. (2016) [11]
+
+BA, curvature, stent
+BA, diametres
+
+128 idealised and patient-specific modified geometries (32 idealised 32 idealised stented 32 patient-specific 32 patientspecific stented)
+CTCA images from 30 patients (18 males, 12 females, mean age 56years ± 8, 22 cases with disease)
+
+CFD, transient, non-Newtonian Carreau­Yasuda model, scaling law velocity inlet (parabolic profile), 0Pa outlet, rigid wall
+Calcified, non-calcified, and mixed plaques, BA between LM and LCx, mean diameter of LAD and Lcx.
+
+- Shape factors had an interdependent effect. - Large curvature adversely induces asymmetric secondary flow and low TAESS. - Larger BA reduced areas exposed to low TAESS. -The effect of stents outweighed the effect of BA.
+
+Shen et al. (2021) [13]
+
+- Cases with diseased left coronary arteries had larger mean BA (94± 19.7 VS 75.5± 19.8, p = 0.02). - Cases with diseased left coronary arteries had larger LAD and LCx diameters (p < 0.001).
+
+Sun and Cao (2011) [263]
+
+C. Shen et al.
+13
+
+Table 7(continued)
+
+Focus
+
+Data
+
+Method
+
+Key Findings
+
+Study
+
+BA, Tortuosity, trifurcation
+
+20 idealised (10 bifurcations, 10 trifurcations) four patientspecific geometries based on CTCA (3 bifurcations, 1 trifurcation)
+
+CFD, transient, non-Newtonian Carreau viscosity model, pulsatile velocity inlet, constant pressure (80mmHg) outlets, rigid wall
+
+- Tortuosity induced formation of helical flow, which might be considered an atheroprotective effect due to their effect on near-wall descriptors. - Larger BA and trifurcation angle increased the helicity intensity. - Large branch angles led to more adverse haemodynamics areas, especially in trifurcations.
+
+Rabbi et al. (2020) [215]
+
+BA, gender, BMI
+
+CTCA images from 196 patients (129 males, 67 females, mean age 58 ± 10.5years)
+
+Calcified, non-calcified and mixed plaques, stenosis degree classification: low (< 30%), intermediate (30­50%), high (> 50%) risk, BA between LAD and LCx.
+
+- BA> 80was associated with a higher risk of developing CAD. - BMI and gender are significantly correlated with the BA. - Males patients had a 2.07-fold chance of BA> 80. - Patients with high BMI (> 25 kg/m2) had 2.54-fold higher chance of BA> 80.
+
+Temov et al. (2016) [8]
+
+Tortuosity, Eight patient-specific models CFD, steady, Newtonian viscosity model, scaling law - A significant correlation between the tortuosity index of LM-LAD
+
+curvature,
+
+flowrate inlet, flow split outlet, rigid wall
+
+segment and low ESS amplitude. - BA was correlated with high ESS
+
+BA, diameter
+
+amplitude.
+
+Malvè et al. (2015) [149]
+
+Tortuosity, bend angle, the length between bends
+
+Non-bifurcating idealised and CFD, transient, Newtonian, waveform from literature - Adverse ESS existed on the inner wall downstream of the bend with Xie et al.
+
+two realistic LCA models
+
+for the inlet, constant (0Pa) pressure outlet, rigid wall bend angle larger than 120. - Severe tortuosity resulted in abnormal ESS (2014) [264]
+
+at the bend sections. Therefore, it can be a risk factor for the disease.
+
+Curvature, Tortuosity
+
+CTCA images from 73 patients under risk of CAD due to peripheral vascular disease (55 males, 18 females, mean age 63.5 ± 8.2years)
+
+Curvature was defined as Menger's curvature, tortuosity was defined as tortuosity index, significant stenosis>70%.
+
+- Results showed 16.7% higher curvature for segments with stenosis and 13.8% higher curvature for arteries with stenosis. - Tortuosity was 30% higher for segments with plaque, with no significant correlation at the artery level.
+
+Tuncay et al. (2018) [9]
+
+Curvature, stenosis
+
+33 stenoses from 31 patientspecific left coronary arteries based on CTCA
+
+CFD, steady, Newtonian viscosity model, specified - Curvature and the area-reduction and the area-expansion ratios of the velocity based on Re numbers (plug/uniform profile), stenosis determined the pressure drop. resistance pressure outlet, rigid wall
+
+Kim et al. (2020) [265]
+
+Stenosis, BA Three isealised bifurcations
+
+CFD, transient, non-Newtonian Carreau viscosity, scaling law velocity inlet, 80mmHg pressure outlet, rigid wall
+
+-Recirculation appeared after carina -High ESS existed in stenosis and carina regions - Post­stenotic LAD and LCx are more likely to have plaque development
+
+Müftüoullari et al. [259]
+
+Curvature
+
+13 Idealised left main bifurcations
+
+CFD, transient, non-Newtonian Carreau-Yasuda vis- - Adverse haemodynamics in LAD showed the highest sensitivity to the Kashyap et
+
+cosity model, velocity waveform inlet (plug/uniform curvature of other branches. - OSI and RRT showed more sensitivity to al. (2020)
+
+profile), 0Pa outlet, rigid wall
+
+curvature compared to TAESS.
+
+[148]
+
+Tortuosity
+
+Three idealised non-bifurcating models, three patientspecific left coronary arteries based on CTCA
+
+CFD, transient, non-Newtonian Carreau viscos-
+
+- Tortuosity could have protective effects against atherosclerosis. - Larger Vorobtsova
+
+ity model, scaling law flowrate inlet (plug/uniform tortuosity led to higher helicity intensity. - Helicity is correlated with the et al. (2016)
+
+profile), constant outlet pressure for idealised cases, pressure drop. An increase in tortuosity may reduce perfusion.
+
+[253]
+
+lumped parameter resistance model outlet for patient-
+
+specific cases, rigid wall
+
+Tortuosity
+
+ICA images from 246 patients In vivo Tortuosity was defined by the numbers of with confirmed SCAD (45.3± consecutive curvatures (90 to 180) in segments > 8.9years old, 96% female) and 2mm diameter 313 patients
+
+-High prevalence of tortuosity among patients with SCAD. -Severe tortuosity related to recurrent SCAD
+
+Eleid et al. (2014) [10]
+
+Tortuosity IVUS images from 293 patients
+
+Eccentricity of plaque, lipid, fibrous and calcified plaque, vessel cross-sections were divided into four quadrants.
+
+- For moderate stenosis, the lipid pool plaque were found to be in the inner curvature and fibrous tissue in the outer curvature. - The results suggests that atherosclerotic lesions progress eccentrically influenced by the blood flow.
+
+Sato et al. (2015) [266]
+
+The Anatomy of Coronary Risk: How Arterial Geometry Shapes Coronary Artery Disease Through Blood Flow­...
+13
+
+Table 7(continued)
+
+Focus
+
+Data
+
+Method
+
+Key Findings
+
+Tortuosity ICA images from 1010
+
+Tortuosity was defined by segments with 3 bends, - Severe CAD was located in vessels with low tortuosity (p = 0.045).
+
+patients (64±11year-old, 544 and the existence of CAD was defined as stenosis  - Large tortuosity was predominantly found in females (p < 0.001). -
+
+males)
+
+50%
+
+Tortuosity showed positive correlation with hypertension and negative
+
+correlation with atherosclerosis. - Tortuosity showed no correlation with
+
+MACE.
+
+Tortuosity ICA images from 870 patients Tortuosity was defined as the existence of segments - Women with severe tortuosity were more likely to have normal coro-
+
+(589 males, 281 females)
+
+with 3 bends. Images were analysed by Vessel,
+
+nary arteries than men (p = 0.03).
+
+Gensini and Extent scores.
+
+Tortuosity 127 patient-specific left main CFD, transient, non-Newtonian Carreau­Yasuda
+
+- The average-absolute-curvature had the strongest correlation with the
+
+bifurcations based on CTCA viscosity model, scaling law velocity inlet (parabolic low TAESS and, therefore, was recommended for the measurement of
+
+profile), constant pressure (0Pa) outlet, rigid wall tortuosity.
+
+Tortuosity 21 idealised non-bifurcating CFD, steady, Newtonian, 0.156m/s inlet, 0Pa outlet, - Tortuosity decreased blood pressure - Severe tortuosity may lead to
+
+models
+
+rigid, non-slip wall
+
+myocardial ischemia.
+
+Stenosis
+
+Nine idealised bifurcations CFD, transient, Newtonian viscosity model, inlet
+
+- Existence of stenosis decreased the flow to side branches. - Increased
+
+with stenosis
+
+velocity waveform scaled by stenosis degree and
+
+stenosis degree decreased the ESS value. - Stenosis type (1,0,1) showed
+
+flow at peak diastole 102.2mL /min (parabolic pro- the greatest risk of ischemia and atherosclerotic growth.
+
+file), 0Pa outlets, rigid wall
+
+Stenosis
+
+Eight different configurations CFD, transient, Newtonian, velocity inlet from litera- - Existence of plaque affects the local velocity, pressure gradient and
+
+of plaques in a patient-specific ture, flow split outlets, rigid wall
+
+ESS. - Plaque in LCx had the most effects on the velocity, pressure
+
+anatomy and case without any
+
+gradients and ESS.
+
+plaque
+
+Stenosis
+
+One patient-specific model FSI, Newtonian, in vivo measurement inlet velocity - Areas proximal to the plaque throat had low circumferential strain and
+
+and outlet pressure waveform, Mooney­Rivlin model low ESS. - The myocardial side was more likely to form disease. - LCx
+
+for the artery, idealised heart motion
+
+was more atheroprone than LAD when LCx had severe stenosis.
+
+Stenosis
+
+One patient-specific LM bifur- CFD, transient, non-Newtonian Carreau viscosity - Smaller TAESS around bifurcation and along LAD, when Reynolds
+
+cation from CTCA, and cases model, velocity waveform with specified Re number number was higher. - Low TAESS and high RRT, existed before and
+
+with virtually added occlusion for inlet, flow split outlet, rigid wall
+
+after the short stenoses. In contrast, for the long stenoses, such regions
+
+occurred on the lateral side of the obstruction. - TAESS value differed
+
+between simulations using Newtonian or non-Newtonian blood.
+
+Stenosis
+
+One patient-specific coronary CFD, transient, Newtonian, in vivo parabolic veloc- - ESS decreased and wall pressure gradient increased in side branches
+
+artery (CT) and a diseased ity inlet, flow split outlet, rigid wall
+
+when plaque existed in LAD and LM.
+
+case modified from it
+
+Stent
+
+Two patient-specific models CFD, transient, non-Newtonian Carreau viscos-
+
+-Region adjacent to the stent struts are prone to restenosis. -Stents
+
+based on CTCA
+
+ity, scaling law velocity inlet (parabolic), flow split resulted in local helical recirculating microstructures.
+
+outlet, rigid wall
+
+BA
+
+CTCA and ICA images from CTCA images for anatomical features, ICA for
+
+-Wider BA was associated with stenosis and non-calcified lesions.
+
+106 patients with stenosis
+
+stenosis degree, stenosis degree classification: mild (< 50%), moderate (50­69%), severe (70­99%) and
+
+total occlusion (100%).
+
+BA
+
+Eight idealised bifurcations, CFD, transient, Newtonian viscosity model, velocity - Wider BA led to disturbed flow patterns and low ESSG.
+
+four patient-specific left coro- waveform inlet from literature, pulsatile pressure
+
+nary arteries based on CTCA outlets, rigid wall
+
+BA: bifurcation angle, LMB: left main bifurcation, SCAD: spontaneous coronary artery dissection, MACE: Major adverse cardiovascular events
+
+Study Li et al. (2011) [267]
+Chiha et al. (2017) [268]
+Kashyap et al. (2022) [214] Li et al. [255]
+Frattolin et al. (2015) [257]
+Chaichana et al. (2013) [269]
+Jahromi et al. (2019) [260]
+Pinto and Campos (2016) [256]
+Chaichana et al. (2014). [258] Chiastra et al. (2013) [261]
+Cui et al. (2017) [270]
+Chaichana et al. (2011) [271]
+
+C. Shen et al.
+
+Author Contributions C.S. wrote the main manuscript text and prepared the figures and tables. M.Z. and H.K. contributed to conceptualisation, writing, review, and editing. D.A. and S.B. were responsible for supervision, writing, review, and editing. S.Z., R.G., and O.K. contributed to the sections on machine-learning-based approaches in coronary segmentation and computational fluid dynamics (CFD). J.J.W. contributed to the sections on clinical imaging techniques, the relevance of coronary artery anatomy and blood flow haemodynamics, and ensured the overall coherence and clarity of the manuscript. U.M. contributed to revisions throughout the manuscript and refined the discussion on anatomical features and intravascular flow dynamics. A.Q. and S.A.N. contributed to the review of image segmentation techniques, including self-supervised learning, few-shot methods, and generative models. S.S. and Y.S.C. contributed to the comparative analysis of coronary imaging modalities, addressing the advantages and limitations of different techniques within the relevant clinical context. T.T. and P.S. contributed to the image acquisition and reconstruction sections, improving clarity and coherence. All authors contributed to revisions throughout the manuscript. All authors reviewed and approved the final manuscript.
+Funding Open Access funding enabled and organized by CAUL and its Member Institutions.
+Data Availability No datasets were generated or analysed during the current study.
+Declarations
+Competing Interests The authors declare no competing interests.
+Open Access This article is licensed under a Creative Commons Attribution 4.0 International License, which permits use, sharing, adaptation, distribution and reproduction in any medium or format, as long as you give appropriate credit to the original author(s) and the source, provide a link to the Creative Commons licence, and indicate if changes were made. The images or other third party material in this article are included in the article's Creative Commons licence, unless indicated otherwise in a credit line to the material. If material is not included in the article's Creative Commons licence and your intended use is not permitted by statutory regulation or exceeds the permitted use, you will need to obtain permission directly from the copyright holder. To view a copy of this licence, visit h ttp://c reativ e co mmo n s.o  rg/licenses /by/4.0/.
+References
+1. Tsao CW, Aday AW, Almarzooq ZI, Anderson CA, Arora P, Avery CL, Baker-Smith CM, Beaton AZ, Boehme AK, Buxton AE (2023) Heart disease and stroke statistics--2023 update: a report from the American heart association. Circulation 147(8):e93­e621
+2. Vaduganathan M, Mensah GA, Turco JV, Fuster V, Roth GA (2022 Dec) The global burden of cardiovascular diseases and risk: a compass for future health. J Am Coll Cardiol 80(25):2361­2371
+3. Agrawal H, Choy H-HK, Liu J, Auyoung M, Albert MA (2020 Jul) Coronary artery disease. Arterioscler Thromb Vasc Biol 40(7):e185­e192
+4. Bhatia S (2010) Coronary artery disease. In: Biomaterials for clinical applications. Springer, New York, NY, pp 23­49
+5. Cunningham KS, Gotlieb AI (2005) The role of shear stress in the pathogenesis of atherosclerosis. Lab Investigation 85(1):9­23
+
+6. Tamargo IA, Baek KI, Kim Y, Park C, Jo H (2023) Flow-induced reprogramming of endothelial cells in atherosclerosis. Nat Rev Endocrinol Cardiol 20(11):738­753
+7. Friedman MH, Deters OJ, Mark FF, Bargeron CB, Hutchins GM (1983) Arterial geometry affects hemodynamics: a potential risk factor for atherosclerosis. Atherosclerosis 46(2):225­231. [Online]. Available: http s ://w ww .sc ie n c edire c t.c om /s cience /a rtic le/pii/00 21 9 1 50 8 39 0 1 1 3 2
+8. Temov K, Sun Z (2016) Coronary computed tomography angiography investigation of the association between left main coronary artery bifurcation angle and risk factors of coronary artery disease. Int J Cardiovasc Imag 32:129­137. [Online]. Available: htt p://lin k.sp rin ger.c om /10 .10 07/s105 54 -016 -0 884-2
+9. Tuncay V, Vliegenthart R, den Dekker MAM, de Jonge GJ, van Zandwijk JK, Harst PVD, Oudkerk M, van Ooijen PMA (2018) Non-invasive assessment of coronary artery geometry using coronary cta. J Cardiovasc Comput Tomogr 12:257­260
+10. Eleid MF, Guddeti RR, Tweet MS, Lerman A, Singh M, Best PJ, Vrtiska TJ, Prasad M, Rihal CS, Hayes SN, Gulati R (2014) Coronary artery tortuosity in spontaneous coronary artery dissection: angiographic characteristics and clinical implications. Circ Cardiovasc Interv 7:656­662
+11. Beier S, Ormiston J, Webster M, Cater J, Norris S, Medrano-Gracia P, Young A, Cowan B (2016) Impact of bifurcation angle and other anatomical characteristics on blood flow - a computational study of non-stented and stented coronary arteries. J Biomech 49:1570­1582
+12. Chiastra C, Gallo D, Tasso P, Iannaccone F, Migliavacca F, Wentzel JJ, Morbiducci U (2017) Healthy and diseased coronary bifurcation geometries influence near-wall and intravascular flow: a computational exploration of the hemodynamic risk. J Biomech 58:79­88. [Online]. Available: h ttp s ://w w w .sc ien ce dire c t.c om /s c  ie n c e /a rticle /p ii/S 0 0 2 192901 73 02 1 66
+13. Shen C, Gharleghi R, Li DD, Stevens M, Dokos S, Beier S (2021) Secondary flow in bifurcations ­ important effects of curvature, bifurcation angle and stents. J Biomech 129:110755. [Online]. Available: h ttps ://w ww .s c ien ce d irec t.c o m /s cie n c e /a rticle /pii/S0 0  21 92 9021 0 052 1 2
+14. Esau D, Abramson BL (2022) Approach to risk stratification of atherosclerotic cardiovascular disease: use of biomarkers and imaging in a Canadian context. Can Fam Physician 68:654­660
+15. Kong G, Chin YH, Chong B, Goh RSJ, Lim OZH, Ng CH, Muthiah M, Foo R, Vernon ST, Loh PH, Chan MY, Chew NW, Figtree GA (2023) Higher mortality in acute coronary syndrome patients without standard modifiable risk factors: results from a global meta-analysis of 1,285,722 patients. Int J Cardiol 371(1):432­440
+16. Medrano-Gracia P, Ormiston J, Webster M, Beier S, Ellis C, Wang C, Örjan Smedby AY, Cowan B (2017) A study of coronary bifurcation shape in a normal population. J Cardiovasc Transl Res 10:82­90. [Online]. Available: h ttp s ://do i.o rg/1 0.10 07 /s12 2 6 5 -01 6-9 72 0 -2
+17. Skowronski J, Cho I, Mintz GS, Wolny R, Opolski MP, Cha MJ, Lee WS, Michalowska I, Kepka C, Kruk M, Tyczynski P, Kalinczuk L, Kukula K, Ciszewski M, Banasiak A, Chmielak Z, Witkowski A, Kim S-W, Pregowski J (2020) Inter-ethnic differences in normal coronary anatomy between caucasian (polish) and Asian (Korean) populations. Eur J Radiol 130:109185. [Online]. Available: https ://ww w .sc ie n ced irec t.c o m/s c ie n c e /a rticle /pii/S 0 7  20 048X20 3 0 3 740
+18. Vázquez Mézquita AJ, Biavati F, Falk V, Alkadhi H, Hajhosseiny R, Maurovich-Horvat P, Manka R, Kozerke S, Stuber M, Derlin T, Channon KM, Isgum I, Coenen A, Foellmer B, Dey D, Volleberg RHJA, Meinel FG, Dweck MR, Piek JJ, van de Hoef T, Landmesser U, Guagliumi G, Giannopoulos AA, Botnar RM, Khamis R, Williams MC, Newby DE, Dewey M (2023) Clinical
+
+13
+
+The Anatomy of Coronary Risk: How Arterial Geometry Shapes Coronary Artery Disease Through Blood Flow­...
+
+quantitative coronary artery stenosis and coronary atherosclerosis imaging: a consensus statement from the quantitative cardiovascular imaging study group. Nat Rev Endocrinol Cardiol 20(10):696­714 19. Gharleghi R, Adikari D, Ellenberger K, Webster M, Ellis C, Sowmya A, Ooi S, Beier S (2023) Annotated computed tomography coronary angiogram images and associated data of normal and diseased arteries. Sci Data 10:128 20. Li J, Zhou Z, Yang J, Pepe A, Gsaxner C, Luijten G, Qu C, Zhang T, Chen X, Li W, Wodzinski M, Friedrich P, Xie K, Jin Y, Ambigapathy N, Nasca E, Solak N, Melito GM, Vu VD, Memon AR, Schlachta C, De Ribaupierre S, Patel R, Eagleson R, Chen X, Mächler H, Kirschke JS, de la Rosa E, Christ PF, Li HB, Ellis DG, Aizenberg MR, Gatidis S, Köstner T, Shusharina N, Heller N, Andrearczyk V, Depeursinge A, Hatt M, Sekuboyina A et al (2025) Medshapenet ­ a large-scale dataset of 3d medical shapes for computer vision. Biomed Eng / Biomedizinische Tech 70(1):71­90. [Online]. Available: h ttps ://doi.org /1 0 .1 5 15 /b mt-20 24 -0 39 6 21. Zeng A, Wu C, Lin G, Xie W, Hong J, Huang M, Zhuang J, Bi S, Pan D, Ullah N, Khan KN, Wang T, Shi Y, Li X, Xu X (2023) Imagecas: a large-scale dataset and benchmark for coronary artery segmentation based on computed tomography angiography images. Computerized Med Imag Graphics 109:102287. [Online]. Available: http s ://ww w .s c ien ced ire c t.c o m /sc ie n c e /a rtic  le/p ii/S 0 8 956 1112 3 00 1 0 5 2 22. Gharleghi R, Chen N, Sowmya A, Beier S (2022) Towards automated coronary artery segmentation: a systematic review. Comput Methods Programs Biomed 225:107015. [Online]. Available: http s ://ww w.sc ie n c edirec t.c om/sc ienc e /a rticle /pii/S 0 16 9 2 6 0 7 22 0 03972 23. Chiastra C, Zuin M, Rigatelli G, D'Ascenzo F, De Ferrari GM, Collet C, Chatzizisis YS, Gallo D, Morbiducci U (2023) Computational fluid dynamics as supporting technology for coronary artery disease diagnosis and treatment: an international survey. Front Cardiovasc Med 10. [Online]. Available: h ttp s ://w ww .front iers in .org /a rtic le s/1 0 .3 3 8 9/fcvm .2 0 23.1 2 1 6 796 24. Arbab-Zadeh A, Hoe J (2011) Quantification of coronary arterial stenoses by multidetector ct angiography in comparison with conventional angiography: methods, caveats, and implications. JACC Cardiovasc Imag 4:191­202. [Online]. Available: http s :// www.s c ie n cedirec t.c o m /scie nce /a rticle/p ii/S1 9 36 8 78X 1 00 0 838 7 25. Henningsson M, Shome J, Bratis K et al (2017) Diagnostic performance of image navigated coronary cmr angiography in patients with coronary artery disease. J Cardiovasc Magnetic Reson 19(1):68 26. Bezerra HG, Costa MA, Guagliumi G, Rollins AM, Simon DI (2009) Intracoronary optical coherence tomography: a comprehensive review: clinical and research applications. JACC Cardiovasc Interv 2:1035­1046. [Online]. Available: h ttp s ://w ww.sc ien  ced ire c t.c o m/sc ien ce /a rticle /pii/S1 9 3 6 8 7 9809 0 05 9 2 5 27. Wang L, Maehara A, Zhang X, Lv R, Qu Y, Guo X, Zhu J, Wu Z, Billiar KL, Zheng J, Chen L, Ma G, Mintz GS, Tang D (2023) Quantification of patient-specific coronary material properties and their correlations with plaque morphological characteristics: an in vivo ivus study. Int J Cardiol 371:21­27. [Online]. Available: h ttp s ://www.s c ie n c ed irec t.c o m /s c ie n ce /a rtic le/p ii/S 0 1 6 7 5 2  73220 1 40 12 28. Group DT, Maurovich-Horvat P, Bosserdt M, Kofoed K, Rieckmann N, Benedek T, Donnelly P, Rodriguez-Palomares J, Erglis A, Stchovský C, Sakalyte G, Cemerli Adi N, Gutberlet M, Dodd J, Diez I, Davis G, Zimmermann E, Kepka C, Vidakovic R, Francone M, Ilnicka-Suckiel M, Plank F, Knuuti J, Faria R, Schröder S, Berry C, Saba L, Ruzsics B, Kubiak C, GutierrezIbarluzea I, Hansen KS, Möller-Nordhorn J, Merkely B, Knudsen A, Benedek I, Orr C, Valente FX, Zvaigzne L, Suchánek V,
+
+Zajanckauskiene L et al (2022) Ct or invasive coronary angiography in stable chest pain. NEJM Evid 386(17):1591­1602 29. Serruys PW, Hara H, Garg S, Kawashima H, Nørgaard BL, Dweck MR, Bax JJ, Knuuti J, Nieman K, Leipsic JA, Mushtaq S, Andreini D, Onuma Y (2021) Coronary computed tomographic angiography for complete assessment of coronary artery disease. J Am Coll Cardiol 78:713­736. [Online]. Available: http s ://doi.o r g/1 0 .10 1 6 /j.ja c c .2 021 .0 6.01 9 30. Patel KHK, Hwang T, Liebers CS, Ng FS (2022) Epicardial adipose tissue as a mediator of cardiac arrhythmias. Am J PhysiolHeart Circulatory Physiol 322(2):H129­H144 31. Conte M, Petraglia L, Cabaro S, Valerio V, Poggio P, Pilato E, Attena E, Russo V, Ferro A, Formisano P, Leosco D, Parisi V (2022) Epicardial adipose tissue and cardiac arrhythmias: focus on atrial fibrillation. Front. Cardiovasc. Med 9:932262 32. Cundari G, Galea N, Mergen V et al (2023) Myocardial extracellular volume quantification with computed tomography--current status and future outlook. Insights Imag 14:156 33. Schuijf JD, Lima JAC, Boedeker KL, Takagi H, Tanaka R, Yoshioka K, Arbab-Zadeh A (2022) Ct imaging with ultra-high-resolution: opportunities for cardiovascular imaging in clinical practice. J Cardiovasc Comput Tomogr 16:388­396. [Online]. Available: h  ttps ://ww w.s c ie n ce dire c t.c om/science /a rticle/p ii/S1 9 3 459 252 2 0 0  023 5 34. Systems CM (2024) Vitrea extend, 2024. [Online]. Available: h ttps ://glob al.m e dica l.c an o n /p ro d u cts /c o mp u te d -to m o g ra p hy /C T _  vitre a_ e x tend. Accessed 29 April 2024 35. TeraRecon I Terarecon (2024). [Online]. Available: h ttp s ://ww w .t erareco n.co m /. Accessed 29 April 2024 36. Artrya (2024) Artrya - precision cardiac analysis. available online: https://www.artrya.com/ 37. Inc C (2024) Cleerly: AI-enabled coronary artery analysis platform. https://cleerlyhealth.com. Accessed 5 May 2025 38. Bv MMIS Medis imaging (2024) [Online]. Available: h ttp s://m e d  isima g in g.c o m /. Accessed 29 April 2024 39. Kweon J, Kang S-J, Kim Y-H, Lee J-G, Han S, Ha H, Yang DH, Kang J-W, Lim T-H, Kwon O, Ahn J-M, Lee PH, Park D-W, Lee S-W, Lee CW, Park S-W, Park S-J (2018) Impact of coronary lumen reconstruction on the estimation of endothelial shear stress: in vivo comparison of three-dimensional quantitative coronary angiography and three-dimensional fusion combining optical coherent tomography. Eur Heart J - Cardiovasc Imag 19(10):1134­1141 40. Lee JM, Choi G, Koo B-K, Hwang D, Park J, Zhang J, Kim K-J, Tong Y, Kim HJ, Grady L, Doh J-H, Nam C-W, Shin E-S, Cho Y-S, Choi S-Y, Chun EJ, Choi J-H, Nørgaard BL, Christiansen EH, Niemen K, Otake H, Penicka M, de Bruyne B, Kubo T, Akasaka T, Narula J, Douglas PS, Taylor CA, Kim H-S (2019) Identification of high-risk plaques destined to cause acute coronary syndrome using coronary computed tomographic angiography and computational fluid dynamics. J Am Coll Cardiol Img 12(6):1032­1043 41. Eckert J, Schmidt M, Magedanz A, Voigtländer T, Schmermund A (2015) Coronary ct angiography in managing atherosclerosis pp 3740­3756 42. Lin FY, Villines TC, Narula J, Shaw LJ (2019) What is the clinical role of non-invasive atherosclerosis imaging? J Cardiovasc Comput Tomogr 13:261­266 43. Tarkin JM, Dweck MR, Evans NR, Takx RAP, Brown AJ, Tawakol A, Fayad ZA, Rudd JHF (2016) Imaging atherosclerosis. Circ Res 118:750­769. [Online]. Available: h ttp s ://d o i.org /1 0.11 61 /CI RCR E SAH A .11 5 .3 0624 7 44. Owen DR, Lindsay AC, Choudhury RP, Fayad ZA (2011) Imaging of atherosclerosis. Annu Rev Med 62:25­40 45. Kato Y, Ambale-Venkatesh B, Kassai Y, Kasuboski L, Schuijf J, Kapoor K, Caruthers S, Lima JAC (2020) Non-contrast coronary
+
+13
+
+C. Shen et al.
+
+magnetic resonance angiography: current frontiers and future horizons. Magnetic Reson Mater Phys Biol Med 33:591­612. [Online]. Available: https ://d oi.org /1 0.10 0 7/s1 0 334 -0 20 -0 0 83 4 -8 46. Androulakis E, Mohiaddin R, Bratis K (2022) Magnetic resonance coronary angiography in the era of multimodality imaging. Clin Radiol 77:e489­e499. [Online]. Available: http s ://w w w .s c ie nc e dire c t.c o m /sc ie nc e /a rticle /pii/S0 00 9 926 022 0016 2 3 47. Wu X, Deng L, Li W, Peng P, Yue X, Tang L, Pu Q, Ming Y, Zhang X, Huang X, Chen Y, Huang J, Sun J (2023 November) Deep learning-based acceleration of compressed sensing for noncontrast-enhanced coronary magnetic resonance angiography in patients with suspected coronary artery disease. J Magnetic Reson Imag 58(5):1521­1530. epub 2023 Feb 27 48. Mantella LE, Liblik K, Johri AM (2021) Vascular imaging of atherosclerosis: strengths and weaknesses. Atherosclerosis 319:42­50 49. Barbieri L, D'Errico A, Avallone C, Gentile D, Provenzale G, Guagliumi G, Tumminello G, Carugo S (2022) Optical coherence tomography and coronary dissection: precious tool or useless surplus? Front. Cardiovasc. Med 9. [Online] Available: h ttp s ://w w w  .fro ntie rs in .org /a rtic les /10 .3 3 8 9/fc vm .2 0 2 2 .822 9 98 50. Nagaraja V, Kalra A, Puri R (2020) When to use intravascular ultrasound or optical coherence tomography during percutaneous coronary intervention? Cardiovasc Diagn Ther 10:1429­1444 51. Nair A, Kuban BD, Tuzcu EM, Schoenhagen P, Nissen SE, Vince DG (2002) Coronary plaque classification with intravascular ultrasound radiofrequency data analysis. Circulation 106:2200­2206 52. Roleder T, Wojakowski W (2015) Intravascular ultrasound, optical coherence tomography and near infrared spectroscopy. Cor Vasa 57:e439­e445. [Online]. Available: h ttp s ://w ww .s c ien cedir ec t.c o m/s c ie nce /a rtic le /pii/S 0 0 108 6 5 015 0 010 8 3 53. Schoenhagen P, Ziada KM, Vince DG, Nissen SE, Tuzcu EM (2001) Arterial remodeling and coronary artery disease: the concept of "dilated" versus "obstructive" coronary atherosclerosis. J Am Coll Cardiol 38:297­306. [Online]. Available: h ttps ://w w w.s cien c e d ire c t.c o m /sc ience /a rticle /pii/S 0 73 5 1 09 7 01013 742 54. Nissen SE, Yock P (2001) Intravascular ultrasound. Circulation 103:604­616. [Online]. Available: h ttps ://doi.org /1 0 .11 61 /0 1 .C I R.1 03.4.6 0 4 55. Meloni A et al (2024) Technical principles, benefits, challenges, and applications of photon counting computed tomography in coronary imaging: a narrative review. Cardiovasc Diagn Ther 14(4):698 56. Ono M, Kawashima H, Hara H, Gao C, Wang R, Kogame N, Takahashi K, Chichareon P, Modolo R, Tomaniak M, Wykrzykowska JJ, Piek JJ, Mori I, Courtney BK, Wijns W, Sharif F, Bourantas C, Onuma Y, Serruys PW (2020) Advances in ivus/oct and future clinical perspective of novel hybrid catheter system in coronary imaging. Front Cardiovasc Med 7. [Online]. Available: https ://w ww .fro n tiers in .o rg /artic le s/10 .3 3 8 9/fc vm .20 20.0 0 11 9 57. Terada K, Kubo T, Kameyama T, Matsuo Y, Ino Y, Emori H, Higashioka D, Katayama Y, Khalifa AK, Takahata M, Shimamura K, Shiono Y, Tanaka A, Hozumi T, Madder RD, Akasaka T (2021) Nirs-ivus for differentiating coronary plaque rupture, erosion, and calcified nodule in acute myocardial infarction. JACC Cardiovasc Imag 14(7):1440­1450. [Online]. Available: h ttps ://do i.org/1 0 .10  16 /j.jc m g.2 0 20 .08 .030 58. Za A, A D, M Z, J F, C A, D C, Jm H, Rd M, Je M, Ca S, Gj T, Gw S (2024 Mar) First-in-human experience with a novel multimodality deepoct-nirs intracoronary imaging system. J Soc Cardiovasc Angiogr Interv 3(4):101344 59. Majeed K, Bellinge JW, Butcher SC, Alcock R, Spiro J, Playford D, Hillis GS, Newby DE, Mori TA, Francis R, Schultz CJ (2021) Coronary 18f-sodium fluoride pet detects high-risk plaque features on optical coherence tomography and ct-angiography in
+
+patients with acute coronary syndrome. Atherosclerosis 319:142­ 148. [Online]. Available: h ttp s ://www.s c ie n ce direc t.c o m /scie n c e / article /p ii/S 0 02 191 50 2 031573 2 60. Kwiecinski J, Wolny R, Chwala A, Slomka P (2023) Advances in the assessment of coronary artery disease activity with pet/ct and cta. Tomography 9(1):328­341 61. Föllmer B, Williams M, Dey D et al (2024) Roadmap on the use of artificial intelligence for imaging of vulnerable atherosclerotic plaque in coronary arteries. Nat Rev Endocrinol Cardiol 21:51­ 64. [Online]. Available: h ttps ://doi.o rg/1 0 .10 3 8 /s4 1 5 6 9-023-0 0 9  00 -3 62. Nagayama Y, Emoto T, Kato Y, Kidoh M, Oda S, Sakabe D, Funama Y, Nakaura T, Hayashi H, Takada S, Uchimura R, Hatemura M, Tsujita K, Hirai T (2023) Improving image quality with super-resolution deep-learning-based reconstruction in coronary ct angiography. Eur Radiol 33(12):8488­8500 63. Su B, Zhang J-M, Zou H, Ghista D, Le TT, Chin C (2020) Generating wall shear stress for coronary artery in real-time using neural networks: feasibility and initial results based on idealized models. Comput Biol Med 126:104038. [Online]. Available: htt p s://www.sc ien cedirec t.c om/science /a rticle/pii/S0 0104825203036 93 64. Elias P, Jain SS, Poterucha T, Randazzo M, Jimenez FL, Khera R, Perez M, Ouyang D, Pirruccello J, Salerno M, Einstein AJ, Avram R, Tison GH, Nadkarni G, Natarajan V, Pierson E, Beecy A, Kumaraiah D, Haggerty C, Avari Silva JN, Maddox TM (2024) Artificial intelligence for cardiovascular care-part 1: advances: jacc review topic of the week. J Am Coll Cardiol 83(24):2472­ 2486. Jun 18, 2024 Apr 7. [Online]. Available: https ://d o i.org/1 0. 10 1 6 /j.jacc.20 2 4 .0 3.400 65. Jain S, Elias P, Poterucha T et al (2024 Jun) Artificial intelligence in cardiovascular care--part 2: applications: jacc review topic of the week. J Am Coll Cardiol 83(24):2487­2496. [Online]. Available:http s ://d oi.o rg /1 0 .10 1 6/j.ja c c .2 0 24.0 3.4 0 1 66. Rampidis G, Rafailidis V, Kouskouras K, Davidhi A, Papachristodoulou A, Samaras A, Giannakoulas G, Ziakas A, Prassopoulos P, Karvounis H (2022) Relationship between coronary arterial geometry and the presence and extend of atherosclerotic plaque burden: a review discussing methodology and findings in the era of cardiac computed tomography angiography. Diagnostics 12(9):696­714 67. Poon E, Wu X, Dijkstra J et al (2023) Angiography and optical coherence tomography derived shear stress: are they equivalent in my opinion? Int J Cardiovasc Imag 39:1953­1961. [Online]. Available: h ttps ://d oi.o rg/1 0.1 0 07 /s 10 554-0 2 3 -0294 9-0 68. Kilic Y, Safi H, Bajaj R, Serruys PW, Kitslaar P, Ramasamy A, Tufaro V, Onuma Y, Mathur A, Niederer SA (2020 Mar) The evolution of data fusion methodologies developed to reconstruct coronary artery geometry from intravascular imaging and coronary angiography data: a comprehensive review. Front Cardiovasc Med 7 69. De Nisco G, Hartman E, Torta E, Daemen J, Chiastra C, Gallo D, Morbiducci U, Wentzel J (2024 Apr) Predicting lipid-rich plaque progression in coronary arteries using multimodal imaging and wall shear stress signatures. Arterioscler Thromb Vasc Biol 44(4):976­986. epub 2024 Feb 8 70. He H, Banerjee A, Choudhury RP, Grau V (2025) Deep learning based coronary vessels segmentation in x-ray angiography using temporal information. Med Image Anal 102:103496 71. Kilic Y, Safi H, Bajaj R, Serruys PW, Kitslaar P, Ramasamy A, Tufaro V, Onuma Y, Mathur A, Torii R, Baumbach A, Bourantas CV (2021) Coronary artery segmentation from intravascular optical coherence tomography using deep capsules. Artif Intell Med 116:102072 72. Lee J, Gharaibeh Y, Kolluru C, Zimin VN, Dallan LAP, Kim JN, Bezerra HG, Wilson DL (2020) Segmentation of coronary
+
+13
+
+The Anatomy of Coronary Risk: How Arterial Geometry Shapes Coronary Artery Disease Through Blood Flow­...
+
+calcified plaque in intravascular oct images using a two-step deep learning approach. IEEE Access. 8:225581­225593 73. Bajaj R et al (2021) Advanced deep learning methodology for accurate, real-time segmentation of high-resolution intravascular ultrasound images. Int J Cardiol 339:185­191 74. Fedorov A, Beichel R, Kalpathy-Cramer J, Finet J, Fillion-Robin J-C, Pujol S, Bauer C, Jennings D, Fennessy F, Sonka M, Buatti J, Aylward S, Miller JV, Pieper S, Kikinis R (2012) 3d slicer as an image computing platform for the quantitative imaging network. Magnetic Reson Imag 30:1323­1341. [Online]. Available: h t t ps:  //w w w .sc ien ce dire c t.c o m /s cie n ce /a rtic le/pii/S 0 7307 25X 1 20 0 1 8 1 6 75. Rueden CT, Schindelin J, Hiner MC, DeZonia BE, Walter AE, Arena ET, Eliceiri KW (2017) Imagej2: Imagej for the next generation of scientific image data. BMC Bioinf 18:1­26 76. Blender (2023 Mar) https://www.blender.org/ 77. Antiga L, Piccinelli M, Botti L, Ene-Iordache B, Remuzzi A, Steinman DA (2008) An image-based modeling framework for patient-specific computational hemodynamics. Med Biol Eng Comput 46:1097­1112. [Online]. Available: http s ://doi.o rg/1 0.1 00 7/s 1 1 5 1 7-0 08-0 4 2 0 -1 78. Project S (2024) Simvascular: an open source pipeline for cardiovascular simulation. h ttps ://sim v a s c u lar.github .io / 79. Materialise (2023) Mimics innovation suite. [Online]. Available: https ://www.ma terialise.com /en /he alth ca re/mimics-inn ovation-s uite /m imics 80. Rosset A, Spadola L, Ratib O (2004 Sep) Osirix: an open-source software for navigating in multidimensional dicom images. J Digit Imag 17(3):205­216 81. Qayyum A, Razzak I, Mazher M, Lu X, Niederer SA (2024) Unsupervised unpaired multiple fusion adaptation aided with self-attention generative adversarial network for scar tissues segmentation framework. Inf Fusion 106:102226 82. Mazher M, Razzak I, Qayyum A, Tanveer M, Beier S, Khan T, Niederer SA (2024) Self-supervised spatial­temporal transformer fusion based federated framework for 4d cardiovascular image segmentation. Inf Fusion 106:102256 83. Aljabri M, AlGhamdi M (2022 Sep) A review on the use of deep learning for medical images segmentation. Neurocomputing 506:311­335 84. Litjens G, Ciompi F, Wolterink JM, de Vos BD, Leiner T, Teuwen J, Isgum I (2019 Aug) State-of-the-art deep learning in cardiovascular image analysis. JACC Cardiovasc Imag 12(8, Part 1):1549­1565 85. Y H, J Y, Q S, Y Y, Y H, J S (2025 May) Few-shot small vessel segmentation using a detail-preserving network enhanced by discriminator. Med Biol Eng Comput. 13, epubahead ofprint. [Online]. Available: https ://doi.o rg /1 0.1 0 07 /s 1 1 51 7-025 -03 3 6 8-0 86. Z L, K K, A Z, Tw D, Za F, H G, X M (2024 Aug) A review of self-supervised, generative, and few-shot deep learning methods for data-limited magnetic resonance imaging segmentation. NMR Biomed 37(8):e5143. epub 2024 Mar 24. [Online]. Available: http  s://d o i.org /1 0.10 0 2 /nb m .5 1 43 87. Nørgaard BL, Leipsic J, Gaur S et al (2014) Diagnostic performance of noninvasive fractional flow reserve derived from coronary computed tomography angiography in suspected coronary artery disease: the nxt trial (analysis of coronary blood flow using ct angiography: next steps). J Educ Chang Am Coll Cardiol(JACC) 63(12):1145­1155. [Online]. Available: https ://d  oi.org/1 0 .10 16/j.ja c c .2 013.1 1.04 3 88. Nørgaard BL, Gaur S, Leipsic J, Ito H, Miyoshi T, Park S-J, Zvaigzne L, Tzemos N, Jensen JM, Hansson N, Ko B, Bezerra H, Christiansen EH, Kaltoft A, Lassen JF, Bøtker HE, Achenbach S (2015) Influence of coronary calcification on the diagnostic performance of ct angiography derived ffr in coronary artery disease: a substudy of the nxt trial. JACC Cardiovasc Imag
+
+8(9):1045­1055. [Online]. Available: h ttp s ://d oi.o rg /1 0.1 0 1 6/j.jc  mg.20 15.0 6.003 89. Scoccia A, Tomaniak M, Neleman T et al (2022) Angiographybased fractional flow reserve: state of the art. Curr Cardiol Rep 24:667­678. [Online]. Available: h ttps ://d o i.o rg /1 0 .1 0 07 /s 11 88 6-02 2-0 1 687 -4 90. Kakizaki S, Otake H, Seike F, Kawamori H, Toba T, Nakano S, Tanimura K, Takahashi Y, Fukuyama Y, Fujimoto D, Nakamura K, Fujii H, Kozuki A, Shite J, Iwasaki M, Takaya T, Yamaguchi O, Hirata K-I (2022) Optical coherence tomography fractional flow reserve and cardiovascular outcomes in patients with acute coronary syndrome. JACC Cardiovasc Interv 15(20):2035­2048. [Online]. Available: https ://ww w.sc ien c e d ire c t.c o m/s c ie n c e /a rticl e/p ii/S1 9 3 6 8 7 9 82 201 5 539 91. Yu W, Tanigaki T, Ding D, Wu P, Du H, Ling L, Huang B, Li G, Yang W, Zhang S, Yan F (2021) Accuracy of intravascular ultrasound-based fractional flow reserve in identifying hemodynamic significance of coronary stenosis. Circ Cardiovasc Interv 14(2):e009840. [Online]. Available: https ://doi.o rg/1 0.11 61/CIR  CIN TE R V E NT IO NS .1 20.009 8 40 92. Vrints C, Andreotti F, Koskinas KC, Rossello X, Adamo M, Ainslie J, Banning AP, Budaj A, Buechel RR, Chiariello GA, Chieffo A, Christodorescu RM, Deaton C, Doenst T, Jones HW, Kunadian V, Mehilli J, Milojevic M, Piek JJ, Pugliese F, Rubboli A, Semb AG, Senior R, ten Berg JM, Van Belle E, Van Craenenbroeck EM, Vidal-Perez R, Winther S, Group ESD (2024) 2024 esc guidelines for the management of chronic coronary syndromes. Eur Heart J 45(36):3415­3537 93. Virani SS, Newby LK, Arnold SV, Bittner V, Brewer LC, Demeter SH, Dixon DL, Fearon WF, Hess B, Johnson HM, Kazi DS, Kolte D, Kumbhani DJ, LoFaso J, Mahtta D, Mark DB, Minissian M, Navar AM, Patel AR, Piano MR, Rodriguez F, Talbot AW, Taqueti VR, Thomas RJ, van Diepen S, Wiggins B, Williams MS, Members PRC (2023) 2023 aha/acc/accp/aspc/nla/pcna guideline for the management of patients with chronic coronary disease. Circulation 148(9):e9­e119 94. De Maria GL, Garcia-Garcia HM, Scarsini R, Hideo-Kajita A, López NG, Leone AM, Sarno G, Daemen J, Shlofmitz E, Jeremias A, Tebaldi M, Bezerra HG, Tu S, Lemos PA, Ozaki Y, Dan K, Collet C, Banning AP, Barbato E, Johnson NP, Waksman R (2020) Novel indices of coronary physiology: do we need alternatives to fractional flow reserve? Circ Cardiovasc Interv 13(4):e008487 95. Li B, Chen H, Wang H, Hong L, Yang L (2024) An overview of computational coronary physiology technologies based on medical imaging and artificial intelligence. Rev Cardiovasc Med 25(6):211 96. Mittal TK, Hothi SS, Venugopal V, Taleyratne J, O'Brien D, Adnan K, Sehmi J, Daskalopoulos G, Deshpande A, Elfawal S, Sharma V, Shahin RA, Yuan M, Schlosshan D, Walker A, Rahman S-E-DA, Sunderji I, Wagh S, Chow J, Masood M, Sharma S, Agrawal S, Duraikannu C, McAlindon E, Mirsadraee S, Nicol ED, Kelion AD (2023) The use and efficacy of ffr-ct: real-world multicenter audit of clinical data with cost analysis. JACC Cardiovasc Imag 16(8):1056­1065. [Online]. Available: http s ://do i.o  rg /1 0 .10 1 6 /j.jcmg.2 0 2 3.0 2.005 97. Cook CM, Petraco R, Shun-Shin MJ, Ahmad Y, Nijjer S, AlLamee R, Kikuta Y, Shiono Y, Mayet J, Francis DP, Sen S, Davies JE (2017 July) Diagnostic accuracy of computed tomographyderived fractional flow reserve: a systematic review. JAMA Cardiol 2(7):803­810. (erratum in: JAMA Cardiol. 2017 Nov 1;2(11):1284) https ://doi.org/1 0 .1 0 01/ja m aca rd io .20 17 .3 8 55 98. Mickley H, Veien K, Gerke O et al (2022 June) Diagnostic and clinical value of ffrct in stable chest pain patients with extensive coronary calcification: the facc study. JACC Cardiovasc Imag 15(6):1046­1058
+
+13
+
+C. Shen et al.
+
+99. Tanigaki T, Emori H, Kawase Y, Kubo T, Omori H, Shiono Y, Sobue Y, Shimamura K, Hirata T, Matsuo Y, Ota H, Kitabata H, Okubo M, Ino Y, Matsuo H, Akasaka T (2019) Qfr versus ffr derived from computed tomography for functional assessment of coronary artery stenosis. JACC Cardiovasc Interv 12(20):2050­2059
+100. Douglas PS, De Bruyne B, Pontone G, Patel MR, Norgaard BL, Byrne RA, Curzen N, Purcell I, Gutberlet M, Rioufol G, Hink U, Schuchlenz HW, Feuchtner G, Gilard M, Andreini D, Jensen JM, Hadamitzky M, Chiswell K, Cyr D, Wilk A, Wang F, Rogers C, Hlatky MA, Investigators P (2016) 1-year outcomes of ffrctguided care in patients with suspected coronary disease: the platform study. J Am Coll Cardiol 68(5):435­445
+101. Fan L, Wang H, Kassab GS, Lee LC (2024) Review of cardiac­ coronary interaction and insights from mathematical modeling. WIREs Mechanisms Disease 16(3):e1642
+102. Shi Y, Lawford P, Hose R (2011) Review of zero-d and 1-d models of blood flow in the cardiovascular system. Biomed Eng Online Online 10:33. [Online]. Available: https ://d o i.org/1 0.11 86  /147 5-92 5 X-1 0 -3 3
+103. Chi Z, Beile L, Deyu L, Yubo F (2022) Application of multiscale coupling models in the numerical study of circulation system. Med Novel Technol Devices 14:100117. [Online]. Available: h t tps ://www.sc ien cedirec t.c om/science /a rticle/pii/S2 59009352200 004 2
+104. Mynard J, Nithiarasu P (2008) A 1d arterial blood flow model incorporating ventricular pressure, aortic valve and regional coronary flow using the locally conservative galerkin (lcg) method. Commun Numer Meth Engng 24:367­417
+105. Duanmu Z, Chen W, Gao H, Yang X, Luo X, Hill NA (2019 July) A one-dimensional hemodynamic model of the coronary arterial tree. Front Physiol 10, original Research
+106. Lee J, Smith NP (2012) The multi-scale modelling of coronary blood flow. Ann Biomed Eng 40:2399­2413. [Online]. Available: http s ://do i.o rg /1 0.10 0 7 /s 1 0 4 39 -0 12 -05 83-7
+107. Keramati H, de Vecchi A, Rajani R, Niederer SA (2023) Using gaussian process for velocity reconstruction after coronary stenosis applicable in positron emission particle tracking: an in-silico study. PLoS One 18(12):e0295789
+108. Gutiérrez NG, Sinno T, Diamond SL (2022) A 1d­3d hybrid model of patient-specific coronary hemodynamics. Cardiovasc Eng Tech 13:331­342
+109. Kumar S, Kumar BVR, Rai SK, Shankar O (2023) An open loop 0d-3d modeling of pulsatile hemodynamics for the diagnosis of a suspected coronary arterial disease with patient data. Phys Fluids 35(10):101907
+110. Arthurs CJ, Khlebnikov R, Melville A, Marcan M, Gomez A et al (2021) Crimson: an open-source software framework for cardiovascular integrated modelling and simulation. PLoS Comput Biol 17(5):e1008881
+111. Africa PC, Fumagalli I, Bucelli M, Zingaro A, Fedele M, Dede' L, Quarteroni A (2024) Lifex-cfd: an open-source computational fluid dynamics solver for cardiovascular applications. Comput Phys Commun 296:109039
+112. Africa PC (2022) Lifex: a flexible, high performance library for the numerical solution of complex finite element problems. SoftwareX 20:101252
+113. Zacharoudiou I, McCullough JWS, Coveney PV (2023) Development and performance of a hemelb gpu code for human-scale blood flow simulation. Comput Phys Commun 286:108640
+114. Maas SA, Ellis BJ, Ateshian GA, Weiss JA (2012) Febio: finite elements for biomechanics. J Biomechanical Eng 134(1):011005
+115. Malinen M, Råback P (2013) Elmer finite element solver for multiphysics and multiscale problems. In: Kondov I, Sutmann G, Jülich F (eds) Multiscale modelling methods for applications in material science. pp 101­113
+
+116. Foundation O (2004) Openfoam: the open source cfd toolbox. https://www.openfoam.com
+117. ANSYS Inc (2024) Ansys 2024 r1. http://www.ansys.com 118. COMSOL Inc (2024) Comsol multiphysics. h ttps://ww w .comso l.
+com  119. Systèmes Simulia Corp D (2011) Abaqus 6.11 documentation.
+Dassault Systèmes Simulia Corp, Providence, RI, USA 120. Toma M, Chan-Akeley R, Arias J, Kurgansky GD, Mao W (2021)
+Fluid­structure interaction analyses of biological systems using smoothed-particle hydrodynamics. Biology 10:185. [Online]. Available: h ttps ://www.m d p i.co m /207 9 -7 7 3 7 /10 /3/185 121. Topalovic M, Nikolic A, Milovanovic V, Vulovic S, Ivanovic M (2022) Smoothed particle hydrodynamics for blood flow analysis: development of particle lifecycle algorithm. Comput Particle Mech 9:1119­1135. [Online]. Available: http s ://d oi.org /1 0 .10 0 7/ s4 0 5 7 1 -0 21 -00 4 5 4-6 122. Pontrelli G, Halliday I, Melchionna S, Spencer TJ, Succi S (2014) Lattice boltzmann method as a computational framework for multiscale haemodynamics. Math Comput Modell Dyn Syst 20:470­490. [Online]. Available: https ://do i.org /1 0.1 0 8 0/138 7 39  54 .2 01 3 .8 3 3 523 123. Krause MJ, Kummerländer A, Avis SJ, Kusumaatmaja H, Dapelo D, Klemens FK, Gaedtke M, Hafen N, Mink A, Trunk R, Marquardt JE, Maier ML, Haussmann M, Haussmann M, Simonis S (2021) OpenLB--open source lattice Boltzmann code. Comput Math Appl 81(1):258­288. h ttps ://do i.org/1 0 .10 16/j.c a m wa .20 2 0  .0 4 .0 33 124. Crespo AJC, Domínguez JM, Rogers BD, Gómez-Gesteira M, Longshaw S, Canelas R, Vacondio R, Barreiro A, García-Feal O (2015) Dualsphysics: open-source parallel cfd solver based on smoothed particle hydrodynamics (sph). Comput Phys Commun 187:204­216. [Online]. Available: https ://w ww.sc ie n ce d ire c t.c o  m/s c ie nce /a rticle /pii/S0 01 0 4 6551 4 00 339 7 125. Kageyama S, Tufaro V, Torii R, Karamasis GV, Rakhit RD, Poon EKW, Aben JP, Baumbach A, Serruys PW, Onuma Y, Bourantas CV (2023) Agreement of wall shear stress distribution between two core laboratories using three-dimensional quantitative coronary angiography. Int J Cardiovasc Imag 39(8):1581­1592. epub 2023 May 27 126. Tufaro V, Torii R, Aben JP, Parasa R, Koo BK, Rakhit R, Karamasis GV, Tanboga IH, Hamid A, Khan A, McKenna M, Cap M, Gamrah MA, Serruys PW, Onuma Y, Stefanini GG, Jones DA, Rathod K, Mathur A, Baumbach A, Bourantas CV (2025) Can fast wall shear stress computation predict adverse cardiac events in patients with intermediate non-flow limiting stenoses? Atherosclerosis 401:119099. epub 2024 Dec 19 127. Gharleghi R, Samarasinghe G, Sowmya A, Beier S (2020) Deep learning for time averaged wall shear stress prediction in left main coronary bifurcations. In: 2020 IEEE 17th International Symposium on Biomedical Imaging (ISBI), Iowa City, IA, USA:1­4. ht  tps ://d o i.o rg/1 0 .11 0 9/ISB I45 7 4 9 .20 2 0 .9 0 9 871 5 128. Gharleghi R, Sowmya A, Beier S (2022) Transient wall shear stress estimation in coronary bifurcations using convolutional neural networks. Comput Methods Programs Biomed 225:107013. [Online]. Available: h ttps ://www .s c ien c edire c t.c om  /s cien ce /a rtic le /p ii/S 0 16 9 260 72 2 00395 9 129. Abucide-Armas A, Portal-Porras K, Fernandez-Gamiz U, Zulueta E, Teso-Fz-Betoño A (2021) A data augmentation-based technique for deep learning applied to cfd simulations. Mathematics 9:1843 130. Obiols-Sales O, Vishnu A, Malaya N, Chandramowliswharan A (2020) CFDNet: a deep learning-based accelerator for fluid simulations. In: Proceedings of the 34th ACM International Conference on Supercomputing (ICS), Barcelona, Spain. pp 1­12. h t t ps ://doi.o rg/1 0 .11 4 5/3 3 9 2717.3 39 27 7 2
+
+13
+
+The Anatomy of Coronary Risk: How Arterial Geometry Shapes Coronary Artery Disease Through Blood Flow­...
+
+131. Du P, Zhu X, Wang J-X (2022) Deep learning-based surrogate model for three-dimensional patient-specific computational fluid dynamics. Phys Fluids 34(8)
+132. Alamir SH, Tufaro V, Trilli M, Kitslaar P, Mathur A, Baumbach A, Jacob J, Bourantas CV, Torii R (2024) Rapid prediction of wall shear stress in stenosed coronary arteries based on deep learning. Front Bioeng Biotechnol 12. [Online]. Available: h ttp s ://w w w .fro ntie rs in.org /artic les /1 0 .33 8 9 /fbio e.2 02 4.1 3 6 0 330
+133. Raissi M, Perdikaris P, Karniadakis GE (2019) Physics-informed neural networks: a deep learning framework for solving forward and inverse problems involving nonlinear partial differential equations. J Comput Phys 378:686­707
+134. Cai S et al (2021) Physics-informed neural networks (pinns) for fluid mechanics: a review. Acta Mechanica Sin 37(12):1727­1738
+135. Stiasny J, Chatzivasileiadis S (2023) Physics-informed neural networks for time-domain simulations: accuracy, computational cost, and flexibility. Electric Power Syst Res 224:109748
+136. Aghaee A, Khan MO (2024) Performance of fourier-based activation function in physics-informed neural networks for patient-specific cardiovascular flows. Comput Methods Programs Biomed 247:108081
+137. Aghaee A, Khan MO (2025) Pinning down the accuracy of physics-informed neural networks under laminar and turbulent-like aortic blood flow conditions. Comput Biol Med 185:109528
+138. Shone F, Ravikumar N, Lassila T, MacRaild M, Wang Y, Taylor ZA, Jimack P, Dall'Armellina E, Frangi AF (2023) Deep physicsinformed super-resolution of cardiac 4D-flow MRI. In: Frangi A, de Bruijne M, Wassermann D, Navab N (eds) Information Processing in Medical Imaging (IPMI 2023). Lecture Notes in Computer Science, vol 13939. Springer, Cham, pp 511­522. h ttp s ://d o  i.org/1 0.10 07/9 7 8 -3-0 31-3 40 48-2 _ 39
+139. Moser P, Fenz W, Thumfart S, Ganitzer I, Giretzlehner M (2023) Modeling of 3d blood flows with physics-informed neural networks: comparison of network architectures. Fluids 8(2):46
+140. Garay J, Dunstan J, Uribe S, Costabal FS (2024) Physicsinformed neural networks for parameter estimation in blood flow models. Comput Biol Med 178:108706
+141. E. A. Li G (2021) Prediction of 3d cardiovascular hemodynamics before and after coronary artery bypass surgery via deep learning. Commun Biol 4(1):99
+142. Tesche C, Gray HN (2020 May) Machine learning and deep neural networks applications in coronary flow assessment: the case of computed tomography fractional flow reserve. J Thorac Imag 35:S66­S71. h ttp s ://doi.org /1 0 .1 0 9 7 /RT I.0 0 0 00 00 00 00 004 8 3
+143. Arzani A, Wang J-X, D'Souza RM (2021 July) Uncovering nearwall blood flow from sparse data with physics-informed neural networks. Phys Fluids 33(7):071905
+144. Soulis JV, Giannoglou GD, Chatzizisis YS, Seralidou KV, Parcharidis GE, Louridas GE (2008) Non-newtonian models for molecular viscosity and wall shear stress in a 3d reconstructed human left coronary artery. Med Eng Phys 30:9­19. [Online]. Available: http s ://w ww.sc ien cedirec t.c o m/s cie n c e /a rtic le /pii/S1 3 50 453307 0 0 0 3 3 1
+145. Abbasian M, Shams M, Valizadeh Z, Moshfegh A, Javadzadegan A, Cheng S (2020) Effects of different non-newtonian models on unsteady blood flow hemodynamics in patient-specific arterial models with in-vivo validation. Comput Methods Programs Biomed 186:105185. [Online]. Available: https ://w ww .s c ie n c ed ir ec t.c om/s cie nc e /a rtic le/pii/S 0 1 692 6 07 1931 4 4 27
+146. Johnston BM, Johnston PR, Corney S, Kilpatrick D (2006) Nonnewtonian blood flow in human right coronary arteries: transient simulations. J Biomech 39:1116­1128. [Online]. Available: ht tp s://www.sc ien cedirec t.c om/science /a rticle/pii/S0 0219290050009 77
+147. De Nisco G, Rizzini ML, Verardi R, Chiastra C, Candreva A, De Ferrari G, D'Ascenzo F, Gallo D, Morbiducci U (2023)
+
+Modelling blood flow in coronary arteries: Newtonian or shearthinning non-newtonian rheology? Comput Methods Programs Biomed 242:107823. [Online]. Available: h ttp s ://ww w .sc ien ce dir ec t.c o m /s cie n c e /a rtic le /p ii/S 0 16 9 26 0 72 300 48 9 3 148. Kashyap V, Arora BB, Bhattacharjee S (2020) A computational study of branch-wise curvature in idealized coronary artery bifurcations. Appl Eng Sci 4:100027 149. Malvé M et al (2015) Tortuosity of coronary bifurcation as a potential local risk factor for atherosclerosis: cfd steady state study based on in vivo dynamic ct measurements. Ann Biomed Eng 43(1):82­93 150. Torii R et al (2009) Fluid­structure interaction analysis of a patient-specific right coronary artery with physiological velocity and pressure waveforms. Commun Numer Methods Eng 25(5):565­580 151. Carvalho V, Lopes D, Silva J, Puga H, Lima RA, Teixeira JC, Teixeira S (2022) Comparison of CFD and FSI simulations of blood flow in stenotic coronary arteries. In: Bhattacharyya S (ed) Applications of Computational Fluid Dynamics Simulation and Modeling. IntechOpen, London. h ttps ://do i.org/1 0.5 7 7 2 /in te ch op en.10 2 08 9 152. Chiastra C, Migliavacca F, Martínez M, Malvé M (2014) On the necessity of modelling fluid­structure interaction for stented coronary arteries. J Mech Behav Biomed Mater 34:217­230 153. Malvé M, García A, Ohayon J, Martínez MA (2012) Unsteady blood flow and mass transfer of a human left coronary artery bifurcation: Fsi vs. cfd. Int Commun Heat Mass Transf 39(6):745­751 154. Carpenter HJ, Ghayesh MH, Zander AC, Psaltis PJ (2023) On the nonlinear relationship between wall shear stress topology and multi-directionality in coronary atherosclerosis. Comput Methods Programs Biomed 231:107418. [Online]. Available: h ttp s :// doi.org/1 0 .1 0 1 6/j.c mp b.202 3 .10 7 4 18 155. Hirschhorn M, Tchantchaleishvili V, Stevens R, Rossano J, Throckmorton A (2020) Fluid­structure interaction modeling in cardiovascular medicine ­ a systematic review 2017­2019. Med Eng Phys 78:1­13. [Online]. Available: h ttp s ://w ww .s c ie n ce dire c  t.c o m/s cien c e /a rtic le /p ii/S 1 3 50 4 5 33 20300199 156. Ahamed M, Atique S, Munshi M, Koiranen T (2017) A concise description of one way and two way coupling methods for fluidstructure interaction problems. Imperial J Interdiscip Res 3, no. 3 157. Hou G, Wang J, Layton A (2012) Numerical methods for fluid-structure interaction--a review. Commun Comput Phys 12(2):337­377 158. Putra NK, Palar PS, Anzai H, Shimoyama K, Ohta M (2018) Comparative study between different strut's cross section shape on minimizing low wall shear stress along stent vicinity via surrogate-based optimization. In: Schumacher A, Vietor T, Fiebig S, Bletzinger KU, Maute K (eds) Advances in Structural and Multidisciplinary Optimization. Proceedings of the 12th World Congress of Structural and Multidisciplinary Optimization (WCSMO 2017). Springer, Cham, pp 2097­2109. h ttps ://doi.o rg /1 0.10 0 7 /9  78 -3 -3 19 -6 7 9 8 8 -4 _ 155 159. Simão M, Ferreira J, Mora-Rodriguez J, Fragata J, Ramos H (2017) Behaviour of two typical stents towards a new stent evolution. Med Biol Eng Comput 55:1019­1037 160. Liu D, Hu S, Yin X, Liu J, Jia Z, Li Q (2018) Degradation mechanism of magnesium alloy stent under simulated human microstress environment. Mater Sci Eng: C 84:263­270 161. Chhai P, Lee JH, Rhee K (2017) Effects of longitudinal asymmetric distribution of a lipid core on plaque wall stress. J Retailing Biomechanical Sci Eng 12(1):16­00588­16­00588 162. Tang D et al (2017) Cap inflammation leads to higher plaque cap strain and lower cap stress: an mri-pet/ct-based fsi modeling approach. J Biomech 50:121­129 163. Talou GM, Blanco P, Ares G, Bezerra CG, Lemos P, Feijóo R (2018) Mechanical characterization of the vessel wall by data
+
+13
+
+C. Shen et al.
+
+assimilation of intravascular ultrasound studies. Front. Physiol 9:292 164. Cardoso L, Kelly-Arnold A, Maldonado N, Laudier D, Weinbaum S (2014) Effect of tissue properties, shape and orientation of microcalcifications on vulnerable cap stability using different hyperelastic constitutive models. J Biomech 47(4):870­877. [Online]. Available: h ttp s ://doi.o rg/1 0 .10 16/j.jb io m e c h .2 0 1 4 .0 1 .0 10 165. Carpenter HJ, Gholipour A, Ghayesh MH, Zander AC, Psaltis PJ (2020) A review on the biomechanics of coronary arteries. Int J Eng Sci 147:103201 166. Holzapfel G, Gasser T, Ogden R (2000) A new constitutive framework for arterial wall mechanics and a comparative study of material models. J Elast 61:1­48. [Online]. Available: http s ://d oi.org /1 0 .10 2 3/A:1 01 0 835 3 1656 4 167. Nair P et al (2023) Hemodynamics in patients with aortic coarctation: a comparison of in vivo 4d-flow mri and fsi simulation. In: Bernard O, Clarysse P, Duchateau N, Ohayon J, Viallon M (eds) Functional imaging and modeling of the heart (FIMH 2023), ser. Lecture notes in computer science, vol 13958. [Online]. Available: Springer, Cham. h ttp s ://d o i.o rg/1 0 .1 0 0 7/97 8 -3-031-35 3 0 2  -4 _ 5 3 168. Zimmermann J et al (2021) Quantitative hemodynamics in aortic dissection: comparing in vitro mri with fsi simulation in a compliant model. In: Ennis LPEROTTI, Wang V (eds) Functional imaging and modeling of the heart (FIMH 2021), ser. Lecture notes in computer science, vol D, vol. 12738. Springer. [Online]. Available: Cham. https ://d oi.o rg/1 0.10 0 7/9 78 -3-030-78 7 10-3 _ 5 5 169. Wu X, von Birgelen C, Zhang S et al (2019) Simultaneous evaluation of plaque stability and ischemic potential of coronary lesions in a fluid­structure interaction analysis. Int J Cardiovasc Imag 35(9):1563­1572 170. Costopoulos C, Huang Y, Brown A et al (2017) Plaque rupture in coronary atherosclerosis is associated with increased plaque structural stress. J Am Coll Cardiol Img 10(12):1472­1483. [Online]. Available: h ttp s ://do i.org/1 0.10 1 6 /j.jc m g .201 7 .0 4 .01 7 171. Tang D, Yang C, Kobayashi S, Zheng J, Woodard PK, Teng Z, Billiar K, Bach R, Ku DN (2009) 3d mri-based anisotropic fsi models with cyclic bending for human coronary atherosclerotic plaque Mechanical analysis. J Biomechanical Eng 131(6):061010 172. Mynard JP, Kondiboyina A, Kowalski R, Cheung MMH, Smolich JJ (2020) Measurement, analysis and interpretation of pressure/ flow waves in blood vessels. Front. Physiol 11. [Online]. Available: h ttps ://ww w.frontiers in.org /a rtic le s/10 .3 3 8 9 /fp h y s.2 0 2 0.01 08 5 173. Tanedo JS, Kelly RF, Marquez M, Burns DE, Klein LW, Costanzo MR, Parrillo JE, Hollenberg SM (2001 Aug) Assessing coronary blood flow dynamics with the timi frame count method: comparison with simultaneous intracoronary doppler and ultrasound. Catheter Cardiovasc Interv 53(4):459­463 174. Candreva A, Gallinoro E, van't Veer M, Sonck J, Collet C, Di Gioia G, Kodeboina M, Mizukami T, Nagumo S, Keulards D, Fournier S (2021 Mar) Basics of coronary thermodilution. Cardiovasc Interventions 14(6):595­605 175. Gibson CM, Cannon CP, Daley WL, J. T. Dodge BA Jr., Marble SJ, McCabe CH, Raymond L, Fortin T, Poole WK, Braunwald E (1996 Mar) Timi frame count: a quantitative method of assessing coronary artery flow. Circulation 93(5):879­888 176. van der Giessen AG et al (2011) The influence of boundary conditions on wall shear stress distribution in patients specific coronary trees. J Biomech 44(6):1089­1095 177. Huo Y, Kassab GS (2016) Scaling laws of coronary circulation in health and disease. J Biomech 49:2531­2539. [Online]. Available: https ://w w w .s c ien ce d irec t.c om/sc ie nc e /a rticle/p ii/S0 0 21 92 90 163 0 1 2 7 0
+
+178. Huo Y, Kassab G (2009 Jan) A scaling law of vascular volume. Biophys J 96(2):347­353
+179. Liu B, Zheng J, Bach R, Tang D (2015) Influence of model boundary conditions on blood flow patterns in a patient specific stenotic right coronary artery. Biomed Eng Online Online 14(Suppl 1):S6. epub 2015 Jan 9
+180. Pirola S, Cheng Z, Jarral OA, O'Regan DP, Pepper JR, Athanasiou T, Xu X (2017) On the choice of outlet boundary conditions for patient-specific analysis of aortic flow using computational fluid dynamics. J Biomech 60:15­21. [Online]. Available: h ttp s :// do i.o rg/1 0.1 0 1 6 /j.jb io m ec h .20 1 7 .06 .005
+181. Kim H, Vignon-Clementel I, Coogan J, Figueroa C, Jansen K, Taylor C (2010 Oct) Patient-specific modeling of blood flow and pressure in human coronary arteries. Ann Biomed Eng 38:3195­3209
+182. Carpenter HJ, Gholipour A, Ghayesh MH, Zander AC, Psaltis PJ (2021) In vivo based fluid­structure interaction biomechanics of the left anterior descending coronary artery. J Biomechanical Eng 143(8):081001, published April 19, 2021
+183. Prosi M, Perktold K, Ding Z, Friedman MH (2004) Influence of curvature dynamics on pulsatile coronary artery flow in a realistic bifurcation model. J Biomech 37(11):1767­1775
+184. Huo Y, Kassab GS (2009 Jan) The scaling of blood flow resistance: from a single vessel to the entire distal tree. Biophys J 96(2):339­346
+185. Zhang M, Keramati H, Gharleghi R, Beier S (2025 May) Reliability of characterising coronary artery flow with the flow-split outflow strategy: comparison against the multiscale approach. Comput Methods Programs Biomed 263:108669. epub 2025 Feb 12
+186. Nolte D, Bertoglio C (2022) Inverse problems in blood flow modeling: a review. Int J Numer Methods Biomed Eng 38(8):e3613
+187. Nolte D, Bertoglio C (2024) Inverse problems in aortic flow modeling. In: Gasser TC, Avril S, Elefteriades JA (eds) Biomechanics of the aorta. Academic Press, pp 415­430
+188. Cousins W, Gremaud PA (2014) Impedance boundary conditions for general transient hemodynamics. Int J Numer Methods Biomed Eng 30(11):1294­1313
+189. Carson J, Warrander L, Johnstone E, van Loon R (2021) Personalising cardiovascular network models in pregnancy: a two-tiered parameter estimation approach. Int J Numer Methods Biomed Eng 37(11):e3267
+190. Arnold A, Battista C, Bia D, German YZ, Armentano RL, Tran H, Olufsen MS (2017) Uncertainty quantification in a patient-specific one-dimensional arterial network model: Enkf-based inflow estimator. J Verif, Validation Uncertain Quantif 2(1):011002
+191. Schiavazzi DE, Baretta A, Pennati G, Hsia TY, Marsden AL (2017) Patient-specific parameter estimation in single-ventricle lumped circulation models under uncertainty. Int J Numer Methods Biomed Eng 33(3):e02799
+192. DeVault K, Gremaud PA, Novak V, Olufsen MS, Vernieres G, Zhao P (2008) Blood flow in the circle of willis: modeling and calibration. Multiscale Modeling Simul 7(2):888­909
+193. Lal R, Mohammadi B, Nicoud F (2017) Data assimilation for identification of cardiovascular network characteristics. Int J Numer Methods Biomed Eng 33(5):e2824
+194. Li B, Wang W, Mao B, Liu Y (2019) A method to personalize the lumped parameter model of coronary artery. Int J Comput Methods 16(3)
+195. Steinman D, Migliavacca F (2018) Editorial: special issue on verification, validation, and uncertainty quantification of cardiovascular models: towards effective vvuq for translating cardiovascular modelling to clinical utility. Cardiovasc Eng Technol 9:539­543. [Online]. Available: h ttp s ://d oi.o rg/1 0.1 0 0 7 /s 1 3 23 9-0  18-00 39 3-z
+
+13
+
+The Anatomy of Coronary Risk: How Arterial Geometry Shapes Coronary Artery Disease Through Blood Flow­...
+
+196. Sankaran S, Marsden AL (2011 Mar) A stochastic collocation method for uncertainty quantification and propagation in cardiovascular simulations. J Biomechanical Eng 133(3):031001
+197. Courcelles E et al (2024) Model credibility. In: Viceconti M, Emili L (eds) Toward good simulation Practice, ser. Synthesis lectures on biomedical engineering. Springer, Cham. [Online]. Available: http s ://d oi.org /1 0.1 0 07/97 8 -3 -031-4828 4 -7 _ 4
+198. American Society of Mechanical Engineers (2025) V v 40 - assessing credibility of computational modeling through verification and validation: application to medical devices accessed:07­Mar 2025. [Online]. Available: https ://w ww.as me .org /a bo u t-asm e /s ta nd ard s /verific a tio n-v alid atio n -un c e rtainty
+199. ASME (2008 Jul) Procedure for estimation and reporting of uncertainty due to discretization in cfd applications. J Fluids Eng 130(7):078001
+200. Roache PJ (1994 Sep) Perspective: a method for uniform reporting of grid refinement studies. J Fluids Eng 116(3):405­413
+201. Sadrehaghighi I (2021) Mesh sensitivity & mesh independence study. CFD Open Ser: Annap, MD, USA 56
+202. Ninos G, Bartzis V, Merlemis N, Sarris IE (2021) Uncertainty quantification implementations in human hemodynamic flows. Comput Methods Programs Biomed 203:106021
+203. Candreva A, Nisco GD, Rizzini ML, D'Ascenzo F, Ferrari GMD, Gallo D, Morbiducci U, Chiastra C (2022) Current and future applications of computational fluid dynamics in coronary artery disease. RCM 23(11)
+204. Rizzini ML, Candreva A, Chiastra C, Gallinoro E, Calò K, D'Ascenzo F, De Bruyne B, Mizukami T, Collet C, Gallo D, Morbiducci U (2022) Modelling coronary flows: impact of differently measured inflow boundary conditions on vessel-specific computational hemodynamic profiles. Comput Methods Programs Biomed 221:106882
+205. Schrauwen JT, Schwarz JC, Wentzel JJ, van der Steen AF, Siebes M, Gijsen FJ (2016) The impact of scaled boundary conditions on wall shear stress computations in atherosclerotic human coronary bifurcations. Am J Physiol-Heart Circulatory Physiol 310(10):H1304­H1312
+206. Melis A, Clayton RH, Marzo A (2017) Bayesian sensitivity analysis of a 1d vascular model with gaussian process emulators. Int J Numer Methods Biomed Eng 33(12):e2882
+207. Tran JS, Schiavazzi DE, Ramachandra AB, Kahn AM, Marsden AL (2017) Automated tuning for parameter identification and uncertainty quantification in multi-scale coronary simulations. Comput Fluids 142:128­138
+208. Fossan FE, Sturdy J, Müller LO, Strand A, Bråten AT, Jørgensen A, Wiseth R, Hellevik LR (2018) Uncertainty quantification and sensitivity analysis for computational ffr estimation in stable coronary artery disease. Cardiovasc Eng Technol 9:597­622
+209. Yin M, Yazdani A, Karniadakis GE (2019) One-dimensional modeling of fractional flow reserve in coronary artery disease: uncertainty quantification and bayesian optimization. Comput Methods Appl Mech Eng 353:66­85
+210. Paun LM, Husmeier D (2021) Markov chain monte carlo with gaussian processes for fast parameter estimation and uncertainty quantification in a 1d fluid-dynamics model of the pulmonary circulation. Int J Numer Methods Biomed Eng 37(2):e3421
+211. Kwak BR, Bäck M, Bochaton-Piallat M-L, Caligiuri G, Daemen MJAP, Davies PF, Hoefer IE, Holvoet P, Jo H, Krams R, Lehoux S, Monaco C, Steffens S, Virmani R, Weber C, Wentzel JJ, Evans PC (2014) Biomechanical factors in atherosclerosis: mechanisms
+and clinical implications. Eur Heart J 35:3013­3020. [Online].
+Available: https ://d o i.org/1 0 .10 93/eurh e artj/e hu 353 212. Timmins LH, Molony DS, Eshtehardi P, McDaniel MC, Oshinski
+JN, Giddens DP, Samady H (2017) Oscillatory wall shear stress is a dominant flow characteristic affecting lesion progression
+
+patterns and plaque vulnerability in patients with coronary artery disease. J R Soc Interface 14(127):20160972 213. Song J, Kouidri S, Bakir F (2021) Numerical study on flow topology and hemodynamics in tortuous coronary artery with symmetrical and asymmetrical stenosis. Biocybern Biomed Eng 41:142­155 214. Kashyap V, Gharleghi R, Li DD, McGrath-Cadell L, Graham RM, Ellis C, Webster M, Beier S (2022) Accuracy of vascular tortuosity measures using computational modelling. Sci Rep 12:865. [Online]. Available: h ttp s ://w ww .na tu re .c o m/a rticle s/s 4159 8 -02 2 -04 796 -w 215. Rabbi MF, Laboni FS, Arafat MT (2020) Computational analysis of the coronary artery hemodynamics with different anatomical variations. Inf Med Unlocked 19 216. Stone GW, Maehara A, Coskun AU et al (2018 Mar) Role of low endothelial shear stress and plaque characteristics in the prediction of nonculprit major adverse cardiac events: the prospect study. JACC Cardiovasc Imag 11(3):462­471 217. Koskinas KC, Sukhova GK, Baker AB, Papafaklis MI, Chatzizisis YS, Coskun AU, Quillard T, Jonas M, Maynard C, Antoniadis AP, Shi G-P, Libby P, Edelman ER, Feldman CL, Stone PH (2013 Jul) Thin-capped atheromata with reduced collagen content in pigs develop in coronary arterial regions exposed to persistently low endothelial shear stress. Arterioscler Thromb Vasc Biol 33(7):1494­1504 218. Nisco GD, Hoogendoorn A, Chiastra C, Gallo D, Kok AM, Morbiducci U, Wentzel JJ (2020) The impact of helical flow on coronary atherosclerotic plaque development. Atherosclerosis 300:39­46. [Online]. Available: https ://link in g h u b.elsev ie r.c o m/ retrie v e/p ii/S 002 19 1 5 02 0 30 0 54 X 219. Nisco GD, Kok AM, Chiastra C, Gallo D, Hoogendoorn A, Migliavacca F, Wentzel JJ, Morbiducci U (2019) The atheroprotective nature of helical flow in coronary arteries. Ann Biomed Eng 47:425­438. [Online]. Available: http s ://doi.org/1 0.1 0 0 7 /s1 0439-0 1 8 -02 169 -x 220. Hartman EMJ, De Nisco G, Kok AM et al (2021) Lipid-rich plaques detected by near-infrared spectroscopy are more frequently exposed to high shear stress. J Cardiovasc Transl Res 14:416­425 221. Kumar A, Thompson EW, Lefieux A, Molony DS, Davis EL, Chand N, Fournier S, Lee HS, Suh J, Sato K, Ko Y-A, Molloy D, Chandran K, Hosseini H, Gupta S, Milkas A, Gogas B, Chang H-J, Min JK, Fearon WF, Veneziani A, Giddens DP, King SB, Bruyne BD, Samady H (2018 Oct) High coronary shear stress in patients with coronary artery disease predicts myocardial infarction. J Am Coll Cardiol 72(16):1926­1935, Accessed: 2018-10-16 222. Candreva A, Pagnoni M, Rizzini ML, Mizukami T, Gallinoro E, Mazzi V, Gallo D, Meier D, Shinke T, Aben J-P, Nagumo S, Sonck J, Munhoz D, Fournier S, Barbato E, Heggermont W, Cook S, Chiastra C, Morbiducci U, Bruyne BD, Muller O, Collet C (2022) Risk of myocardial infarction based on endothelial shear stress analysis using coronary angiography. Atherosclerosis 342:28­35. [Online]. Available: http s ://www .sc ien c ed irec t.c o m /s cience /a rtic le/pii/S 0 0219 1 50 2 1 0 1 437 4 223. Baeyens N, Bandyopadhyay C, Coon BG, Yun S, Schwartz MA (2016) Endothelial fluid shear stress sensing in vascular health and disease. J Clin Investigation 126:821­828 224. Dolan JM, Kolega J, Meng H (2013) High wall shear stress and spatial gradients in vascular pathology: a review. Ann Biomed Eng 41(7):1411­1427 225. Kok AM, Molony D, Timmins LH, Ko Y-A, Boersma E, Eshtehardi P, Wentzel J, Samady H (2019) The influence of multidirectional shear stress on plaque progression and composition changes in human coronary arteries. EuroIntervention 15:692­699
+
+13
+
+C. Shen et al.
+
+226. Hoogendoorn A, Kok AM, Hartman EMJ, de Nisco G, Casadonte L, Chiastra C, Coenen A, Korteland SA, Van der Heiden K, Gijsen FJH, Duncker DJ, van der Steen AFW, Wentzel JJ (2020 May) Multidirectional wall shear stress promotes advanced coronary plaque development: comparing five shear stress metrics. Cardiovasc Res 116(6):1136­1146
+227. Eshtehardi P, Brown AJ, Bhargava A, Costopoulos C, Hung OY, Corban MT, Hosseini H, Gogas BD, Giddens DP, Samady H (2017) High wall shear stress and high-risk plaque: an emerging concept. Int J Cardiovasc Imag 33:1089­1099. [Online]. Available: https ://do i.o rg/1 0.10 0 7/s 1 0 5 54 -016-1055 -1
+228. Zhang M, Gharleghi R, Shen C, Beier S (2024) A new understanding of coronary curvature and haemodynamic impact on the course of plaque onset and progression. R Soc Open Sci 11:241267. [Online]. Available: http s ://do i.org /1 0.1 0 98/rso s .2 41 26 7
+229. Luo X, Lv Y, Bai X, Qi J, Weng X, Liu S, Bao X, Jia H, Yu B (2021) Plaque erosion: a distinctive pathological mechanism of acute coronary syndrome. Front. Cardiovasc. Med 8:711453
+230. Adriaenssens T, Allard-Ratick MP, Thondapu V, Sugiyama T, Raffel OC, Barlis P, Poon EK, Araki M, Nakajima A, Minami Y, Takano M, Kurihara O, Fuster V, Kakuta T, Jang I-K (2021) Optical coherence tomography of coronary plaque progression and destabilization: jacc focus seminar part 3/3. J Am Coll Cardiol 78(12):1275­1287. [Online]. Available: h ttps ://do i.org /1 0.1 0 1 6 /j. jacc .2 021 .0 7.0 3 2
+231. Mazzi V, De Nisco G, Hoogendoorn A, Calò K, Chiastra C, Gallo D, Steinman DA, Wentzel JJ, Morbiducci U (2021) Early atherosclerotic changes in coronary arteries are associated with endothelium shear stress contraction/expansion variability. Ann Biomed Eng 49:2606­2621
+232. Gallo D, Steinman DA, Bijari PB, Morbiducci U (2012) Helical flow in carotid bifurcation as surrogate marker of exposure to disturbed shear. J Biomech 45(14):2398­2404
+233. Morbiducci U, Ponzini R, Grigioni M, Redaelli A (2007) Helical flow as fluid dynamic signature for atherogenesis risk in aortocoronary bypass. A numeric study. J Biomech 40(3):519­534
+234. Ku DN, Giddens DP, Zarins CK, Glagov S (1985) Pulsatile flow and atherosclerosis in the human carotid bifurcation. positive correlation between plaque location and low oscillating shear stress. Arterioscler: Off J The Am Heart Assoc, Inc. 5:293­302. [Online]. Available: h ttp s ://w ww.ah a jo urna ls.o rg /do i/a bs/1 0 .11 6  1/01 .A TV .5 .3 .29 3
+235. Chatzizisis YS, Jonas M, Coskun AU, Beigel R, Stone BV, Maynard C, Gerrity RG, Daley W, Rogers C, Edelman ER (2008) Prediction of the localization of high-risk coronary atherosclerotic plaques on the basis of low endothelial shear stress: an intravascular ultrasound and histopathology natural history study. Circulation 117(8):993­1002
+236. Hashemi J, Patel B, Chatzizisis YS, Kassab GS (2021) Study of coronary atherosclerosis using blood residence time. Front Physiol 12:566
+237. Sabbah HN, Walburn FJ, Stein PD (1984) Patterns of flow in the left coronary artery. J Biomech Eng 106(3):272­279. https ://d o i. org /1 0 .11 15/1.3 1 38 4 93
+238. Dean WR, Hurst JM (1959) Note on the motion of fluid in a curved pipe. Mathematika 6:77­85
+239. Ku DN (1997) Blood flow in arteries. Annu Rev Fluid Mech 29:399­434
+240. Zuin M, Chatzizisis YS, Beier S, Shen C, Colombo A, Rigatelli G (2023) Role of secondary flows in coronary artery bifurcations before and after stenting: what is known so far? Cardiovasc Revascularization Med 55:83­87. [Online]. Available: http s ://w w w.sc ie n c e direc t.c om/s c ien c e /a rtic le/p ii/S 1 55 3 8 3 892 30 00 1 8
+241. Jiang J, Rezaeitaleshmahalleh M, Lyu Z, Mu N, Ahmed AS, Md CMS, Gemmete JJ, Pandey AS (2023) Augmenting prediction
+
+of intracranial aneurysms' risk status using velocity-informatics: initial experience. J Cardiovasc Transl Res 16(5):1153­1165. [Online]. Available: http s ://doi.org/1 0.1 0 07/s12 265-0 2 3 -10 3 94 -6 242. Sunderland K, Haferman C, Chintalapani G, Jiang J (2016) Vortex analysis of intra-aneurismal flow in cerebral aneurysms. Comput Math Method M 2016:16. [Online]. Available: h ttps ://d o i.o rg  /1 0.11 5 5/20 1 6/7 4 062 15 243. Ding G, Choi K-S, Ma B, Kato T, Yuan W (2021 Mar) Transitional pulsatile flows with stenosis in a two-dimensional channel. Phys Fluids 33(3):034115. [Online]. Available: http s ://d o i.org/1 0  .1 0 63 /5 .0 04275 3 244. Guleren KM (2013) Numerical flow analysis of coronary arteries through concentric and eccentric stenosed geometries. J Biomech 46:1043­1052. [Online]. Available: h ttps ://w ww .s c ie n ce d irec t.c o m/sc ience /a rticle /p ii/S 0 0 21 92 9 01 30 00 6 38 245. Antoniadis AP, Giannopoulos AA, Wentzel JJ, Joner M, Giannoglou GD, Virmani R, Chatzizisis YS (2015) Impact of local flow haemodynamics on atherosclerosis in coronary artery bifurcations. EuroIntervention 11(Suppl V):V18­V22 246. Molochnikov VM, Dushin NS, Pashkova ND, Gataulin YA, Smirnov EM, Yukhnev AD (2023 April) Flow structure and transition to local turbulence downstream of an asymmetric narrowing that imitates arterial stenosis. Fluid Dyn 58:214­226. [Online]. Available: h ttp s ://lin k .s prin ge r.c o m/a rtic le /1 0.11 3 4/S 0 01 546 2 8 2 260 2 30 3 247. Javadzadegan A, Yong AS, Chang M, Ng AC, Yiannikas J, Ng MK, Behnia M, Kritharides L (2013) Flow recirculation zone length and shear rate are differentially affected by stenosis severity in human coronary arteries. Am J Physiol-Heart Circulatory Physiol 304(4):H559­H566 248. Rizzini ML, Candreva A, Mazzi V, Pagnoni M, Chiastra C, Aben JP, Fournier S, Cook S, Muller O, De Bruyne B, Mizukami T, Collet C, Gallo D, Morbiducci U (2024 Feb) Blood flow energy identifies coronary lesions culprit of future myocardial infarction. Ann Biomed Eng 52(2):226­238. epub 2023 Sep 21 249. Adikari D, Gharleghi R, Zhang S, Jorm L, Sowmya A, Moses D, Ooi S-Y, Beier S (2022) Protocol: a new and automated risk prediction of coronary artery disease using clinical endpoints and medical imaging-derived patient-specific insights: protocol for the retrospective geocad cohort study. BMJ Open 12(6) 250. Di Donna C, Cavallo AU, Pugliese L, Ricci F, De Stasio V, Presicce M, Spiritigliozzi L, Di Tosto F, Di Luozzo M, Muscoli S, Benelli L, D'Errico F, Pasqualetto M, Sbordone FP, Grimaldi F, Meschini V, Verzicco R, Romeo F, Floris R, Chiocchi M (2021) Anatomic features in scad assessed by cct: a propensity score matching case control study. Ann de Cardiologie et d'Angéiologie 70(3):161­167 251. Peng C, Wang X, Xian Z, Liu X, Huang W, Xu P, Wang J (2016) The impact of the geometric characteristics on the hemodynamics in the stenotic coronary artery. PLoS One 11:e0157490. [Online]. Available: http s ://d o i.org /1 0 .1 3 71 /jo u rn a l.po n e .015749 0 252. Gharleghi R, Zhang M, Shen C, Webster M, Ellis C, Beier S (2025) Assessing left main bifurcation anatomy and haemodynamics as a potential surrogate for disease risk in suspected coronary artery disease without stenosis. Sci Rep 15:254 253. Vorobtsova N, Chiastra C, Stremler MA, Sane DC, Migliavacca F, Vlachos P (2016) Effects of vessel tortuosity on coronary hemodynamics: an idealized and patient-specific computational study. Ann Biomed Eng 44:2228­2239 254. Han D, Lin A, Kuronuma K, Tzolos E, Kwan AC, Klein E, Andreini D, Bax JJ, Cademartiri F, Chinnaiyan K, Chow BJ, Conte E, Cury RC, Feuchtner G, Hadamitzky M, Kim Y-J, Leipsic JA, Maffei E, Marques H, Plank F, Pontone G, Villines TC, Al-Mallah MH, de Araújo Gonçalves P, Danad I, Gransar H, Lu Y, Lee JH, Lee S-E, Baskaran L, Al'aref SJ, Yoon Y-E, Van Rosendael A, Budoff MJ, Samady H, Stone PH, Virmani
+
+13
+
+The Anatomy of Coronary Risk: How Arterial Geometry Shapes Coronary Artery Disease Through Blood Flow­...
+
+R, Achenbach S, Narula J, Chang H-J et al (2022) Association of plaque location and vessel geometry determined by coronary computed tomographic angiography with future acute coronary syndrome-causing culprit lesions. JAMA Cardiol 7(3):309­319 255. Li Y, Shi Z, Cai Y, Feng Y, Ma G, Shen C, Li Z, Liu N (2012) Impact of coronary tortuosity on coronary pressure: numerical simulation study. PLoS One 7:e42 558­e42 558. [Online]. Available: h ttp s ://d x.p lo s .o rg /1 0 .1 3 7 1 /jo urn a l.p o n e.00 4 255 8 256. Pinto SIS, Campos JBLM (2016) Numerical study of wall shear stress-based descriptors in the human left coronary artery. Comput Methods Biomech Biomed Eng 19:1443­1455. [Online]. Available: http s ://d oi.org /1 0 .1 0 8 0/102 558 42.2 016 .1 1 4 9 5 7 5 257. Frattolin J, Zarandi MM, Pagiatakis C, Bertrand OF, Mongrain R (2015) Numerical study of stenotic side branch hemodynamics in true bifurcation lesions. Comput Biol Med 57:130­138. [Online]. Available: http s ://w ww.s c ie n c ed ire c t.c o m /scie n c e /a rticle/pii/S 0 0 104 825 1 4 003 3 2 1 258. Chaichana T, Sun Z, Jewkes J (2014) Impact of plaques in the left coronary artery on wall shear stress and pressure gradient in coronary side branches. Comput Methods Biomech Biomed Eng 17:108­118. [Online]. Available: http s ://d o i.org /1 0 .1 0 80 /10 2 55 8  42 .2 0 12.671 30 8 259. Möftöoullari A, Söner M, Sarper B (2024) The effect of bifurcation angulation on flow characteristics and hemodynamic indicators in an idealized left coronary artery. Int J Multiling Thermofluids 21:100554 260. Jahromi R, Pakravan HA, Saidi MS, Firoozabadi B (2019) Primary stenosis progression versus secondary stenosis formation in the left coronary bifurcation: a Mechanical point of view. Biocybern Biomed Eng 39(1):188­198 261. Chiastra C, Morlacchi S, Gallo D, Morbiducci U, Cárdenes R, Larrabide I, Migliavacca F (2013) Computational fluid dynamic simulations of image-based stented coronary bifurcation models. J R Soc Interface 10:20130193. [Online]. Available: h ttp s ://d oi.o  rg /1 0 .1 0 98 /rsif.2 0 1 3 .01 9 3 262. Gharleghi R, Zhang M, Adikari D, McGrath-Cadell L, Graham RM, Wentzel JJ, Webster M, Ellis C, Ooi S-Y, Beier S (2025) Sex-specific variances in anatomy and blood flow of the left main coronary bifurcation: implications for coronary artery disease risk. IEEE Trans Biomed Eng 72(7):2130­2137. h ttp s ://doi.o rg / 10 .11 0 9/T B M E.2 0 25.3 5 3 6 161 263. Sun Z, Cao Y (2011) Multislice ct angiography assessment of left coronary artery: correlation between bifurcation angle and dimensions and development of coronary artery disease. Eur J Radiol 79 264. Xie X, Wang Y, Zhu H, Zhou J (2014) Computation of hemodynamics in tortuous left coronary artery: a morphological parametric study. J Biomechanical Eng 136. [Online]. Available: https ://a sme digitalco lle ction.asm e.org/bio mech anical/artic le/1 36 /10 /101  00 6 /37 005 8 /C om p u ta tio n -o f-He mo d y n amics-in-T o rtuo us -L eft 265. Kim J, Jin D, Choi H, Kweon J, Yang DH, Kim YH (2020) A zero-dimensional predictive model for the pressure drop in the stenotic coronary artery based on its geometric characteristics. J Biomech 113:110076 266. Sato H, Kawasaki M, Morita N, Fujiwara H, Minatoguchi S (2015) Distribution of tissue characteristics of coronary plaques evaluated by integrated backscatter intravascular ultrasound: differences between the inner and outer vessel curvature. J Cardiol 66:489­495 267. Li Y, Shen C, Ji Y, Feng Y, Ma G, Liu N (2011) Clinical implication of coronary tortuosity in patients with coronary artery disease. PLoS One 6:e24 232­e24 232. [Online]. Available: http://w  ww.n cb i.n lm.n ih.gov /pu bme d/21 90 461 8http://ww w.p ubme dc ent ral.nih .go v/a rtic leren der.fc gi?a rtid = P M C 31 6 418 4 IF :2 .6Q 2B3 268. Chiha J, Mitchell P, Gopinath B, Burlutsky G, Kovoor P, Thiagalingam A (2017) Gender differences in the prevalence of coronary
+
+artery tortuosity and its association with coronary artery disease. Int J Cardiol Heart Vasc 14:23­27 269. Chaichana T, Sun Z, Jewkes J (2013) Haemodynamic analysis of the effect of different types of plaques in the left coronary artery. Computerized Med Imag Graphics 37:197­206. [Online]. Available: http s ://w ww .sc ien c e dire c t.c o m /s c ienc e /a rtic le/p ii/S 0 8 9561  111 3 0 0 0 3 5 9 270. Cui Y, Zeng W, Yu J, Lu J, Hu Y, Diao N, Liang B, Han P, Shi H (2017) Quantification of left coronary bifurcation angles and plaques by coronary computed tomography angiography for prediction of significant coronary stenosis: a preliminary study with dual-source ct. PLoS One 12(3):e0174352. [Online]. Available: h ttp s ://d o i.org /1 0 .1 3 71/jou rnal.p o n e .0 1 74352 271. Chaichana T, Sun Z, Jewkes J (2011) Computation of hemodynamics in the left coronary artery with variable angulations. J Biomech 44:1869­1878 272. Beier S, Ormiston JA, Webster MW, Cater JE, Norris SE, Medrano-Gracia P, Young AA, Cowan BR (2016) Dynamically scaled phantom phase contrast mri compared to true-scale computational modeling of coronary artery flow. J Magnetic Reson Imag 44:983­992 273. Morbiducci U, Kok AM, Kwak BR, Stone PH, Steinman DA, Wentzel JJ (2016) Atherosclerosis at arterial bifurcations: evidence for the role of haemodynamics and geometry. Thromb Haemostasis 115:484­492 274. Medrano-Gracia P, Ormiston J, Webster M, Beier S, Young A, Ellis C, Wang C, Smedby Ö, Cowan B (2016) A computational atlas of normal coronary artery anatomy. EuroIntervention 12(7):845­854 275. Xie X, Wang Y, Zhou H (2013) Impact of coronary tortuosity on the coronary blood flow: a 3d computational study. J Biomech 46:1833­1841. [Online]. Available: h ttps ://lin k in gh u b .e lsev ie r.co  m/retrie v e/p ii/S 0 0 2 1 9 2 90130 02261 276. Araki M, Soeda T, Kim HO, Thondapu V, Russo M, Kurihara O, Shinohara H, Minami Y, Higuma T, Lee H, Yonetsu T, Kakuta T, Jang IK (2020) Spatial distribution of vulnerable plaques: comprehensive in vivo coronary plaque mapping. JACC Cardiovasc Imag 13:1989­1999, 9. [Online] Available: http s ://w ww .ja cc .o rg/ doi/1 0 .10 16 /j.jc mg .2 0 20.0 1.0 13 277. Inoue Y, Tanaka A, Asano H, Uemura Y, Takagi K, Ohashi T, Tanaka M, Umemoto N, Ajioka M, Tashiro H, Watarai M, Morishima I, Tatami Y, Takada Y, Shimizu K, Ishii H, Murohara T (2021 Jan) Clinical characteristics and treatment of spontaneous coronary artery dissection in young women undergoing percutaneous coronary intervention. J Cardiovasc Med 22(1):14­19 278. Shao C, Wang J, Tian J, Tang Y-D (2020) Coronary artery disease: from mechanism to clinical practice. In: Wang M (ed) Coronary artery disease: therapeutics and Drug Discovery, ser. Advances in experimental medicine and biology, vol 1177. Springer, Singapore 279. Ralapanawa U, Sivakanesan R (2021) Epidemiology and the magnitude of coronary artery disease and acute coronary syndrome: a narrative review. J Epidemiol Glob Health 11:169­177 280. Ahmadi M, Lanphear B (2022) The impact of clinical and population strategies on coronary heart disease mortality: an assessment of rose's big idea. BMC Public Health 22:14 281. Huo Y, Finet G, Lefevre T, Louvard Y, Moussa I, Kassab GS (2012) Which diameter and angle rule provides optimal flow patterns in a coronary bifurcation? J Biomech 45(7):1273­1279 282. Finet G et al (2008) Fractal geometry of arterial coronary bifurcations: a quantitative coronary angiography and intravascular ultrasound analysis. EuroIntervention 3(4):490­498 283. Shen C, Zhang M, Keramati H, Ferreira de Almeida D, Beier S (2025) High-intensity helical flow: a double-edged sword in coronary artery haemodynamics. R Soc Open Sci 12(8):242184
+
+13
+
+C. Shen et al.
+
+284. Altintas MS, Ermis N, Cuglan B, Alturk E, Ozdemir R (2020) Influence of right coronary artery shape on timi frame count and lesion distribution. Arch Cardiol Mex 90(4):475­479
+285. Candreva A, Rizzini ML, Calò K, Pagnoni M, Munhoz D, Chiastra C, Aben JP, Fournier S, Muller O, De Bruyne B, Collet C, Gallo D, Morbiducci U (2024 Aug) Association between automated 3d measurement of coronary luminal narrowing and risk of future myocardial infarction. J Cardiovasc Transl Res 17(4):893­ 900. epub 2024 Mar 1
+286. Kamangar S, Badruddin IA, Badarudin A, Nik-Ghazali NN, Govindaraju K, Ahmed NJS, Khan TMY (2017) Influence of stenosis on hemodynamic parameters in the realistic left coronary artery under hyperemic conditions. Comput Methods Biomech Biomed Eng 20(4):365­372
+287. Koo B, Yang S, Jung J et al (2024 September) Artificial intelligence­enabled quantitative coronary plaque and hemodynamic analysis for predicting acute coronary syndrome. JACC Cardiovasc Imag 17(9):1062­1076. h ttp s ://d o i.o rg /1 0.10 16/j.jc mg .2 0 24 .0 3 .015
+288. Chu J, Lai Y, Yan W et al (2023) Impact of radial wall strain on serial changes in vascular physiology in patients with intermediate coronary stenosis. Rev Cardiovasc Med 24(8):245
+289. Wang Z, Huang J, Li C, Xu T, Hong H, Qu X, Chen L, Tu S (2025) Comparison of angiographically derived coronary radial wall strain and superficial wall stress for the characterization of plaque vulnerability. Cardiol J 32(6):535­545. https ://do i.o rg /1 0 . 56 0 3/cj.1017 7 8
+290. Wang Z, Kedhi E, Liu X et al (2025) Prognostic implications of angiographically derived coronary radial wall strain in diabetic patients and non-flow-limiting stenosis. JACC Cardiovasc Interv 18(10):1232­1242
+291. Colombo A, Chiastra C, Gallo D, Loh PH, Dokos S, Zhang M, Keramati H, Carbonaro D, Migliavacca F, Ray T, Jepson N, Beier S (2025) Advancements in coronary bifurcation stenting techniques: insights from computational and bench testing studies. Int J Numer Methods Biomed Eng 41:e70000. [Online] Available: ht tps ://d oi.org /1 0.1 0 0 2/c nm .7 0 0 0 0
+292. Wentzel JJ, Papafaklis MI, Antoniadis AP, Takahashi S, Cefalo NV, Cormier M, Saito S, Coskun AU, Stone PH (2022 Feb) Sexrelated differences in plaque characteristics and endothelial shear stress related plaque-progression in human coronary arteries. Atherosclerosis 342:9­18. epub 2021 Dec 26
+293. Politi C, Roumeliotis S, Tripepi G, Spoto B (2023) Sample size calculation in genetic association studies: a practical approach. Life 13(1)
+294. Hickey GL, Grant SW, Dunning J, Siepe M (2018 Jul) Statistical primer: sample size and power calculations-why, when and how? Eur J Cardio-Thorac Surg 54(1):4­9
+295. Ambellan F, Lamecker H, von Tycowicz C, Zachow S (2019) Statistical shape models: understanding and mastering variation in anatomy. In: Rea PM (ed) Biomedical Visualisation, vol 3. Springer International Publishing, Cham, pp 67­84
+296. Kollar S, Balaras E, Olivieri LJ, Loke Y-H, Capuano F Statistical shape modeling reveals the link between right ventricular shape, hemodynamic force, and myocardial function in patients with repaired tetralogy of fallot. Am J Physiol-Heart Circulatory Physiol 323(3):H449­H460, 092022
+297. Suinesiaputra A, Ablin P, Alba X, Alessandrini M, Allen J, Bai W, Cimen S, Claes P, Cowan BR, D'Hooge J, Duchateau N, Ehrhardt J, Frangi AF, Gooya A, Grau V, Lekadir K, Lu A, Mukhopadhyay A, Oksuz I, Parajali N, Pennec X, Pereanez M, Pinto C, Piras P, Rohe MM, Rueckert D, Saring D, Sermesant M, Siddiqi K, Tabassian M, Teresi L, Tsaftaris SA, Wilms M, Young AA, Zhang
+
+X, Medrano-Gracia P (2018) Statistical shape modeling of the left ventricle: myocardial infarct classification challenge. IEEE J Biomed Health Inf 22(2):503­515 298. Cosentino F, Raffa GM, Gentile G, Agnese V, Bellavia D, Pilato M, Pasta S (2020) Statistical shape analysis of ascending thoracic aortic aneurysm: correlation between shape and biomechanical descriptors. J Pers Med 10(2):28. http s ://d o i.org/1 0 .33 90 /jp m 10 0 20 02 8 299. Wiputra H, Matsumoto S, Wagenseil JE, Braverman AC, Voeller RK, Barocas VH Statistical shape representation of the thoracic aorta: accounting for major branches of the aortic arch. Comput Methods Biomech Biomed Eng 26(13):1557­1571, 102023 300. Liu T, Jomha NM, Adeeb S, El-Rich M, Westover L (2020 July) Investigation of the average shape and principal variations of the human talus bone using statistic shape model. Front Bioeng Biotechnol 8 301. Ding AS, Lu A, Li Z, Galaiya D, Ishii M, Siewerdsen JH, Taylor RH, Creighton FX (2022) Statistical shape model of the temporal bone using segmentation propagation. Otol Neurotol 43:e679­e87 302. Sayed RE, Park CC, Shah Z et al (2024) Assessment of complex flow patterns in patients with carotid webs, patients with carotid atherosclerosis, and healthy subjects using 4d flow mri. J Magn Reson Imag 59:2001­2010 303. Sapir HS, Avrahami I (2024) The effect of Mechanical circulatory support on blood flow in the ascending aorta: a combined experimental and computational study. Bioengineering 11(3):238 304. Manta A, Tzirakis K (2025) A comprehensive review on computational analysis, research advances, and major findings on abdominal aortic aneurysms for the years 2021 to 2023. Ann Vasc Surg 110(Part A):63­81 305. Sherif C, Sommer G, Schiretz P, Holzapfel GA (2024) Computational fluid dynamic simulations of cerebral aneurysms. In: Di leva A, Suero Molina E, Liu S, Russo C (eds) Computational Neurosurgery. Advances in Experimental Medicine and Biology, vol 1462. Springer, Cham, pp 397­415. h ttp s://d oi.org /1 0.1 0 0 7 /9  78 -3 -0 3 1-64 8 92-2 _ 2 4 306. Tatsuta Y, Endo H, Ogino T et al (2024) Internal carotid arterypersistent primitive anterior choroidal artery aneurysms: report of two cases and literature review. Acta Neurochirurgica 166:94 307. van Heeswijk RAM, Stephen E, Shaw PM, Zhou W, Ramnadh SG, Gupta PC, de Borst GJ (2025) A review of the literature on extracranial carotid artery aneurysms. JVS-Vasc Insights 3:100189 308. Chen D, Möller-Eschner M, Tengg-Kobligk HV et al (2013) A patient-specific study of type-b aortic dissection: evaluation of true-false lumen blood exchange. Biomed Eng Online 12:65 309. Colombo M, He Y, Corti A et al (2021) In-stent restenosis progression in human superficial femoral arteries: dynamics of lumen remodeling and impact of local hemodynamics. Ann Biomed Eng 49:2349­2364 310. Colombo M, Corti A, Gallo D, Colombo A, Antognoli G, Bernini M, McKenna C, Berceli S, Vaughan T, Migliavacca F, Chiastra C (2022) Superficial femoral artery stenting: impact of stent design and overlapping on the local hemodynamics. Comput Biol Med 143:105248 311. Schneiders JJ, Marquering HA, Van Ooij P et al (2015) Additional value of intra-aneurysmal hemodynamics in discriminating ruptured versus unruptured intracranial aneurysms. AJNR Am J Neuroradiol 36:1920­1926
+Publisher's Note Springer Nature remains neutral with regard to jurisdictional claims in published maps and institutional affiliations.
+
+13
+
+The Anatomy of Coronary Risk: How Arterial Geometry Shapes Coronary Artery Disease Through Blood Flow­...
+
+Authors and Affiliations
+C. Shen1 · M. Zhang1,2 · H. Keramati1 · S. Zhang1 · R. Gharleghi1 · J. J. Wentzel3 · M. O. Khan4 · U. Morbiducci5 · A. Qayyum6 · S. A. Niederer6 · S. Samant7 · Y. S. Chatzizisis8 · D. Almeida9 · Tsung-Ying Tsai10 · P. Serruys10 · S. Beier1
+
+ C. Shen chi.shen@unsw.edu.au
+ M. Zhang mingzi.zhang@unsw.edu.au
+S. Beier s.beier@unsw.edu.au
+1 School of Mechanical and Manufacturing Engineering, University of New South Wales, Sydney, NSW 2052, Australia
+2 Health Hub, Torrens University Australia, Surry Hills, Sydney, Australia
+3 Biomedical Engineering, Cardiology Department, ErasmusMC, Rotterdam, Netherlands
+
+4 Department of Electrical, Computer, and Biomedical Engineering, Toronto Metropolitan University, Toronto, Canada
+5 Department of Mechanical and Aerospace Engineering, Politecnico di Torino, Turin, Italy
+6 Imperial College London, London, UK
+7 Department of Medicine, Montefiore Medical Centre, Bronx, NY, USA
+8 Division of Cardiovascular Medicine, Miller School of Medicine, University of Miami, Miami, FL, USA
+9 Virtonomy GmbH, Paul-Heyse-Straße 6, 80336 Munich, Germany
+10 Corrib Research Centre for Advanced Imaging and Core Laboratory, University of Galway, Galway, Ireland
+
+13
+
+
