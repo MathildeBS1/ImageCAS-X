@@ -1,0 +1,85 @@
+% Segmentation Pipeline section. Paste into your own thesis, or \input it.
+
+\section{Network architecture}
+\label{sec:pipeline-architecture}
+
+CAS-Net \cite{dong2023casnet}, like every method in Table~\ref{tab:pipeline-benchmark} except
+TotalSegmentator, is a 3D \textbf{U-Net} \cite{ronneberger2015unet}: an \textbf{encoder} that
+repeatedly shrinks spatial resolution while growing feature depth, so deeper layers see more
+context; a \textbf{decoder} that mirrors this back up to full resolution; and \textbf{skip
+connections} that carry the encoder's fine spatial detail directly across to the matching decoder
+level, so the output is both contextually informed and spatially precise.
+
+CAS-Net is a five-level 3D U-Net with three added attention modules (Figure~\ref{fig:pipeline-casnet}),
+aimed at a problem plain skip connections do not solve well: a coronary artery is thin and
+branching, so an encoder feature and a decoder feature at the same location are not equally
+reliable everywhere. Each module lets the network learn, per channel and per location, how much
+to trust each signal (function names refer to \texttt{models/cas\_net.py}):
+
+\begin{itemize}
+  \item \textbf{SAFE}, at the bottleneck: re-processes the coarsest feature map with dilated
+    convolutions at several scales, then self-attention, so distant voxels belonging to the same
+    vessel can influence each other directly.
+  \item \textbf{AGFF}, at every skip connection: computes a per-channel attention weight and uses
+    it to scale the encoder's contribution before combining it with the decoder's, rather than
+    concatenating both equally everywhere.
+  \item \textbf{MSFA}, at the output: combines the decoder's output from all four resolution
+    levels into the final prediction, rather than basing it on the finest level alone.
+\end{itemize}
+
+\begin{figure}[htbp]
+  \centering
+  \resizebox{\textwidth}{!}{%
+  \begin{tikzpicture}[font=\small,
+      enc/.style={draw, fill=blue!10, minimum width=15mm, minimum height=8mm},
+      dec/.style={draw, fill=orange!10, minimum width=15mm, minimum height=8mm},
+      mod/.style={draw, rounded corners, fill=green!10, minimum width=15mm, minimum height=7mm},
+    ]
+    \node[enc] (e0) at (0,0) {enc.\ input\\16 ch};
+    \node[enc] (e1) at (0,-1.4) {enc.\ 1\\32 ch};
+    \node[enc] (e2) at (0,-2.8) {enc.\ 2\\64 ch};
+    \node[enc] (e3) at (0,-4.2) {enc.\ 3\\128 ch};
+    \node[enc] (e4) at (0,-5.6) {enc.\ 4\\256 ch};
+    \draw[-{Latex[length=2mm]}] (e0)--(e1); \draw[-{Latex[length=2mm]}] (e1)--(e2);
+    \draw[-{Latex[length=2mm]}] (e2)--(e3); \draw[-{Latex[length=2mm]}] (e3)--(e4);
+
+    \node[mod, fill=purple!12] (safe) at (2.6,-5.6) {SAFE\\(bottleneck\\attention)};
+    \draw[-{Latex[length=2mm]}] (e4) -- (safe);
+
+    \node[mod] (agff4) at (5.2,-4.2) {AGFF 4};
+    \node[dec] (d4) at (7.8,-4.2) {dec.\ 4\\128 ch};
+    \node[mod] (agff3) at (5.2,-2.8) {AGFF 3};
+    \node[dec] (d3) at (7.8,-2.8) {dec.\ 3\\64 ch};
+    \node[mod] (agff2) at (5.2,-1.4) {AGFF 2};
+    \node[dec] (d2) at (7.8,-1.4) {dec.\ 2\\32 ch};
+    \node[mod] (agff1) at (5.2,0) {AGFF 1};
+    \node[dec] (d1) at (7.8,0) {dec.\ 1\\16 ch};
+
+    \draw[-{Latex[length=2mm]}] (safe) -- (agff4); \draw[-{Latex[length=2mm]}] (agff4)--(d4);
+    \draw[-{Latex[length=2mm]}] (d4) -- (agff3); \draw[-{Latex[length=2mm]}] (agff3)--(d3);
+    \draw[-{Latex[length=2mm]}] (d3) -- (agff2); \draw[-{Latex[length=2mm]}] (agff2)--(d2);
+    \draw[-{Latex[length=2mm]}] (d2) -- (agff1); \draw[-{Latex[length=2mm]}] (agff1)--(d1);
+
+    \draw[-{Latex[length=2mm]}, dashed, gray!60!black] (e3) to[bend right=10] (agff4);
+    \draw[-{Latex[length=2mm]}, dashed, gray!60!black] (e2) to[bend right=10] (agff3);
+    \draw[-{Latex[length=2mm]}, dashed, gray!60!black] (e1) to[bend right=10] (agff2);
+    \draw[-{Latex[length=2mm]}, dashed, gray!60!black] (e0) to[bend right=10] (agff1);
+
+    \node[mod, fill=red!10, minimum height=16mm, align=center] (msfa) at (10.6,-2.1)
+      {MSFA\\(fuses all\\4 decoder\\levels)};
+    \draw[-{Latex[length=2mm]}] (d4) -- (msfa); \draw[-{Latex[length=2mm]}] (d3) -- (msfa);
+    \draw[-{Latex[length=2mm]}] (d2) -- (msfa); \draw[-{Latex[length=2mm]}] (d1) -- (msfa);
+    \node[draw, minimum width=15mm, minimum height=8mm, right=8mm of msfa] (out)
+      {2-channel\\logits};
+    \draw[-{Latex[length=2mm]}] (msfa) -- (out);
+  \end{tikzpicture}%
+  }
+  \caption{CAS-Net \cite{dong2023casnet}: a five-level 3D U-Net (blue/orange, channel counts
+    per level) with three attention modules added -- SAFE at the bottleneck, AGFF at every
+    skip connection, and MSFA fusing all four decoder resolutions into the final prediction.}
+  \label{fig:pipeline-casnet}
+\end{figure}
+
+The network's output is a two-channel volume of raw logits (background, lumen); nothing in the
+model decides a hard yes/no answer -- that is deferred to postprocessing
+(Section~\ref{sec:pipeline-inference}).

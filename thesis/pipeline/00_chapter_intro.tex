@@ -1,0 +1,130 @@
+% Segmentation Pipeline -- chapter opening. Paste into your own thesis, or \input it.
+% Section files in this folder are meant to be included in numeric order.
+% Follows the Clinical Background and Dataset chapters: CT, CCTA and the coronary segment
+% names are already defined there and are not redefined here.
+% Needs: tikz (libraries: positioning, arrows.meta, fit, backgrounds, calc, shapes.geometric),
+% graphicx (for \resizebox on the wide figures), booktabs -- inherited from the including
+% document.
+
+\chapter{Segmentation Pipeline}
+\label{ch:pipeline}
+
+This chapter walks through the segmentation pipeline for \textbf{CAS-Net} \cite{dong2023casnet},
+the model the topology pipeline in later chapters is built on. CAS-Net is one of several methods
+supported by a shared benchmark codebase, forked from the one released with ImageCAS-X
+\cite{bransby2026imagecasx}; comparing those methods is a separate objective of this thesis, so
+they are disregarded here and only CAS-Net is followed, as the best-performing method on the
+ImageCAS-X benchmark (Table~\ref{tab:pipeline-benchmark}). Predictions are scored against the
+\textbf{ground truth (GT)} mask with the overlap-based \textbf{Dice similarity coefficient (DSC)}
+and the boundary-based \textbf{95th-percentile Hausdorff distance (HD95)}, both defined in
+Section~\ref{sec:pipeline-metrics}.
+
+Figure~\ref{fig:pipeline-overview} gives the shape of the whole pipeline. A scan and its GT mask
+are prepared once, offline (Section~\ref{sec:pipeline-data}), and then flow down two paths that
+share the same trained network: \emph{training} (Sections~\ref{sec:pipeline-architecture}--
+\ref{sec:pipeline-training}) repeatedly shows the network patches and adjusts its weights, and
+\emph{inference} (Section~\ref{sec:pipeline-inference}) runs the finished network over a whole,
+unseen scan. Section~\ref{sec:pipeline-metrics} covers how the resulting predictions are scored.
+
+\begin{figure}[htbp]
+  \centering
+  \resizebox{\textwidth}{!}{%
+  \begin{tikzpicture}[
+      node distance=6mm and 10mm,
+      font=\small,
+      block/.style={draw, rounded corners, align=center, minimum height=9mm,
+                    minimum width=26mm, fill=blue!4, inner sep=2mm},
+      io/.style={draw, rounded corners, align=center, minimum height=9mm,
+                 minimum width=26mm, fill=gray!10, inner sep=2mm},
+      decision/.style={draw, align=center, minimum height=9mm, minimum width=26mm,
+                        fill=orange!8, inner sep=2mm},
+      lbl/.style={font=\scriptsize\itshape, text width=26mm, align=center},
+      arr/.style={-{Latex[length=2mm]}, thick},
+    ]
+
+    % --- shared data preparation ---
+    \node[io] (raw) {Raw CCTA \\ + GT mask};
+    \node[block, right=of raw] (resample) {Offline resample \\ 0.5\,mm isotropic};
+
+    % --- training path (top) ---
+    \node[block, above right=8mm and 14mm of resample] (crop) {Foreground-quota \\ crop + augment};
+    \node[block, right=of crop] (fwd) {CAS-Net \\ forward pass};
+    \node[block, right=of fwd] (loss) {Dice loss \\ + backprop};
+    \node[decision, right=of loss] (opt) {Adam + poly \\ weight update};
+    \node[io, below=7mm of opt] (ckpt) {Best checkpoint \\ \texttt{cas\_net\_best.pt}};
+
+    % --- inference path (bottom) ---
+    \node[block, below right=8mm and 14mm of resample] (norm) {Normalise \\ intensities};
+    \node[block, right=of norm] (tile) {Tiled forward \\ + mirror flips};
+    \node[block, right=of tile] (post) {Resample back \\ + postprocess};
+    \node[io, right=of post] (pred) {Saved \\ prediction};
+
+    \node[block, below=7mm of pred] (eval) {Compare against GT \\ (metrics)};
+
+    % arrows: shared prep
+    \draw[arr] (raw) -- (resample);
+    \draw[arr] (resample.east) -- ++(8mm,0) |- (crop.west);
+    \draw[arr] (resample.east) -- ++(5mm,0) |- (norm.west);
+
+    % arrows: training loop
+    \draw[arr] (crop) -- (fwd);
+    \draw[arr] (fwd) -- (loss);
+    \draw[arr] (loss) -- (opt);
+    \draw[arr] (opt) -- (ckpt);
+    \draw[arr] (opt.north) -- ++(0,6mm) -| node[pos=0.25,above,font=\scriptsize]{repeat, 1000 epochs} (crop.north);
+
+    % arrows: checkpoint feeds inference
+    \draw[arr] (ckpt.south) |- node[pos=0.55, above, font=\scriptsize] {trained weights} (tile.north);
+
+    % arrows: inference + evaluation
+    \draw[arr] (norm) -- (tile);
+    \draw[arr] (tile) -- (post);
+    \draw[arr] (post) -- (pred);
+    \draw[arr] (pred) -- (eval);
+    \draw[arr] (raw.south) |- ($(eval.south)+(0,-6mm)$) -| node[pos=0.85, above, font=\scriptsize]{GT} (eval.west);
+
+    \node[lbl, above=1mm of crop] {\S\ref{sec:pipeline-data}};
+    \node[lbl, above=1mm of fwd] {\S\ref{sec:pipeline-architecture}};
+    \node[lbl, above=1mm of opt] {\S\ref{sec:pipeline-training}};
+    \node[lbl, below=1mm of tile] {\S\ref{sec:pipeline-inference}};
+    \node[lbl, below=1mm of eval] {\S\ref{sec:pipeline-metrics}};
+
+  \end{tikzpicture}%
+  }
+  \caption{The segmentation pipeline. A scan is prepared once (left) and then flows down a
+    training path (top) that repeatedly updates the network's weights, and an inference path
+    (bottom) that runs the trained network over a whole scan and cleans up its output. The two
+    paths meet at the trained checkpoint. Evaluation (bottom right) only compares the saved
+    prediction against the GT mask.}
+  \label{fig:pipeline-overview}
+\end{figure}
+
+Every stage is driven by one shared, config-driven codebase, so the same preprocessing, training
+and evaluation rules apply throughout and a new method or setting only needs a config change, not
+a rewrite of the pipeline scripts.
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \begin{tabular}{lrrrr}
+    \toprule
+    Method & DSC (\%) $\uparrow$ & HD95 (mm) $\downarrow$ & $\beta^{\text{err}}$ $\downarrow$ & clDice (\%) $\uparrow$ \\
+    \midrule
+    TotalSegmentator      & 70.5 & 19.59 & 4.6 & 76.0 \\
+    3D-FFR-UNet           & 84.9 & 15.93 & 4.8 & 89.8 \\
+    ADE-HTL               & 87.7 & \textbf{2.97} & \textbf{1.5} & 93.2 \\
+    Swin-UNETR             & 87.9 & 3.18 & 3.8 & 92.5 \\
+    ImageCAS               & 87.9 & 4.45 & 4.7 & 91.7 \\
+    nnU-Net                 & 89.8 & 7.08 & 5.6 & 92.3 \\
+    nnU-Net + clDice        & 90.0 & 9.70 & 8.0 & 91.7 \\
+    \textbf{CAS-Net}         & \textbf{91.2} & 2.99 & 1.9 & \textbf{93.3} \\
+    \midrule
+    Inter-observer (reference) & 92.8 & 2.46 & 0.4 & 95.4 \\
+    \bottomrule
+  \end{tabular}
+  \caption{ImageCAS-X benchmark results on the held-out test set (adapted from
+    \cite{bransby2026imagecasx}). DSC, HD95 and $\beta^{\text{err}}$ (Betti-0 error) are as
+    defined in Section~\ref{sec:pipeline-metrics}. Inter-observer agreement, from two experts
+    segmenting independently, is the practical ceiling every method is still below.}
+  \label{tab:pipeline-benchmark}
+\end{table}
