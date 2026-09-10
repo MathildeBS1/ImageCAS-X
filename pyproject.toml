@@ -23,6 +23,7 @@ dependencies = [
     "tqdm",
     "matplotlib",
     "openpyxl",
+    "nibabel>=5.4.2",
 ]
 
 [tool.setuptools]
