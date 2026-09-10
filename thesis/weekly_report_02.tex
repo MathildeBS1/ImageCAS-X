@@ -1,0 +1,88 @@
+% ===============================================================
+% WEEKLY REPORT — copy this file to week02.tex, week03.tex, ...
+% In Overleaf: use the file dropdown above the editor (or
+% Menu > Settings > Main document) to pick which root to compile.
+% ===============================================================
+\documentclass[11pt,a4paper]{article}
+
+\input{setup/project}
+\input{setup/preamble}
+\input{setup/weekly}
+
+
+% Date for this report: appears on the title page and in the header
+% of every body page.
+
+
+\begin{document}
+
+\weeklytitle{2}
+
+\section{Week 2: 7-11. September 2026}
+
+\sectionprogress
+
+\textbf{Pipeline chapter written.} I walked through CAS-Net end to end -- data preparation,
+network architecture, training, inference and evaluation metrics -- and wrote it up as a standalone
+chapter (\Cref{ch:pipeline}). Doing this properly meant reading the actual training and inference
+code, not just the paper: the resampling and cropping choices, the three attention modules (SAFE,
+AGFF, MSFA), the Dice loss and Adam schedule, the tiled inference with mirror-flip TTA, and the full
+metric family used to score it (Dice, HD95, Betti numbers, clDice, centerline distances).
+
+\textbf{Scope narrowed.} Rather than the whole coronary tree, the topology/feature-extraction work
+will focus for a start on three vessels -- the left main, LAD and LCX -- for the reasons laid out in
+\Cref{sec:week2-major-vessel}. Segmentation, dominance annotation and centerline extraction still
+need the whole tree; only the population-level feature analysis is being narrowed.
+
+\textbf{State-of-the-art notes drafted.} Three standalone arguments moved out of the state-of-the-art
+chapter and got expanded this week: the segmentation benchmark's topology gap (overlap looks fine,
+Betti error does not, and this thesis targets post-hoc topological repair rather than retraining),
+which feature is actually standardised across the field (bifurcation angle) versus contested
+(tortuosity, where I plan to spend most of my method-development effort) -- see ``Features'' below --
+and why the population CCTA is normally drawn from is the wrong one for questions about pre-disease
+geometry, which is the argument for why the Copenhagen General Population Study
+(Herlev--{\O}sterbro) matters here -- see ``Population'' below.
+
+\subsection{Questions}
+
+\begin{itemize}
+  \item Is narrowing feature analysis to LM/LAD/LCX (\Cref{sec:week2-major-vessel}) the right call, or
+    should RCA be included from the start given its own plaque burden?
+  \item For the tortuosity work: is there an existing 3D-aware metric in the literature I should
+    benchmark against before designing a new one, or is the field genuinely starting from the index
+    formula and 2D shape classes described in the ``Features'' note below?
+  \item Phillip -- on the CGPS cohort definition (``Population'' note below): should participants
+    with known CAD be excluded from the "healthy" baseline, and is the Herlev--{\O}sterbro naming the
+    study's own preferred wording, or just how it is known informally?
+\end{itemize}
+
+\newpage
+\section{Scope and state of the art notes}
+
+\input{week2/segmentation_gap}
+\newpage
+\input{week2/major_vessel}
+\label{sec:week2-major-vessel}
+\newpage
+\input{week2/reproducible_features}
+\newpage
+\input{week2/healthy_cohort}
+\newpage
+
+\input{pipeline/00_chapter_intro}
+\newpage
+\input{pipeline/01_data_preparation}
+\newpage
+\input{pipeline/02_model_architecture}
+\newpage
+\input{pipeline/03_training}
+\newpage
+\input{pipeline/04_inference}
+\newpage
+\input{pipeline/05_evaluation_metrics}
+\newpage
+
+\printbibliography
+
+
+\end{document}

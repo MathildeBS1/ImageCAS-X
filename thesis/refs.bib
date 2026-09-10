@@ -1450,3 +1450,56 @@
              this is its eighteenth document --- which is why the junction, not the tree, is where
              coronary geometry got characterized}
 }
+
+% ============================================ pipeline chapter, added 2026-09-10
+% Foundational architecture/optimization/loss/metrics references for the CAS-Net pipeline
+% walkthrough (thesis/pipeline/*.tex). All four fields confirmed against Crossref or arXiv;
+% none read in full, so none is [VERIFIED] (see header).
+@inproceedings{ronneberger2015unet,
+  title     = {{U-Net}: Convolutional Networks for Biomedical Image Segmentation},
+  author    = {Ronneberger, Olaf and Fischer, Philipp and Brox, Thomas},
+  booktitle = {Medical Image Computing and Computer-Assisted Intervention -- MICCAI 2015},
+  series    = {Lecture Notes in Computer Science},
+  volume    = {9351},
+  pages     = {234--241},
+  year      = {2015},
+  doi       = {10.1007/978-3-319-24574-4_28},
+  note      = {[BIBLIOGRAPHY VERIFIED] Crossref; preprint arXiv:1505.04597. The encoder-decoder
+               with skip connections that CAS-Net (dong2023casnet) extends with three attention
+               modules}
+}
+
+@inproceedings{milletari2016vnet,
+  title     = {{V-Net}: Fully Convolutional Neural Networks for Volumetric Medical Image
+               Segmentation},
+  author    = {Milletari, Fausto and Navab, Nassir and Ahmadi, Seyed-Ahmad},
+  booktitle = {2016 Fourth International Conference on {3D} Vision (3DV)},
+  pages     = {565--571},
+  year      = {2016},
+  doi       = {10.1109/3DV.2016.79},
+  note      = {[BIBLIOGRAPHY VERIFIED] Crossref; preprint arXiv:1606.04797. Source of the
+               differentiable ``soft'' Dice loss CAS-Net is trained on}
+}
+
+@inproceedings{kingma2015adam,
+  title     = {Adam: A Method for Stochastic Optimization},
+  author    = {Kingma, Diederik P. and Ba, Jimmy},
+  booktitle = {3rd International Conference on Learning Representations (ICLR 2015)},
+  year      = {2015},
+  note      = {[BIBLIOGRAPHY VERIFIED] arXiv:1412.6980; ICLR conference papers of this era carry
+               no DOI. The optimizer CAS-Net's training loop uses}
+}
+
+@article{taha2015metrics,
+  title   = {Metrics for evaluating {3D} medical image segmentation: analysis, selection, and
+             tool},
+  author  = {Taha, Abdel Aziz and Hanbury, Allan},
+  journal = {BMC Medical Imaging},
+  volume  = {15},
+  pages   = {29},
+  year    = {2015},
+  doi     = {10.1186/s12880-015-0068-x},
+  note    = {[BIBLIOGRAPHY VERIFIED] Crossref, PMC4533825. General framing for why the pipeline's
+             evaluation (thesis/pipeline/05\_evaluation\_metrics.tex) reports several metric
+             families together rather than one number}
+}
