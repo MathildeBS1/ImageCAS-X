@@ -1,6 +1,7 @@
 __pycache__/
 /notebooks
 CLAUDE.md
+CLAUDE.thesis.md
 .claude/
 .github/
 utils/generate_plots.py

@@ -1,0 +1,35 @@
+% Dataset section. Paste into your own thesis, or \input it.
+
+\section{Coronary tree structure}
+\label{sec:dataset-tree}
+
+The left and right coronary systems arise from separate ostia (Section~\ref{sec:tree}), and
+ImageCAS-X stores them as separate structures, one centerline file per side per case
+\cite{bransby2026imagecasx}.
+
+In the 789 cohort cases where it is labeled, the left main trunk has a median length of 8.5 mm
+(interquartile range 6.0--11.6 mm, full range 1.7--30.4 mm), so the first and largest branching
+point of the left tree sits within a centimeter of the aorta.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\textwidth]{content/background/figures/anatomy_ct.png}
+  \caption{The left main divides within millimeters of the aorta, and the annotation locates it to
+    the voxel. Axial computed tomography (CT) slice of case 7 at the level of the coronary ostia,
+    cutting the aortic root rather than the ventricles, with the delivered segmentation overlaid in
+    the per-artery colors used throughout. The ostium marker is the centerline's own
+    \texttt{start\_points} flag converted into voxel indices, where it samples 627 Hounsfield units
+    (HU), the density scale of a CT image. Generated with
+    \texttt{scripts/make\_anatomy\_figure.py}.}
+  \label{fig:anatomy-ct}
+\end{figure}
+
+Prevalence of the numbered diagonal and obtuse marginal branches (Section~\ref{sec:tree}) falls
+with position: D1 is labeled in 98.5\% of cases and D2 in 59.4\%, OM1 in 86.8\% and OM2 in 37.6\%.
+
+The right system is annotated more coarsely.
+ImageCAS-X's label set represents only the RCA trunk and the posterior vessels, so the proximal
+right-sided branches described in Section~\ref{sec:tree} are not labeled
+\cite{bransby2026imagecasx}.
+This is an annotation boundary rather than an anatomical claim, and it constrains what a
+comparison of branch counts between the left and right trees can mean.

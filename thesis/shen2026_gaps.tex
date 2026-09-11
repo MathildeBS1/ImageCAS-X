@@ -1,0 +1,161 @@
+% WORKING REFERENCE -- NOT PART OF THE SUBMITTED DOCUMENT.
+%
+% Do NOT \input this into the thesis. It is an extract from ONE paper (shen2026geometry) and is
+% single-source by construction, so it can never be a thesis section: the writing skill cuts a
+% section whose top citation carries more than a third of its references. Its job is to hold what
+% that review establishes and what it concedes, sorted against the three things this thesis's aim
+% says are needed, so the material can be spent across sections that each have their own evidence.
+%
+% READING DISCIPLINE. Three tiers, kept distinct below and never merged:
+%   (a) Shen's own text -- read in full, docs_thesis/papers/shen2026geometry.md
+%   (b) Shen's Table 7 entries -- SECOND-HAND. The primary papers have not been read. Anything
+%       from the table is attributed to the table, never cited as if read.
+%   (c) kashyap2022tortuosity and li2011tortuosity -- found via Table 7, then their own abstracts
+%       and metadata verified directly against Europe PMC. Abstract-level, not full-text.
+
+\section*{Shen et al.\ 2026: the field's own gaps, read against this thesis}
+
+A narrative review of coronary hemodynamics and the anatomy driving it, by the groups behind most
+of the mechanism literature, with 311 references and seven tables \cite{shen2026geometry}.
+No cohort, no pooled statistic, no search protocol.
+It is worth this much attention for one reason: it is the field describing its own unfinished
+business, so where the thesis's aim lands on a gap the review names, the direction is the field's
+and not merely ours.
+
+\subsection*{1. The three things the aim says are needed}
+
+\begin{description}
+
+\item[A construction that turns a segmented tree into a measurable object --- named as a live gap.]
+Shen reports that automated segmentation now allows whole coronary trees to be reconstructed at
+speed, and then lists among the three things future studies must do: \emph{developing novel
+algorithms to automate and accelerate coronary artery segmentation and flow analysis}.
+The sharper concession is about scope rather than speed: most studies covered \emph{``the main
+bifurcation regions or non-bifurcating vessels, and most curved segments and some regions commonly
+susceptible to diseases were neglected''}, and they argue this matters because vulnerable plaque
+sits mostly outside the left main --- spontaneous coronary artery dissection occurs in the middle to
+distal segments --- so \emph{``investigating the whole tree is essential''}.
+\textit{Consequence:} building the tree as a graph and measuring across all of it, rather than at
+the left main, is the review's own stated requirement. It also cuts at us: the best-evidenced
+feature in the state of the art is the left main bifurcation angle, and the thesis should say that
+the left main is where the literature looked, not where the disease mostly is.
+
+\item[Features a machine computes identically every time --- the review concedes the field has not
+got this, and points at the fix.]
+Shen sets out the definitional mess directly. Curvature is the magnitude of the derivative of the
+unit tangent with respect to arc length, or intuitively $1/R$ for the osculating circle; the
+tortuosity index compares path length $L$ to endpoint distance $D$ and \emph{``cannot capture the
+spatial information''}. Clinical practice reduces both to a count of bends, or to a 2D projection
+labeled C- or S-shaped. Computational studies have used the tortuosity index, average absolute
+curvature, or a single bend, \emph{``neglecting the spatiality and continuity of this
+characteristic''}. Among the named blockers on the whole enterprise is \emph{``the absence of
+established thresholds for haemodynamic descriptors''}.
+\textit{Consequence:} the thesis does not need to defend inventing a definition --- it needs to
+defend choosing one, and the field has conceded that inconsistent measurement plausibly explains its
+own contradictory findings.
+
+\item[A cohort large enough and healthy enough --- named as the second of the review's two headline
+gaps.]
+\emph{``Investigations about the relationship between coronary anatomy and haemodynamics with a
+large population are limited. While patient-specific geometries have increasingly been used, the
+limited sample size and case selection approach may undermine the generalisability of the analyses''}.
+They ask for power analysis to justify sample size, and expect future work on \emph{``more extensive
+and diverse populations''}. For combining many shape factors at once they recommend statistical
+shape analysis, noting it has been tested on coronary bifurcation shape
+\cite{medranogracia2017bifurcation} and that \emph{``such analyses have valuable potential and are
+worth further exploration''}.
+\textit{Consequence:} population scale and case selection are the field's own stated limitation, and
+the recommended remedy is a shape model over a population --- which is the thesis's objective 8 in
+the review's vocabulary. Note the register: their ``large population'' means scaling up CFD, not
+treating features as a distribution.
+
+\end{description}
+
+\subsection*{2. What Table 7 adds, and one thing it breaks}
+
+Table 7 lists the reviewed in vivo and computational studies of coronary anatomy and flow across
+three pages. All of the following is read from that table, not from the primary papers.
+
+\begin{description}
+
+\item[The scale ceiling, quantified.]
+The largest whole-tree geometry-and-flow study in the table is 39 patient-specific left coronary
+trees. The largest single-bifurcation CFD studies are 127 patient-specific left main bifurcations.
+Only the in vivo tortuosity-scoring studies reach the order of a thousand patients, and they define
+tortuosity by counting bends on an angiogram.
+\textit{Consequence:} this is the scale gap in one sentence, sourced from the field's own summary
+table --- whole-tree geometry has never been measured above $n = 39$, and the only measurements at
+$n \approx 1000$ use the crudest available definition.
+
+\item[Bifurcation angle: the simulations do not agree with the clinic. \textbf{This contradicts a
+sentence the thesis currently asserts.}]
+The clinical direction in Table 7 is consistent --- wider angle with more disease --- and includes
+Temov et al.\ at 196 patients \cite{temov2016bifurcation}, Cui et al.\ at 106
+\cite{cui2017bifurcation}, and Sun and Cao at 30, who report $94^\circ \pm 19.7^\circ$ in diseased
+against $75.5^\circ \pm 19.8^\circ$ in non-diseased left coronary arteries ($p = 0.02$).
+The computational direction is not consistent. Beier et al.\ (2016) found the angle showed
+\emph{no significant effect} on adverse hemodynamics; Chiastra et al.\ (2017) found a
+\emph{minor impact} in both stenosed and unstenosed models; Shen et al.\ (2021) found that a
+\emph{larger angle reduced} the area exposed to low shear, which is the opposite of the expected
+direction. Others in the same table point the expected way.
+\textit{Consequence:} \texttt{state\_of\_the\_art/05\_predicts\_disease.tex} currently closes its
+bifurcation-angle argument with ``an anatomical gradient, an outcome association and a hemodynamic
+mechanism pointing the same way''. On the strength of one CFD study
+\cite{wang2024lmphenotypes}, that sentence overstates a literature the anchor review shows to be
+split, and it needs rewriting.
+
+\item[Tortuosity: the sign depends on the level of analysis.]
+At artery and patient level the association is negative or null. Li et al.\ scored 1010 consecutive
+angiography patients and found tortuosity \emph{negatively} correlated with coronary artery disease,
+odds ratio 0.755, 95\% confidence interval 0.574 to 0.994, $p = 0.045$, with major adverse events
+over two to four years no different between diseased patients with and without it
+\cite{li2011tortuosity}. Chiha et al.\ at 870 patients found women with severe tortuosity more
+likely to have normal arteries. At segment level it inverts: Tuncay et al.\ at 73 patients report
+tortuosity 30\% higher for segments carrying plaque, \emph{with no significant correlation at the
+artery level}. Several CFD entries propose the mechanism --- tortuosity induces helical flow, which
+is offered as atheroprotective.
+\textit{Consequence:} tortuosity has no single sign, and the thesis must state the level of analysis
+before reporting any tortuosity result. The segment-level and patient-level findings are not in
+conflict; they are different measurements wearing one word.
+
+\item[Sex is a systematic modifier, not a covariate to adjust away.]
+Across four independent entries: males were 2.07-fold more likely to exceed an $80^\circ$
+bifurcation angle \cite{temov2016bifurcation}; tortuosity was markedly more common in women
+(odds ratio 2.603, 95\% confidence interval 1.897 to 3.607, $p < 0.001$) \cite{li2011tortuosity};
+women with severe tortuosity were more likely to have normal arteries; and a 127-case CFD study
+found low shear on the \emph{inner} wall of curvature in females and the \emph{outer} wall in males,
+with more adverse oscillatory shear in males.
+\textit{Consequence:} the last of these is a difference in \emph{where} the adverse shear sits, not
+how much of it there is. Every distribution this thesis reports is stratified by sex, and the
+justification is this cluster rather than convention.
+
+\end{description}
+
+\subsection*{3. The measure to use, and why}
+
+Found through Table 7 and then verified directly, so this is the one entry here resting on its own
+source rather than on the review. Kashyap et al.\ took CTCA from \textbf{127 patients without coronary
+artery disease}, applied every previously used tortuosity metric to the left main bifurcation and
+its two branches, and correlated each against the percentage of vessel area below 0.4 Pa
+time-averaged wall shear stress \cite{kashyap2022tortuosity}.
+Average absolute curvature had the highest coefficient of determination across all branches
+($p < 0.001$), ahead of average squared-derivative curvature ($p = 0.001$) and root-mean-squared
+curvature ($p = 0.002$).
+\textbf{The tortuosity index --- the measure most widely used in the literature --- showed no
+significant correlation with low shear at all ($p = 0.86$).}
+\textit{Consequence:} objective 7 computes average absolute curvature, and says why. It also
+qualifies the earlier conclusion in \texttt{find\_research.md} \S1.2: a continuous measure beats the
+clinical bend count against a clinical endpoint, but among continuous measures the tortuosity index
+is the wrong one against a shear endpoint.
+
+\subsection*{4. What this review does not license}
+
+It is a narrative review with no search protocol, no inclusion criteria and no screening counts, so
+\emph{``the field has not done X''} cannot be sourced to it --- only \emph{``the field says it has
+not done X''}.
+It carries no cohort and no pooled estimate, so no number in it can be quoted with a population
+behind it except by going to the primary paper.
+The words \emph{outlier}, \emph{extreme value} and \emph{anomaly} appear nowhere in it: its
+population framing is about running more and better simulations on larger cohorts, not about
+treating features as a distribution and flagging its tails. Objective 9 gets no endorsement here,
+and claiming one would be caught by anyone who opens the paper.

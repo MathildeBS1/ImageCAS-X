@@ -1,0 +1,19 @@
+% Dataset section. Paste into your own thesis, or \input it.
+
+\section{Imaging parameters}
+\label{sec:dataset-imaging}
+
+The ImageCAS-X volumes have in-plane spacing between 0.318 mm and 0.43 mm and a slice thickness
+of 0.5 mm, varying between cases \cite{zeng2023imagecas}.
+This bounds every geometric measurement in this thesis (Section~\ref{sec:ccta}): a vessel two or
+three voxels across cannot support a confident radius measurement, which places a floor on the
+branch order at which geometric features remain meaningful.
+
+Contrast opacification in this cohort is adequate: sampling the volumes at the annotated
+centerline points, after converting them from the centerlines' LPS frame into voxel indices,
+gives a median of 336 HU, consistent with a contrast-filled lumen.
+
+Neither ImageCAS-X nor the ImageCAS cohort beneath it records pressure inside the artery
+\cite{bransby2026imagecasx,zeng2023imagecas}, so FFR (Section~\ref{sec:ffr}) cannot be computed
+from these images; wall shear stress, which follows from the vessel geometry alone, is the
+hemodynamic quantity this dataset can support.

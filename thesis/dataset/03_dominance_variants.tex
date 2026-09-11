@@ -1,0 +1,60 @@
+% Dataset section. Paste into your own thesis, or \input it.
+
+\section{Dominance and anatomical variants}
+\label{sec:dataset-dominance}
+
+The ImageCAS-X cohort is annotated as 729 right-dominant, 41 left-dominant and 30 codominant
+cases, or 91.1\%, 5.1\% and 3.8\% of the 800 usable cases \cite{bransby2026imagecasx}.
+The underlying scans were acquired at a single hospital in Guangdong, China
+\cite{zeng2023imagecas}, and the observed proportion of right dominance falls between the
+European and East Asian figures reported by Wu et al.\ (Section~\ref{sec:dominance}).
+
+Dominance is recorded twice in ImageCAS-X, independently, and the two records agree
+\cite{bransby2026imagecasx}: it is an explicit annotation, and it is implied by which arteries are
+labeled, since the posterior vessels arise from whichever system is dominant.
+In Table~\ref{tab:posterior} the right posterior vessels appear in essentially every
+right-dominant case and in no left-dominant case, the left posterior vessels invert the pattern
+exactly, and codominant cases draw on both.
+
+\begin{table}[h]
+  \centering
+  \caption{The artery labels and the dominance annotation are two independent records of the same
+    anatomical fact. Prevalence of the posterior vessels by annotated dominance over the 800
+    usable cases, from \texttt{scripts/cohort\_numbers.py}; the right and left posterior vessels
+    are mutually exclusive in the single-dominance groups.}
+  \label{tab:posterior}
+  \begin{tabular}{lrrrr}
+    \hline
+    Vessel & All (\%) & Right (\%) & Left (\%) & Co (\%) \\
+    \hline
+    R-PDA & 93.0 & 99.7 &  0.0 & 56.7 \\
+    R-PLA & 92.0 & 99.2 &  0.0 & 43.3 \\
+    L-PDA &  5.8 &  0.0 & 90.2 & 30.0 \\
+    L-PLA &  8.8 &  1.0 & 90.2 & 86.7 \\
+    \hline
+  \end{tabular}
+\end{table}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\textwidth]{content/background/figures/05_dominance_comparison.png}
+  \caption{The posterior vessels follow the dominant system, so dominance changes which arteries
+    exist rather than how large they are. Right-, left- and codominant coronary trees from the
+    cohort; the right posterior descending artery is absent from the left-dominant tree entirely.}
+  \label{fig:dominance}
+\end{figure}
+
+\subsection{Absent left main}
+
+The absent left main variant (Section~\ref{sec:variants}) is present in 11 of the 800 cases, or
+1.4\%, and it is identifiable from two independent signals that agree exactly: those cases carry
+no LM label, and their left centerlines resolve into two components each with its own ostium
+(\texttt{scripts/survey\_topology.py}).
+
+\subsection{Ramus intermedius}
+
+An IM label (Section~\ref{sec:tree}) is present in 196 of the 800 ImageCAS-X cases, or
+24.5\%, consistent with the pooled CCTA prevalence of 26.5\% reported by Dai et al.\
+\cite{dai2025ramus}.
+The cohort figure is also stable across dominance groups, at 24.7\%, 22.0\% and 23.3\% for
+right-, left- and codominant cases respectively.

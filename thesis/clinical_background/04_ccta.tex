@@ -1,0 +1,52 @@
+% Clinical Background section. Paste into your own thesis, or \input it.
+%
+% FIGURE WANTED: either a CCTA acquisition schematic (tube and detector rotating,
+% ECG gating) or a side-by-side of a clean vessel and one degraded by motion and by
+% blooming. Not added yet: an external figure needs a licensed credit generated into
+% figures/external/CREDITS.md by scripts/fetch_external_figures.py, which does not
+% exist on this branch. Do not add a \ref until the figure and its credit exist.
+
+\section{Coronary computed tomography angiography}
+\label{sec:ccta}
+
+CCTA is the non-invasive imaging test recommended as the first-line investigation in patients with
+suspected chronic coronary syndrome \cite{knuuti2019esc}.
+
+The acquisition is brief.
+The patient is positioned on the table of a \textbf{computed tomography (CT)} scanner, and a
+\textbf{contrast agent} --- a solution containing iodine, which absorbs X-rays strongly --- is
+injected into a vein in the arm.
+The X-ray tube and its detector then rotate around the patient, recording a projection of the chest
+at each angular position, and those projections are reconstructed into a single three-dimensional
+volume \cite{abbara2016scct}.
+Timing determines whether the scan is usable: acquisition is timed to coincide with the passage of
+the contrast agent through the coronary arteries, and the result is a volume in which the lumen
+stands out brightly against the surrounding tissue.
+
+\subsection{Acquisition}
+
+The limits of CCTA as a measuring instrument bound every geometric claim made from these images, and
+the first of them is motion.
+The coronary arteries move with the myocardium throughout the cardiac cycle.
+Acquisition is therefore synchronized to the electrocardiogram, and the volume is reconstructed from
+the phase of least motion, conventionally mid-diastole \cite{abbara2016scct}.
+Heart rate is routinely lowered pharmacologically before the scan, which lengthens that window
+\cite{abbara2016scct}.
+Where the synchronization fails, or the rhythm is irregular, \textbf{motion artifact} blurs the
+vessel or duplicates it \cite{abbara2016scct}.
+
+Dense calcium imposes the second limit.
+A calcified plaque appears larger than its true extent, its brightness spilling into the adjacent
+lumen and obscuring it; this is \textbf{blooming} \cite{abbara2016scct}.
+Blooming can render a heavily calcified segment uninterpretable even in an otherwise high-quality
+scan.
+
+\subsection{Resolution}
+
+Resolution bounds the measurement more fundamentally than either artifact.
+A reconstructed volume is a grid of \textbf{voxels}, the three-dimensional equivalent of pixels, and
+no structure smaller than a voxel can be resolved.
+Proximal coronary arteries measure a few millimeters in diameter and taper distally toward 1 mm and
+below.
+A vessel spanning only two or three voxels cannot support a reliable radius estimate, which
+places a floor on the branch order at which geometric features remain meaningful.

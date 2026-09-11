@@ -1,0 +1,57 @@
+% Segmentation Pipeline section. Paste into your own thesis, or \input it.
+
+\section{Data and preprocessing}
+\label{sec:pipeline-data}
+
+The network's input is a CCTA volume; its target is a binary \textbf{lumen mask} -- a 3D image
+where each tiny volume element (a voxel, the 3D equivalent of a pixel) is labelled as either
+``blood'' or ``not blood,'' marking out the hollow, blood-filled channel of the coronary arteries
+(the vessels that supply blood to the heart muscle itself). The scan comes from the original
+ImageCAS cohort \cite{zeng2023imagecas}; the mask is ImageCAS-X's own re-annotation of that
+cohort \cite{bransby2026imagecasx}, which labels 14 individual coronary segments separately.
+Since segmentation here only needs to find the vessel, not identify which segment it belongs to,
+those 14 labels are collapsed to a single foreground label (vessel vs.\ background) before
+training.
+
+Every scan and mask is first resampled, once offline, onto a common \textbf{0.5\,mm isotropic}
+grid. Voxel spacing is the 3D equivalent of a photo's pixel size: it says how much real-world
+distance one voxel covers, the same way a camera's resolution says how much of a scene one pixel
+covers. Not every scan in the cohort was taken at the same spacing, so without this step the same
+stretch of artery would be built out of a different number of voxels from one scan to the next.
+
+The cohort's 800 usable cases -- 200 of the original 1000 are excluded for low image quality
+(Figure~\ref{fig:pipeline-imagecasx}) -- are split once into disjoint \textbf{train},
+\textbf{validation} and
+\textbf{test} sets. Training updates the network's weights; validation is watched each epoch to
+pick which checkpoint to keep; test is touched only once, at the end, to produce the numbers
+reported in Table~\ref{tab:pipeline-benchmark}.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{content/background/figures/graphical_abstract.png}
+  \caption{ImageCAS-X at a glance \cite{bransby2026imagecasx}. Of the 1000 ImageCAS CCTA volumes,
+    800 are kept and 200 excluded for image-quality problems (cardiac motion, step artefacts,
+    sub-voxel contrast). The kept scans are re-annotated with a centerline tree, a lumen mask
+    labelled by coronary segment, a surface mesh and scan descriptors, and scored in the
+    segmentation benchmark on the right. Graphical abstract from the ImageCAS-X repository.}
+  \label{fig:pipeline-imagecasx}
+\end{figure}
+
+The network never sees a whole scan during training, only small $128\times160\times160$ crops --
+a full volume does not fit a GPU's memory alongside a 3D network. Since a coronary artery occupies
+a small fraction of a volume, crop origins are not sampled uniformly at random: a configurable
+fraction of each batch (0.5 for CAS-Net) is forced onto a location containing GT vessel, so the
+network still sees enough foreground.
+
+A CT scan measures density on a fixed brightness scale (Hounsfield units, HU), where air is very
+dark, soft tissue and contrast-filled vessel sit in the middle, and bone or metal are very bright.
+Only that middle range actually helps tell vessel from background, so on every patch load the
+scan undergoes \textbf{intensity normalisation}: its values are cut off at a fixed range ($-200$ to
+$1000$\,HU) -- throwing away the very darkest and very brightest extremes -- and the rest is
+rescaled to run from 0 to 1, the same way a photo might be cropped to its useful contrast range
+before use.
+
+During training only, each crop is further passed through a chain of random augmentations
+following standard practice \cite{isensee2021nnunet}: flips, Gaussian noise and blur, brightness
+and contrast scaling, simulated low resolution, and gamma remapping -- so the network learns to
+recognise a vessel under realistic variation rather than memorising its training scans.

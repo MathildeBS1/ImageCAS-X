@@ -1,0 +1,37 @@
+% Segmentation Pipeline section. Paste into your own thesis, or \input it.
+
+\section{Training}
+\label{sec:pipeline-training}
+
+Training adjusts the network's weights so its prediction increasingly agrees with the GT mask.
+That requires a \textbf{loss}, one number scoring how wrong a prediction is, and an
+\textbf{optimizer}, a rule for turning that number into a weight update.
+
+Plain pixel accuracy is close to useless here: a coronary artery occupies well under one percent
+of a volume, so predicting ``background'' everywhere already scores above 99\,\%. The
+\textbf{Sørensen--Dice coefficient} instead measures overlap relative to the size of the two
+regions being compared:
+\begin{equation}
+  \mathrm{Dice}(P, G) = \frac{2\,|P \cap G|}{|P| + |G|} \in [0, 1],
+  \label{eq:pipeline-dice}
+\end{equation}
+for a predicted region $P$ and GT region $G$. An empty prediction scores 0, not 99\,\%. CAS-Net is
+trained on the differentiable ``soft'' Dice loss \cite{milletari2016vnet}, minimised as
+$1-\mathrm{Dice}$, averaged over its two output channels.
+
+The loss alone does not indicate how to change any individual weight. \textbf{Backpropagation}
+determines this by propagating the loss backward through the network, layer by layer, computing
+for every weight its \emph{gradient}: the direction and magnitude of change that would reduce the
+loss. The \textbf{Adam} optimizer \cite{kingma2015adam} then applies these gradients to update the
+weights, at a base learning rate of $10^{-4}$. Rather than applying the same step to every weight,
+Adam adapts each weight's step size from its recent gradient history: a weight with a consistent
+gradient receives a larger step, while one with an inconsistent gradient receives a smaller, more
+conservative step. The learning rate itself is further reduced smoothly toward zero over training
+(a polynomial schedule, over $E=1000$ epochs), so updates are large early in training and
+progressively finer as training converges.
+
+Each epoch runs a fixed number of training batches (forward pass, Dice loss, backward pass,
+optimizer step), then one pass over validation batches with no weight update, to get a validation
+Dice score. Whenever that score improves on the best seen so far, the weights are saved to disk
+(\texttt{cas\_net\_best.pt}), overwriting the previous checkpoint -- so the checkpoint carried
+forward to inference is the best-validated one, not necessarily the network's final-epoch state.

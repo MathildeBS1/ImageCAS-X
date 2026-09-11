@@ -1,0 +1,62 @@
+% Standalone paragraph. Paste into your own thesis, or \input it.
+% Not wired into any chapter's numbering -- drop it wherever the "which features are actually
+% reproducible" argument is needed. Companion to whole_tree_gap.tex: that file argues the field
+% measures the wrong place in the tree, this one argues it does not agree on how to measure what
+% it does look at.
+
+
+\section*{Features}
+
+
+One coronary feature is more standardized than the rest: bifurcation angle has a fixed definition,
+because a stent has to be placed the same way every time, codified across eighteen consensus
+documents from the European Bifurcation Club \cite{burzotta2024ebc}. I might want to look into
+expanding it, though -- e.g.\ the angle could be the same whether a large vessel bifurcates into a
+much thinner one or a thin vessel bifurcates into an equally thin one, so the same angle can hide
+very different information (\Cref{fig:week2-bifurcation-angle}).
+
+% The two illustrations share one float, side by side. Each minipage keeps its own \caption and
+% \label, so they are still numbered and \Cref'd as two separate figures (no subcaption needed).
+\begin{figure}[htbp]
+  \centering
+  \begin{minipage}[t]{0.48\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{content/background/figures/bifurcation_angle.png}
+    \caption{Two ways to measure the angle between a main vessel (MV) and its side branch (SB):
+      $\alpha$ against the line of the proximal main vessel (A), and $\beta$ against the distal main
+      vessel (B). Where the main vessel bends at the bifurcation (C), the two differ substantially.
+      Neither says anything about the branch diameters. Figure from Murasato et al., PLOS ONE 2022,
+      doi:10.1371/journal.pone.0273157, CC BY 4.0 \cite{murasato2022bifurcation}.}
+    \label{fig:week2-bifurcation-angle}
+  \end{minipage}\hfill
+  \begin{minipage}[t]{0.48\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{content/background/figures/tortuosity_simple.pdf}
+    \caption{Three vessel segments with the same tortuosity index. Each has the same distance
+      between its end points ($D = 40$\,mm, dashed) and the same path length ($L = 50$\,mm), so
+      $\tau = L/D = 1.25$ for all three, although they bend in different ways and in different
+      places. Synthetic curves; own illustration.}
+    \label{fig:week2-tortuosity-ambiguity}
+  \end{minipage}
+\end{figure}
+
+Furthermore, I am going to focus much of my effort on developing a more mature method for
+tortuosity. Right now its dominant metric is the tortuosity index,
+%
+\begin{equation}
+  \tau = \frac{L}{D},
+  \label{eq:tortuosity-index}
+\end{equation}
+%
+where $L$ is the arc length, the length of the vessel measured along its centerline through every
+bend, and $D$ is the chord length, the straight-line distance between the segment's two end points.
+A straight vessel has $L = D$ and hence $\tau = 1$; the more the vessel winds, the longer $L$
+becomes relative to $D$ and the larger $\tau$ grows. The index therefore records how much length
+the bends add in total, but not how many bends there are, how sharp they are or where along the
+vessel they lie. In the review's own words, it ``cannot capture the spatial information'' in the
+first place \cite{shen2026geometry}. \Cref{fig:week2-tortuosity-ambiguity} makes this concrete: a
+vessel with one wide bend, one with many small bends and one with a single sharp bend near its start
+all have $L = 50$\,mm and $D = 40$\,mm, and hence the same index, $\tau = 1.25$.
+Clinical practice reduces it further still, to a bend count or a 2D C-/S-shape projection.
+The formula itself, not just its use, is contested.
+

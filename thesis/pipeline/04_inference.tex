@@ -1,0 +1,34 @@
+% Segmentation Pipeline section. Paste into your own thesis, or \input it.
+
+\section{Inference}
+\label{sec:pipeline-inference}
+
+Inference loads the trained checkpoint and runs it over the held-out test scans, producing one
+saved segmentation per scan. Training only ever showed the network $128\times160\times160$ crops,
+so a whole test volume -- commonly over $400^3$ voxels -- cannot be consumed in one pass.
+
+The scan is instead cut into overlapping windows the size of a training crop, each run through the
+network separately, and blended back together following standard practice for patch-trained 3D
+segmentation \cite{isensee2021nnunet}: windows overlap by half their size, and since a window's
+prediction is least reliable near its own edges, each window is given a weight that peaks at its
+centre and falls off smoothly toward its edges. A voxel covered by several overlapping windows is
+therefore dominated by whichever window has it nearest to that window's own centre, rather than
+every overlapping window contributing equally.
+
+The tiled prediction above is repeated four times per scan, each time on a different mirrored
+version of the volume: unflipped, flipped left--right, flipped front--back, and flipped both ways.
+The head-to-foot axis is never flipped, since mirroring along it would not correspond to a real,
+anatomically valid body orientation. Each of the four predictions is flipped back to match the
+scan's original orientation, and the four are then averaged into one final result. This procedure,
+\textbf{test-time augmentation (TTA)}, compensates for the fact that the network's prediction for
+a scan and for its mirror image are not perfectly identical, even though anatomically they should
+be: averaging over the four orientations smooths out that inconsistency, at the cost of roughly
+four times the inference compute per scan.
+
+The blended probabilities are resampled from the internal 0.5\,mm grid back onto the scan's own
+native resolution before any thresholding, so evaluation can report distances in true physical
+units. Only then is a hard decision made: \textbf{argmax} assigns each voxel to whichever of the
+two channels (background, lumen) scores higher, and \textbf{small-component removal} discards any
+connected component under 100 voxels as noise, while keeping every larger one -- so, for instance,
+the left and right coronary trees both survive as separate components. The result is written to
+disk, one prediction file per scan, for evaluation (Section~\ref{sec:pipeline-metrics}) to read.

@@ -1,0 +1,33 @@
+
+\subsection{Segmentation improvements}
+\label{sec:gap-obtaining}
+
+Automated segmentation matches expert annotators on overlap and does not match them on topology.
+The benchmark published with the dataset used here scored eight methods against two analysts on 160
+CCTA scans: the best method, CAS-Net, reached a Dice similarity coefficient (DSC) of 91.2 against the
+analysts' 92.8, but a Betti error (the number of connected components and loops by which the
+predicted tree differs from the true one) of 1.9 against their 0.4 \cite{bransby2026imagecasx,
+dong2023casnet}. The overlap gap is 1.6 points; the topology gap is nearly five-fold.
+
+Overlap cannot see that difference, and optimizing for topology directly does not close it either.
+clDice scores agreement along the vessel's skeleton rather than its volume and provably preserves
+topology up to homotopy equivalence \cite{shit2021cldice}, so two masks can share a DSC and differ in
+tree structure. Yet in the same benchmark, nnU-Net trained with an added clDice term gained 0.2 DSC
+over plain nnU-Net and returned the table's worst Betti error, 8.0 \cite{isensee2021nnunet}, and the
+two leading methods, CAS-Net and ADE-HTL, separate on DSC and Betti error ($p<0.001$) but tie on
+clDice and both centerline distance measures \cite{zhang2024adehtl}. The benchmark's own qualitative
+reading is that vessel breaks appear in all model predictions despite high DSC and clDice
+\cite{bransby2026imagecasx}.
+
+A break costs little overlap and can cost a whole feature: losing a distal branch moves DSC by a
+fraction of a point, removes a branch from a branch count, and in the posterior vessels can change
+which artery is called dominant.
+
+This thesis does not train or fine-tune a segmentation network. CAS-Net's published weights are used
+as delivered \cite{bransby2026imagecasx}; the effort goes into recovering topological correctness
+afterward, as post-processing on the predicted mask or centerline, not as a training objective. Qiu
+et al.\ take the same view: a centerline-enhanced loss, a distance-and-direction reconnection step and
+implicit reconstruction of missing vessels together reach a DSC of 88.5 and 85.1 on ASOCA and PDSCA
+\cite{qiu2025topology} -- a different cohort, so the numbers do not transfer directly, but evidence
+that a post-hoc repair stage is still needed after a well-trained network, which is the stage this
+thesis targets.
