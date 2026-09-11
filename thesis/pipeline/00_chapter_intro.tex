@@ -4,7 +4,7 @@
 % names are already defined there and are not redefined here.
 % Needs: tikz (libraries: positioning, arrows.meta, fit, backgrounds, calc, shapes.geometric),
 % graphicx (for \resizebox on the wide figures), booktabs -- inherited from the including
-% document.
+% document. No adjustbox: the Overleaf preamble does not load it.
 
 \section{Understanding the Pipeline}
 \label{ch:pipeline}
@@ -12,84 +12,86 @@
 
 This chapter walks through the segmentation pipeline for \textbf{CAS-Net} \cite{dong2023casnet}. The best preforming method in Kit study. 
 
-\begin{figure}[p]
+\begin{figure}[htbp]
   \centering
-  \begin{adjustbox}{max width=\linewidth, max height=0.88\textheight, keepaspectratio}
+  % shrink only if wider than the text block; graphicx alone, no adjustbox needed
+  \resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{%
   \begin{tikzpicture}[
-      font=\normalsize,
-      block/.style={draw, rounded corners, align=center, minimum height=13mm,
-                    minimum width=52mm, fill=blue!4, inner sep=2mm},
-      io/.style={draw, rounded corners, align=center, minimum height=13mm,
-                 minimum width=52mm, fill=gray!10, inner sep=2mm},
-      decision/.style={draw, align=center, minimum height=13mm, minimum width=52mm,
-                        fill=orange!8, inner sep=2mm},
-      arr/.style={-{Latex[length=2.5mm]}, thick},
-      tab/.style={font=\bfseries, fill=white, draw, rounded corners,
-                  inner sep=2mm, align=left},
+      font=\small,
+      box/.style={draw, rounded corners, align=center, text width=42mm,
+                  minimum height=9mm, inner sep=1.5mm},
+      block/.style={box, fill=blue!4},
+      wide/.style={text width=52mm},
+      io/.style={box, fill=gray!10},
+      decision/.style={box, fill=orange!8, sharp corners},
+      arr/.style={-{Latex[length=2mm]}, thick},
+      tab/.style={font=\footnotesize, fill=white, draw, rounded corners,
+                  inner sep=1.2mm, align=left},
     ]
- 
-    % --- shared prep, spans both lanes ---
-    \node[io] (raw) at (0,0) {Raw CCTA scan + GT mask};
-    \node[block] (resample) at (0,-2.2) {Resample to 0.5\,mm isotropic};
- 
-    % --- training lane (left) ---
-    \node[block] (crop) at (-4.2,-5.6) {Crop + normalise + augment};
-    \node[block] (fwd) at (-4.2,-8.0) {CAS-Net forward pass};
-    \node[block] (loss) at (-4.2,-10.4) {Dice loss + backprop};
-    \node[decision] (opt) at (-4.2,-12.8) {Adam optimiser \\ \small 1000 epochs};
-    \node[io] (ckpt) at (-4.2,-15.2) {Save best checkpoint};
- 
-    % --- inference lane (right) ---
-    \node[block] (norm) at (4.2,-5.6) {Normalise intensity};
-    \node[block] (tile) at (4.2,-8.0) {Tiled inference + blend};
-    \node[block] (tta) at (4.2,-10.4) {Mirror-flip TTA};
-    \node[block] (post) at (4.2,-12.8) {Post-process + resample};
-    \node[io] (pred) at (4.2,-15.2) {Save prediction};
- 
-    % --- evaluation, spans both lanes ---
-    \node[block] (eval) at (0,-17.6) {Evaluate vs.\ GT \\ \small Dice, HD95, Betti, clDice};
- 
-    % --- phase lane backgrounds ---
-    \begin{scope}[on background layer]
-      \node[draw, dashed, rounded corners, fill=blue!2, inner ysep=6mm, inner xsep=8mm,
-            fit=(crop)(fwd)(loss)(opt)(ckpt)] (trainbox) {};
-      \node[tab, anchor=south west] at ($(trainbox.north west)+(2mm,-1mm)$)
-        {TRAINING -- once, offline};
- 
-      \node[draw, dashed, rounded corners, fill=orange!2, inner ysep=6mm, inner xsep=8mm,
-            fit=(norm)(tile)(tta)(post)(pred)] (inferbox) {};
-      \node[tab, anchor=south east] at ($(inferbox.north east)+(-2mm,-1mm)$)
-        {INFERENCE -- per scan, test time};
 
-      % drawn behind the crop/norm boxes so the fork reads as entering from beneath them
-      \draw[arr] (resample.south) -- ++(0,-0.9) -| (crop.north);
-      \draw[arr] (resample.south) -- ++(0,-0.9) -| (norm.north);
+    % --- shared prep, spans both lanes ---
+    \node[io, wide] (raw) at (0,0) {Raw CCTA scan + GT mask};
+    \node[block, wide] (resample) at (0,-1.3) {Resample to 0.5\,mm isotropic};
+
+    % --- training lane (left) ---
+    \node[block] (crop) at (-3.6,-4.0) {Crop + normalise \\ + augment};
+    \node[block] (fwd) at (-3.6,-5.3) {CAS-Net forward pass};
+    \node[block] (loss) at (-3.6,-6.6) {Dice loss + backprop};
+    \node[decision] (opt) at (-3.6,-7.9) {Adam optimiser \\ \footnotesize 1000 epochs};
+    \node[io] (ckpt) at (-3.6,-9.2) {Save best checkpoint};
+
+    % --- inference lane (right) ---
+    \node[block] (norm) at (3.6,-4.0) {Normalise intensity};
+    \node[block] (tile) at (3.6,-5.3) {Tiled inference + blend};
+    \node[block] (tta) at (3.6,-6.6) {Mirror-flip TTA};
+    \node[block] (post) at (3.6,-7.9) {Post-process + resample};
+    \node[io] (pred) at (3.6,-9.2) {Save prediction};
+
+    % --- evaluation, spans both lanes ---
+    \node[block, wide] (eval) at (0,-11.0) {Evaluate vs.\ GT \\ \footnotesize Dice, HD95, Betti, clDice};
+
+    % --- phase lane backgrounds (extra outer margin holds the repeat loop and the tabs) ---
+    \coordinate (trainpad) at ($(crop.west)+(-7mm,0)$);
+    \coordinate (inferpad) at ($(norm.east)+(7mm,0)$);
+    \begin{scope}[on background layer]
+      \node[draw, dashed, rounded corners, fill=blue!2, inner ysep=4mm, inner xsep=4mm,
+            fit=(crop)(fwd)(loss)(opt)(ckpt)(trainpad)] (trainbox) {};
+      \node[draw, dashed, rounded corners, fill=orange!2, inner ysep=4mm, inner xsep=4mm,
+            fit=(norm)(tile)(tta)(post)(pred)(inferpad)] (inferbox) {};
     \end{scope}
+
+    % lane tabs sit on top of the outer corners, clear of the fork arrows
+    \node[tab, anchor=south west] at ($(trainbox.north west)+(2mm,-0.4pt)$)
+      {\textbf{TRAINING}\\once, offline};
+    \node[tab, anchor=south east] at ($(inferbox.north east)+(-2mm,-0.4pt)$)
+      {\textbf{INFERENCE}\\per scan, test time};
 
     % --- shared prep arrows ---
     \draw[arr] (raw) -- (resample);
- 
+    \draw[arr] (resample.south) -- ++(0,-0.4) -| (crop.north);
+    \draw[arr] (resample.south) -- ++(0,-0.4) -| (norm.north);
+
     % --- training chain ---
     \draw[arr] (crop) -- (fwd);
     \draw[arr] (fwd) -- (loss);
     \draw[arr] (loss) -- (opt);
     \draw[arr] (opt) -- (ckpt);
-    \draw[arr] (opt.west) -- ++(-1.3,0) |- node[pos=0.25, left, font=\scriptsize, align=center]{repeat\\each epoch} (crop.west);
- 
+    \draw[arr] (opt.west) -- ++(-0.55,0) |- node[pos=0.25, sloped, above, font=\scriptsize]{repeat each epoch} (crop.west);
+
     % --- checkpoint feeds inference (the one link between lanes) ---
-    \draw[arr, ultra thick] (ckpt.east) -- ++(1.3,0) |- node[pos=0.5, above, font=\small, fill=white, inner sep=1pt]{frozen weights} (tile.west);
- 
+    \draw[arr, very thick] (ckpt.east) -- (0,-9.2) |- node[pos=0.25, sloped, above, font=\scriptsize]{frozen weights} (tile.west);
+
     % --- inference chain ---
     \draw[arr] (norm) -- (tile);
     \draw[arr] (tile) -- (tta);
     \draw[arr] (tta) -- (post);
     \draw[arr] (post) -- (pred);
- 
+
     % --- evaluation: only inference's prediction is scored, against GT ---
     \draw[arr] (pred.south) -- ++(0,-0.9) -| (eval.east);
- 
-  \end{tikzpicture}
-  \end{adjustbox}
+
+  \end{tikzpicture}%
+  }
   \caption{The segmentation pipeline. Training (left lane) runs once, offline; inference (right lane) runs per scan at test time using the frozen checkpoint produced by training. Inference's resulting predictions are compared against ground truth in the final evaluation step.}
   \label{fig:pipeline-overview}
 \end{figure}

@@ -3,7 +3,11 @@
 % cover three named trunk vessels of the left coronary system (LM, LAD, LCX) rather than the
 % coronary tree in full. Segmentation, dominance annotation and centerline extraction still need the
 % whole tree; only the population-level feature analysis (objective 7) is being narrowed.
-% Citation keys (araki2020plaques, shen2026geometry) resolve against thesis/refs.bib.
+% Citation keys resolve against thesis/refs.bib. cui2017bifurcation, juan2017bifurcation,
+% mansouri2024bifurcation, tommasino2024clap and lawton2022revasc were first cited here, so refs_clean.bib has to be
+% regenerated after editing: python scripts/make_refs_clean.py
+% Do NOT quote tommasino2024clap's HR 4.47: its CI (3.80-6.70) is not centred on the estimate and
+% the full text has not been checked. Direction only.
 
 \subsection{Scope: focusing for a start on the left main, LAD and LCX}
 
@@ -11,14 +15,46 @@ As a start I'm narrowing the vessels whose topology I measure and analyze to thr
 artery (LM)}, the \textbf{left anterior descending artery (LAD)} and the \textbf{left circumflex
 artery (LCX)}, rather than the coronary tree in full.
 
-Three things point the same way. The LM is the sole conduit to both the LAD and the LCX, so a lesion
-there threatens both territories at once rather than one branch's alone. The LAD supplies the
-largest single territory of any coronary vessel and carries the heaviest documented plaque burden of
-any one vessel: three-vessel optical coherence tomography of 131 patients found rupture-prone
-thin-cap fibroatheroma in 18.9\% of 534 plaques, clustering most in the proximal LAD, with smaller
-peaks in the right coronary artery (RCA) and the LCX \cite{araki2020plaques}. The LCX is the LM's
-other branch and shares the LM bifurcation, the single geometric feature the disease-prediction
-literature returns to most often.
+The three belong together as one structure: the LM and the bifurcation at which it divides into the
+LAD and the LCX. That structure is where both the clinical stakes and the geometric evidence are
+concentrated.
 
-The rest of the tree is not disease-free, and I may return to including more of it later.
+The clinical stakes follow from what the vessels supply. The LM carries all the blood bound for the
+left tree, so a lesion there threatens the territories of both its branches at once. Guidelines
+reflect that directly: a left main stenosis counts as significant from 50\%, where every other
+coronary segment needs 70\% \cite{lawton2022revasc}. The LAD
+supplies the front wall of both ventricles and the septum between them, the LCX the side wall of the
+left ventricle \cite{devos2024coronary,obrien2007anatomy}. The LAD is also where rupture-prone plaque
+concentrates: optical coherence tomography of all three coronary arteries in 131 patients found
+thin-cap fibroatheroma in 18.9\% of 534 plaques, clustered in the proximal LAD
+\cite{araki2020plaques}.
+
+The geometric evidence sits at the bifurcation, and that is why the LCX is included: a bifurcation
+cannot be measured without both of its branches. The angle between the LAD and the LCX is the
+geometric feature with the most consistent clinical evidence. A wider angle has gone with more
+severe disease in cohorts of 106 to 313 patients
+\cite{cui2017bifurcation,juan2017bifurcation,mansouri2024bifurcation}, and with more cardiac events
+over follow-up in 499 \cite{tommasino2024clap}. Simulation studies disagree on whether the angle
+alone changes the shear on the wall \cite{shen2026geometry}, which is one reason to measure it
+together with the diameters of both branches. The flow evidence is concentrated here as well: the
+study that found curvature, rather than the tortuosity index, to track low wall shear stress in 127
+patients without coronary artery disease measured the LM and its two branches
+\cite{kashyap2022tortuosity}. \Cref{fig:week2-left-variants} shows the three vessels in the
+ImageCAS-X data, together with the two connectivity variants that change what ``the LM'' is.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{content/background/figures/06_left_variants.png}
+  \caption{The left coronary system in three ImageCAS-X cases (top: the whole left tree; bottom:
+    the first 15\,mm from the ostium). Typically the LM divides into the LAD and LCX (left). In 11
+    of 800 cases there is no LM and the LAD and LCX leave the aorta separately (middle); in 196 of
+    800 a ramus intermedius (IM) makes the LM end in three branches rather than two (right).}
+  \label{fig:week2-left-variants}
+\end{figure}
+
+These three vessels are where the evidence is, not where all the disease is. The same plaque mapping
+found further peaks in the right coronary artery (RCA) \cite{araki2020plaques}, and the field's own
+review counts the concentration of studies on the main bifurcation regions among its limitations
+\cite{shen2026geometry}. The rest of the tree is not disease-free, and I may return to including
+more of it later.
 

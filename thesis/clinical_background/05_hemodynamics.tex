@@ -1,43 +1,48 @@
 % Clinical Background section. Paste into your own thesis, or \input it.
 %
-% SCOPE: this section is the clinical account of coronary flow only -- what wall shear
-% stress, FFR and CT-FFR are, and what they do to an artery. The causal chain (shape -> shear ->
-% endothelium -> plaque) is told in full, separately evidenced, in
-% thesis/introduction/01_framing.tex (briefly) and thesis/state_of_the_art/06_why_shape_enough.tex
-% (in full) -- not repeated here. Sentences licensing this thesis's feature choices were
-% deliberately removed from this section on 2026-09-07; the earlier version is in git if any of it
-% is wanted back.
+% SCOPE: the clinical account of coronary flow, told as the mechanism by which the topology of the
+% coronary tree could be a risk factor -- the question this thesis investigates. How that shapes
+% the feature choices (LM/LAD/LCX, curvature over the tortuosity index, bifurcation angle together
+% with branch diameters) is argued in thesis/week2/hemodynamics.tex.
 %
-% Updated 2026-09-07 (later the same day) against two papers read in full since the section above
-% was written: schultz2023ess grounds the shear-radius relationship in real CCTA-derived numbers
-% (previously this section stated Eq.~\ref{eq:wss} with no in-vivo confirmation); griffo2026wss is
-% deliberately still not cited here -- its finding belongs to the geometry-recovers-shear argument
-% in Section~\ref{sec:shape-enough}, and repeating it here would be a third telling of the same
-% result.
+% Rewritten 2026-09-10: refocused on topology as a risk factor and cut to roughly the length of the
+% other clinical background sections. Removed, in git if wanted back: the schultz2023ess paragraph
+% (its diameter gradient is largely produced by its fixed boundary conditions, see
+% docs_thesis/papers/schultz2023ess.md) and the numeric detail on CT-FFR accuracy and outcomes
+% (norgaard2014nxt AUC 0.90 vs 0.81; biswas2026ffrct HR 3.94, 95% CI 2.92-5.31; yang2023target
+% 28.3% vs 46.2% catheterization, HR 0.88, 95% CI 0.59-1.30).
+% The label sec:geometry sits on the topology subsection because 03_cad.tex already refers to it;
+% the section it once pointed at (06_geometry_risk.tex) no longer exists.
+%
+% CITATION WANTED: the bend-relative-to-width point is the Dean number (Dean 1927); no refs.bib
+% entry yet, so it is stated uncited.
+% SECOND-HAND: the helical-flow sentence rests on shen2026geometry's Table 7, not the primary
+% papers. Cite for framing only.
 %
 % NOTE for the methods chapter: models/ffr_unet.py and configs/ffr_unet.json do NOT compute FFR.
 % "FFR-UNet" is Feature-Fusion-and-Rectification 3D-UNet, a lumen segmentation architecture named
 % for the group's downstream application. Never describe it as an FFR estimator.
 %
-% FIGURE WANTED: flow separating at a bifurcation, with the low-shear region on the
-% lateral wall marked, and the same for the inner wall of a bend. This one could be
-% ours rather than external -- a schematic drawn in matplotlib, no licence needed.
-% Do not add a \ref until the figure exists.
+% FIGURE: fig:wss-sites is ours, drawn by scripts/make_wss_schematic.py (no licence needed).
+% Upload figures/wss_schematic.pdf to content/background/figures/ in Overleaf. The profiles
+% are drawn by hand, not simulated -- the caption says so; keep it that way.
 
 \section{Coronary hemodynamics}
 \label{sec:hemodynamics}
 
-Blood does not simply pass through an artery; it pulls on the wall as it goes.
-Two measurements describe what the flow does to the vessel, at two different scales.
-Wall shear stress is the force the moving blood exerts on the lining, and it varies from point to
-point inside a single artery.
-Fractional flow reserve is a whole-lesion measurement of whether one narrowing is starving the
-muscle behind it.
+Coronary hemodynamics is the study of the flow of blood through the coronary arteries and the
+mechanical forces that this flow exerts on the vessel wall.
+It matters to this thesis because it is the route by which the shape of the coronary tree could
+influence where, and in whom, disease develops.
+This section describes the two quantities that dominate its clinical use, wall shear stress and
+fractional flow reserve, and then the evidence that the topology of the tree shapes the first of
+them.
+Topology is used here, as throughout this thesis, in a broad sense: how the tree branches, the
+angles and diameters at its bifurcations, and how its vessels bend and twist.
 
 \subsection{Wall shear stress}
 
-Blood flowing along an artery drags on the wall it passes, much as wind drags on a surface it blows
-across.
+Blood flowing along an artery drags on the wall it passes.
 That drag is \textbf{wall shear stress (WSS)}.
 For steady flow of a fluid of viscosity $\mu$ at flow rate $Q$ through a tube of radius $R$,
 %
@@ -46,88 +51,87 @@ For steady flow of a fluid of viscosity $\mu$ at flow rate $Q$ through a tube of
   \label{eq:wss}
 \end{equation}
 %
-so the drag depends on how wide the vessel is and how much blood it carries
-\cite{rampidis2022geometry}: halve the radius at the same flow and the drag goes up eightfold.
-An artery therefore does not feel one uniform drag along its length.
-It changes wherever the vessel narrows, widens or divides.
+so halving the radius at the same flow raises the drag eightfold \cite{rampidis2022geometry}.
+An artery therefore does not feel one uniform drag along its length; it changes wherever the vessel
+narrows, widens, bends or divides.
 
-That dependence holds in living, disease-free arteries, not only in the formula.
-Schultz et al.\ simulated flow in 349 coronary vessels from 168 patients referred for CCTA whose
-arteries showed no atherosclerosis on inspection, and computed shear over 5223 3-mm segments
-\cite{schultz2023ess}.
-Shear fell as lumen diameter rose: 3.8 Pa minimal and 6.0 Pa maximal in the narrowest tertile of
-vessels (below 2.6 mm), against 1.2 Pa and 2.0 Pa in the widest ($p<0.001$), the same inverse
-relationship Equation~\ref{eq:wss} predicts.
-The gradient is not a clean biological reading, and the authors say so: CCTA supplies no
-patient-specific velocity, so every vessel was simulated with the same fixed inlet pressure and
-outlet flow, and side branches were left out of the model, which pushes more of the inlet flow into
-the narrowing distal vessel than a real side branch would carry off \cite{schultz2023ess}.
-What survives that caveat is the dependence itself, confirmed on CCTA-derived anatomy at a
-resolution close to this thesis's own; what does not survive is the absolute magnitude, which this
-thesis does not need, only the direction. The same limit that bounds every geometric feature in
-this thesis (Section~\ref{sec:ccta}) bounded that study too: shear could not be analyzed reliably
-in the most distal segments, and the vessel length actually analyzed had a median of 42 mm.
-
-The whole coronary tree is exposed to the same cholesterol and the same blood pressure, yet plaque
-forms in particular places and not others \cite{chatzizisis2007ess}.
-The lining of the artery is what makes the difference.
-It senses the drag passing over it, and where that drag is weak or reverses through the cardiac
-cycle the cells turn inflamed and plaque-prone \cite{chatzizisis2007ess}.
-
-Those places can be pointed to on a real artery.
-Asakura and Karino traced the flow through five human coronary trees taken after death and recorded
-where the plaques sat \cite{asakura1990flow}.
-Almost all of them were in two places: on the outer wall of the vessels leaving a bifurcation, with
-the divider between them left clean, and along the inner wall of curved segments.
-Those were exactly the places where the flow ran slow or broke up into recirculation, and where the
-drag on the wall was lowest.
-Five trees is a small sample, but the pattern is the one the mechanism predicts.
-
-Low drag and high drag do different damage.
-Low drag is where plaque starts and grows.
-Over a plaque that has already narrowed the vessel, high drag is associated instead with
-regression of the fibrous cap that stabilizes it, turning it into the thin-capped, rupture-prone
-kind: a meta-analysis of seven intravascular ultrasound studies, 615 patients and 28,276 segments,
-found the association \cite{bajraktari2021highwss}.
-Shear is therefore not a single axis running from safe to dangerous.
+The endothelium senses that drag.
+The whole coronary tree is exposed to the same cholesterol and the same blood pressure, yet where
+the drag is low, or reverses direction over the cardiac cycle, the endothelial cells turn inflamed
+and plaque-prone, and it is there that plaque starts and grows \cite{chatzizisis2007ess}.
+High drag does different damage: over a plaque that already narrows the vessel, it is associated
+with regression of the fibrous cap that stabilizes it, leaving the plaque more prone to rupture
+\cite{bajraktari2021highwss}.
 
 \subsection{Fractional flow reserve}
 \label{sec:ffr}
 
-\textbf{Fractional flow reserve (FFR)} answers the question an image cannot: not how narrow a
-vessel looks, but how much flow the narrowing actually costs \cite{knuuti2019esc}.
+\textbf{Fractional flow reserve (FFR)} measures not how narrow a vessel looks, but whether the
+narrowing limits the blood supply to the heart muscle beyond it \cite{knuuti2019esc}.
 It is the ratio of the pressure just past the narrowing to the pressure before it, measured with a
-sensor on a wire threaded across the lesion during catheterization.
+wire during catheterization while flow is driven artificially high, because at rest the small
+vessels beyond a narrowing widen to compensate and hide its effect \cite{duncker2015regulation}.
+\textbf{CT-derived fractional flow reserve (CT-FFR)} computes the same ratio by simulating blood
+flow through the lumen reconstructed from a CCTA scan.
+It identifies flow-limiting narrowings more accurately than judging how narrow the vessel looks on
+the same scan \cite{norgaard2014nxt}, and a low value carries roughly four times the risk of a
+cardiac event \cite{biswas2026ffrct}.
+Yet in a randomized trial of 1216 patients, a CT-FFR-guided pathway did not change the rate of
+cardiac events after one year \cite{yang2023target}: CT-FFR triages a narrowing that already
+exists, and says nothing about a tree that has none.
 
-The measurement has to be made with blood flow driven artificially high, because at rest the
-narrowing hides itself.
-The small vessels beyond a stenosis widen to compensate for it, holding resting flow almost
-constant however tight the narrowing becomes, so a pressure difference measured at rest understates
-the lesion \cite{duncker2015regulation}.
+\subsection{Topology as a risk factor}
+\label{sec:geometry}
 
-The wire is no longer the only route to the number.
-\textbf{CT-derived fractional flow reserve (CT-FFR)} computes the same pressure ratio from the scan
-itself, by reconstructing the lumen from the images and simulating the blood flow through that
-reconstruction \cite{norgaard2014nxt}.
-N\o{}rgaard et al.\ compared it against wire-measured FFR in 254 patients already scheduled for
-catheterization, and reached an area under the curve of 0.90, 95\% confidence interval 0.87 to 0.94,
-against 0.81 for judging the same scans by how narrow the vessel looked \cite{norgaard2014nxt}.
-The gain was almost entirely in specificity, which rose from 34\% to 79\%.
-Pooling 22 studies and 20,067 patients, a CT-FFR of 0.80 or below carries roughly four times the
-risk of a cardiac event, a hazard ratio of 3.94 with a 95\% confidence interval of 2.92 to 5.31
-\cite{biswas2026ffrct}.
+Where the drag is low is decided by the shape of the tree.
+Tracing the flow through five human coronary trees after death, Asakura and Karino found almost
+every plaque in one of two places: on the outer wall of the vessels leaving a bifurcation, and along
+the inner wall of bends --- exactly where the flow slowed or recirculated \cite{asakura1990flow}
+(Figure~\ref{fig:wss-sites}).
+In a bend, the faster blood at the center of the vessel is carried outward by its own momentum,
+leaving slow flow along the inner wall, and the effect depends on how sharp the bend is relative to
+the width of the vessel.
+Where the vessel also twists out of a single plane the flow spirals, and several simulation studies
+propose that this helical flow protects the wall rather than harms it \cite{shen2026geometry}.
+At a bifurcation, how much of the flow each branch carries is set largely by its diameter, as
+described by Murray's law \cite{taylor2024murray}, so by Equation~\ref{eq:wss} the diameters of
+the branches shape the drag on their walls as much as the angle between them does.
 
-What CT-FFR does not deliver bounds it, and a randomized trial showed where.
-Yang et al.\ assigned 1216 patients with a narrowing of 30--90\% either to a CT-FFR pathway or to
-standard care \cite{yang2023target}.
-Fewer went to catheterization needlessly, 28.3\% against 46.2\%, but more were revascularized
-overall, and cardiac events after a year did not differ --- a hazard ratio of 0.88 with a 95\%
-confidence interval of 0.59 to 1.30 \cite{yang2023target}.
-CT-FFR triages a narrowing that already exists, and says nothing about a tree that has none.
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\textwidth]{content/background/figures/wss_schematic.pdf}
+  \caption{The shape of a vessel decides where its wall feels low shear. (a) In a bend, the
+    fast-moving core of the flow is carried to the outer wall, which feels high WSS, while flow
+    along the inner wall slows and can recirculate. (b) At a bifurcation, the fastest flow enters
+    each branch next to the flow divider, which feels high WSS, while flow along the lateral walls
+    separates and recirculates. The orange walls are where Asakura and Karino found almost all
+    plaque \cite{asakura1990flow}. Schematic; the velocity profiles are drawn by hand, not
+    simulated.}
+  \label{fig:wss-sites}
+\end{figure}
 
-The principle behind it is what carries into this thesis.
-Everything CT-FFR knows about a patient it takes from the shape of the reconstructed lumen, so a
-hemodynamic quantity that clinicians already act on is recovered from geometry alone.
-This thesis measures the shape of the whole tree rather than the pressure drop across one lesion,
-and in people whose arteries are not yet narrowed, but it rests on that same fact: the flow follows
-the shape, and the scan carries the shape.
+Measured topological features do track the shear.
+In 127 patients without coronary artery disease, the average curvature of the left main branches
+correlated with the area of low shear, whereas the widely used tortuosity index --- the ratio of a
+vessel's length to the straight-line distance between its ends --- showed no correlation ($p=0.86$)
+\cite{kashyap2022tortuosity}.
+In 39 left coronary trees, average curvature also differed between trees with and without stenosis
+\cite{zhang2024curvature}.
+More generally, CT-FFR shows that a hemodynamic quantity clinicians act on can be recovered from
+the shape of the lumen alone, and the same has been shown for the pattern of shear along a vessel,
+at least in vessels reconstructed from invasive angiography \cite{griffo2026wss}.
+
+Whether topology is a risk factor in its own right is, however, not established.
+The evidence comes from small or clinically selected cohorts, and it does not all point the same
+way: in
+1010 patients undergoing angiography, tortuous arteries were associated with less CAD, not more
+\cite{li2011tortuosity}.
+The field's own review names the limited size and selection of the populations studied among the
+reasons its findings have not reached clinical use \cite{shen2026geometry}, and the role of flow in
+the onset of plaque remains underexplored for lack of follow-up that starts from a healthy state
+\cite{zhang2024curvature}.
+This thesis investigates that question.
+Rather than simulating flow, it measures the topological features through which flow is shaped ---
+curvature, bifurcation angles and branch diameters, starting with the left main, LAD and LCX ---
+with the aim of relating them to risk in a general population, where the tree can be measured
+before disease has altered it.

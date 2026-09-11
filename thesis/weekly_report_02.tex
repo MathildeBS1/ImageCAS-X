@@ -9,80 +9,136 @@
 \input{setup/preamble}
 \input{setup/weekly}
 
-
-% Date for this report: appears on the title page and in the header
-% of every body page.
+% No paragraph indentation; separate paragraphs with vertical space instead.
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.6em}
 
 
 \begin{document}
 
 \weeklytitle{2}
 
-\section{Week 2: 7-11. September 2026}
+\section{Week 2: 7--11 September 2026}
 
 \sectionprogress
 
-\textbf{Pipeline chapter written.} I walked through CAS-Net end to end -- data preparation,
-network architecture, training, inference and evaluation metrics -- and wrote it up as a standalone
-chapter (\Cref{ch:pipeline}). Doing this properly meant reading the actual training and inference
-code, not just the paper: the resampling and cropping choices, the three attention modules (SAFE,
-AGFF, MSFA), the Dice loss and Adam schedule, the tiled inference with mirror-flip TTA, and the full
-metric family used to score it (Dice, HD95, Betti numbers, clDice, centerline distances).
+\textbf{Hemodynamics.} I read up on wall shear stress (WSS) in particular, and on fractional flow
+reserve (FFR). It is well documented that regions of low or oscillatory WSS -- at bifurcations and
+on the inner wall of bends -- are prone to plaque development \cite{chatzizisis2007ess,
+asakura1990flow}. Far fewer studies relate the geometry of the coronary tree to its hemodynamics in
+healthy arteries, and the role of flow in the onset of plaque remains underexplored for lack of
+follow-up that starts from a healthy state \cite{zhang2024curvature}.
 
-\textbf{Scope narrowed.} Rather than the whole coronary tree, the topology/feature-extraction work
-will focus for a start on three vessels -- the left main, LAD and LCX -- for the reasons laid out in
-\Cref{sec:week2-major-vessel}. Segmentation, dominance annotation and centerline extraction still
-need the whole tree; only the population-level feature analysis is being narrowed.
+\textbf{Healthy population.} Most studies of coronary geometry are carried out in patients with
+disease and ask where in the tree plaque appears, a question that requires plaque to be present. A
+more interesting question for this thesis is whether the topology of the tree carries any signs of
+risk \emph{before} disease develops. Phillip mentioned that the Copenhagen General Population Study
+(CGPS; Herlev--{\O}sterbro) includes participants who were scanned twice, about ten years apart:
+some had healthy trees at the first scan and had developed CAD by the second, while others remained
+unchanged. Comparing these two groups could reveal geometric patterns that precede disease.
 
-\textbf{State-of-the-art notes drafted.} Three standalone arguments moved out of the state-of-the-art
-chapter and got expanded this week: the segmentation benchmark's topology gap (overlap looks fine,
-Betti error does not, and this thesis targets post-hoc topological repair rather than retraining),
-which feature is actually standardised across the field (bifurcation angle) versus contested
-(tortuosity, where I plan to spend most of my method-development effort) -- see ``Features'' below --
-and why the population CCTA is normally drawn from is the wrong one for questions about pre-disease
-geometry, which is the argument for why the Copenhagen General Population Study
-(Herlev--{\O}sterbro) matters here -- see ``Population'' below.
+\textbf{Scope narrowed.} Rather than analyzing the whole coronary tree, I will begin the topology and
+feature-extraction work with three vessels -- the left main (LM), left anterior descending (LAD) and
+left circumflex (LCX) arteries -- for the reasons given in \Cref{sec:week2-major-vessel}.
+
+\textbf{Features, mostly tortuosity.} Bifurcation angle is the one coronary feature with a
+standardized definition, although the same angle can hide very different branch diameters.
+Tortuosity is the opposite case. Its dominant measure, the tortuosity index $\tau = L/D$, cannot
+tell apart vessels that bend in very different ways (\Cref{fig:week2-tortuosity-ambiguity}), and in
+127 patients without CAD it showed no relation to low wall shear stress, whereas curvature did
+\cite{kashyap2022tortuosity}. I wrote a first implementation that computes, for each vessel's
+centerline, the index together with curvature, turning angle per mm, inflections, torsion,
+non-planarity and lumen radius. Everything except the index depends on how much the centerline is
+smoothed before the derivatives are taken, so the measures that best reflect the flow are also the
+hardest to make reproducible.
+
+\textbf{CAS-Net pipeline.} I went through the methods used in CAS-Net \cite{dong2023casnet} in more
+depth, at a high level: data preparation and preprocessing, network architecture, training, inference
+and evaluation metrics. As discussed, I will train CAS-Net from scratch. My contribution to improving
+the segmentation for topological feature extraction will most likely focus on post-processing, since
+the overlap with the reference annotations is already high, whereas the topology is not
+\cite{bransby2026imagecasx}.
+
+\textbf{Rigshospitalet.} I received an ID card for Rigshospitalet -- I am now an impostor medical
+student.
+
+\subsection{Next week}
+
+Next week has two tracks: training CAS-Net from scratch, and turning the tortuosity work from a
+script into a method.
+
+\textbf{Training CAS-Net from scratch.} First I will run inference and evaluation with the delivered
+weights. That tests my environment in hours rather than weeks and gives the reference numbers my own
+run will be judged against. A five-epoch timing run then measures the time per iteration and the
+memory use. From that I can size the full run, whose published schedule of 1000 epochs does not
+fit in one 72-hour job and has to be chained, or, depending on the answer to the question below,
+continue from the pretrained weights instead.
+
+\textbf{Tortuosity: describing a vessel's shape with numbers.} The goal is a description of each
+vessel that tells apart the three curves in \Cref{fig:week2-tortuosity-ambiguity}, which the index
+cannot. I see two routes, and I want to try both on the LM, LAD and LCX.
+
+\begin{itemize}
+  \item \textbf{Hand-crafted descriptors.} I choose the numbers, each with a geometric meaning, as
+    the current script does. Two extensions. Keep curvature as a profile along the vessel rather
+    than averaging it into one number, so that where a bend sits is not lost. And read every bend
+    and angle against the vessel's thickness: the same curvature disturbs the flow more in a thick
+    vessel than in a thin one, and the same bifurcation angle means something different when a
+    thick vessel splits into two thin branches than when it splits into one thick and one thin
+    (\Cref{fig:week2-bifurcation-angle}).
+
+  \item \textbf{Learned representations.} A network finds the structure instead. An encoder, for
+    example an autoencoder, trained to compress each vessel (its centerline, or the segmentation
+    around it) into a short vector of numbers, an \emph{embedding}, and to reconstruct it again, has
+    to keep whatever varies most between vessels. Whether that includes tortuosity is something to
+    check, not assume.
+
+  \item \textbf{PCA as the baseline.} Principal component analysis on the vessel shapes is the
+    linear version of the same idea: resample every centerline to the same number of points from
+    the ostium, align them, and find the few directions in which the population varies most. This
+    is a statistical shape model, which the field's review recommends for combining many shape
+    factors \cite{shen2026geometry} and which has been applied to the left main bifurcation
+    \cite{medranogracia2017bifurcation}. If an autoencoder cannot beat PCA, the network adds
+    nothing.
+
+  \item \textbf{t-SNE to look at the result.} Projecting the descriptor or embedding vectors to two
+    dimensions and coloring them by vessel, by tortuosity index and by dominance shows what a
+    representation has picked up: if the LAD and LCX separate it carries anatomy, and if vessels with
+    the same index spread out it carries more than the index. t-SNE is for looking, not measuring,
+    since distances between its clusters are not meaningful.
+\end{itemize}
+
+The two routes check each other. A learned dimension that correlates with curvature confirms a
+hand-crafted descriptor; one that correlates with none of them is structure I did not think to
+measure. I will discuss these directions with Bj{\o}rn.
 
 \subsection{Questions}
 
 \begin{itemize}
-  \item Is narrowing feature analysis to LM/LAD/LCX (\Cref{sec:week2-major-vessel}) the right call, or
-    should RCA be included from the start given its own plaque burden?
-  \item For the tortuosity work: is there an existing 3D-aware metric in the literature I should
-    benchmark against before designing a new one, or is the field genuinely starting from the index
-    formula and 2D shape classes described in the ``Features'' note below?
-  \item Phillip -- on the CGPS cohort definition (``Population'' note below): should participants
-    with known CAD be excluded from the "healthy" baseline, and is the Herlev--{\O}sterbro naming the
-    study's own preferred wording, or just how it is known informally?
+  \item We discussed that I should train CAS-Net from scratch. Would it be sufficient to train from
+    scratch for only a few epochs (e.g.\ five) to confirm that the training pipeline runs, and then
+    continue from the pretrained weights, rather than repeating the full training?
 \end{itemize}
 
 \newpage
-\section{Scope and state of the art notes}
+\input{content/background/hemodynamics}
 
-\input{week2/segmentation_gap}
-\newpage
-\input{week2/major_vessel}
+\section{Scope and State-of-the-Art Notes}
+\input{content/Introduction/State of the art/segmentation}
+\input{content/Introduction/State of the art/focus_on_major_vessel}
 \label{sec:week2-major-vessel}
-\newpage
-\input{week2/reproducible_features}
-\newpage
-\input{week2/healthy_cohort}
-\newpage
+\input{content/Introduction/State of the art/features}
+\input{content/Introduction/State of the art/healthy_cohort}
 
-\input{pipeline/00_chapter_intro}
 \newpage
-\input{pipeline/01_data_preparation}
-\newpage
-\input{pipeline/02_model_architecture}
-\newpage
-\input{pipeline/03_training}
-\newpage
-\input{pipeline/04_inference}
-\newpage
-\input{pipeline/05_evaluation_metrics}
-\newpage
+\input{content/methods/pipeline/overview}
+\input{content/methods/pipeline/data_preparation}
+\input{content/methods/pipeline/model_architecture}
+\input{content/methods/pipeline/training}
+\input{content/methods/pipeline/inference}
+\input{content/methods/pipeline/evaluation_metrics}
 
+\newpage
 \printbibliography
-
 
 \end{document}

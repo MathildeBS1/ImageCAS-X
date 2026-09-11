@@ -1,0 +1,114 @@
+% Standalone section -- paste into the weekly report, or \input it.
+% A high-level account of coronary hemodynamics, written to explain the week-2 scope rather than to
+% teach fluid mechanics: why flow is the reason to measure shape, and how that reason bears on each
+% choice made this week (LM/LAD/LCX, tortuosity, bifurcation angle with diameters, a healthy
+% population, topology repair). The full clinical account (the WSS equation, FFR, CT-FFR) is in
+% thesis/clinical_background/05_hemodynamics.tex and is not repeated here.
+%
+% Citation keys resolve against thesis/refs.bib. griffo2026wss, zhang2024curvature and
+% taylor2024murray were not cited by any .tex file before this one, so refs_clean.bib has to be
+% regenerated after editing: python scripts/make_refs_clean.py
+%
+% CITATION WANTED: the bend-relative-to-width point is the Dean number (Dean 1927). There is no entry
+% in refs.bib yet, so it is stated without a citation below; add one before this goes into the thesis.
+% SECOND-HAND: the helical-flow statement and the split simulation literature on bifurcation angle
+% come from shen2026geometry's Table 7, not from the primary papers. Cite for framing only.
+
+\section*{Hemodynamics}
+
+\textbf{Why flow is the reason to measure shape.}
+Blood flowing through an artery drags on its lining, and that drag -- the wall shear stress -- is
+not the same everywhere.
+Every part of the coronary tree sees the same cholesterol and the same blood pressure, yet plaque
+starts in particular places: where the drag is low, or reverses direction over the heartbeat, the
+lining turns inflamed and plaque-prone \cite{chatzizisis2007ess}.
+Those places are set by the shape of the vessel (\Cref{fig:week2-shape-factors}).
+Tracing the flow through human coronary trees after death put almost every plaque on the outer wall
+of a vessel leaving a bifurcation or on the inner wall of a bend \cite{asakura1990flow}, and the
+drag also depends steeply on width: at the same flow, it scales with one over the radius cubed.
+Shape sets the flow, and the flow sets where disease begins.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.9\textwidth]{content/background/figures/shape_factors_shen2026.png}
+  \caption{The shape features this note argues for, and the flow they act on
+    \cite{shen2026geometry}. (a) A left coronary tree with its main bifurcation and two tortuous
+    segments -- the two places low shear is expected. (b) Bifurcation angles, inflow angle and
+    branch diameters. (c) Curvature $k = 1/R$ is local, while the tortuosity index $\tau = L/D$ is
+    one number per segment. (d) Simulated near-wall shear, velocity, secondary and helical flow.
+    Figure from Shen et al., Arch.\ Comput.\ Methods Eng.\ 2026,
+    doi:10.1007/s11831-026-10530-w, CC BY 4.0.}
+  \label{fig:week2-shape-factors}
+\end{figure}
+
+\textbf{Why I measure shape rather than simulate flow.}
+Computing shear directly means a flow simulation per patient, with boundary conditions a CCTA scan
+cannot supply: even a study of normal arteries had to give every vessel the same inlet pressure and
+outlet flow \cite{schultz2023ess}.
+That cost is why the largest whole-tree study of geometry and flow I have found covers 39 left
+coronary trees \cite{zhang2024curvature}.
+It is also increasingly avoidable. A network given only the vessel geometry reproduces the simulated
+shear pattern well once each vessel is normalized by its own average, the correlation with the
+simulation rising from 0.67 to 0.89 \cite{griffo2026wss}: the relative pattern is carried by the
+shape, the absolute level much less so.
+So this thesis does not run flow simulations. Hemodynamics is the argument for \emph{which}
+geometric features to measure and in what form -- local rather than one number per patient, relative
+rather than absolute -- and the geometry is what I actually measure.
+
+\textbf{What this means for the scope chosen this week.}
+\begin{itemize}
+  \item \textbf{LM, LAD and LCX.} The left main bifurcation is where the flow first divides, and the
+    walls just downstream of it are one of the two places low shear is expected. It is also where the
+    flow literature has looked most, so the evidence linking geometry to shear is densest there
+    \cite{kashyap2022tortuosity, zhang2024curvature}. The field's own review points out the flip
+    side: vulnerable plaque is mostly found outside the left main region \cite{shen2026geometry},
+    which is why these three vessels are a start rather than the whole scope.
+
+  \item \textbf{Tortuosity.} A bend is the other low-shear site, and here hemodynamics chooses
+    between metrics. In 127 patients without CAD, average absolute curvature was the tortuosity
+    measure that best tracked the area of low shear across the left main branches, while the
+    tortuosity index -- arc length over endpoint distance -- showed no relation at all ($p=0.86$)
+    \cite{kashyap2022tortuosity}. In the 39-tree study, average curvature also separated
+    stenosis-free from stenosed trees \cite{zhang2024curvature}. That is why my first implementation
+    computes curvature, turning angle per mm, inflections, torsion and non-planarity alongside the
+    index rather than the index alone.
+
+    Three further points come from the flow. How much a bend disturbs the flow depends on how sharp
+    it is \emph{relative to the vessel's width} (the Dean number, in fluid mechanics), so curvature
+    has to be read against the lumen radius -- which is why the script measures radius as well.
+    Out-of-plane twist drives helical flow, which several simulation studies propose as protective
+    rather than harmful \cite{shen2026geometry}, so torsion should be kept as its own number rather
+    than folded into a single tortuosity score. And flow acts locally: across 1010 patients, those
+    with tortuous arteries were if anything \emph{less} likely to have CAD \cite{li2011tortuosity},
+    whereas segment-level studies find more tortuosity where the plaque sits \cite{shen2026geometry},
+    so tortuosity should be measured per segment, not once per patient.
+
+    The catch is that curvature and torsion are derivatives, so their values depend on how much the
+    centerline is smoothed before they are taken, while the index barely moves. The metrics
+    hemodynamics favors are the ones hardest to make reproducible, and that trade-off is where I
+    expect most of the method work to be.
+
+  \item \textbf{Bifurcation angle, and why it is not enough on its own.} The angle changes where the
+    flow separates from the wall, but how much blood each daughter vessel takes is set largely by
+    its diameter, as Murray's law describes \cite{taylor2024murray}, and shear depends on that flow
+    over the radius cubed. Two bifurcations with the same angle but different diameter ratios
+    therefore load their walls differently -- the hemodynamic reason for wanting to extend the angle
+    with the branch diameters. It may also be part of why simulation studies disagree on whether the
+    angle matters at all \cite{shen2026geometry}.
+
+  \item \textbf{A healthy population.} Shear acts before plaque exists, so the geometry that matters
+    is the one before disease has remodeled it. The authors of the 39-tree study name exactly this
+    gap: the role of flow in plaque \emph{onset} is underexplored, largely because longitudinal
+    follow-up starting from a healthy state is lacking \cite{zhang2024curvature}. Repeat scans in
+    the CGPS would be that follow-up.
+
+  \item \textbf{Topology repair.} Flow needs a continuous path. A break in the predicted tree leaves
+    part of a vessel with no path back to the ostium, and every feature measured along a path --
+    tortuosity from ostium to tip, which branch comes off where -- is wrong for that vessel.
+\end{itemize}
+
+\textbf{What this does not claim.}
+None of these features is a measurement of shear, and a feature that tracks low shear is a candidate
+risk marker, not a predictor. Even simulated shear only moderately separated the lesions that went
+on to cause a heart attack from those that did not, in patients who all had one (AUC 0.63--0.68)
+\cite{griffo2026wss}, so shape features should not be expected to do better.

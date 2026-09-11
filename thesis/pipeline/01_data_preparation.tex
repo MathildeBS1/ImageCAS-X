@@ -19,11 +19,23 @@ distance one voxel covers, the same way a camera's resolution says how much of a
 covers. Not every scan in the cohort was taken at the same spacing, so without this step the same
 stretch of artery would be built out of a different number of voxels from one scan to the next.
 
-The cohort's 800 usable cases -- 200 of the original 1000 are excluded for low image quality --
-are split once into disjoint \textbf{train}, \textbf{validation} and
+The cohort's 800 usable cases -- 200 of the original 1000 are excluded for low image quality
+(Figure~\ref{fig:pipeline-imagecasx}) -- are split once into disjoint \textbf{train},
+\textbf{validation} and
 \textbf{test} sets. Training updates the network's weights; validation is watched each epoch to
 pick which checkpoint to keep; test is touched only once, at the end, to produce the numbers
 reported in Table~\ref{tab:pipeline-benchmark}.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{content/background/figures/graphical_abstract.png}
+  \caption{ImageCAS-X at a glance \cite{bransby2026imagecasx}. Of the 1000 ImageCAS CCTA volumes,
+    800 are kept and 200 excluded for image-quality problems (cardiac motion, step artefacts,
+    sub-voxel contrast). The kept scans are re-annotated with a centerline tree, a lumen mask
+    labelled by coronary segment, a surface mesh and scan descriptors, and scored in the
+    segmentation benchmark on the right. Graphical abstract from the ImageCAS-X repository.}
+  \label{fig:pipeline-imagecasx}
+\end{figure}
 
 The network never sees a whole scan during training, only small $128\times160\times160$ crops --
 a full volume does not fit a GPU's memory alongside a 3D network. Since a coronary artery occupies

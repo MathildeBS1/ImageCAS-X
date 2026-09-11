@@ -4,11 +4,23 @@
 \label{sec:pipeline-architecture}
 
 CAS-Net \cite{dong2023casnet}, like every method in Table~\ref{tab:pipeline-benchmark} except
-TotalSegmentator, is a 3D \textbf{U-Net} \cite{ronneberger2015unet}: an \textbf{encoder} that
+TotalSegmentator, is a 3D \textbf{U-Net} \cite{ronneberger2015unet} (Figure~\ref{fig:pipeline-unet}):
+an \textbf{encoder} that
 repeatedly shrinks spatial resolution while growing feature depth, so deeper layers see more
 context; a \textbf{decoder} that mirrors this back up to full resolution; and \textbf{skip
 connections} that carry the encoder's fine spatial detail directly across to the matching decoder
 level, so the output is both contextually informed and spatially precise.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.8\textwidth]{content/background/figures/unet_ronneberger2015.pdf}
+  \caption{The original 2D U-Net \cite{ronneberger2015unet}. The encoder (left) halves the
+    resolution and doubles the channels at each level, the decoder (right) mirrors it back up, and
+    skip connections (grey arrows) carry encoder features across to the matching decoder level.
+    CAS-Net (Figure~\ref{fig:pipeline-casnet}) keeps this layout in 3D and adds attention modules.
+    Figure from Ronneberger et al.\ 2015.}
+  \label{fig:pipeline-unet}
+\end{figure}
 
 CAS-Net is a five-level 3D U-Net with three added attention modules (Figure~\ref{fig:pipeline-casnet}),
 aimed at a problem plain skip connections do not solve well: a coronary artery is thin and
@@ -29,54 +41,206 @@ to trust each signal (function names refer to \texttt{models/cas\_net.py}):
 
 \begin{figure}[htbp]
   \centering
+  % Drawn in the style of Ronneberger et al.'s Fig. 1; every channel count and size is taken
+  % from models/cas_net.py (CASNet3D) and configs/cas_net.json (patch_size 128x160x160).
+  \definecolor{unetbox}{RGB}{128,166,217}\definecolor{unetedge}{RGB}{58,96,160}
+  \definecolor{convc}{RGB}{38,40,120}\definecolor{poolc}{RGB}{150,25,25}
+  \definecolor{upc}{RGB}{16,135,60}\definecolor{skipc}{RGB}{175,175,175}
+  \definecolor{c1c}{RGB}{25,135,135}\definecolor{safec}{RGB}{120,50,150}
+  \definecolor{agffc}{RGB}{200,120,20}\definecolor{msfac}{RGB}{200,70,110}
   \resizebox{\textwidth}{!}{%
-  \begin{tikzpicture}[font=\small,
-      enc/.style={draw, fill=blue!10, minimum width=15mm, minimum height=8mm},
-      dec/.style={draw, fill=orange!10, minimum width=15mm, minimum height=8mm},
-      mod/.style={draw, rounded corners, fill=green!10, minimum width=15mm, minimum height=7mm},
+  \begin{tikzpicture}[font=\sffamily,
+      fbox/.style={draw=unetedge, fill=unetbox, line width=0.4pt},
+      wbox/.style={draw=unetedge, fill=white, line width=0.4pt},
+      chl/.style={anchor=south, inner sep=1.5pt, font=\sffamily\footnotesize, text=black!65},
+      szl/.style={anchor=east, inner sep=1pt, font=\sffamily\scriptsize, text=black!65},
+      arr/.style={-{Latex[length=1.6mm, width=1.4mm]}, line width=1.1pt},
+      conv/.style={arr, convc},
+      res/.style={-{Latex[length=1.2mm]}, convc, densely dotted, line width=0.6pt},
+      pool/.style={arr, poolc},
+      up/.style={arr, upc},
+      safe/.style={arr, safec},
+      skip/.style={arr, skipc, line width=1.5pt},
+      hi/.style={-{Latex[length=1.2mm]}, skipc!80!black, line width=0.6pt},
+      agffo/.style={arr, agffc},
+      agff/.style={draw=agffc, fill=agffc!15, rounded corners=1.5pt, inner sep=1.5pt,
+        font=\sffamily\scriptsize\bfseries, text=agffc!70!black},
+      c1/.style={arr, c1c},
+      msfa/.style={arr, msfac},
+      outc/.style={arr, c1c, dashed},
     ]
-    \node[enc] (e0) at (0,0) {enc.\ input\\16 ch};
-    \node[enc] (e1) at (0,-1.4) {enc.\ 1\\32 ch};
-    \node[enc] (e2) at (0,-2.8) {enc.\ 2\\64 ch};
-    \node[enc] (e3) at (0,-4.2) {enc.\ 3\\128 ch};
-    \node[enc] (e4) at (0,-5.6) {enc.\ 4\\256 ch};
-    \draw[-{Latex[length=2mm]}] (e0)--(e1); \draw[-{Latex[length=2mm]}] (e1)--(e2);
-    \draw[-{Latex[length=2mm]}] (e2)--(e3); \draw[-{Latex[length=2mm]}] (e3)--(e4);
-
-    \node[mod, fill=purple!12] (safe) at (2.6,-5.6) {SAFE\\(bottleneck\\attention)};
-    \draw[-{Latex[length=2mm]}] (e4) -- (safe);
-
-    \node[mod] (agff4) at (5.2,-4.2) {AGFF 4};
-    \node[dec] (d4) at (7.8,-4.2) {dec.\ 4\\128 ch};
-    \node[mod] (agff3) at (5.2,-2.8) {AGFF 3};
-    \node[dec] (d3) at (7.8,-2.8) {dec.\ 3\\64 ch};
-    \node[mod] (agff2) at (5.2,-1.4) {AGFF 2};
-    \node[dec] (d2) at (7.8,-1.4) {dec.\ 2\\32 ch};
-    \node[mod] (agff1) at (5.2,0) {AGFF 1};
-    \node[dec] (d1) at (7.8,0) {dec.\ 1\\16 ch};
-
-    \draw[-{Latex[length=2mm]}] (safe) -- (agff4); \draw[-{Latex[length=2mm]}] (agff4)--(d4);
-    \draw[-{Latex[length=2mm]}] (d4) -- (agff3); \draw[-{Latex[length=2mm]}] (agff3)--(d3);
-    \draw[-{Latex[length=2mm]}] (d3) -- (agff2); \draw[-{Latex[length=2mm]}] (agff2)--(d2);
-    \draw[-{Latex[length=2mm]}] (d2) -- (agff1); \draw[-{Latex[length=2mm]}] (agff1)--(d1);
-
-    \draw[-{Latex[length=2mm]}, dashed, gray!60!black] (e3) to[bend right=10] (agff4);
-    \draw[-{Latex[length=2mm]}, dashed, gray!60!black] (e2) to[bend right=10] (agff3);
-    \draw[-{Latex[length=2mm]}, dashed, gray!60!black] (e1) to[bend right=10] (agff2);
-    \draw[-{Latex[length=2mm]}, dashed, gray!60!black] (e0) to[bend right=10] (agff1);
-
-    \node[mod, fill=red!10, minimum height=16mm, align=center] (msfa) at (10.6,-2.1)
-      {MSFA\\(fuses all\\4 decoder\\levels)};
-    \draw[-{Latex[length=2mm]}] (d4) -- (msfa); \draw[-{Latex[length=2mm]}] (d3) -- (msfa);
-    \draw[-{Latex[length=2mm]}] (d2) -- (msfa); \draw[-{Latex[length=2mm]}] (d1) -- (msfa);
-    \node[draw, minimum width=15mm, minimum height=8mm, right=8mm of msfa] (out)
-      {2-channel\\logits};
-    \draw[-{Latex[length=2mm]}] (msfa) -- (out);
+    \draw[fbox] (0.000,-3.000) rectangle (0.050,0.000);
+    \node[chl] at (0.025,0.000) {1};
+    \draw[fbox] (0.350,-3.000) rectangle (0.568,0.000);
+    \node[chl] at (0.459,0.000) {16};
+    \draw[fbox] (0.868,-3.000) rectangle (1.086,0.000);
+    \node[chl] at (0.977,0.000) {16};
+    \draw[conv] (0.050,-1.500) -- (0.350,-1.500);
+    \draw[conv] (0.568,-1.500) -- (0.868,-1.500);
+    \draw[res] (0.025,-3.000) to[out=-60,in=-120] (0.923,-3.000);
+    \draw[fbox] (0.916,-5.550) rectangle (1.134,-3.600);
+    \node[szl] at (0.816,-4.575) {64$\times$80$\times$80};
+    \draw[fbox] (1.434,-5.550) rectangle (1.694,-3.600);
+    \node[chl] at (1.564,-3.600) {32};
+    \draw[fbox] (1.994,-5.550) rectangle (2.254,-3.600);
+    \node[chl] at (2.124,-3.600) {32};
+    \draw[conv] (1.134,-4.575) -- (1.434,-4.575);
+    \draw[conv] (1.694,-4.575) -- (1.994,-4.575);
+    \draw[res] (1.025,-5.550) to[out=-60,in=-120] (2.059,-5.550);
+    \draw[pool] (1.025,-3.000) -- (1.025,-3.600);
+    \draw[fbox] (2.051,-7.500) rectangle (2.311,-6.150);
+    \node[szl] at (1.951,-6.825) {32$\times$40$\times$40};
+    \draw[fbox] (2.611,-7.500) rectangle (2.913,-6.150);
+    \node[chl] at (2.762,-6.150) {64};
+    \draw[fbox] (3.213,-7.500) rectangle (3.515,-6.150);
+    \node[chl] at (3.364,-6.150) {64};
+    \draw[conv] (2.311,-6.825) -- (2.611,-6.825);
+    \draw[conv] (2.913,-6.825) -- (3.213,-6.825);
+    \draw[res] (2.181,-7.500) to[out=-60,in=-120] (3.289,-7.500);
+    \draw[pool] (2.181,-5.550) -- (2.181,-6.150);
+    \draw[fbox] (3.280,-9.100) rectangle (3.582,-8.100);
+    \node[szl] at (3.180,-8.600) {16$\times$20$\times$20};
+    \draw[fbox] (3.882,-9.100) rectangle (4.226,-8.100);
+    \node[chl] at (4.054,-8.100) {128};
+    \draw[fbox] (4.526,-9.100) rectangle (4.870,-8.100);
+    \node[chl] at (4.698,-8.100) {128};
+    \draw[conv] (3.582,-8.600) -- (3.882,-8.600);
+    \draw[conv] (4.226,-8.600) -- (4.526,-8.600);
+    \draw[res] (3.431,-9.100) to[out=-60,in=-120] (4.612,-9.100);
+    \draw[pool] (3.431,-7.500) -- (3.431,-8.100);
+    \draw[fbox] (4.601,-10.500) rectangle (4.945,-9.700);
+    \node[szl] at (4.501,-10.100) {8$\times$10$\times$10};
+    \draw[fbox] (5.245,-10.500) rectangle (5.631,-9.700);
+    \node[chl] at (5.438,-9.700) {256};
+    \draw[fbox] (5.931,-10.500) rectangle (6.317,-9.700);
+    \node[chl] at (6.124,-9.700) {256};
+    \draw[conv] (4.945,-10.100) -- (5.245,-10.100);
+    \draw[conv] (5.631,-10.100) -- (5.931,-10.100);
+    \draw[res] (4.773,-10.500) to[out=-60,in=-120] (6.028,-10.500);
+    \draw[pool] (4.773,-9.100) -- (4.773,-9.700);
+    \draw[fbox] (7.267,-10.500) rectangle (7.653,-9.700);
+    \node[chl, anchor=south west] at (7.500,-9.700) {256};
+    \draw[safe] (6.317,-10.100) -- node[above=1pt, font=\sffamily\footnotesize\bfseries, text=safec] {SAFE} (7.267,-10.100);
+    \draw[wbox] (6.944,-9.100) rectangle (7.288,-8.100);
+    \draw[fbox] (7.288,-9.100) rectangle (7.632,-8.100);
+    \node[chl] at (7.288,-8.100) {256};
+    \draw[fbox] (7.932,-9.100) rectangle (8.276,-8.100);
+    \node[chl] at (8.104,-8.100) {128};
+    \draw[fbox] (8.576,-9.100) rectangle (8.920,-8.100);
+    \node[chl, anchor=south west] at (8.788,-8.100) {128};
+    \draw[conv] (7.632,-8.600) -- (7.932,-8.600);
+    \draw[conv] (8.276,-8.600) -- (8.576,-8.600);
+    \draw[up] (7.460,-9.700) -- (7.460,-9.100);
+    \node[agff] (agff3) at (6.324,-8.600) {AGFF};
+    \draw[agffo] (agff3.east) -- (6.944,-8.600);
+    \draw[skip] (4.870,-8.600) -- (agff3.west);
+    \draw[hi] (7.327,-9.700) -- (7.327,-9.320) -| (agff3.south);
+    \draw[wbox] (8.295,-7.500) rectangle (8.597,-6.150);
+    \draw[fbox] (8.597,-7.500) rectangle (8.899,-6.150);
+    \node[chl] at (8.597,-6.150) {128};
+    \draw[fbox] (9.199,-7.500) rectangle (9.501,-6.150);
+    \node[chl] at (9.350,-6.150) {64};
+    \draw[fbox] (9.801,-7.500) rectangle (10.103,-6.150);
+    \node[chl, anchor=south west] at (9.992,-6.150) {64};
+    \draw[conv] (8.899,-6.825) -- (9.199,-6.825);
+    \draw[conv] (9.501,-6.825) -- (9.801,-6.825);
+    \draw[up] (8.748,-8.100) -- (8.748,-7.500);
+    \node[agff] (agff2) at (7.675,-6.825) {AGFF};
+    \draw[agffo] (agff2.east) -- (8.295,-6.825);
+    \draw[skip] (3.515,-6.825) -- (agff2.west);
+    \draw[hi] (8.636,-8.100) -- (8.636,-7.720) -| (agff2.south);
+    \draw[wbox] (9.562,-5.550) rectangle (9.822,-3.600);
+    \draw[fbox] (9.822,-5.550) rectangle (10.082,-3.600);
+    \node[chl] at (9.822,-3.600) {64};
+    \draw[fbox] (10.382,-5.550) rectangle (10.642,-3.600);
+    \node[chl] at (10.512,-3.600) {32};
+    \draw[fbox] (10.942,-5.550) rectangle (11.202,-3.600);
+    \node[chl, anchor=south west] at (11.112,-3.600) {32};
+    \draw[conv] (10.082,-4.575) -- (10.382,-4.575);
+    \draw[conv] (10.642,-4.575) -- (10.942,-4.575);
+    \draw[up] (9.952,-6.150) -- (9.952,-5.550);
+    \node[agff] (agff1) at (8.942,-4.575) {AGFF};
+    \draw[agffo] (agff1.east) -- (9.562,-4.575);
+    \draw[skip] (2.254,-4.575) -- (agff1.west);
+    \draw[hi] (9.861,-6.150) -- (9.861,-5.770) -| (agff1.south);
+    \draw[wbox] (10.745,-3.000) rectangle (10.963,0.000);
+    \draw[fbox] (10.963,-3.000) rectangle (11.181,0.000);
+    \node[chl] at (10.963,0.000) {32};
+    \draw[fbox] (11.481,-3.000) rectangle (11.699,0.000);
+    \node[chl] at (11.590,0.000) {16};
+    \draw[fbox] (11.999,-3.000) rectangle (12.217,0.000);
+    \node[chl] at (12.108,0.000) {16};
+    \draw[conv] (11.181,-1.500) -- (11.481,-1.500);
+    \draw[conv] (11.699,-1.500) -- (11.999,-1.500);
+    \draw[up] (11.072,-3.600) -- (11.072,-3.000);
+    \node[agff] (agff0) at (10.125,-1.500) {AGFF};
+    \draw[agffo] (agff0.east) -- (10.745,-1.500);
+    \draw[skip] (1.086,-1.500) -- (agff0.west);
+    \draw[hi] (11.002,-3.600) -- (11.002,-3.220) -| (agff0.south);
+    \draw[fbox] (13.793,-9.100) rectangle (13.969,-8.100);
+    \node[chl, anchor=south west] at (13.921,-8.100) {8};
+    \draw[c1] (8.920,-8.600) -- (13.793,-8.600);
+    \draw[fbox] (13.067,-7.500) rectangle (13.243,-6.150);
+    \node[chl] at (13.155,-6.150) {8};
+    \draw[fbox] (13.793,-7.500) rectangle (13.969,-6.150);
+    \node[chl, anchor=south west] at (13.921,-6.150) {8};
+    \draw[msfa] (13.243,-6.825) -- (13.793,-6.825);
+    \draw[msfa] (13.881,-8.100) -- (13.881,-7.500);
+    \draw[c1] (10.103,-6.825) -- (13.067,-6.825);
+    \draw[fbox] (13.067,-5.550) rectangle (13.243,-3.600);
+    \node[chl] at (13.155,-3.600) {8};
+    \draw[fbox] (13.793,-5.550) rectangle (13.969,-3.600);
+    \node[chl, anchor=south west] at (13.921,-3.600) {8};
+    \draw[msfa] (13.243,-4.575) -- (13.793,-4.575);
+    \draw[msfa] (13.881,-6.150) -- (13.881,-5.550);
+    \draw[c1] (11.202,-4.575) -- (13.067,-4.575);
+    \draw[fbox] (13.067,-3.000) rectangle (13.243,0.000);
+    \node[chl] at (13.155,0.000) {8};
+    \draw[fbox] (13.793,-3.000) rectangle (13.969,0.000);
+    \node[chl] at (13.881,0.000) {8};
+    \draw[msfa] (13.243,-1.500) -- (13.793,-1.500);
+    \draw[msfa] (13.881,-3.600) -- (13.881,-3.000);
+    \draw[c1] (12.217,-1.500) -- (13.067,-1.500);
+    \draw[fbox] (14.519,-3.000) rectangle (14.611,0.000);
+    \node[chl] at (14.565,0.000) {2};
+    \draw[outc] (13.969,-1.500) -- (14.519,-1.500);
+    \node[anchor=west, align=left, font=\sffamily\small] at (14.711,-1.500) {output\\logits\\[2pt]{\scriptsize\color{black!65}2 ch.}\\{\scriptsize\color{black!65}128$\times$160$\times$160}};
+    \node[anchor=east, align=right, font=\sffamily\small] at (-0.1,-1.500) {input\\patch\\[2pt]{\scriptsize\color{black!65}1 ch.}\\{\scriptsize\color{black!65}128$\times$160$\times$160}};
+    \draw[msfac, thick] (13.067,0.430) -- (13.067,0.550) -- (13.969,0.550) -- (13.969,0.430);
+    \node[above=0pt, font=\sffamily\footnotesize\bfseries, text=msfac] at (13.518,0.550) {MSFA};
+    \draw[conv] (8.103,-9.250) -- ++(0.5,0);
+    \node[anchor=west, font=\sffamily\footnotesize] at (8.653,-9.250) {conv $3{\times}3{\times}3$, BN, ReLU};
+    \draw[res] (8.103,-9.650) -- ++(0.5,0);
+    \node[anchor=west, font=\sffamily\footnotesize] at (8.653,-9.650) {residual conv $1{\times}1{\times}1$, add};
+    \draw[pool] (8.103,-10.050) -- ++(0.5,0);
+    \node[anchor=west, font=\sffamily\footnotesize] at (8.653,-10.050) {max pool $2{\times}2{\times}2$};
+    \draw[up] (8.103,-10.450) -- ++(0.5,0);
+    \node[anchor=west, font=\sffamily\footnotesize] at (8.653,-10.450) {up-conv $2{\times}2{\times}2$};
+    \draw[safe] (8.103,-10.850) -- ++(0.5,0);
+    \node[anchor=west, font=\sffamily\footnotesize] at (8.653,-10.850) {SAFE attention block};
+    \draw[skip] (8.103,-11.250) -- ++(0.5,0);
+    \node[anchor=west, font=\sffamily\footnotesize] at (8.653,-11.250) {skip connection};
+    \draw[hi] (12.553,-9.250) -- ++(0.5,0);
+    \node[anchor=west, font=\sffamily\footnotesize] at (13.103,-9.250) {trilinear up, conv $1{\times}1{\times}1$};
+    \draw[agffo] (12.553,-9.650) -- ++(0.5,0);
+    \node[anchor=west, font=\sffamily\footnotesize] at (13.103,-9.650) {AGFF gated fusion};
+    \draw[c1] (12.553,-10.050) -- ++(0.5,0);
+    \node[anchor=west, font=\sffamily\footnotesize] at (13.103,-10.050) {conv $1{\times}1{\times}1$};
+    \draw[msfa] (12.553,-10.450) -- ++(0.5,0);
+    \node[anchor=west, font=\sffamily\footnotesize] at (13.103,-10.450) {MSFA: up, gate, add};
+    \draw[outc] (12.553,-10.850) -- ++(0.5,0);
+    \node[anchor=west, font=\sffamily\footnotesize] at (13.103,-10.850) {conv $3{\times}3{\times}3$ (logits)};
   \end{tikzpicture}%
   }
-  \caption{CAS-Net \cite{dong2023casnet}: a five-level 3D U-Net (blue/orange, channel counts
-    per level) with three attention modules added -- SAFE at the bottleneck, AGFF at every
-    skip connection, and MSFA fusing all four decoder resolutions into the final prediction.}
+  \caption{CAS-Net \cite{dong2023casnet} as implemented in \texttt{models/cas\_net.py}, drawn in the
+    style of the original U-Net figure \cite{ronneberger2015unet}. Each blue box is a multi-channel
+    3D feature map with its channel count on top; white boxes are AGFF outputs, concatenated with
+    the up-convolved features beside them. Convolutions are padded, so the spatial size
+    (depth$\times$height$\times$width, for a $128\times160\times160$ training patch) is the same
+    throughout a level and is given once, at its left. SAFE refines the bottleneck with dilated
+    convolutions and self-attention; AGFF weights each encoder feature by channel attention before
+    adding the upsampled deeper feature; MSFA reduces all four decoder levels to 8 channels and
+    fuses them coarse to fine into the two-channel logits.}
   \label{fig:pipeline-casnet}
 \end{figure}
 
