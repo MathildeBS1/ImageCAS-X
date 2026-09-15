@@ -8,6 +8,7 @@ you -- do it explicitly so it stays visible at the call site.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from pathlib import Path
 
 import nibabel as nib
 import numpy as np
@@ -52,6 +53,7 @@ class Centerline:
     end_points: np.ndarray
     start_points: np.ndarray
     lines: list[np.ndarray]  # point-index polylines
+    radius: np.ndarray | None = None  # (N,) mm, see ``radius``; None until computed
 
     def label_to_name(self) -> dict[int, str]:
         return {
@@ -89,25 +91,43 @@ def _polylines(mesh: pv.PolyData) -> list[np.ndarray]:
     return out
 
 
-def load_centerline(case_id: int, side: str) -> Centerline:
-    mesh = pv.read(paths.centerline_path(case_id, side))
+def centerline_file(case_id: int, side: str, root: Path | None = None) -> Path:
+    """The delivered GT file, or the same name under ``root`` (e.g. predicted centerlines)."""
+    if root is None:
+        return paths.centerline_path(case_id, side)
+    return Path(root) / f"{case_id}.coronary_{side}_centerline.vtk"
+
+
+def load_centerline(case_id: int, side: str, root: Path | None = None) -> Centerline:
+    """One side's centerline. ``root=None`` is the delivered GT; otherwise a directory of files
+    in the same naming. Radius comes from the file's own ``radius`` array if it has one, else,
+    for GT, from the cache ``scripts/compute_centerline_radius.py`` writes."""
+    mesh = pv.read(centerline_file(case_id, side, root))
     pd_ = mesh.point_data
+    points = np.asarray(mesh.points, dtype=float)
+    radius = np.asarray(pd_["radius"], dtype=float) if "radius" in pd_ else None
+    cache = paths.radius_cache_path(case_id, side)
+    if radius is None and root is None and cache.exists():
+        radius = np.load(cache).astype(float)
+        if len(radius) != len(points):
+            raise ValueError(f"stale radius cache {cache}: {len(radius)} values for {len(points)} points")
     return Centerline(
         case_id=case_id,
         side=side,
-        points=np.asarray(mesh.points, dtype=float),
+        points=points,
         segment_label=np.asarray(pd_["segment_label"]),
         segment_name=np.asarray(pd_["segment_name"]),
         branch_points=np.asarray(pd_["branch_points"]),
         end_points=np.asarray(pd_["end_points"]),
         start_points=np.asarray(pd_["start_points"]),
         lines=_polylines(mesh),
+        radius=radius,
     )
 
 
-def load_centerlines(case_id: int) -> dict[str, Centerline]:
+def load_centerlines(case_id: int, root: Path | None = None) -> dict[str, Centerline]:
     """Both sides. Left and right use disjoint segment_label ranges."""
-    return {side: load_centerline(case_id, side) for side in ("left", "right")}
+    return {side: load_centerline(case_id, side, root) for side in ("left", "right")}
 
 
 def load_surface(case_id: int) -> Surface:

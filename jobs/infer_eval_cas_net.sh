@@ -24,12 +24,20 @@
 #
 # 160 test scans, each tiled at 50% overlap and run 4x for mirror TTA over X and Y.
 # evaluate.py needs no GPU but is left in the same job so the two stay in step.
+#
+# SPLIT=val predicts the 80 val scans instead and skips evaluate.py (which scores
+# test scans only). Use a separate run dir so val and test predictions never mix:
+#
+#   mkdir -p $ImageCAS_X_results_path/cas_net_pretrained_val
+#   ln -s $ImageCAS_X_weights_path/cas_net.pt $ImageCAS_X_results_path/cas_net_pretrained_val/cas_net_best.pt
+#   bsub -env "all, RUN_DIR=cas_net_pretrained_val, SPLIT=val" < jobs/infer_eval_cas_net.sh
 
 cd /zhome/e2/6/224426/project/ImageCAS-X || exit 1
 . ./env.sh
 mkdir -p logs
 
 CONFIG="${CONFIG:-configs/cas_net.json}"
+SPLIT="${SPLIT:-test}"
 
 if [ -z "$RUN_DIR" ]; then
     echo "RUN_DIR is required, e.g. -env \"all, RUN_DIR=cas_net_pretrained\"" >&2
@@ -37,12 +45,14 @@ if [ -z "$RUN_DIR" ]; then
 fi
 
 nvidia-smi
-echo "=== config: $CONFIG   run_dir: $RUN_DIR ==="
+echo "=== config: $CONFIG   run_dir: $RUN_DIR   split: $SPLIT ==="
 
 if [ -n "$OVERWRITE" ]; then
-    python -m inference -c "$CONFIG" -r "$RUN_DIR" --split test --overwrite || exit 1
+    python -m inference -c "$CONFIG" -r "$RUN_DIR" --split "$SPLIT" --overwrite || exit 1
 else
-    python -m inference -c "$CONFIG" -r "$RUN_DIR" --split test || exit 1
+    python -m inference -c "$CONFIG" -r "$RUN_DIR" --split "$SPLIT" || exit 1
 fi
 
-python -m evaluate -c "$CONFIG" -r "$RUN_DIR" -j 8
+if [ "$SPLIT" = "test" ]; then
+    python -m evaluate -c "$CONFIG" -r "$RUN_DIR" -j 8
+fi

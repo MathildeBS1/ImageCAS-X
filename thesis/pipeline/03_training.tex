@@ -1,5 +1,4 @@
 % Segmentation Pipeline section. Paste into your own thesis, or \input it.
-
 \section{Training}
 \label{sec:pipeline-training}
 
@@ -7,7 +6,7 @@ Training adjusts the network's weights so its prediction increasingly agrees wit
 That requires a \textbf{loss}, one number scoring how wrong a prediction is, and an
 \textbf{optimizer}, a rule for turning that number into a weight update.
 
-Plain pixel accuracy is close to useless here: a coronary artery occupies well under one percent
+Plain pixel accuracy is close to useless in our case: a coronary artery occupies well under one percent
 of a volume, so predicting ``background'' everywhere already scores above 99\,\%. The
 \textbf{Sørensen--Dice coefficient} instead measures overlap relative to the size of the two
 regions being compared:
@@ -15,23 +14,150 @@ regions being compared:
   \mathrm{Dice}(P, G) = \frac{2\,|P \cap G|}{|P| + |G|} \in [0, 1],
   \label{eq:pipeline-dice}
 \end{equation}
-for a predicted region $P$ and GT region $G$. An empty prediction scores 0, not 99\,\%. CAS-Net is
-trained on the differentiable ``soft'' Dice loss \cite{milletari2016vnet}, minimised as
-$1-\mathrm{Dice}$, averaged over its two output channels.
+for a predicted region $P$ and GT region $G$. An empty prediction scores 0, not 99\,\%. This form
+is not differentiable: $|P|$, $|G|$ and $|P \cap G|$ are counts over a thresholded, all-or-nothing
+prediction, and thresholding has zero gradient almost everywhere, so it gives the optimizer no
+direction to push any weight (see backpropagation, below).
+CAS-Net instead trains on V-Net's soft Dice loss \cite{milletari2016vnet}: it replaces the hard,
+thresholded counts with the network's raw softmax probabilities, so the loss becomes a smooth
+function of the weights that a gradient can actually flow through, averaged over its two output
+channels (background, lumen):
+\begin{equation}
+  \mathcal{L}_{\mathrm{Dice}} = \frac{1}{C}\sum_{c=1}^{C}\left(1 -
+    \frac{2\sum_i p_{c,i}\,g_{c,i} + \epsilon}{\sum_i p_{c,i}^2 + \sum_i g_{c,i}^2 + \epsilon}\right),
+  \qquad C = 2,\ \epsilon = 1,
+  \label{eq:pipeline-soft-dice}
+\end{equation}
+Here $p_{c,i}$ is how confident the network is that voxel $i$ belongs to class $c$, and $g_{c,i}$
+is 1 if it really does and 0 if it does not. The only real change from Equation~\ref{eq:pipeline-dice}
+is that the denominator squares these values instead of just adding them up; that one change is
+what turns the plain Sørensen--Dice formula into V-Net's own version of it.
 
-The loss alone does not indicate how to change any individual weight. \textbf{Backpropagation}
-determines this by propagating the loss backward through the network, layer by layer, computing
-for every weight its \emph{gradient}: the direction and magnitude of change that would reduce the
-loss. The \textbf{Adam} optimizer \cite{kingma2015adam} then applies these gradients to update the
-weights, at a base learning rate of $10^{-4}$. Rather than applying the same step to every weight,
-Adam adapts each weight's step size from its recent gradient history: a weight with a consistent
-gradient receives a larger step, while one with an inconsistent gradient receives a smaller, more
-conservative step. The learning rate itself is further reduced smoothly toward zero over training
-(a polynomial schedule, over $E=1000$ epochs), so updates are large early in training and
-progressively finer as training converges.
+\begin{wrapfigure}{r}{0.48\linewidth}
+  \centering
+  \begin{tikzpicture}[scale=0.8, transform shape,
+      font=\sffamily\scriptsize,
+      box/.style={draw=black!60, fill=blue!8, rounded corners=2pt, align=center,
+        text width=1.9cm, minimum height=0.7cm, inner sep=2pt, font=\sffamily\scriptsize},
+      decbox/.style={box, text width=2.6cm, fill=orange!12},
+      ckpt/.style={box, text width=2.6cm, fill=green!10},
+      frame/.style={draw=black!40, dashed, rounded corners=3pt, inner sep=5pt},
+      arr/.style={-{Latex[length=1.4mm, width=1.0mm]}, line width=0.6pt},
+      lbl/.style={font=\sffamily\tiny, text=black!55},
+    ]
+    % --- training route, x250 per epoch (left column) ---
+    \node[box] (crop) at (-1.3,11) {crop + augment};
+    \node[box] (fwd1) at (-1.3,10) {CAS-Net forward};
+    \node[box] (loss) at (-1.3,9) {Dice loss (2-ch.\ avg.)};
+    \node[box] (back) at (-1.3,8) {backward: gradients};
+    \node[box] (step) at (-1.3,7) {Adam step (poly LR)};
+    \draw[arr] (crop) -- (fwd1);
+    \draw[arr] (fwd1) -- (loss);
+    \draw[arr] (loss) -- (back);
+    \draw[arr] (back) -- (step);
+    \node[frame, fit={(crop) (step)},
+      label={[lbl]below:\shortstack{train iter.\\$\times$250/ep., batch 5}}]
+      (trainframe) {};
 
-Each epoch runs a fixed number of training batches (forward pass, Dice loss, backward pass,
-optimizer step), then one pass over validation batches with no weight update, to get a validation
-Dice score. Whenever that score improves on the best seen so far, the weights are saved to disk
-(\texttt{cas\_net\_best.pt}), overwriting the previous checkpoint -- so the checkpoint carried
-forward to inference is the best-validated one, not necessarily the network's final-epoch state.
+    % --- validation route, x50 per epoch (right column) ---
+    \node[box] (cropv) at (1.3,11) {crop, no augment};
+    \node[box] (fwd2) at (1.3,10) {CAS-Net forward, no grad};
+    \node[box] (dice) at (1.3,9) {val.\ Dice};
+    \draw[arr] (cropv) -- (fwd2);
+    \draw[arr] (fwd2) -- (dice);
+    \node[frame, fit={(cropv) (dice)},
+      label={[lbl]below:\shortstack{val.\ iter.\\$\times$50/ep.,\\after training}}]
+      (valframe) {};
+
+    % --- training must finish before validation starts, since validation runs on
+    % the weights training just updated; routed up through x=-0.2 (left of centre)
+    % so it does not coincide with dice->mean's x=0 segment below ---
+    \draw[arr] (step.east) -| (-0.2,11) -- (cropv.west);
+
+    % --- validation runs on the weights training just updated, but only
+    % validation's own Dice score feeds the mean: training itself never
+    % produces a Dice value (train.py runs the training loop to completion,
+    % then calls _validate() on the result). Routed through x=0.2 (right of
+    % centre) so it does not coincide with step->cropv's segment above. ---
+    \node[decbox] (mean) at (0,4.6) {mean val.\ Dice};
+    \draw[arr] (dice) -| (0.2,9) |- (mean.north);
+
+    % --- checkpointing ---
+    \node[decbox] (better) at (0,3.4) {improved on best Dice?};
+    \node[ckpt] (best) at (0,2.2) {save \texttt{cas\_net\_best.pt}};
+    \node[ckpt] (last) at (0,1.0) {save \texttt{cas\_net\_last.pt} (resume state)};
+    \draw[arr] (mean) -- (better);
+    \draw[arr] (better) -- node[lbl, right] {yes} (best);
+    \draw[arr] (best) -- node[lbl, right] {always} (last);
+
+    % --- next epoch restarts training only -- validation is never entered
+    % directly, only ever reached via step->cropv above, once that epoch's
+    % training has run again ---
+    \draw[arr] (last.west) -| node[lbl, pos=0.2, left, align=center]
+      {next of\\$E{=}1000$\\epochs} ($(last.west)+(-2.6,0)$) |- (crop.west);
+  \end{tikzpicture}
+  \caption{One epoch of CAS-Net}
+  \label{fig:pipeline-training-loop}
+\end{wrapfigure}
+
+The loss score on its own does not say how to change any individual weight. \textbf{Backpropagation}
+works this out by passing the loss backward through the network and computing, for every weight, its
+\emph{gradient}: which way, and by how much, that weight should move to make the loss a little
+smaller. The \textbf{Adam} optimizer \cite{kingma2015adam} then uses these gradients to actually
+update the weights. Rather than moving every weight by the same fixed step, it gives each weight
+its own step size based on its recent gradient history, starting from a base learning rate of
+$10^{-4}$ (weight decay $10^{-8}$) that shrinks smoothly toward zero as training goes on, so the
+network takes big steps early and finer, more careful ones later:$
+  \mathrm{lr}(e) = 10^{-4}\left(1 - e/E\right)^{0.9}, \qquad E = 1000.$
+
+
+Figure~\ref{fig:pipeline-training-loop} walks through one epoch start to finish: a fixed batch of
+training iterations, then a validation pass that does not update any weights, then the two
+checkpoints that validation result decides between.
+
+\FloatBarrier
+
+
+\subsection{Data augmentation}
+\label{sec:pipeline-augmentation}
+The training split holds 560 scans, all acquired with the same imaging protocol. \textbf{Data
+augmentation} helps the network avoid overfitting to that particular protocol's noise level,
+contrast timing and slice thickness, without collecting extra scans. This matters beyond the
+ImageCAS test split: these weights will later be applied to the Copenhagen General Population
+Study (CGPS, ``Herlev--{\O}sterbro''), whose participants were almost certainly
+scanned under a different protocol, with no further fine-tuning planned before that happens. The
+robustness this augmentation buys is what that transfer depends on.
+
+\begin{figure}[htbp]
+\centering
+\begin{minipage}[t]{0.36\linewidth}
+  \vspace{0pt}
+  \small
+  \begin{itemize}
+    \item \textbf{Flip}: mirrors left--right and anterior--posterior, never the
+      craniocaudal (head-to-foot) axis, since that would reverse a vessel's taper direction.
+    \item \textbf{Gaussian noise}: simulates a noisier acquisition.
+    \item \textbf{Gaussian blur}: simulates a coarser reconstruction kernel or motion blur.
+    \item \textbf{Multiplicative brightness}: simulates a different contrast-bolus dose or timing.
+    \item \textbf{Contrast}: stretches or compresses values around the crop's own mean, simulating
+      different scanner contrast settings.
+    \item \textbf{Simulated low resolution}: a downsample-then-upsample round trip, simulating a
+      thicker slice spacing than the resampled resolution every scan shares
+      (Section~\ref{sec:pipeline-data}).
+    \item \textbf{Gamma remapping}: non-linearly redistributes intensity while holding the crop's
+      mean and spread fixed, simulating different display windowing.
+  \end{itemize}
+\end{minipage}%
+\hfill
+\begin{minipage}[t]{0.6\linewidth}
+  \vspace{0pt}
+  \centering
+  \includegraphics[width=\linewidth]{content/methods/pipeline/figures/augmentation_examples.png}
+  \caption{One training crop under each augmentation step in turn
+    (\texttt{utils/make\_augmentation\_figure.py}, scan 54); in practice several apply to the
+    same crop at once, each usually weaker than shown here. Brightness, contrast and gamma stay
+    comparatively subtle regardless, since each is bounded by design rather than a rendering
+    artefact.}
+  \label{fig:pipeline-augmentation}
+\end{minipage}
+\end{figure}

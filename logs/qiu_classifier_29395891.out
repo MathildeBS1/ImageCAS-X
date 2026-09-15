@@ -1,0 +1,160 @@
+=== config: configs/cas_net_qiu.json ===
+[classifier] train scans: 40, val scans: 10 -> /dtu/blackhole/0a/224426/imagecasx_results/qiu_centerline_classifier
+  sampled 116: 5000 points
+  sampled 132: 5000 points
+  sampled 143: 5000 points
+  sampled 145: 5000 points
+  sampled 17: 5000 points
+  sampled 233: 5000 points
+  sampled 245: 5000 points
+  sampled 250: 5000 points
+  sampled 28: 4940 points
+  sampled 29: 5000 points
+  sampled 323: 5000 points
+  sampled 331: 5000 points
+  sampled 338: 5000 points
+  sampled 372: 5000 points
+  sampled 405: 5000 points
+  sampled 501: 5000 points
+  sampled 508: 5000 points
+  sampled 529: 5000 points
+  sampled 541: 5000 points
+  sampled 575: 5000 points
+  sampled 603: 5000 points
+  sampled 615: 5000 points
+  sampled 682: 5000 points
+  sampled 697: 5000 points
+  sampled 704: 5000 points
+  sampled 707: 5000 points
+  sampled 719: 5000 points
+  sampled 721: 5000 points
+  sampled 726: 5000 points
+  sampled 762: 5000 points
+  sampled 763: 5000 points
+  sampled 883: 5000 points
+  sampled 905: 5000 points
+  sampled 913: 5000 points
+  sampled 916: 5000 points
+  sampled 920: 5000 points
+  sampled 945: 5000 points
+  sampled 959: 5000 points
+  sampled 992: 5000 points
+  sampled 996: 5000 points
+  sampled 298: 5000 points
+  sampled 379: 5000 points
+  sampled 565: 4655 points
+  sampled 582: 5000 points
+  sampled 670: 5000 points
+  sampled 742: 5000 points
+  sampled 745: 5000 points
+  sampled 925: 5000 points
+  sampled 94: 5000 points
+  sampled 96: 5000 points
+[classifier] 199940 train / 49655 val samples, positive fraction 0.200
+  [cascade] layer 1: OOB accuracy 0.9332
+  [cascade] layer 2: OOB accuracy 0.9400
+  [cascade] layer 3: OOB accuracy 0.9418
+{
+  "params": {
+    "dir": "qiu_centerline_classifier",
+    "n_train_scans": 40,
+    "n_val_scans": 10,
+    "max_centerline_per_scan": 1000,
+    "outside_shell_mm": 2.8,
+    "n_trees": 50,
+    "max_layers": 3,
+    "min_samples_leaf": 10
+  },
+  "failed": [],
+  "n_train": 199940,
+  "n_val": 49655,
+  "n_layers": 3,
+  "layer_oob_accuracy": [
+    0.9332099629888967,
+    0.94000200060018,
+    0.9418175452635791
+  ],
+  "val_accuracy": 0.935253247407109,
+  "val_sensitivity": 0.8418084785016615,
+  "val_specificity": 0.9586144396334709,
+  "val_auc": 0.9771854909742189,
+  "val_mean_p_by_region": {
+    "centerline": 0.7362725458749235,
+    "lumen_off_centerline": 0.10904063374238825,
+    "outside_shell": 0.005777732699931478
+  },
+  "seconds_sampling": 23.7,
+  "seconds_fit": 182.0
+}
+
+------------------------------------------------------------
+Sender: LSF System <lsfadmin@hpc.dtu.dk>
+Subject: Job 29395891: <qiu_classifier> in cluster <dcc> Done
+
+Job <qiu_classifier> was submitted from host <hpclogin1> by user <s254124> in cluster <dcc> at Mon Sep 14 16:22:47 2026
+Job was executed on host(s) <16*n-62-12-3>, in queue <hpc>, as user <s254124> in cluster <dcc> at Mon Sep 14 16:22:48 2026
+</zhome/e2/6/224426> was used as the home directory.
+</zhome/e2/6/224426/project/ImageCAS-X> was used as the working directory.
+Started at Mon Sep 14 16:22:48 2026
+Terminated at Mon Sep 14 16:26:37 2026
+Results reported at Mon Sep 14 16:26:37 2026
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+#!/bin/sh
+
+#BSUB -q hpc
+#BSUB -J qiu_classifier
+#BSUB -n 16
+#BSUB -R "span[hosts=1]"
+#BSUB -R "rusage[mem=4GB]"
+#BSUB -W 8:00
+#BSUB -o logs/qiu_classifier_%J.out
+#BSUB -e logs/qiu_classifier_%J.err
+
+# Train the centerline classifier P of Qiu et al. 2025 (eq. 7). CPU only, run once.
+# See docs_thesis/qiu_reconnection.md, step 1.
+#
+#   bsub < jobs/train_qiu_classifier.sh
+#
+# Samples 40 train scans + 10 val scans (for reporting only) from the 0.5 mm cache,
+# fits a cascade forest, writes $ImageCAS_X_results_path/qiu_centerline_classifier/
+# {model.joblib, report.json}. Check report.json's val_auc and val_mean_p_by_region
+# before running anything that depends on P.
+
+cd /zhome/e2/6/224426/project/ImageCAS-X || exit 1
+. ./env.sh
+mkdir -p logs
+
+CONFIG="${CONFIG:-configs/cas_net_qiu.json}"
+echo "=== config: $CONFIG ==="
+
+python scripts/train_centerline_classifier.py -c "$CONFIG" --workers 16
+
+------------------------------------------------------------
+
+Successfully completed.
+
+Resource usage summary:
+
+    CPU time :                                   1815.10 sec.
+    Max Memory :                                 8681 MB
+    Average Memory :                             3757.50 MB
+    Total Requested Memory :                     65536.00 MB
+    Delta Memory :                               56855.00 MB
+    Max Swap :                                   -
+    Max Processes :                              20
+    Max Threads :                                24
+    Run time :                                   229 sec.
+    Turnaround time :                            230 sec.
+
+The output (if any) is above this job summary.
+
+
+
+PS:
+
+Read file <logs/qiu_classifier_29395891.err> for stderr output of this job.
+

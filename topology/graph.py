@@ -92,6 +92,7 @@ class Segment:
     parent: int | None = None
     children: tuple[int, ...] = ()
     generation: int = 0  # 0 for the segments leaving an ostium
+    radii: np.ndarray | None = None  # (n,) mm, when the centerline carries a radius
 
     @property
     def length(self) -> float:
@@ -118,20 +119,105 @@ class Segment:
         """False for the catch-all label, which is not a specific artery."""
         return self.name != UNLABELLED
 
-    def direction(self, span_mm: float = 3.0, *, at_end: bool = False) -> np.ndarray:
-        """Unit tangent over the first (or last) ``span_mm`` of the segment.
 
-        Bifurcation angles need the direction a vessel *leaves* its junction with,
-        not the chord of the whole segment, and a single point step is too noisy at
-        this sampling (~0.4 mm). Falls back to the whole segment when it is shorter
-        than ``span_mm``.
-        """
-        pts = self.points[::-1] if at_end else self.points
-        step = np.linalg.norm(np.diff(pts, axis=0), axis=1)
-        take = int(np.searchsorted(np.cumsum(step), span_mm) + 1)
-        vec = pts[min(take, len(pts) - 1)] - pts[0]
-        norm = np.linalg.norm(vec)
-        return vec / norm if norm > 0 else np.zeros(3)
+
+def outgoing_direction(points: np.ndarray, core_radius_mm: float,
+                       window_mm: float = 3.0) -> tuple[np.ndarray, str | None]:
+    """Unit direction a vessel leaves its first point with, measured past the bifurcation core.
+    Returns ``(vector, None)``, or ``(zeros, reason)`` when it cannot be measured.
+
+    Points closer than ``core_radius_mm`` to the first point (the junction) are skipped: inside
+    the core the skeletons of parent and daughters merge, and a direction taken from the junction
+    point itself depends strongly on how far out it is read (the LM angle's cohort median moved
+    from 99 to 81 degrees between 1.5 and 5 mm secants). A line is then fitted (principal axis) to
+    the next ``window_mm`` of arc length and oriented away from the junction. This follows the idea
+    of measuring bifurcation vectors outside the maximal inscribed sphere at the junction (VMTK).
+    Pass the points of the whole vessel onward (``Vessel.points_from``), not one segment: the
+    first segment after a split is often cut by a side branch within a few mm.
+    """
+    outside = np.linalg.norm(points - points[0], axis=1) >= core_radius_mm
+    if not outside.any():
+        return np.zeros(3), "vessel ends inside the bifurcation core"
+    tail = points[int(np.argmax(outside)):]
+    arc = np.concatenate([[0.0], np.cumsum(np.linalg.norm(np.diff(tail, axis=0), axis=1))])
+    window = tail[arc <= window_mm]
+    if len(window) < 3:
+        return np.zeros(3), f"fewer than 3 points in the {window_mm:g} mm past the core"
+    centre = window.mean(axis=0)
+    axis = np.linalg.svd(window - centre, full_matrices=False)[2][0]
+    if np.dot(axis, centre - points[0]) < 0:
+        axis = -axis
+    return axis / np.linalg.norm(axis), None
+
+
+@dataclass
+class Vessel:
+    """One artery: the chain of same-named segments from where that name first appears.
+
+    A named artery is usually several segments -- the LAD is cut wherever a side branch leaves
+    it. Where a segment continues into two or more children of its own name (the label scheme has
+    no name for an artery's own sub-branches; 456 such junctions in the cohort), the child with
+    the longest downstream run of that name continues the vessel and the others start vessels of
+    their own with ``is_main=False``. That tie-break is a choice, not anatomy.
+    """
+
+    index: int
+    name: str
+    segments: tuple[Segment, ...]  # proximal -> distal
+    parent: int | None  # index of the vessel feeding this one's origin; None at an ostium
+    is_main: bool
+
+    @property
+    def first(self) -> Segment:
+        return self.segments[0]
+
+    @property
+    def origin_node(self) -> int:
+        return self.segments[0].start_node
+
+    @property
+    def length(self) -> float:
+        return float(sum(s.length for s in self.segments))
+
+    @property
+    def points(self) -> np.ndarray:
+        """All points proximal -> distal, each shared junction point once."""
+        return self.points_from(self.segments[0])
+
+    def points_from(self, segment: Segment) -> np.ndarray:
+        """Points from the start of ``segment`` (one of this vessel's) to the vessel's end."""
+        k = next(i for i, s in enumerate(self.segments) if s.index == segment.index)
+        rest = self.segments[k:]
+        return np.concatenate([rest[0].points] + [s.points[1:] for s in rest[1:]])
+
+
+def _build_vessels(segments: list[Segment]) -> tuple[Vessel, ...]:
+    # Segments are created in BFS order, so a child always has a higher index than its parent.
+    run = [0.0] * len(segments)
+    for s in reversed(segments):
+        same = [run[c] for c in s.children if segments[c].name == s.name]
+        run[s.index] = s.length + max(same, default=0.0)
+    continues = {}
+    for s in segments:
+        same = [c for c in s.children if segments[c].name == s.name]
+        if same:
+            continues[s.index] = max(same, key=lambda c: (run[c], -c))
+
+    vessels: list[Vessel] = []
+    owner: dict[int, int] = {}
+    for s in segments:
+        p = s.parent
+        if p is not None and continues.get(p) == s.index:
+            continue
+        chain = [s]
+        while chain[-1].index in continues:
+            chain.append(segments[continues[chain[-1].index]])
+        v = Vessel(index=len(vessels), name=s.name, segments=tuple(chain),
+                   parent=None if p is None else owner[p],
+                   is_main=p is None or segments[p].name != s.name)
+        owner.update((c.index, v.index) for c in chain)
+        vessels.append(v)
+    return tuple(vessels)
 
 
 @dataclass
@@ -146,6 +232,14 @@ class CoronaryTree:
     roots: tuple[int, ...]
     chords: tuple[np.ndarray, ...] = ()  # cycle-closing chains, excluded from the tree
     warnings: tuple[str, ...] = ()
+    vessels: tuple[Vessel, ...] = ()
+
+    def main_vessels(self, name: str) -> list[Vessel]:
+        """Vessels of this name that start where the name first appears (not sub-branches)."""
+        return [v for v in self.vessels if v.name == name and v.is_main]
+
+    def vessel_of(self, segment: Segment) -> Vessel:
+        return next(v for v in self.vessels if any(s.index == segment.index for s in v.segments))
 
     @property
     def is_single_tree(self) -> bool:
@@ -329,6 +423,7 @@ def build_tree(centerline: io.Centerline) -> CoronaryTree:
                     name=artery_name(label),
                     parent=parent_seg,
                     generation=0 if parent_seg is None else segments[parent_seg].generation + 1,
+                    radii=None if centerline.radius is None else centerline.radius[idx],
                 )
                 segments.append(seg)
                 queue.append((other, seg.index))
@@ -365,13 +460,15 @@ def build_tree(centerline: io.Centerline) -> CoronaryTree:
         roots=tuple(roots),
         chords=tuple(chord_chains),
         warnings=tuple(warnings),
+        vessels=_build_vessels(segments),
     )
 
 
-def load_tree(case_id: int, side: str) -> CoronaryTree:
-    return build_tree(io.load_centerline(case_id, side))
+def load_tree(case_id: int, side: str, root=None) -> CoronaryTree:
+    """``root=None`` is the delivered GT; otherwise a directory of centerlines in its naming."""
+    return build_tree(io.load_centerline(case_id, side, root))
 
 
-def load_trees(case_id: int) -> dict[str, CoronaryTree]:
+def load_trees(case_id: int, root=None) -> dict[str, CoronaryTree]:
     """Both sides. They are separate trees -- the coronary circulation has two ostia."""
-    return {side: load_tree(case_id, side) for side in ("left", "right")}
+    return {side: load_tree(case_id, side, root) for side in ("left", "right")}

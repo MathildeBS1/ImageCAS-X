@@ -24,6 +24,10 @@ dependencies = [
     "matplotlib",
     "openpyxl",
     "nibabel>=5.4.2",
+    "pyvista",
+    "pandas",
+    "skan",
+    "statsmodels",  # ADF test in postprocessing/qiu (Qiu et al. 2025 reconnection)
 ]
 
 [tool.setuptools]
@@ -38,4 +42,5 @@ include = [
     "postprocessing*",
     "preprocessing*",
     "utils*",
+    "topology*",
 ]

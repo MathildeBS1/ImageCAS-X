@@ -1,0 +1,16 @@
+{
+    "method_name": "cas_net_qiu_noremove",
+    "description": "Ablation of cas_net_qiu: identical joins, but fragments that fail to join are kept instead of eliminated. Isolates what the joins alone do to the metrics.",
+    "model": {
+        "name": "cas_net"
+    },
+    "centerline_classifier": {
+        "dir": "qiu_centerline_classifier"
+    },
+    "reconnection": {
+        "mode": "qiu",
+        "remove_unconnected": false,
+        "eval_threshold": 1.0,
+        "use_adf": false
+    }
+}

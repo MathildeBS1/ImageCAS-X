@@ -1,0 +1,46 @@
+{
+    "method_name": "cas_net_qiu",
+    "description": "CAS-Net predictions repaired by Qiu et al. 2025 stage 2 (centerline reconnection), post-processing only. Produced by scripts/qiu_reconnect.py from an existing run; see docs_thesis/qiu_reconnection.md.",
+    "model": {
+        "name": "cas_net"
+    },
+    "centerline_classifier": {
+        "dir": "qiu_centerline_classifier",
+        "n_train_scans": 40,
+        "n_val_scans": 10,
+        "max_centerline_per_scan": 1000,
+        "outside_shell_mm": 2.8,
+        "n_trees": 50,
+        "max_layers": 3,
+        "min_samples_leaf": 10
+    },
+    "reconnection": {
+        "mode": "qiu",
+        "n_main_components": 2,
+        "grid_mm": 0.5,
+        "remove_unconnected": true,
+        "enable_type1": true,
+        "enable_type2": true,
+        "enable_type3": true,
+        "type1_max_dist_mm": 24.0,
+        "type2_max_dist_mm": 32.0,
+        "max_proximal_angle_deg": 120.0,
+        "positional_cos_floor": 1.6,
+        "type3_short_len_mm": 4.0,
+        "type3_short_dist_mm": 8.0,
+        "type3_long_len_mm": 20.0,
+        "type3_long_dist_mm": 32.0,
+        "max_candidates": 2,
+        "omega": 5.0,
+        "second_level_min_gap_mm": 5.0,
+        "max_steps_factor": 3.0,
+        "direction_points": 3,
+        "spur_min_len_vox": 4,
+        "eval_threshold": 1.0,
+        "use_adf": false,
+        "adf_context_vox": 5,
+        "adf_min_length": 8,
+        "max_rounds": 3,
+        "min_tube_radius_mm": 0.6
+    }
+}

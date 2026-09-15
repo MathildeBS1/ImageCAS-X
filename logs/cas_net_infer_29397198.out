@@ -1,0 +1,203 @@
+Mon Sep 14 18:46:46 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 610.57.04              KMD Version: 610.57.04     CUDA UMD Version: 13.3     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA A100 80GB PCIe          On  |   00000000:65:00.0 Off |                    0 |
+| N/A   51C    P0             50W /  300W |       0MiB /  81920MiB |      0%   E. Process |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+=== config: configs/cas_net.json   run_dir: cas_net_pretrained_val   split: val ===
+[inference] method=cas_net  device=cuda  split=val
+[inference] results_dir=/dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val
+[inference] checkpoint=/dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/cas_net_best.pt
+  961: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/961.nii.gz
+  879: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/879.nii.gz
+  457: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/457.nii.gz
+  718: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/718.nii.gz
+  900: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/900.nii.gz
+  849: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/849.nii.gz
+  224: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/224.nii.gz
+  96: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/96.nii.gz
+  559: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/559.nii.gz
+  179: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/179.nii.gz
+  183: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/183.nii.gz
+  925: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/925.nii.gz
+  399: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/399.nii.gz
+  253: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/253.nii.gz
+  614: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/614.nii.gz
+  365: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/365.nii.gz
+  39: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/39.nii.gz
+  974: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/974.nii.gz
+  965: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/965.nii.gz
+  957: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/957.nii.gz
+  401: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/401.nii.gz
+  561: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/561.nii.gz
+  225: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/225.nii.gz
+  867: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/867.nii.gz
+  582: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/582.nii.gz
+  107: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/107.nii.gz
+  153: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/153.nii.gz
+  2: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/2.nii.gz
+  289: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/289.nii.gz
+  734: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/734.nii.gz
+  777: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/777.nii.gz
+  94: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/94.nii.gz
+  573: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/573.nii.gz
+  111: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/111.nii.gz
+  402: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/402.nii.gz
+  25: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/25.nii.gz
+  939: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/939.nii.gz
+  182: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/182.nii.gz
+  425: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/425.nii.gz
+  40: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/40.nii.gz
+  592: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/592.nii.gz
+  227: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/227.nii.gz
+  989: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/989.nii.gz
+  951: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/951.nii.gz
+  146: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/146.nii.gz
+  936: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/936.nii.gz
+  484: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/484.nii.gz
+  565: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/565.nii.gz
+  22: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/22.nii.gz
+  515: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/515.nii.gz
+  312: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/312.nii.gz
+  369: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/369.nii.gz
+  122: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/122.nii.gz
+  670: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/670.nii.gz
+  226: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/226.nii.gz
+  816: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/816.nii.gz
+  834: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/834.nii.gz
+  644: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/644.nii.gz
+  164: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/164.nii.gz
+  793: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/793.nii.gz
+  190: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/190.nii.gz
+  745: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/745.nii.gz
+  379: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/379.nii.gz
+  98: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/98.nii.gz
+  579: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/579.nii.gz
+  827: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/827.nii.gz
+  607: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/607.nii.gz
+  742: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/742.nii.gz
+  567: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/567.nii.gz
+  166: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/166.nii.gz
+  583: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/583.nii.gz
+  709: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/709.nii.gz
+  594: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/594.nii.gz
+  929: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/929.nii.gz
+  187: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/187.nii.gz
+  298: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/298.nii.gz
+  136: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/136.nii.gz
+  966: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/966.nii.gz
+  134: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/134.nii.gz
+  647: saved -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val/647.nii.gz
+
+Predictions saved to /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/predictions_val
+[cost] #params: 6.79 M (6,793,018)
+[cost] inference: 24.22 +/- 5.36 s/scan over 80 scans (median 23.78 s)
+[cost] peak GPU memory: 9.08 GB   -> /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_val/computational_cost.json
+
+------------------------------------------------------------
+Sender: LSF System <lsfadmin@hpc.dtu.dk>
+Subject: Job 29397198: <cas_net_infer> in cluster <dcc> Done
+
+Job <cas_net_infer> was submitted from host <hpclogin1> by user <s254124> in cluster <dcc> at Mon Sep 14 17:14:16 2026
+Job was executed on host(s) <8*n-62-18-12>, in queue <gpua100>, as user <s254124> in cluster <dcc> at Mon Sep 14 18:46:44 2026
+</zhome/e2/6/224426> was used as the home directory.
+</zhome/e2/6/224426/project/ImageCAS-X> was used as the working directory.
+Started at Mon Sep 14 18:46:44 2026
+Terminated at Mon Sep 14 19:26:59 2026
+Results reported at Mon Sep 14 19:26:59 2026
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+#!/bin/sh
+
+#BSUB -q gpuh100
+#BSUB -J cas_net_infer
+#BSUB -n 8
+#BSUB -gpu "num=1:mode=exclusive_process"
+#BSUB -R "span[hosts=1]"
+#BSUB -R "rusage[mem=6GB]"
+#BSUB -W 12:00
+#BSUB -o logs/cas_net_infer_%J.out
+#BSUB -e logs/cas_net_infer_%J.err
+
+# Predict the test split, then score it. See docs_thesis/cas_net_walkthrough.md.
+#
+#   bsub -env "all, RUN_DIR=cas_net_pretrained" < jobs/infer_eval_cas_net.sh
+#   bsub -env "all, RUN_DIR=cas_net_2026-.."    < jobs/infer_eval_cas_net.sh
+#
+# RUN_DIR is a folder under $ImageCAS_X_results_path. inference.py defaults
+# model.checkpoint to <RUN_DIR>/cas_net_best.pt, so no config edit is needed.
+#
+# Inference resumes by default: scans already in predictions/ are skipped, so a job
+# that hits the walltime can simply be resubmitted. Pass OVERWRITE=1 to redo them all,
+# which you must do after retraining into an existing run dir.
+#
+# 160 test scans, each tiled at 50% overlap and run 4x for mirror TTA over X and Y.
+# evaluate.py needs no GPU but is left in the same job so the two stay in step.
+#
+# SPLIT=val predicts the 80 val scans instead and skips evaluate.py (which scores
+# test scans only). Use a separate run dir so val and test predictions never mix:
+#
+#   mkdir -p $ImageCAS_X_results_path/cas_net_pretrained_val
+#   ln -s $ImageCAS_X_weights_path/cas_net.pt $ImageCAS_X_results_path/cas_net_pretrained_val/cas_net_best.pt
+#   bsub -env "all, RUN_DIR=cas_net_pretrained_val, SPLIT=val" < jobs/infer_eval_cas_net.sh
+
+cd /zhome/e2/6/224426/project/ImageCAS-X || exit 1
+. ./env.sh
+mkdir -p logs
+
+CONFIG="${CONFIG:-configs/cas_net.json}"
+SPLIT="${SPLIT:-test}"
+
+if [ -z "$RUN_DIR" ]; then
+    echo "RUN_DIR is required, e.g. -env \"all, RUN_DIR=cas_net_pretrained\"" >&2
+    exit 1
+fi
+
+nvidia-smi
+echo "=== config: $CONFIG   run_dir: $RUN_DIR   split: $SPLIT ==="
+
+if [ -n "$OVERWRITE" ]; then
+
+(... more ...)
+------------------------------------------------------------
+
+Successfully completed.
+
+Resource usage summary:
+
+    CPU time :                                   2927.00 sec.
+    Max Memory :                                 6406 MB
+    Average Memory :                             4806.35 MB
+    Total Requested Memory :                     49152.00 MB
+    Delta Memory :                               42746.00 MB
+    Max Swap :                                   -
+    Max Processes :                              18
+    Max Threads :                                68
+    Run time :                                   2415 sec.
+    Turnaround time :                            7963 sec.
+
+The output (if any) is above this job summary.
+
+
+
+PS:
+
+Read file <logs/cas_net_infer_29397198.err> for stderr output of this job.
+

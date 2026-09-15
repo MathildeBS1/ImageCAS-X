@@ -1,0 +1,50 @@
+% WORKING NOTE -- not part of the thesis narrative, kept only for our own reference
+% while the pipeline is being built out. Plug out before final submission by deleting
+% the \input line in 01_data_preparation.tex that pulls this file in (and, optionally,
+% this file itself). Needs tabularx, booktabs -- inherited from the including document.
+
+\begingroup
+\footnotesize
+\renewcommand{\arraystretch}{0.85}
+
+\begin{table}[htbp]
+  \centering
+  \begin{tabularx}{\textwidth}{@{}l X@{}}
+    \toprule
+    \textbf{Data} & \textbf{Where \& how stored} \\
+    \midrule
+    Raw CCTA volumes &
+      \texttt{imagecasx\_data/volumes/}, local copy, 1000 scans \\
+    Original ImageCAS labels &
+      \texttt{imagecasx\_data/imagecas\_orig\_labels/}, local copy, unused, 1000 scans \\
+    ImageCAS-X re-annotation &
+      \texttt{imagecasx\_data/segmentations/} (+ centerlines/surfaces/filelist/
+      Descriptors.xlsx), symlinked from \texttt{ImageCAS-X\_dataset/}, 800 scans \\
+    \bottomrule
+  \end{tabularx}
+  \caption{Working note: how the delivered data is stored. Not for the final thesis.}
+  \label{tab:data-storage-notes}
+\end{table}
+
+\begin{table}[htbp]
+  \centering
+  \begin{tabularx}{\textwidth}{@{}X X@{}}
+    \toprule
+    \textbf{Command} & \textbf{Produces / reads} \\
+    \midrule
+    \texttt{python -m utils.offline\_resample\_\allowbreak images\_to\_disk -c
+      configs/cas\_net.json --workers 8} &
+      writes \texttt{volumes\_resampled/}, \texttt{segmentations\_resampled/}
+      (\texttt{.npy} cache, 800 scans) \\
+    \texttt{bsub < jobs/train\_cas\_net.sh} &
+      reads \texttt{\$ImageCAS\_X\_data\_path} (\texttt{env.sh}); override with
+      \texttt{-env "all, CONFIG=\allowbreak configs/cas\_net\_smoke.json"} for the
+      5-epoch smoke run \\
+    \bottomrule
+  \end{tabularx}
+  \caption{Working note: commands used in the CAS-Net data pipeline. Not for the
+    final thesis.}
+  \label{tab:data-commands-notes}
+\end{table}
+
+\endgroup

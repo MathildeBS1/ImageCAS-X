@@ -3,41 +3,31 @@
 \section{Network architecture}
 \label{sec:pipeline-architecture}
 
-CAS-Net \cite{dong2023casnet}, like every method in Table~\ref{tab:pipeline-benchmark} except
-TotalSegmentator, is a 3D \textbf{U-Net} \cite{ronneberger2015unet} (Figure~\ref{fig:pipeline-unet}):
-an \textbf{encoder} that
-repeatedly shrinks spatial resolution while growing feature depth, so deeper layers see more
-context; a \textbf{decoder} that mirrors this back up to full resolution; and \textbf{skip
-connections} that carry the encoder's fine spatial detail directly across to the matching decoder
-level, so the output is both contextually informed and spatially precise.
+CAS-Net \cite{dong2023casnet} is a 3D \textbf{U-Net} \cite{ronneberger2015unet}. In a U-Net, an \textbf{encoder} repeatedly shrinks spatial
+resolution while growing feature depth, so deeper layers see more context. The input holds one
+grayscale intensity channel per voxel (the CT scan); each channel added going deeper is a
+separately learned pattern detector. A \textbf{decoder}
+mirrors this back up to full resolution. \textbf{Skip connections} carry the encoder's fine
+spatial detail directly across to the matching decoder level, so the output is both contextually
+informed and spatially precise.
 
-\begin{figure}[htbp]
-  \centering
-  \includegraphics[width=0.8\textwidth]{content/background/figures/unet_ronneberger2015.pdf}
-  \caption{The original 2D U-Net \cite{ronneberger2015unet}. The encoder (left) halves the
-    resolution and doubles the channels at each level, the decoder (right) mirrors it back up, and
-    skip connections (grey arrows) carry encoder features across to the matching decoder level.
-    CAS-Net (Figure~\ref{fig:pipeline-casnet}) keeps this layout in 3D and adds attention modules.
-    Figure from Ronneberger et al.\ 2015.}
-  \label{fig:pipeline-unet}
-\end{figure}
-
-CAS-Net is a five-level 3D U-Net with three added attention modules (Figure~\ref{fig:pipeline-casnet}),
-aimed at a problem plain skip connections do not solve well: a coronary artery is thin and
-branching, so an encoder feature and a decoder feature at the same location are not equally
-reliable everywhere. Each module lets the network learn, per channel and per location, how much
-to trust each signal (function names refer to \texttt{models/cas\_net.py}):
-
-\begin{itemize}
-  \item \textbf{SAFE}, at the bottleneck: re-processes the coarsest feature map with dilated
-    convolutions at several scales, then self-attention, so distant voxels belonging to the same
-    vessel can influence each other directly.
-  \item \textbf{AGFF}, at every skip connection: computes a per-channel attention weight and uses
-    it to scale the encoder's contribution before combining it with the decoder's, rather than
-    concatenating both equally everywhere.
-  \item \textbf{MSFA}, at the output: combines the decoder's output from all four resolution
-    levels into the final prediction, rather than basing it on the finest level alone.
-\end{itemize}
+A coronary artery is thin, branching and of varying caliber, and this anatomy strains a plain
+U-Net's fixed-size convolutions and unconditional skip connections. CAS-Net keeps a standard U-Net
+backbone at five levels -- a $128\times160\times160$ input patch is halved by four max-pooling
+steps down to an $8\times10\times10$ \textbf{bottleneck}, while
+channel count grows $16\to32\to64\to128\to256$ -- and adds three attention modules on top of it,
+each addressing a specific way coronary anatomy challenges that backbone. Each level's convolution
+block is a \textbf{residual} double convolution (\texttt{ResEncoder3d}): two $3\times3\times3$
+convolutions (batch norm, which normalizes each channel's activations to the batch's own mean and variance; then
+ReLU, which zeroes negative activations). Stacking two small kernels widens the effective
+receptive field and adds a nonlinearity between them, at far fewer parameters than one larger
+kernel. A $1\times1\times1$ convolution shortcut is added back before the
+final ReLU, easing gradient flow through the five downsampling steps -- the first of two
+departures from a plain U-Net; a plain U-Net's double-conv block has no such shortcut.
+Figure~\ref{fig:pipeline-casnet} shows the full architecture; the second departure is the three
+added attention modules:
+\textbf{SAFE} at the bottleneck, \textbf{AGFF} at every skip connection, and \textbf{MSFA} at the
+output, each detailed below in that order.
 
 \begin{figure}[htbp]
   \centering
@@ -233,17 +223,85 @@ to trust each signal (function names refer to \texttt{models/cas\_net.py}):
   \end{tikzpicture}%
   }
   \caption{CAS-Net \cite{dong2023casnet} as implemented in \texttt{models/cas\_net.py}, drawn in the
-    style of the original U-Net figure \cite{ronneberger2015unet}. Each blue box is a multi-channel
-    3D feature map with its channel count on top; white boxes are AGFF outputs, concatenated with
-    the up-convolved features beside them. Convolutions are padded, so the spatial size
-    (depth$\times$height$\times$width, for a $128\times160\times160$ training patch) is the same
-    throughout a level and is given once, at its left. SAFE refines the bottleneck with dilated
-    convolutions and self-attention; AGFF weights each encoder feature by channel attention before
-    adding the upsampled deeper feature; MSFA reduces all four decoder levels to 8 channels and
-    fuses them coarse to fine into the two-channel logits.}
+    style of the original U-Net figure \cite{ronneberger2015unet}.}
   \label{fig:pipeline-casnet}
 \end{figure}
 
-The network's output is a two-channel volume of raw logits (background, lumen); nothing in the
-model decides a hard yes/no answer -- that is deferred to postprocessing
-(Section~\ref{sec:pipeline-inference}).
+\begin{figure}[htbp]
+  \centering
+  \begin{tikzpicture}[font=\sffamily, x=0.55cm, y=0.55cm]
+    \definecolor{kcell}{RGB}{200,120,20}
+    % Panel A: standard kernel, spacing 1, taps contiguous
+    \draw[step=1, black!25] (0,0) grid (5,5);
+    \foreach \x/\y/\w in {1/3/1,2/3/2,3/3/3,1/2/4,2/2/5,3/2/6,1/1/7,2/1/8,3/1/9}
+      {\draw[fill=kcell, fill opacity=0.55, draw=black!50] (\x,\y) rectangle ++(1,1);
+       \node[font=\sffamily\scriptsize] at (\x+0.5,\y+0.5) {\w};}
+    \node[below, align=center, font=\sffamily\footnotesize] at (2.5,-0.6)
+      {spacing 1: $3\times3$ neighborhood};
+    \draw[-{Latex}] (5.4,2.5) -- (6.4,2.5);
+    \draw[fill=kcell, fill opacity=0.55, draw=black] (6.7,2) rectangle ++(1,1);
+    \node[right, font=\sffamily\scriptsize] at (7.8,2.5) {1 output voxel};
+    % Panel B: dilated kernel, spacing 2, same 9 weights spread out
+    \begin{scope}[xshift=7.4cm]
+      \draw[step=1, black!25] (0,0) grid (5,5);
+      \foreach \x/\y/\w in {0/4/1,2/4/2,4/4/3,0/2/4,2/2/5,4/2/6,0/0/7,2/0/8,4/0/9}
+        {\draw[fill=kcell, fill opacity=0.55, draw=black!50] (\x,\y) rectangle ++(1,1);
+         \node[font=\sffamily\scriptsize] at (\x+0.5,\y+0.5) {\w};}
+      \node[below, align=center, font=\sffamily\footnotesize] at (2.5,-0.6)
+        {spacing 2: $5\times5$ neighborhood, same 9 weights};
+      \draw[-{Latex}] (5.4,2.5) -- (6.4,2.5);
+      \draw[fill=kcell, fill opacity=0.55, draw=black] (6.7,2) rectangle ++(1,1);
+      \node[right, font=\sffamily\scriptsize] at (7.8,2.5) {1 output voxel};
+    \end{scope}
+  \end{tikzpicture}
+  \caption{A convolution kernel's 9 weights (numbered) applied at spacing 1 (left, an ordinary
+    $3\times3$ kernel) and at spacing 2 (right, the same 9 weights spread apart). Both slide over
+    the input and produce one output value per position, a weighted sum of the 9 input values under
+    them -- but the right kernel gathers its 9 values from a $5\times5$ area instead of $3\times3$,
+    at no extra weights. Shown in 2D for clarity; CAS-Net's kernels are 3D ($3\times3\times3$).
+    This is the mechanism SAFE runs at four spacings ($r=1,2,3,5$) to match vessels of every width.}
+  \label{fig:kernel-spacing}
+\end{figure}
+
+Coronary vessels vary enormously in width, and two voxels of the same vessel can sit on
+opposite sides of a background gap (a bifurcation, a segment obscured by calcification) that local
+convolutions alone struggle to bridge. \textbf{SAFE} fixes both at the bottleneck (Figure~\ref{fig:kernel-spacing}):
+the same kernel is run four times, each time with its individual weighted positions spread a
+different distance apart, so each pass covers more ground per weight and the four passes together
+widen the receptive field to match vessels of every width; then a residual self-attention step lets
+any two voxels influence each other directly, however far apart:er far
+apart:
+\[
+  A = \mathrm{softmax}\!\left(\frac{Q^{\top}K}{\sqrt{C}}\right) \in \mathbb{R}^{N\times N}.
+\]
+
+A skip connection's fine detail is not unconditionally trustworthy: at the shallowest encoder
+levels, only one or two convolutions removed from the raw intensities, the network has not yet
+resolved which voxels are vessel, so that detail is easily confused with noise -- yet pooling
+discards it permanently, so it cannot simply be dropped either. \textbf{AGFF} sits at every skip
+connection and weighs two things against each other: the encoder's raw detail from the same
+level, and the decoder's already-processed signal, which comes from one level deeper and is
+upsampled up to meet it. This weighting is learned per channel and per input, not fixed by depth:
+AGFF computes a per-channel attention weight from the two features combined, then uses it to scale
+down unreliable encoder channels before adding them, unweighted, to the decoder feature -- instead
+of concatenating both unconditionally, as a plain U-Net's skip connection does:
+\[
+  \mathrm{AGFF}(\mathrm{low}, \mathrm{high}) = a \odot \mathrm{low} + \mathrm{high}_{\downarrow},
+  \qquad a \in [0,1]^{C_{\mathrm{low}}}.
+\]
+
+A vessel segmented from the decoder's finest resolution alone can fragment into disconnected
+pieces: each voxel there has a narrow receptive field, precise about location but easily broken by
+a few misclassified voxels along a thin vessel's path. A lower-resolution level's voxels each
+cover more ground, so they more reliably signal that a vessel is connected, even if less precise
+about exactly where. \textbf{MSFA} fixes this by fusing all four decoder resolutions coarse to
+fine: at each step the running aggregate is upsampled, gated against the next, more detailed
+level, and added back, so a lower-resolution but better-connected prediction fills in wherever
+that level's own detail is not confidently gated on:
+\[
+  \mathrm{agg}_i = g_i \odot c_i + \mathrm{agg}_{i-1}{\uparrow},
+  \qquad g_i = \sigma\big(\mathrm{conv}([c_i,\ \mathrm{agg}_{i-1}{\uparrow}])\big).
+\]
+A final $3\times3\times3$ convolution turns the fully-fused map into the two output channels, a
+volume of raw numbers, one for background and one for lumen. The network itself never makes a
+final yes-or-no call on any voxel; that decision happens afterward.

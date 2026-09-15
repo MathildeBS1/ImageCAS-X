@@ -5,8 +5,7 @@
 
 The network's input is a CCTA volume; its target is a binary \textbf{lumen mask} -- a 3D image
 where each tiny volume element (a voxel, the 3D equivalent of a pixel) is labelled as either
-``blood'' or ``not blood,'' marking out the hollow, blood-filled channel of the coronary arteries
-(the vessels that supply blood to the heart muscle itself). The scan comes from the original
+``blood'' or ``not blood,'' marking out the hollow, blood-filled channel of the coronary arteries. The scan comes from the original
 ImageCAS cohort \cite{zeng2023imagecas}; the mask is ImageCAS-X's own re-annotation of that
 cohort \cite{bransby2026imagecasx}, which labels 14 individual coronary segments separately.
 Since segmentation here only needs to find the vessel, not identify which segment it belongs to,
@@ -28,7 +27,7 @@ reported in Table~\ref{tab:pipeline-benchmark}.
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=\textwidth]{content/background/figures/graphical_abstract.png}
+  \includegraphics[width=\linewidth=0.5]{content/background/figures/graphical_abstract.png}
   \caption{ImageCAS-X at a glance \cite{bransby2026imagecasx}. Of the 1000 ImageCAS CCTA volumes,
     800 are kept and 200 excluded for image-quality problems (cardiac motion, step artefacts,
     sub-voxel contrast). The kept scans are re-annotated with a centerline tree, a lumen mask
@@ -41,17 +40,45 @@ The network never sees a whole scan during training, only small $128\times160\ti
 a full volume does not fit a GPU's memory alongside a 3D network. Since a coronary artery occupies
 a small fraction of a volume, crop origins are not sampled uniformly at random: a configurable
 fraction of each batch (0.5 for CAS-Net) is forced onto a location containing GT vessel, so the
-network still sees enough foreground.
+network still sees enough foreground. Each scan's cached array is itself a \textbf{stack of 2D axial slices} -- one thin cross-sectional
+image per position along the body's head-to-foot axis -- concatenated into a single 3D block. How
+many slices a scan contains is not fixed across the cohort: it follows however many axial images
+that subject's original CCTA acquisition produced (206, for one representative case), so stack
+length varies from one subject to the next even though every scan now shares the same 0.5\,mm
+spacing after resampling. The $128\times160\times160$ crop is a fixed-size sub-block cut out of
+that variable-length stack at a randomly chosen, foreground-biased position (160 slices deep); if
+a scan happens to be smaller than the crop along some axis, that side is zero-padded rather than
+dropped, so the network always receives a crop of exactly the configured size regardless of the
+source scan's length.
+
+
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\linewidth=0.5]{content/background/figures/val_batch0.png}
+  \caption{Dataloader sanity check on one training batch of five crops. Top row: the single axial
+    slice sitting at the middle of each crop's 160-slice stack. Bottom row: the same slice with the
+    ground-truth (GT) lumen mask overlaid as a boundary outline rather than a filled region, so the
+    CT tissue underneath stays visible. Small yellow rings mark where the GT says a coronary artery
+    cross-section sits in that slice.}
+  \label{fig:pipeline-dataloader-check}
+\end{figure}
+
+
+
+\textbf{An overview just for me}
+
+% WORKING NOTE -- \ref above and this \input are the two places to touch when removing
+% the scratch table before final submission; see 01a_data_storage_notes.tex.
+\input{content/methods/pipeline/01a_data_storage_notes}
 
 A CT scan measures density on a fixed brightness scale (Hounsfield units, HU), where air is very
 dark, soft tissue and contrast-filled vessel sit in the middle, and bone or metal are very bright.
 Only that middle range actually helps tell vessel from background, so on every patch load the
 scan undergoes \textbf{intensity normalisation}: its values are cut off at a fixed range ($-200$ to
 $1000$\,HU) -- throwing away the very darkest and very brightest extremes -- and the rest is
-rescaled to run from 0 to 1, the same way a photo might be cropped to its useful contrast range
-before use.
+rescaled to run from 0 to 1.
 
-During training only, each crop is further passed through a chain of random augmentations
-following standard practice \cite{isensee2021nnunet}: flips, Gaussian noise and blur, brightness
-and contrast scaling, simulated low resolution, and gamma remapping -- so the network learns to
-recognise a vessel under realistic variation rather than memorising its training scans.
+During training only, each crop is further passed through a chain of random augmentations before
+reaching the network, detailed in Section~\ref{sec:pipeline-augmentation} alongside the rest of
+the training loop.

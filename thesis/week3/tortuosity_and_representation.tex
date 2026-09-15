@@ -39,17 +39,15 @@ whether a neural network could find the same structure --- or more --- on its ow
 \subsection*{1. What a centerline is}
 
 A centerline is the curve that runs through the middle of a vessel: the tube reduced to its axis.
-The standard definition, the one VMTK implements, is the path traced by the centres of the largest
-spheres that fit inside the lumen, the radius of each sphere being the local vessel radius
-\cite{antiga2008vmtk}. ``The middle'' is well defined only where the vessel is a clean tube; at
-bifurcations and stenoses different methods put it in different places.
+``The middle'' is well defined only where the vessel is a clean tube; at bifurcations and stenoses
+different methods put it in different places.
 
-\textbf{How it is made.} Three routes are common. A segmentation mask can be thinned to a
-one-voxel skeleton and then smoothed: this is how the ImageCAS-X centerlines were produced, from
-the manually corrected masks with Gaussian smoothing at $\sigma = 0.5$~mm
-\cite{bransby2026imagecasx}. A surface mesh can be reduced to its medial axis (VMTK). Or a tracker
-can walk the vessel in the image directly. The Korona--Baldachowski tracer is of this last kind:
-a CNN scores the 26 neighbouring voxels on a 0.5~mm grid and the tracer steps to the best one
+\textbf{How it is made, in this project.} Two routes matter here, and both start from a
+segmentation mask rather than from a surface mesh. ImageCAS-X's own centerlines are a mask thinned
+to a one-voxel skeleton and then smoothed: from the manually corrected masks, with Gaussian
+smoothing at $\sigma = 0.5$~mm \cite{bransby2026imagecasx}. On CGPS, where no manually corrected
+mask exists, a tracker walks the vessel in the image directly instead: the Korona--Baldachowski
+tracer scores the 26 neighbouring voxels on a 0.5~mm grid with a CNN and steps to the best one
 \cite{korona2025tracing}.
 
 \textbf{What the file holds.} A centerline in ImageCAS-X is VTK PolyData, one file per side. For

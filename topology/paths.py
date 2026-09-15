@@ -78,6 +78,12 @@ def surface_path(case_id: int) -> Path:
     return SURFACES / f"{case_id}.coronary_surface.vtk"
 
 
+def radius_cache_path(case_id: int, side: str) -> Path:
+    """Per-point lumen radius for a delivered GT centerline, written by
+    ``scripts/compute_centerline_radius.py``. Not created here: absence means "not computed"."""
+    return OUTPUT_ROOT / "centerline_radius" / f"{case_id}_{side}.npy"
+
+
 def volume_path(case_id: int) -> Path:
     """The CT volume. Unlike the other three, this comes from base ImageCAS and is
     only present for cases that were downloaded -- check ``.exists()`` before use."""

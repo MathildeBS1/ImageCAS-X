@@ -1,0 +1,44 @@
+% Working note, not thesis prose -- current state, to revisit together once confirmed.
+% Numbers from scripts/extract_bifurcation_angles.py, run 2026-09-14 (800 cases).
+% Assumes the tree from coronary_tree_graph.tex -- read that first.
+
+\section*{Bifurcation angle (current approach)}
+
+First feature computed on the tree. Angle between the two daughter branches leaving a bifurcation,
+each one's direction taken over its first 3\,mm (a single point step is too noisy, about
+half a millimeter). Same definition Medrano-Gracia et al.\ use, so the numbers are comparable
+\cite{medranogracia2016atlas}.
+
+Fixed on five named bifurcations rather than "whichever ones show up," so a number means the same
+place every time: the LM split into LAD/LCx, the LAD's first and second diagonals (D1, D2), the
+LCx's first obtuse marginal (OM1), and the crux (where PDA and PLA split, on the RCA if
+right-dominant, on the LCx if left-dominant).
+
+Matching a name to the right bifurcation took two fixes: a branch that splits again keeps the same
+name on both halves (no finer label exists), so a takeoff has to also check which vessel feeds the
+junction; and a true three-way LM split is often stored as two junctions a fraction of a mm apart,
+so LAD/LCx aren't always literal siblings and the search has to look one step past a short
+in-between segment.
+
+\begin{center}
+\small
+\begin{tabular}{lrrrl}
+Bifurcation & found & missing & median & IQR \\
+\hline
+LM (LAD/LCx) & 788 & 12 & 89.3\textdegree & 80.1--100.6\textdegree \\
+LAD/D1 & 786 & 14 & 78.8\textdegree & 71.4--86.3\textdegree \\
+LAD/D2 & 475 & 325 & 78.5\textdegree & 71.0--87.2\textdegree \\
+LCx/OM1 & 694 & 106 & 79.1\textdegree & 70.3--88.9\textdegree \\
+Crux (PDA/PLA) & 765 & 35 & 77.9\textdegree & 70.1--86.2\textdegree \\
+\end{tabular}
+\end{center}
+
+Most of "missing" is just the branch not existing in that case (11 of 12 missing LM = no left
+main; every missing D2/OM1 = no branch of that name), not a matching failure. Crux landed on the
+right in 732 cases, left in 33, always matching the dataset's own dominance label.
+
+LM angle: $89.1\pm13.9\textdegree$ without an IM, $116.7\pm21.7\textdegree$ with one. Medrano-Gracia get
+$75\pm23\textdegree$ / $89\pm21\textdegree$ on a healthier (zero-calcium, no-stenosis) cohort
+\cite{medranogracia2016atlas}. Same direction (IM present = wider angle), but ours runs higher --
+worth flagging, not yet explained. Not a bug in the two-junction workaround though: the 36 cases
+with a clean single three-way junction are the widest of all (124.4\textdegree).

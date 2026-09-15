@@ -1,0 +1,14 @@
+{
+    "method_name": "cas_net_size1000",
+    "description": "CAS-Net predictions from cas_net_pretrained with the component-size filter raised from 100 to 1000 voxels, post hoc, no new inference. See docs_thesis/postprocessing_sweep.md and postprocessing/variants.py (size_1000). Scored by evaluate.py unchanged.",
+    "model": {
+        "name": "cas_net"
+    },
+    "postprocessing": {
+        "steps": [
+            "argmax_binarize",
+            "keep_components_larger_than_100_voxels"
+        ],
+        "params": {}
+    }
+}

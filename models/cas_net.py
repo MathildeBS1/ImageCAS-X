@@ -179,6 +179,11 @@ class CASNet3D(BaseLumenModel):
         super().__init__()
         # `classes` is accepted to match the reference signature but unused: the
         # official code also hardcodes 2 output channels in MSFA.out_conv.
+        # Each channel is one learned filter's response map, not a hand-assigned
+        # meaning. Channels grow (16->256) as spatial size shrinks (downsample()
+        # halves each axis): fewer voxels to process lets each level afford more
+        # filters at roughly constant compute, and a coarser grid gives each
+        # remaining voxel a larger receptive field over the input.
         self.enc_input = ResEncoder3d(channels, 16)
         self.encoder1 = ResEncoder3d(16, 32)
         self.encoder2 = ResEncoder3d(32, 64)

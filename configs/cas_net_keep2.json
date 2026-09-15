@@ -1,0 +1,11 @@
+{
+    "method_name": "cas_net_keep2",
+    "description": "Baseline for cas_net_qiu: keep the two largest 26-connected components, drop the rest, join nothing. What removal alone does to the Betti error.",
+    "model": {
+        "name": "cas_net"
+    },
+    "reconnection": {
+        "mode": "keep_largest",
+        "n_main_components": 2
+    }
+}

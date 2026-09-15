@@ -20,7 +20,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
-from topology import graph, paths, viz
+from topology import angles, graph, paths, viz
 
 
 def layout(tree: graph.CoronaryTree) -> tuple[dict[int, float], dict[int, float]]:
@@ -65,8 +65,13 @@ def draw_dendrogram(ax, tree: graph.CoronaryTree) -> None:
     ax.margins(x=0.08, y=0.12)
 
 
-def draw_anatomy(ax, trees: dict[str, graph.CoronaryTree]) -> None:
-    """Coronal view: LPS x (patient left) against z (superior)."""
+def draw_anatomy(ax, trees: dict[str, graph.CoronaryTree], case_id: int) -> None:
+    """Coronal view: LPS x (patient left) against z (superior).
+
+    Also marks the 5 target bifurcations from ``topology.angles`` with their
+    measured angle, so a wrong-vector bug shows up on the figure directly rather
+    than only as a CSV number.
+    """
     for tree in trees.values():
         for seg in tree.segments:
             p = seg.points
@@ -76,6 +81,15 @@ def draw_anatomy(ax, trees: dict[str, graph.CoronaryTree]) -> None:
                      "pass-through": ("o", 3, "#999999"), "terminus": (".", 3.5, "#666666")}[node.kind]
             ax.plot(node.position[0], node.position[2], style[0], ms=style[1],
                     color=style[2], mec="white", mew=0.6, zorder=3)
+
+    for bif_name, result in angles.extract_case(case_id).items():
+        if result.position is None:
+            continue
+        x, z = result.position[0], result.position[2]
+        ax.plot(x, z, "*", ms=11, color="#d62728", mec="white", mew=0.6, zorder=4)
+        ax.annotate(f"{bif_name}\n{result.angle_deg:.0f}°", (x, z), xytext=(5, 5),
+                    textcoords="offset points", fontsize=6.5, color="#d62728", zorder=4)
+
     ax.set_aspect("equal")
     ax.invert_xaxis()  # +x is patient-left, so flip for a face-on view
     ax.set_xlabel("LPS x (mm)")
@@ -90,7 +104,7 @@ def make_figure(case_id: int) -> None:
     gs = fig.add_gridspec(1, 3, width_ratios=[1.5, 1, 1], wspace=0.28,
                           left=0.06, right=0.98, top=0.86, bottom=0.11)
 
-    draw_anatomy(fig.add_subplot(gs[0, 0]), trees)
+    draw_anatomy(fig.add_subplot(gs[0, 0]), trees, case_id)
     # One depth scale for both sides, so the two trees are directly comparable.
     depth = max(max((y + s.length for s, y in zip(t.segments, layout(t)[1].values())), default=1)
                 for t in trees.values())

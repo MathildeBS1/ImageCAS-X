@@ -1,0 +1,181 @@
+=== config: configs/cas_net_qiu.json  src: cas_net_pretrained_val  run_dir: cas_net_pretrained_val_qiu_calib  split: val  extra:  --set eval_threshold=99 ===
+[reconnect] 0 to process, 0 already done, 80 without a source prediction
+{
+  "failed": [],
+  "missing_source": [
+    "107",
+    "111",
+    "122",
+    "134",
+    "136",
+    "146",
+    "153",
+    "164",
+    "166",
+    "179",
+    "182",
+    "183",
+    "187",
+    "190",
+    "2",
+    "22",
+    "224",
+    "225",
+    "226",
+    "227",
+    "25",
+    "253",
+    "289",
+    "298",
+    "312",
+    "365",
+    "369",
+    "379",
+    "39",
+    "399",
+    "40",
+    "401",
+    "402",
+    "425",
+    "457",
+    "484",
+    "515",
+    "559",
+    "561",
+    "565",
+    "567",
+    "573",
+    "579",
+    "582",
+    "583",
+    "592",
+    "594",
+    "607",
+    "614",
+    "644",
+    "647",
+    "670",
+    "709",
+    "718",
+    "734",
+    "742",
+    "745",
+    "777",
+    "793",
+    "816",
+    "827",
+    "834",
+    "849",
+    "867",
+    "879",
+    "900",
+    "925",
+    "929",
+    "936",
+    "939",
+    "94",
+    "951",
+    "957",
+    "96",
+    "961",
+    "965",
+    "966",
+    "974",
+    "98",
+    "989"
+  ]
+}
+
+------------------------------------------------------------
+Sender: LSF System <lsfadmin@hpc.dtu.dk>
+Subject: Job 29404815: <qiu_reconnect> in cluster <dcc> Done
+
+Job <qiu_reconnect> was submitted from host <hpclogin1> by user <s254124> in cluster <dcc> at Mon Sep 14 23:01:06 2026
+Job was executed on host(s) <8*n-62-28-33>, in queue <hpc>, as user <s254124> in cluster <dcc> at Mon Sep 14 23:01:07 2026
+</zhome/e2/6/224426> was used as the home directory.
+</zhome/e2/6/224426/project/ImageCAS-X> was used as the working directory.
+Started at Mon Sep 14 23:01:07 2026
+Terminated at Mon Sep 14 23:01:11 2026
+Results reported at Mon Sep 14 23:01:11 2026
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+#!/bin/sh
+
+#BSUB -q hpc
+#BSUB -J qiu_reconnect
+#BSUB -n 8
+#BSUB -R "span[hosts=1]"
+#BSUB -R "rusage[mem=4GB]"
+#BSUB -W 6:00
+#BSUB -o logs/qiu_reconnect_%J.out
+#BSUB -e logs/qiu_reconnect_%J.err
+
+# Repair an existing run's predictions with Qiu et al. 2025 stage 2, then score them.
+# CPU only. See docs_thesis/qiu_reconnection.md.
+#
+#   RUN_DIR   output run dir under $ImageCAS_X_results_path (required)
+#   CONFIG    default configs/cas_net_qiu.json
+#   SRC_RUN   run dir holding the predictions to repair, default cas_net_pretrained
+#   SPLIT     default test; evaluate.py only runs for test
+#   SET       one reconnection param override, e.g. eval_threshold=99
+#   OVERWRITE redo scans already written
+#
+#   bsub -env "all, RUN_DIR=cas_net_pretrained_keep2, CONFIG=configs/cas_net_keep2.json" < jobs/qiu_reconnect.sh
+#   bsub -env "all, RUN_DIR=cas_net_pretrained_val_qiu_calib, SRC_RUN=cas_net_pretrained_val, SPLIT=val, SET=eval_threshold=99" < jobs/qiu_reconnect.sh
+#   bsub -env "all, RUN_DIR=cas_net_pretrained_qiu" < jobs/qiu_reconnect.sh
+#   bsub -env "all, RUN_DIR=cas_net_pretrained_qiu_noremove, CONFIG=configs/cas_net_qiu_noremove.json" < jobs/qiu_reconnect.sh
+#
+# Resumes by default. A scan that fails gets no prediction and an .error.txt log; the
+# job still evaluates, and evaluate.py reports the gap under "coverage".
+
+cd /zhome/e2/6/224426/project/ImageCAS-X || exit 1
+. ./env.sh
+mkdir -p logs
+
+CONFIG="${CONFIG:-configs/cas_net_qiu.json}"
+SRC_RUN="${SRC_RUN:-cas_net_pretrained}"
+SPLIT="${SPLIT:-test}"
+
+if [ -z "$RUN_DIR" ]; then
+    echo "RUN_DIR is required, e.g. -env \"all, RUN_DIR=cas_net_pretrained_qiu\"" >&2
+    exit 1
+fi
+
+EXTRA_ARGS=""
+[ -n "$SET" ] && EXTRA_ARGS="$EXTRA_ARGS --set $SET"
+[ -n "$OVERWRITE" ] && EXTRA_ARGS="$EXTRA_ARGS --overwrite"
+
+echo "=== config: $CONFIG  src: $SRC_RUN  run_dir: $RUN_DIR  split: $SPLIT  extra: $EXTRA_ARGS ==="
+
+python scripts/qiu_reconnect.py -c "$CONFIG" --src "$SRC_RUN" -r "$RUN_DIR" \
+    --split "$SPLIT" --workers 8 $EXTRA_ARGS \
+
+(... more ...)
+------------------------------------------------------------
+
+Successfully completed.
+
+Resource usage summary:
+
+    CPU time :                                   2.29 sec.
+    Max Memory :                                 -
+    Average Memory :                             -
+    Total Requested Memory :                     32768.00 MB
+    Delta Memory :                               -
+    Max Swap :                                   -
+    Max Processes :                              -
+    Max Threads :                                -
+    Run time :                                   4 sec.
+    Turnaround time :                            5 sec.
+
+The output (if any) is above this job summary.
+
+
+
+PS:
+
+Read file <logs/qiu_reconnect_29404815.err> for stderr output of this job.
+

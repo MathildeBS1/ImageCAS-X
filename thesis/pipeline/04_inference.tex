@@ -5,30 +5,31 @@
 
 Inference loads the trained checkpoint and runs it over the held-out test scans, producing one
 saved segmentation per scan. Training only ever showed the network $128\times160\times160$ crops,
-so a whole test volume -- commonly over $400^3$ voxels -- cannot be consumed in one pass.
+so a whole test volume, commonly over $400^3$ voxels, cannot be consumed in one pass.
 
 The scan is instead cut into overlapping windows the size of a training crop, each run through the
-network separately, and blended back together following standard practice for patch-trained 3D
+network separately and blended back together, following standard practice for patch-trained 3D
 segmentation \cite{isensee2021nnunet}: windows overlap by half their size, and since a window's
-prediction is least reliable near its own edges, each window is given a weight that peaks at its
-centre and falls off smoothly toward its edges. A voxel covered by several overlapping windows is
-therefore dominated by whichever window has it nearest to that window's own centre, rather than
-every overlapping window contributing equally.
+prediction is least reliable near its own edges, each window is weighted by
+\[
+  w(\mathbf{d}) = \exp\!\left(-\tfrac{1}{2}\sum_{k \in \{x,y,z\}} (d_k / \sigma_k)^2\right),
+  \qquad \sigma_k = 0.125\,p_k,
+\]
+where $\mathbf{d}$ is a voxel's offset from its window's centre and $p_k$ the window's size along
+axis $k$: weight 1 at the centre, close to 0 near the edge, so a voxel covered by several windows
+is dominated by whichever has it nearest to that window's own centre.
 
-The tiled prediction above is repeated four times per scan, each time on a different mirrored
-version of the volume: unflipped, flipped left--right, flipped front--back, and flipped both ways.
-The head-to-foot axis is never flipped, since mirroring along it would not correspond to a real,
-anatomically valid body orientation. Each of the four predictions is flipped back to match the
-scan's original orientation, and the four are then averaged into one final result. This procedure,
-\textbf{test-time augmentation (TTA)}, compensates for the fact that the network's prediction for
-a scan and for its mirror image are not perfectly identical, even though anatomically they should
-be: averaging over the four orientations smooths out that inconsistency, at the cost of roughly
-four times the inference compute per scan.
+This tiled prediction is repeated four times per scan, on the unflipped volume and on it flipped
+left--right, front--back, and both, never the head-to-foot axis, since that is not an
+anatomically valid orientation. Each result is flipped back and the four are averaged, since a
+scan and its mirror image do not predict identically even though anatomically they should, at
+roughly four times the inference compute.
 
-The blended probabilities are resampled from the internal 0.5\,mm grid back onto the scan's own
-native resolution before any thresholding, so evaluation can report distances in true physical
-units. Only then is a hard decision made: \textbf{argmax} assigns each voxel to whichever of the
-two channels (background, lumen) scores higher, and \textbf{small-component removal} discards any
-connected component under 100 voxels as noise, while keeping every larger one -- so, for instance,
-the left and right coronary trees both survive as separate components. The result is written to
-disk, one prediction file per scan, for evaluation (Section~\ref{sec:pipeline-metrics}) to read.
+The averaged probabilities are resampled from the internal 0.5\,mm grid to the scan's native
+resolution \emph{before} any thresholding, so the hard decision is made at full original
+resolution rather than on an already-thresholded mask, which would alias fine vessel boundaries.
+\textbf{argmax} then assigns each voxel to whichever of the two channels (background, lumen)
+scores higher, and \textbf{small-component removal} discards any connected component under 100
+voxels as noise, keeping every larger one, so the left and right coronary trees survive as
+separate components. The result is written to disk, one file per scan, for evaluation
+(Section~\ref{sec:pipeline-metrics}) to read.

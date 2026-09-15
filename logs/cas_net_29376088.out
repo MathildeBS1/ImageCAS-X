@@ -1,0 +1,131 @@
+Fri Sep 11 16:17:04 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 610.57.04              KMD Version: 610.57.04     CUDA UMD Version: 13.3     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA A100 80GB PCIe          On  |   00000000:65:00.0 Off |                    0 |
+| N/A   36C    P0             45W /  300W |       0MiB /  81920MiB |      0%   E. Process |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+=== config: configs/cas_net_smoke.json ===
+=== fresh run ===
+[train] method=cas_net_smoke  device=cuda
+[train] run_dir=/dtu/blackhole/0a/224426/imagecasx_results/cas_net_smoke_2026-09-11-16-17-13-501168
+[train] amp=off  cudnn_benchmark=False
+Epoch 1/5  train=0.2541  val=0.1601  dice=0.5814  lr=1.00e-04  time=4m 49s
+  -> saved checkpoint to /dtu/blackhole/0a/224426/imagecasx_results/cas_net_smoke_2026-09-11-16-17-13-501168/cas_net_smoke_best.pt  (dice=0.5814)
+Epoch 2/5  train=0.1492  val=0.1169  dice=0.6637  lr=8.18e-05  time=4m 45s
+  -> saved checkpoint to /dtu/blackhole/0a/224426/imagecasx_results/cas_net_smoke_2026-09-11-16-17-13-501168/cas_net_smoke_best.pt  (dice=0.6637)
+Epoch 3/5  train=0.1308  val=0.1136  dice=0.6729  lr=6.31e-05  time=4m 46s
+  -> saved checkpoint to /dtu/blackhole/0a/224426/imagecasx_results/cas_net_smoke_2026-09-11-16-17-13-501168/cas_net_smoke_best.pt  (dice=0.6729)
+Epoch 4/5  train=0.1191  val=0.1085  dice=0.6867  lr=4.38e-05  time=4m 47s
+  -> saved checkpoint to /dtu/blackhole/0a/224426/imagecasx_results/cas_net_smoke_2026-09-11-16-17-13-501168/cas_net_smoke_best.pt  (dice=0.6867)
+Epoch 5/5  train=0.1110  val=0.0962  dice=0.7097  lr=2.35e-05  time=4m 47s
+  -> saved checkpoint to /dtu/blackhole/0a/224426/imagecasx_results/cas_net_smoke_2026-09-11-16-17-13-501168/cas_net_smoke_best.pt  (dice=0.7097)
+
+Training complete.  Total time: 23m 59s
+
+------------------------------------------------------------
+Sender: LSF System <lsfadmin@hpc.dtu.dk>
+Subject: Job 29376088: <cas_net> in cluster <dcc> Done
+
+Job <cas_net> was submitted from host <hpclogin1> by user <s254124> in cluster <dcc> at Fri Sep 11 14:41:44 2026
+Job was executed on host(s) <14*n-62-18-12>, in queue <gpua100>, as user <s254124> in cluster <dcc> at Fri Sep 11 16:17:02 2026
+</zhome/e2/6/224426> was used as the home directory.
+</zhome/e2/6/224426/project/ImageCAS-X> was used as the working directory.
+Started at Fri Sep 11 16:17:02 2026
+Terminated at Fri Sep 11 16:41:17 2026
+Results reported at Fri Sep 11 16:41:17 2026
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+#!/bin/sh
+
+#BSUB -q gpua100
+#BSUB -J cas_net
+#BSUB -n 14
+#BSUB -gpu "num=1:mode=exclusive_process"
+#BSUB -R "span[hosts=1]"
+#BSUB -R "rusage[mem=5GB]"
+#BSUB -R "select[gpu80gb]"
+#BSUB -W 72:00
+#BSUB -o logs/cas_net_%J.out
+#BSUB -e logs/cas_net_%J.err
+
+# Train CAS-Net (thesis objective 5). See docs_thesis/cas_net_walkthrough.md.
+#
+# 1000 epochs x 250 iterations does not fit one walltime, so this script is written to
+# be resubmitted. The first submission trains fresh and prints its run_dir; every later
+# submission continues that same folder via --resume.
+#
+#   bsub < jobs/train_cas_net.sh                                    # fresh
+#   bsub -env "all, RUN_DIR=cas_net_2026-.." < jobs/train_cas_net.sh # continue
+#
+# Chain without babysitting, so the next job is queued before the current one ends:
+#   bsub -w "ended(<jobid>)" -env "all, RUN_DIR=<run_dir>" < jobs/train_cas_net.sh
+#
+# Override the config for the 5-epoch timing run, and send it to a shorter, less
+# contended queue (command-line bsub options beat the #BSUB lines above):
+#   bsub -q gpuh100 -W 4:00 -env "all, CONFIG=configs/cas_net_smoke.json" \
+#        < jobs/train_cas_net.sh
+#
+# -n 14 matches training.num_workers=14 in configs/pipeline.json. select[gpu80gb] is
+# not optional: batch 5 at 128x160x160 runs in fp32 (amp is false for CAS-Net) and will
+# OOM on a 40 GB card.
+
+cd /zhome/e2/6/224426/project/ImageCAS-X || exit 1
+. ./env.sh
+mkdir -p logs
+
+CONFIG="${CONFIG:-configs/cas_net.json}"
+
+nvidia-smi
+echo "=== config: $CONFIG ==="
+
+if [ -n "$RUN_DIR" ]; then
+    echo "=== resuming $RUN_DIR ==="
+    python -m train -c "$CONFIG" --resume "$RUN_DIR"
+else
+    echo "=== fresh run ==="
+    python -m train -c "$CONFIG"
+fi
+
+(... more ...)
+------------------------------------------------------------
+
+Successfully completed.
+
+Resource usage summary:
+
+    CPU time :                                   6745.00 sec.
+    Max Memory :                                 9283 MB
+    Average Memory :                             7546.83 MB
+    Total Requested Memory :                     71680.00 MB
+    Delta Memory :                               62397.00 MB
+    Max Swap :                                   -
+    Max Processes :                              18
+    Max Threads :                                69
+    Run time :                                   1455 sec.
+    Turnaround time :                            7173 sec.
+
+The output (if any) is above this job summary.
+
+
+
+PS:
+
+Read file <logs/cas_net_29376088.err> for stderr output of this job.
+

@@ -1,0 +1,64 @@
+% Working note, not thesis prose -- current state, to revisit together once confirmed.
+% Numbers and figure from scripts/survey_topology.py and scripts/make_tree_figure.py, 2026-09-14.
+
+\section*{The coronary tree graph (current approach)}
+
+Before I can measure anything about a coronary tree's shape, I need the tree as an actual data
+structure, not just a pile of points -- something with a notion of "these two branches meet here,"
+"this is upstream of that." Every topology feature extraction method and analysis relies on the
+following:
+
+I start by building the tree graph from the centerline files ImageCAS-X ships, one per side of the
+heart -- these are the dataset's ground truth, not a prediction from any model. No segmentation
+network is involved anywhere in this section; that only shows up later, in the Herlev--{\O}sterbro
+part.
+
+That said, "ground truth centerline" needs unpacking, because it isn't a human-drawn line. The
+\emph{mask} is ground truth in the usual sense: analysts corrected it by hand, slice by slice. But
+the centerline sitting on top of that mask is not hand-drawn -- the original hand-traces were
+thrown away and replaced by running a fixed, deterministic procedure over the corrected mask:
+skeletonize it to a 1-voxel-wide line, then Gaussian-smooth it ($\sigma = 0.5$\,mm)
+\cite{bransby2026imagecasx}. So even in the ground-truth data, the centerline's geometry and
+connectivity come from that fixed algorithm, not from a person tracing the vessel; only the segment
+names (LM, LAD, \ldots) are human, carried over from the old hand-traces by nearest-distance
+matching. Worth keeping straight: "algorithmic" here means "produced by that fixed skeletonization
+step," not "predicted by a network" -- the mask underneath it is still the corrected ground truth.
+
+As a file, a centerline is just points plus a bunch of polylines connecting them, with no notion of
+direction and no notion of "this is one vessel." That's not enough on its own -- you can't get a
+branch's direction out of it without first sorting out which way is outward, and a single vessel is
+often chopped across several polylines. So \texttt{topology/graph.py} does the actual building:
+root each side at its ostium, orient every polyline outward from there, glue the pieces of one
+vessel back into a single segment, and name each segment by majority vote over its interior points
+(the junction point itself gets skipped, since it still carries the parent vessel's label).
+
+I checked this against the flags the dataset ships (which points are ends, which are bifurcations):
+across all 1600 sides, the graph's connectivity matches exactly, and 1584 sides come out as one
+clean tree. Not fully independent evidence -- the flags were defined by the same degree rule -- but
+it confirms the connectivity was recovered right.
+
+Here's what it actually looks like for one case (\Cref{fig:week3-tree-case1}): on the left, the
+centerline as it sits in space, with the five bifurcation angles marked; on the right, the same
+tree redrawn as a dendrogram, height being distance from the ostium, so branch order and segment
+length are easy to read off directly instead of squinting at 3D.
+
+% Copy figures/1_05_tree.png (this repo) to content/background/figures/coronary_tree_case1.png
+% when pasting this into the real thesis, same as the other week files' figures.
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\linewidth]{content/background/figures/coronary_tree_case1.png}
+  \caption{Case 1's left and right coronary trees: the centerline in space (left) and the same tree
+    as a dendrogram (right two panels), colored by artery. Stars mark the five bifurcations this
+    week's feature measures.}
+  \label{fig:week3-tree-case1}
+\end{figure}
+
+\textbf{Still open: getting this onto Herlev--{\O}sterbro.} None of this exists there yet -- no
+mask, no centerline, no ostium, no names. Rough plan: predicted mask from the segmentation network,
+skeletonize it the same way, ostium from a TotalSegmentator aorta
+\cite{wasserthal2023totalsegmentator}, and names from... something, probably training on the 14
+labels directly instead of vessel-vs-background. That last part I don't have a good answer for yet.
+Before touching a real Herlev--{\O}sterbro scan, the plan is to run the whole thing on the 160
+ImageCAS-X test cases first and see how far the angles drift once the tree comes from a predicted
+mask instead of the corrected one -- that drift is the error this extraction adds, and it needs to
+be small next to how much the angle varies between people.

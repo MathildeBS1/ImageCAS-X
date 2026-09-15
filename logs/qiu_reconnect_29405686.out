@@ -1,0 +1,371 @@
+=== config: configs/cas_net_qiu.json  src: cas_net_pretrained  run_dir: cas_net_pretrained_qiu  split: test  extra:  ===
+[reconnect] 160 to process, 0 already done, 0 without a source prediction
+  [1/160] 878: b0 2 -> 2, +0 / -0 vox, 2s
+  [2/160] 844: b0 2 -> 2, +0 / -0 vox, 2s
+  [3/160] 625: b0 4 -> 2, +436 / -0 vox, 18s
+  [4/160] 87: b0 4 -> 2, +0 / -496 vox, 19s
+  [5/160] 368: b0 2 -> 2, +0 / -0 vox, 2s
+  [6/160] 686: b0 3 -> 2, +48 / -0 vox, 26s
+  [7/160] 80: b0 4 -> 2, +1636 / -0 vox, 26s
+  [8/160] 954: b0 4 -> 2, +212 / -482 vox, 24s
+  [9/160] 789: b0 3 -> 2, +87 / -0 vox, 27s
+  [10/160] 580: b0 3 -> 2, +0 / -206 vox, 25s
+  [11/160] 488: b0 2 -> 2, +0 / -0 vox, 2s
+  [12/160] 448: b0 3 -> 2, +190 / -0 vox, 35s
+  [13/160] 88: b0 5 -> 2, +645 / -1221 vox, 18s
+  [14/160] 85: b0 7 -> 2, +1820 / -0 vox, 28s
+  [15/160] 832: b0 2 -> 2, +0 / -0 vox, 2s
+  [16/160] 509: b0 6 -> 2, +685 / -0 vox, 23s
+  [17/160] 806: b0 4 -> 2, +0 / -907 vox, 27s
+  [18/160] 775: b0 5 -> 2, +632 / -5186 vox, 20s
+  [19/160] 790: b0 2 -> 2, +0 / -0 vox, 2s
+  [20/160] 316: b0 5 -> 2, +384 / -347 vox, 25s
+  [21/160] 423: b0 4 -> 2, +112 / -557 vox, 28s
+  [22/160] 680: b0 3 -> 2, +0 / -215 vox, 22s
+  [23/160] 676: b0 11 -> 2, +1026 / -1040 vox, 39s
+  [24/160] 335: b0 4 -> 2, +620 / -0 vox, 18s
+  [25/160] 465: b0 3 -> 2, +0 / -123 vox, 19s
+  [26/160] 909: b0 5 -> 2, +339 / -0 vox, 22s
+  [27/160] 42: b0 3 -> 2, +0 / -217 vox, 22s
+  [28/160] 937: b0 3 -> 2, +0 / -344 vox, 18s
+  [29/160] 808: b0 5 -> 2, +266 / -403 vox, 22s
+  [30/160] 496: b0 2 -> 2, +0 / -0 vox, 2s
+  [31/160] 103: b0 3 -> 2, +83 / -0 vox, 14s
+  [32/160] 727: b0 3 -> 2, +0 / -526 vox, 18s
+  [33/160] 280: b0 4 -> 2, +0 / -474 vox, 21s
+  [34/160] 30: b0 4 -> 2, +324 / -0 vox, 20s
+  [35/160] 874: b0 4 -> 2, +0 / -532 vox, 19s
+  [36/160] 52: b0 4 -> 2, +357 / -0 vox, 21s
+  [37/160] 512: b0 4 -> 2, +282 / -0 vox, 20s
+  [38/160] 932: b0 3 -> 2, +0 / -373 vox, 16s
+  [39/160] 218: b0 3 -> 2, +0 / -1024 vox, 19s
+  [40/160] 324: b0 4 -> 2, +362 / -0 vox, 20s
+  [41/160] 738: b0 8 -> 2, +113 / -1274 vox, 49s
+  [42/160] 417: b0 3 -> 2, +107 / -0 vox, 20s
+  [43/160] 995: b0 4 -> 2, +2050 / -0 vox, 33s
+  [44/160] 758: b0 4 -> 2, +0 / -291 vox, 19s
+  [45/160] 675: b0 3 -> 2, +144 / -0 vox, 19s
+  [46/160] 175: b0 6 -> 2, +450 / -331 vox, 41s
+  [47/160] 341: b0 3 -> 2, +229 / -0 vox, 16s
+  [48/160] 544: b0 4 -> 2, +32 / -316 vox, 19s
+  [49/160] 687: b0 3 -> 2, +0 / -129 vox, 18s
+  [50/160] 759: b0 3 -> 2, +0 / -163 vox, 20s
+  [51/160] 842: b0 4 -> 2, +454 / -0 vox, 22s
+  [52/160] 768: b0 5 -> 2, +0 / -1652 vox, 31s
+  [53/160] 138: b0 5 -> 2, +33 / -228 vox, 29s
+  [54/160] 436: b0 3 -> 2, +147 / -0 vox, 15s
+  [55/160] 616: b0 2 -> 2, +0 / -0 vox, 2s
+  [56/160] 911: b0 2 -> 2, +0 / -0 vox, 2s
+  [57/160] 474: b0 4 -> 2, +72 / -420 vox, 20s
+  [58/160] 569: b0 4 -> 2, +424 / -0 vox, 21s
+  [59/160] 377: b0 4 -> 2, +432 / -105 vox, 31s
+  [60/160] 431: b0 5 -> 2, +0 / -975 vox, 28s
+  [61/160] 828: b0 3 -> 2, +138 / -0 vox, 15s
+  [62/160] 251: b0 3 -> 2, +0 / -628 vox, 22s
+  [63/160] 211: b0 5 -> 2, +1059 / -0 vox, 22s
+  [64/160] 63: b0 3 -> 2, +185 / -0 vox, 14s
+  [65/160] 300: b0 3 -> 2, +168 / -0 vox, 20s
+  [66/160] 396: b0 8 -> 2, +797 / -3055 vox, 31s
+  [67/160] 543: b0 5 -> 2, +395 / -330 vox, 26s
+  [68/160] 985: b0 3 -> 2, +0 / -216 vox, 19s
+  [69/160] 461: b0 3 -> 2, +0 / -153 vox, 19s
+  [70/160] 698: b0 3 -> 2, +0 / -180 vox, 20s
+  [71/160] 114: b0 6 -> 2, +454 / -916 vox, 34s
+  [72/160] 244: b0 4 -> 2, +103 / -158 vox, 28s
+  [73/160] 757: b0 2 -> 2, +0 / -0 vox, 2s
+  [74/160] 993: b0 5 -> 2, +0 / -961 vox, 26s
+  [75/160] 252: b0 4 -> 2, +1340 / -107 vox, 20s
+  [76/160] 95: b0 2 -> 2, +0 / -0 vox, 2s
+  [77/160] 43: b0 4 -> 2, +536 / -384 vox, 27s
+  [78/160] 621: b0 4 -> 2, +303 / -0 vox, 20s
+  [79/160] 45: b0 4 -> 2, +2656 / -0 vox, 28s
+  [80/160] 471: b0 3 -> 2, +0 / -282 vox, 29s
+  [81/160] 549: b0 3 -> 2, +444 / -0 vox, 19s
+  [82/160] 725: b0 4 -> 2, +164 / -0 vox, 20s
+  [83/160] 173: b0 3 -> 2, +0 / -3297 vox, 20s
+  [84/160] 980: b0 3 -> 2, +187 / -0 vox, 17s
+  [85/160] 901: b0 2 -> 2, +0 / -0 vox, 2s
+  [86/160] 657: b0 4 -> 2, +240 / -128 vox, 22s
+  [87/160] 984: b0 4 -> 2, +506 / -0 vox, 22s
+  [88/160] 102: b0 4 -> 2, +0 / -388 vox, 28s
+  [89/160] 799: b0 2 -> 2, +0 / -0 vox, 2s
+  [90/160] 813: b0 5 -> 2, +1101 / -0 vox, 19s
+  [91/160] 124: b0 4 -> 2, +1240 / -0 vox, 22s
+  [92/160] 354: b0 6 -> 2, +443 / -217 vox, 36s
+  [93/160] 466: b0 6 -> 2, +758 / -917 vox, 29s
+  [94/160] 196: b0 2 -> 2, +0 / -0 vox, 2s
+  [95/160] 890: b0 3 -> 2, +423 / -0 vox, 16s
+  [96/160] 507: b0 7 -> 2, +955 / -2656 vox, 24s
+  [97/160] 151: b0 2 -> 2, +0 / -0 vox, 2s
+  [98/160] 773: b0 3 -> 2, +0 / -116 vox, 24s
+  [99/160] 363: b0 3 -> 2, +0 / -155 vox, 29s
+  [100/160] 454: b0 2 -> 2, +0 / -0 vox, 2s
+  [101/160] 69: b0 3 -> 2, +142 / -0 vox, 17s
+  [102/160] 941: b0 3 -> 2, +93 / -0 vox, 19s
+  [103/160] 947: b0 6 -> 2, +1665 / -555 vox, 27s
+  [104/160] 554: b0 3 -> 2, +183 / -0 vox, 19s
+  [105/160] 100: b0 3 -> 2, +0 / -4648 vox, 15s
+  [106/160] 271: b0 3 -> 2, +283 / -0 vox, 16s
+  [107/160] 958: b0 4 -> 2, +880 / -0 vox, 19s
+  [108/160] 265: b0 7 -> 2, +678 / -566 vox, 23s
+  [109/160] 125: b0 5 -> 2, +362 / -536 vox, 32s
+  [110/160] 139: b0 2 -> 2, +0 / -0 vox, 2s
+  [111/160] 546: b0 3 -> 2, +558 / -0 vox, 18s
+  [112/160] 112: b0 3 -> 2, +0 / -471 vox, 16s
+  [113/160] 473: b0 4 -> 2, +78 / -295 vox, 27s
+  [114/160] 661: b0 3 -> 2, +991 / -0 vox, 30s
+  [115/160] 908: b0 4 -> 2, +182 / -0 vox, 19s
+  [116/160] 502: b0 2 -> 2, +0 / -0 vox, 2s
+  [117/160] 973: b0 4 -> 2, +0 / -948 vox, 20s
+  [118/160] 14: b0 3 -> 2, +163 / -0 vox, 27s
+  [119/160] 272: b0 5 -> 2, +792 / -137 vox, 22s
+  [120/160] 669: b0 3 -> 2, +0 / -113 vox, 26s
+  [121/160] 754: b0 2 -> 2, +0 / -0 vox, 2s
+  [122/160] 342: b0 2 -> 2, +0 / -0 vox, 2s
+  [123/160] 306: b0 4 -> 2, +0 / -691 vox, 24s
+  [124/160] 148: b0 3 -> 2, +49 / -0 vox, 15s
+  [125/160] 907: b0 4 -> 2, +196 / -200 vox, 15s
+  [126/160] 408: b0 6 -> 2, +402 / -224 vox, 27s
+  [127/160] 109: b0 2 -> 2, +0 / -0 vox, 2s
+  [128/160] 328: b0 3 -> 2, +614 / -0 vox, 21s
+  [129/160] 273: b0 3 -> 2, +0 / -161 vox, 24s
+  [130/160] 830: b0 3 -> 2, +0 / -264 vox, 20s
+  [131/160] 41: b0 5 -> 2, +100 / -381 vox, 28s
+  [132/160] 837: b0 3 -> 2, +90 / -0 vox, 19s
+  [133/160] 869: b0 3 -> 2, +824 / -0 vox, 23s
+  [134/160] 645: b0 5 -> 2, +413 / -61 vox, 18s
+  [135/160] 274: b0 2 -> 2, +0 / -0 vox, 2s
+  [136/160] 952: b0 5 -> 2, +32 / -628 vox, 18s
+  [137/160] 406: b0 4 -> 2, +184 / -320 vox, 16s
+  [138/160] 389: b0 9 -> 2, +132 / -11310 vox, 36s
+  [139/160] 817: b0 3 -> 2, +719 / -0 vox, 21s
+  [140/160] 381: b0 7 -> 2, +2967 / -942 vox, 46s
+  [141/160] 683: b0 3 -> 2, +0 / -363 vox, 13s
+  [142/160] 618: b0 4 -> 2, +485 / -0 vox, 20s
+  [143/160] 527: b0 4 -> 2, +644 / -266 vox, 41s
+  [144/160] 284: b0 4 -> 2, +182 / -0 vox, 29s
+  [145/160] 593: b0 4 -> 2, +0 / -610 vox, 20s
+  [146/160] 129: b0 3 -> 2, +370 / -0 vox, 20s
+  [147/160] 422: b0 4 -> 2, +126 / -474 vox, 19s
+  [148/160] 3: b0 2 -> 2, +0 / -0 vox, 2s
+  [149/160] 825: b0 4 -> 2, +0 / -571 vox, 20s
+  [150/160] 9: b0 6 -> 2, +292 / -415 vox, 35s
+  [151/160] 812: b0 3 -> 2, +79 / -0 vox, 21s
+  [152/160] 928: b0 4 -> 2, +0 / -230 vox, 18s
+  [153/160] 997: b0 5 -> 2, +193 / -104 vox, 18s
+  [154/160] 751: b0 4 -> 2, +157 / -127 vox, 22s
+  [155/160] 667: b0 4 -> 2, +0 / -275 vox, 23s
+  [156/160] 690: b0 6 -> 2, +1039 / -601 vox, 40s
+  [157/160] 935: b0 3 -> 2, +333 / -0 vox, 20s
+  [158/160] 972: b0 8 -> 2, +1739 / -955 vox, 32s
+  [159/160] 659: b0 4 -> 2, +719 / -0 vox, 18s
+  [160/160] 847: b0 4 -> 2, +112 / -764 vox, 28s
+{
+  "n_scans": 160,
+  "b0_before_mean": 3.83125,
+  "b0_after_mean": 2.0,
+  "scans_with_b0_2_before": 23,
+  "scans_with_b0_2_after": 160,
+  "fragments_total": 293,
+  "fragments_attached": 165,
+  "fragments_removed": 128,
+  "attempts_by_type": {
+    "2": {
+      "attempted": 224,
+      "walk_reached": 219,
+      "accepted": 91
+    },
+    "3": {
+      "attempted": 179,
+      "walk_reached": 143,
+      "accepted": 62
+    },
+    "1": {
+      "attempted": 50,
+      "walk_reached": 34,
+      "accepted": 18
+    }
+  },
+  "walk_failures": {
+    "max_steps": 44,
+    "entered_other_main_tree": 13
+  },
+  "reconnection_vs_gt": {
+    "tp": 82,
+    "fp": 83,
+    "tn": 65,
+    "fn": 63,
+    "kept_true": 0,
+    "kept_false": 0,
+    "rec_acc": 0.5017064846416383,
+    "rec_sen": 0.5655172413793104,
+    "rec_spe": 0.4391891891891892,
+    "true_fraction": 0.5,
+    "path_fraction": 0.8
+  },
+  "voxels_added": 50070,
+  "voxels_removed": 65007,
+  "seconds_mean": 20.145071561634538,
+  "failed": [],
+  "missing_source": []
+}
+[evaluate] method=cas_net_qiu
+[evaluate] results_dir=/dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_qiu
+Per-point metrics saved to /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_qiu/point_metrics.csv
+
+Results saved to /dtu/blackhole/0a/224426/imagecasx_results/cas_net_pretrained_qiu/cas_net_qiu_results.json
+Evaluated 160/160 test scans with a prediction
+Summary: {'dice': {'mean': 0.9073944912191557, 'std': 0.03749278919525003, 'n_valid': 160, 'n_total': 160}, 'hd95': {'mean': 4.965175334414645, 'std': 8.736672266778406, 'n_valid': 160, 'n_total': 160}, 'cl_dice': {'mean': 0.9263633162929457, 'std': 0.04501779131533428, 'n_valid': 160, 'n_total': 160}, 'volume_pred_ml': {'mean': 1.9391282438874247, 'std': 0.6207617564660871, 'n_valid': 160, 'n_total': 160}, 'volume_gt_ml': {'mean': 2.0279347789764404, 'std': 0.618277495564389, 'n_valid': 160, 'n_total': 160}, 'volume_mad_ml': {'mean': 0.10417490109205245, 'std': 0.09069535066208076, 'n_valid': 160, 'n_total': 160}, 'volume_bias_ml': {'mean': -0.08880653508901597, 'std': 0.10578967801605259, 'n_valid': 160, 'n_total': 160}, 'betti_error_1': {'mean': 0.00625, 'std': 0.07880950133074056, 'n_valid': 160, 'n_total': 160}, 'betti_error_2': {'mean': 0.15, 'std': 0.5024937810560446, 'n_valid': 160, 'n_total': 160}, 'centerline_md': {'mean': 0.8794281407302929, 'std': 0.8113309387048934, 'n_valid': 160, 'n_total': 160}, 'centerline_hd95': {'mean': 7.732381506401168, 'std': 9.354130650478721, 'n_valid': 160, 'n_total': 160}, 'local_dice': {'mean': 0.856317189402985, 'std': 0.06209938465882773, 'n_valid': 160, 'n_total': 160}}
+
+By Image Quality:
+  1          n=8    dice 0.8862±0.0417  hd95 3.903±3.78  cl_dice 0.915±0.0565  centerline_md 0.7826±0.482  centerline_hd95 5.029±3.7  volume_pred_ml 1.669±0.262  volume_gt_ml 1.787±0.283  volume_mad_ml 0.132±0.0507  volume_bias_ml -0.1172±0.0791  betti_error_1 0±0  betti_error_2 0.125±0.331  local_dice 0.8265±0.0655
+  2          n=27   dice 0.8969±0.0443  hd95 6.216±9.43  cl_dice 0.9214±0.0419  centerline_md 0.9371±0.753  centerline_hd95 8.967±10.2  volume_pred_ml 1.796±0.464  volume_gt_ml 1.886±0.449  volume_mad_ml 0.1162±0.101  volume_bias_ml -0.08933±0.125  betti_error_1 0.03704±0.189  betti_error_2 0.1481±0.524  local_dice 0.851±0.063
+  3          n=34   dice 0.9063±0.0447  hd95 7.041±14.6  cl_dice 0.9222±0.0589  centerline_md 1.074±1.38  centerline_hd95 9.852±14.3  volume_pred_ml 2.171±0.827  volume_gt_ml 2.282±0.828  volume_mad_ml 0.122±0.118  volume_bias_ml -0.1109±0.128  betti_error_1 0±0  betti_error_2 0.1765±0.567  local_dice 0.8519±0.0835
+  4          n=91   dice 0.9128±0.0298  hd95 3.912±4.81  cl_dice 0.9304±0.0378  centerline_md 0.7983±0.489  centerline_hd95 6.812±6.48  volume_pred_ml 1.918±0.565  volume_gt_ml 1.996±0.559  volume_mad_ml 0.09149±0.0752  volume_bias_ml -0.0779±0.0892  betti_error_1 0±0  betti_error_2 0.1429±0.482  local_dice 0.8622±0.0499
+
+By Dominance:
+  Co         n=9    dice 0.9164±0.0251  hd95 2.293±2.78  cl_dice 0.9403±0.0326  centerline_md 0.6679±0.383  centerline_hd95 4.512±4.4  volume_pred_ml 2.022±0.492  volume_gt_ml 2.084±0.541  volume_mad_ml 0.0726±0.0531  volume_bias_ml -0.06202±0.0651  betti_error_1 0.1111±0.314  betti_error_2 0.1111±0.314  local_dice 0.8739±0.0314
+  L          n=6    dice 0.901±0.0223  hd95 2.944±1.6  cl_dice 0.9263±0.0222  centerline_md 0.627±0.143  centerline_hd95 4.706±1.93  volume_pred_ml 1.802±0.221  volume_gt_ml 1.888±0.225  volume_mad_ml 0.137±0.0964  volume_bias_ml -0.08599±0.144  betti_error_1 0±0  betti_error_2 0.8333±0.898  local_dice 0.8554±0.042
+  R          n=145  dice 0.9071±0.0385  hd95 5.215±9.11  cl_dice 0.9255±0.0462  centerline_md 0.903±0.843  centerline_hd95 8.058±9.7  volume_pred_ml 1.94±0.638  volume_gt_ml 2.03±0.633  volume_mad_ml 0.1048±0.0917  volume_bias_ml -0.09059±0.106  betti_error_1 0±0  betti_error_2 0.1241±0.468  local_dice 0.8553±0.064
+
+By Disease:
+  no         n=87   dice 0.9149±0.0274  hd95 3.907±5.56  cl_dice 0.9317±0.0333  centerline_md 0.7728±0.419  centerline_hd95 6.827±6.72  volume_pred_ml 1.907±0.589  volume_gt_ml 1.98±0.589  volume_mad_ml 0.08824±0.0682  volume_bias_ml -0.07324±0.0841  betti_error_1 0±0  betti_error_2 0.08046±0.311  local_dice 0.868±0.0463
+  yes        n=73   dice 0.8984±0.0452  hd95 6.226±11.3  cl_dice 0.92±0.0552  centerline_md 1.006±1.1  centerline_hd95 8.811±11.7  volume_pred_ml 1.978±0.654  volume_gt_ml 2.085±0.646  volume_mad_ml 0.1232±0.109  volume_bias_ml -0.1074±0.124  betti_error_1 0.0137±0.116  betti_error_2 0.2329±0.652  local_dice 0.8424±0.0745
+
+Local Dice by segment_name:
+  bin            n_pts  n_scans    diam      hu    dist  local_dice
+  D1              3070      157    1.37     257    54.6  0.8126±0.182
+  D2              1473       95    1.34     233    68.2  0.7360±0.265
+  IM               959       49    1.36     265    38.2  0.7313±0.230
+  L-PDA            177        8    1.30     278   124.8  0.7557±0.170
+  L-PLA            131       11    1.22     207   102.4  0.6351±0.233
+  LAD             8675      160    1.78     347    75.6  0.8867±0.131
+  LCX             5776      160    1.75     352    57.2  0.8540±0.133
+  LM               807      159    2.93     491     4.8  0.9363±0.075
+  OM1             2860      136    1.42     281    68.6  0.7605±0.192
+  OM2             1135       58    1.32     275    86.4  0.7234±0.235
+  Other            361       24    1.36     235    79.3  0.7654±0.229
+  R-PDA           3760      150    1.31     291   130.2  0.7881±0.185
+  R-PLA           3726      147    1.40     320   141.7  0.8129±0.164
+  RCA             7160      160    2.30     481    55.4  0.9444±0.076
+
+Local Dice by dist_mm:
+  bin            n_pts  n_scans    diam      hu    dist  local_dice
+  <25             5564      160    2.37     463    13.5  0.9345±0.058
+  25-50           7665      160    1.86     393    37.9  0.8957±0.082
+  50-75           7795      160    1.69     337    62.4  0.8816±0.087
+  75-100          6648      160    1.60     320    87.0  0.8494±0.102
+  100-125         5675      160    1.48     304   112.2  0.8370±0.125
+  125-150         4234      159    1.36     273   136.5  0.7779±0.176
+  >150            2489      132    1.26     242   169.7  0.6231±0.290
+
+Local Dice by hu:
+  bin            n_pts  n_scans    diam      hu    dist  local_dice
+  <150            3258      158    1.19     115   101.6  0.5565±0.199
+  150-250         8830      160    1.34     202    98.9  0.7463±0.127
+  250-350         9288      160    1.54     300    84.8  0.8793±0.098
+  350-450         9028      160    1.97     398    64.6  0.9297±0.057
+  >450            9666      143    2.14     547    50.9  0.9497±0.036
+
+Local Dice by diameter_mm:
+  bin            n_pts  n_scans    diam      hu    dist  local_dice
+  <1               696      139    0.86     177   100.1  0.5924±0.230
+  1-1.5          17287      160    1.20     268    94.7  0.7815±0.096
+  1.5-2          10724      160    1.72     356    78.7  0.8897±0.059
+  2-2.5           6678      160    2.17     459    52.7  0.9457±0.041
+  2.5-3           2492      153    2.72     471    40.7  0.9559±0.049
+  >3              2193      136    3.36     464    29.1  0.9515±0.058
+
+------------------------------------------------------------
+Sender: LSF System <lsfadmin@hpc.dtu.dk>
+Subject: Job 29405686: <qiu_reconnect> in cluster <dcc> Done
+
+Job <qiu_reconnect> was submitted from host <hpclogin1> by user <s254124> in cluster <dcc> at Mon Sep 14 23:25:22 2026
+Job was executed on host(s) <8*n-62-29-20>, in queue <hpc>, as user <s254124> in cluster <dcc> at Mon Sep 14 23:25:24 2026
+</zhome/e2/6/224426> was used as the home directory.
+</zhome/e2/6/224426/project/ImageCAS-X> was used as the working directory.
+Started at Mon Sep 14 23:25:24 2026
+Terminated at Mon Sep 14 23:56:30 2026
+Results reported at Mon Sep 14 23:56:30 2026
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+#!/bin/sh
+
+#BSUB -q hpc
+#BSUB -J qiu_reconnect
+#BSUB -n 8
+#BSUB -R "span[hosts=1]"
+#BSUB -R "rusage[mem=4GB]"
+#BSUB -W 6:00
+#BSUB -o logs/qiu_reconnect_%J.out
+#BSUB -e logs/qiu_reconnect_%J.err
+
+# Repair an existing run's predictions with Qiu et al. 2025 stage 2, then score them.
+# CPU only. See docs_thesis/qiu_reconnection.md.
+#
+#   RUN_DIR   output run dir under $ImageCAS_X_results_path (required)
+#   CONFIG    default configs/cas_net_qiu.json
+#   SRC_RUN   run dir holding the predictions to repair, default cas_net_pretrained
+#   SPLIT     default test; evaluate.py only runs for test
+#   SET       one reconnection param override, e.g. eval_threshold=99
+#   OVERWRITE redo scans already written
+#
+#   bsub -env "all, RUN_DIR=cas_net_pretrained_keep2, CONFIG=configs/cas_net_keep2.json" < jobs/qiu_reconnect.sh
+#   bsub -env "all, RUN_DIR=cas_net_pretrained_val_qiu_calib, SRC_RUN=cas_net_pretrained_val, SPLIT=val, SET=eval_threshold=99" < jobs/qiu_reconnect.sh
+#   bsub -env "all, RUN_DIR=cas_net_pretrained_qiu" < jobs/qiu_reconnect.sh
+#   bsub -env "all, RUN_DIR=cas_net_pretrained_qiu_noremove, CONFIG=configs/cas_net_qiu_noremove.json" < jobs/qiu_reconnect.sh
+#
+# Resumes by default. A scan that fails gets no prediction and an .error.txt log; the
+# job still evaluates, and evaluate.py reports the gap under "coverage".
+
+cd /zhome/e2/6/224426/project/ImageCAS-X || exit 1
+. ./env.sh
+mkdir -p logs
+
+CONFIG="${CONFIG:-configs/cas_net_qiu.json}"
+SRC_RUN="${SRC_RUN:-cas_net_pretrained}"
+SPLIT="${SPLIT:-test}"
+
+if [ -z "$RUN_DIR" ]; then
+    echo "RUN_DIR is required, e.g. -env \"all, RUN_DIR=cas_net_pretrained_qiu\"" >&2
+    exit 1
+fi
+
+EXTRA_ARGS=""
+[ -n "$SET" ] && EXTRA_ARGS="$EXTRA_ARGS --set $SET"
+[ -n "$OVERWRITE" ] && EXTRA_ARGS="$EXTRA_ARGS --overwrite"
+
+echo "=== config: $CONFIG  src: $SRC_RUN  run_dir: $RUN_DIR  split: $SPLIT  extra: $EXTRA_ARGS ==="
+
+python scripts/qiu_reconnect.py -c "$CONFIG" --src "$SRC_RUN" -r "$RUN_DIR" \
+    --split "$SPLIT" --workers 8 $EXTRA_ARGS \
+
+(... more ...)
+------------------------------------------------------------
+
+Successfully completed.
+
+Resource usage summary:
+
+    CPU time :                                   14307.47 sec.
+    Max Memory :                                 15857 MB
+    Average Memory :                             9516.50 MB
+    Total Requested Memory :                     32768.00 MB
+    Delta Memory :                               16911.00 MB
+    Max Swap :                                   -
+    Max Processes :                              12
+    Max Threads :                                23
+    Run time :                                   1866 sec.
+    Turnaround time :                            1868 sec.
+
+The output (if any) is above this job summary.
+
+
+
+PS:
+
+Read file <logs/qiu_reconnect_29405686.err> for stderr output of this job.
+
