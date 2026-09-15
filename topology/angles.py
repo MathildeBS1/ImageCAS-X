@@ -56,8 +56,7 @@ def direction(tree: graph.CoronaryTree, seg: graph.Segment, core_scale: float, w
     """``graph.outgoing_direction`` along ``seg``'s vessel from ``seg`` onward, skipping a core of
     ``core_scale`` x the radius at ``seg``'s start node."""
     if seg.radii is None:
-        raise ValueError("centerline has no radius: run scripts/compute_centerline_radius.py "
-                         "(GT) or build it with topology.skeleton (prediction)")
+        raise ValueError("centerline has no radius: run scripts/compute_centerline_radius.py first")
     points = tree.vessel_of(seg).points_from(seg)
     return graph.outgoing_direction(points, core_scale * float(seg.radii[0]), window_mm)
 

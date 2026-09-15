@@ -1,13 +1,11 @@
 #!/usr/bin/env python
 """Extract the 5 target bifurcation angles for every case.
 
-See topology/angles.py for the definitions. GT needs the radius cache
-(scripts/compute_centerline_radius.py); predicted centerlines carry their own radius
-(scripts/build_predicted_centerlines.py).
+See topology/angles.py for the definitions. Needs the radius cache
+(scripts/compute_centerline_radius.py) first.
 
 Usage:
-  python scripts/extract_bifurcation_angles.py                        # GT, all 800 cases
-  python scripts/extract_bifurcation_angles.py --source pred --run cas_net_pretrained
+  python scripts/extract_bifurcation_angles.py                        # all 800 GT cases
   python scripts/extract_bifurcation_angles.py --core-scale 0.5 --window-mm 5
 """
 
@@ -41,8 +39,6 @@ def _row(case_id: int, results: dict[str, angles.BifurcationResult]) -> dict:
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--source", choices=("gt", "pred"), default="gt")
-    ap.add_argument("--run", default="cas_net_pretrained", help="for --source pred")
     ap.add_argument("--core-scale", type=float, default=1.0,
                     help="core skipped at each junction, in multiples of the junction radius")
     ap.add_argument("--window-mm", type=float, default=3.0, help="length the direction is fitted over")
@@ -51,12 +47,7 @@ def main() -> None:
     args = ap.parse_args()
 
     root = None
-    if args.source == "pred":
-        root = paths.OUTPUT_ROOT / "predicted_centerlines" / f"{args.run}_oracle"
-        ids = sorted(int(p.name.split(".")[0]) for p in root.glob("*.json") if p.stem.isdigit())
-        tag = f"pred_{args.run}_oracle"
-    else:
-        ids, tag = list(paths.usable_ids()), "gt"
+    ids, tag = list(paths.usable_ids()), "gt"
     ids = ids[: args.n or None]
     tag += f"_core{args.core_scale:g}_win{args.window_mm:g}"
     out_dir = Path(args.out) if args.out else paths.output_dir(f"bifurcation_angles/{tag}")

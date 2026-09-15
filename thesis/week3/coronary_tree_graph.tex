@@ -1,5 +1,7 @@
 % Working note, not thesis prose -- current state, to revisit together once confirmed.
 % Numbers and figure from scripts/survey_topology.py and scripts/make_tree_figure.py, 2026-09-14.
+% Feature-extraction description follows topology/graph.py, angles.py and radius.py as they
+% stand on 2026-09-15.
 
 \section*{The coronary tree graph (current approach)}
 
@@ -32,10 +34,37 @@ root each side at its ostium, orient every polyline outward from there, glue the
 vessel back into a single segment, and name each segment by majority vote over its interior points
 (the junction point itself gets skipped, since it still carries the parent vessel's label).
 
-I checked this against the flags the dataset ships (which points are ends, which are bifurcations):
-across all 1600 sides, the graph's connectivity matches exactly, and 1584 sides come out as one
-clean tree. Not fully independent evidence -- the flags were defined by the same degree rule -- but
-it confirms the connectivity was recovered right.
+I checked this against the flags the dataset ships (which points are ends, which are bifurcations,
+via \texttt{scripts/survey\_topology.py}): across all 1600 sides, the graph's connectivity matches
+exactly. Not fully independent evidence -- the flags were defined by the same degree rule -- but it
+confirms the connectivity was recovered right.
+
+1584 of those 1600 sides come out as one clean rooted tree. The other 16 are real anatomy or real
+data defects, not bugs in the builder, so they are kept and flagged rather than dropped: 11 left
+sides have \emph{two} ostia, because LAD and LCx arise separately with no left main -- exactly the
+11 left sides that carry no LM label, so this is the absent-left-main variant, not corruption. 2
+left sides (cases 84, 272) are a genuinely detached fragment, rooted at whichever end of the
+fragment sits nearest the main tree, the best stand-in for an ostium that can be justified without
+one. And 3 sides (8 left, 455 right, 776 left) contain a cycle; a coronary tree has none, so the
+cycle-closing edge is dropped to get back to a tree, and that drop is recorded rather than silent.
+
+Turning that graph into a feature takes two more steps, both in \texttt{topology/angles.py}. First,
+same-named segments are chained into one \texttt{Vessel}: the LAD, say, is cut into several segments
+wherever a side branch leaves it, and at the 456 junctions across the cohort where a named artery
+forks into two children with no name of its own for the split, the child with the longer downstream
+run of that name keeps it and the other starts a vessel of its own -- a tie-break choice, not
+anatomy. Second, the angle at a bifurcation is the angle between its two daughters' outgoing
+directions, each fit as the principal axis of the next 3\,mm of arc length \emph{past} a core near
+the junction that is skipped outright: inside that core the parent and daughter skeletons still
+overlap, and a direction read at the junction point itself is unstable (the LM angle's cohort median
+moved from 99 to 81 degrees between a 1.5 and a 5\,mm reading window). The core's size scales with
+the local lumen radius, which is not in the centerline file, so \texttt{topology/radius.py} measures
+it straight off the mask: the distance from each centerline point to the nearest voxel outside the
+lumen. Five named bifurcations come out of this, fixed by anatomical name rather than found by
+searching the tree, so a value means the same anatomical place in every case: LM (LAD vs LCx),
+LAD-D1, LAD-D2, LCx-OM1, and the crux (PDA vs PLA, right dominant preferred, cross-checked against
+the Dominance descriptor). A case missing one of these keeps a NaN with a stated reason rather than
+being silently dropped.
 
 Here's what it actually looks like for one case (\Cref{fig:week3-tree-case1}): on the left, the
 centerline as it sits in space, with the five bifurcation angles marked; on the right, the same
@@ -55,10 +84,11 @@ length are easy to read off directly instead of squinting at 3D.
 
 \textbf{Still open: getting this onto Herlev--{\O}sterbro.} None of this exists there yet -- no
 mask, no centerline, no ostium, no names. Rough plan: predicted mask from the segmentation network,
-skeletonize it the same way, ostium from a TotalSegmentator aorta
-\cite{wasserthal2023totalsegmentator}, and names from... something, probably training on the 14
-labels directly instead of vessel-vs-background. That last part I don't have a good answer for yet.
-Before touching a real Herlev--{\O}sterbro scan, the plan is to run the whole thing on the 160
-ImageCAS-X test cases first and see how far the angles drift once the tree comes from a predicted
-mask instead of the corrected one -- that drift is the error this extraction adds, and it needs to
-be small next to how much the angle varies between people.
+skeletonize it the same way (Lee et al. 1994, the method ImageCAS-X itself cites) and Gaussian-smooth
+it with the same $\sigma = 0.5$\,mm so the result feeds \texttt{graph.build\_tree} unchanged, ostium
+from a TotalSegmentator aorta \cite{wasserthal2023totalsegmentator}, and names from... something,
+probably training on the 14 labels directly instead of vessel-vs-background. That last part I don't
+have a good answer for yet. Before touching a real Herlev--{\O}sterbro scan, the plan is to run the
+whole thing on the 160 ImageCAS-X test cases first and see how far the angles drift once the tree
+comes from a predicted mask instead of the corrected one -- that drift is the error this extraction
+adds, and it needs to be small next to how much the angle varies between people.
