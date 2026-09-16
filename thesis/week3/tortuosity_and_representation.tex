@@ -29,11 +29,11 @@
 
 \section*{Tortuosity from centerlines: measures and learned representations}
 
-This note gathers the week's thinking on tortuosity in one place. It starts from what a centerline
-actually contains, because every measure below is computed from it. Then it covers how a curve
-that is one-dimensional can still bend and twist, and what the tortuosity of a real coronary
-centerline is made of. It then turns to the established hand-crafted measures and, last, to
-whether a neural network could find the same structure --- or more --- on its own.
+Every tortuosity measure below is computed directly from a centerline's coordinates, so what the
+centerline actually contains, and how reliably each derivative of its shape can be estimated from
+it, decides which measures are trustworthy and which are mostly noise. This note works through
+that dependency once, then uses it to compare the established hand-crafted measures against a
+learned alternative: a network embedding that finds the same structure, or more, on its own.
 
 % ---------------------------------------------------------------------------------------------
 \subsection*{1. What a centerline is}
@@ -92,14 +92,43 @@ The right tree has the same layout, with 500 points and 5 edges.
 \textbf{One LAD in numbers.} In case 1 the LAD has 309 points, so $309 \times 3 = 927$ numbers
 describe the whole vessel. It is stored in four pieces, cut wherever a side branch leaves it:
 18 points (7.2~mm) from the LM split to the D1 origin, 51 points (22.8~mm) to D2, 34 points
-(15.9~mm) to the next branch, and 210 points (106.3~mm) to the tip --- about 152~mm in all.
+(15.9~mm) to the next branch, and 210 points (106.3~mm) to the tip -- about 152~mm in all.
 Consecutive points lie a fraction of a millimetre apart; the shape of the vessel is in how those
 small steps change direction.
 
-This has a direct consequence for the existing script. Its per-\emph{segment} rows measure only the
-longest contiguous piece of each label, so the ``LAD'' row below is the distal 106~mm, not the whole
-vessel. A whole-LAD tortuosity needs the four pieces chained from the LM split to the tip. The
-ostium-to-tip paths already do that, but they include the left main as well.
+The existing script's per-\emph{segment} rows measure only the longest contiguous piece of each
+label, so the ``LAD'' row below is the distal 106~mm, not the whole vessel: a whole-LAD tortuosity
+needs the four pieces chained from the LM split to the tip. The ostium-to-tip paths already do
+this, but include the left main as well.
+
+\textbf{Chaining segments into a vessel loses nothing; it only stops double-counting the shared
+point.} The LAD's four segments hold 18, 51, 34 and 210 points, 313 in total; each of the three
+internal junctions is simultaneously the last point of one segment and the first point of the
+next, so the chained vessel is $313 - 3 = 310$ points, one point short of the segment sum for
+each junction, not short of the raw centerline. \Cref{tab:week3-close-points} shows why so many
+points are needed at all: consecutive points sit only 0.4--0.8~mm apart, so a bend only becomes
+visible over several steps, never between one pair of them.
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \begin{tabular}{@{}rrrrr@{}}
+    \toprule
+    Point & $x$ (mm) & $y$ (mm) & $z$ (mm) & step to next (mm) \\
+    \midrule
+    0 & 32.173 & $-172.866$ & 123.950 & 0.79 \\
+    1 & 32.845 & $-173.112$ & 124.284 & 0.45 \\
+    2 & 33.273 & $-173.169$ & 124.409 & 0.41 \\
+    3 & 33.675 & $-173.112$ & 124.491 & 0.42 \\
+    4 & 34.057 & $-172.991$ & 124.616 & 0.42 \\
+    5 & 34.435 & $-172.903$ & 124.783 & -- \\
+    \bottomrule
+  \end{tabular}
+  \caption{The LAD's first six points in case 1, scanner-frame mm, read directly off
+    \texttt{Vessel.points}. Each step is under a millimetre, so the tree's per-point array is the
+    same resolution the raw centerline ships at -- nothing coarser.}
+  \label{tab:week3-close-points}
+\end{table}
 
 \textbf{What a centerline is not.} It holds no width and no lumen shape. Those come from the mask
 or the surface mesh, or from a radius attached to each point; the script's radius table gets it
@@ -108,8 +137,8 @@ from the distance between each centerline point and the surface.
 % ---------------------------------------------------------------------------------------------
 \subsection*{2. How a one-dimensional curve bends and twists}
 
-``One-dimensional'' describes the curve, not the space it sits in. A single number --- the arc
-length $s$ from the ostium --- says where along it you are, but each point has three coordinates,
+``One-dimensional'' describes the curve, not the space it sits in. A single number -- the arc
+length $s$ from the ostium -- says where along it you are, but each point has three coordinates,
 so the curve can bend in any direction, the way a wire can be bent into a spring. With $\mathbf r(s)$
 the position and $\mathbf T = \mathrm d\mathbf r/\mathrm ds$ the unit tangent, two quantities
 describe everything it does:
@@ -162,7 +191,7 @@ outside its best-fitting plane (the smallest eigenvalue of the point covariance 
 In case 1 the LM is essentially flat (0.0002), the LAD's distal piece reaches 0.009, and the RCA is
 the most three-dimensional at 0.022, as it wraps around the heart.
 
-Two caveats. Torsion is a third derivative, noisier still than curvature, and on a nearly straight
+\textbf{Two caveats.} Torsion is a third derivative, noisier still than curvature, and on a nearly straight
 stretch the bending plane is undefined, so $\tau$ is usually trusted only where $\kappa$ is clearly
 above zero, and only after smoothing. And ``twist'' can mean two things: the centerline gives the
 \emph{path} twisting out of plane, which is what drives helical flow; it cannot tell whether the
@@ -234,7 +263,7 @@ three things.
 
 What a centerline cannot say at all: the radius (the same bend disturbs flow more in a wider
 vessel, which is what the Dean number expresses), the curvature of the inner versus the outer wall,
-and the heartbeat --- coronaries move and bend with each beat, so a CT centerline is a snapshot at
+and the heartbeat -- coronaries move and bend with each beat, so a CT centerline is a snapshot at
 the reconstructed phase.
 
 % ---------------------------------------------------------------------------------------------
@@ -263,8 +292,8 @@ $(1/L)\int\lvert\kappa\rvert\,\mathrm ds$. It was the best of Bullitt's metrics 
 low-amplitude coils, and the \emph{inflection count metric} caught two other abnormal types.
 Keeping the turning angle as a \emph{profile} rather than a sum is what a recent angiography study
 did: in 22,334 patients, a transformer reading the full local profile predicted CAD better than its
-global mean (AUROC 0.67 against 0.60) \cite{telloayala2026tortuosity}. The clinical scores ---
-bends above $45^\circ$, or consecutive $180^\circ$ turns \cite{groves2009tortuosity} --- are
+global mean (AUROC 0.67 against 0.60) \cite{telloayala2026tortuosity}. The clinical scores --
+bends above $45^\circ$, or consecutive $180^\circ$ turns \cite{groves2009tortuosity} -- are
 categorical versions of the same idea.
 
 \textbf{C. Curvature integrals (second derivative and above).}
@@ -279,8 +308,8 @@ below 0.4~Pa time-averaged wall shear stress \cite{kashyap2022tortuosity}:
      && R^2 = 0.101,\ p = 0.001,
 \end{align}
 against $R^2 \approx 0$ ($p = 0.865$) for $L/D$. The mean absolute curvature weights bends
-linearly. The squared-derivative measure responds to how abruptly bends start and stop --- plausibly
-where flow separates --- but is a third derivative and the noisiest of all. Torsion and
+linearly. The squared-derivative measure responds to how abruptly bends start and stop -- plausibly
+where flow separates -- but is a third derivative and the noisiest of all. Torsion and
 non-planarity (\Cref{eq:week3-frenet}) are the only measures here that recognise a helix as a
 helix.
 
@@ -297,8 +326,8 @@ than a gentle arc with the same total turning, which is the one thing it adds ov
 $\bar\kappa_a$. Its unit is mm$^{-2}$, so it is not scale-free; $L\int\kappa^2\,\mathrm ds$ is
 dimensionless and equals $\theta^2$ for a circular arc turning through $\theta$.
 
-The ``Jacobian'' framing --- treat the tangent as a flow $\mathbf f$ and take the curvature of its
-flow lines, $\kappa = \lvert \mathbf f \times (J\mathbf f) \rvert / \lvert \mathbf f\rvert^3$ ---
+The ``Jacobian'' framing -- treat the tangent as a flow $\mathbf f$ and take the curvature of its
+flow lines, $\kappa = \lvert \mathbf f \times (J\mathbf f) \rvert / \lvert \mathbf f\rvert^3$ --
 reduces on a curve to $(J\mathbf f)\mathbf f = \mathrm d\mathbf T/\mathrm ds$, i.e.\ to
 \Cref{eq:week3-frenet}. It needs no new machinery; only the squaring and averaging are new.
 
@@ -353,11 +382,11 @@ predicted masks exist.
 \end{figure}
 
 \textbf{No single number separates all six curves} (\Cref{tab:week3-comparison}). The proximal and
-distal bends are mirror images, so every integral --- $L/D$, SOAM, $\bar\kappa_a$, $T_\kappa$,
-$\bar\kappa'_2$ --- gives them identical values. Only a profile along the vessel, or a
-position-weighted measure, tells them apart. This agrees with the review's point that the sign of a
-tortuosity finding depends on the level of analysis \cite{shen2026geometry}, and with the
-profile beating its mean in the angiography study \cite{telloayala2026tortuosity}.
+distal bends are mirror images, so every integral -- $L/D$, SOAM, $\bar\kappa_a$, $T_\kappa$,
+$\bar\kappa'_2$ -- gives them identical values. Only a profile along the vessel, or a
+position-weighted measure, tells them apart, matching the review's point that the sign of a
+tortuosity finding depends on the level of analysis \cite{shen2026geometry} and the profile
+beating its mean in the angiography study \cite{telloayala2026tortuosity}.
 
 \begin{table}[htbp]
   \centering
@@ -394,7 +423,7 @@ the 0.5~mm grid.
 \subsection*{5. Letting a network find the structure}
 
 The alternative to choosing the numbers is to let a network choose them. Compress each vessel, or
-each stretch of one, into a short vector --- an \emph{embedding} --- without telling the network
+each stretch of one, into a short vector -- an \emph{embedding} -- without telling the network
 what tortuosity is. Then ask whether tortuosity shows up in the embedding, and what else does.
 
 \textbf{The unit decides what can be found} (\Cref{tab:week3-units}). With 800 usable cases, deep
@@ -433,13 +462,13 @@ enough samples to train properly.
     \cite{wang2024elastictrees}.
   \item \emph{Lumen surface} as a point cloud or mesh, which carries the radius, so a bend relative
     to vessel width comes for free \cite{beetz2025pointvae, griffo2026wss}.
-  \item \emph{Tree graph}, bifurcations as nodes and segments as edges with geometric features ---
+  \item \emph{Tree graph}, bifurcations as nodes and segments as edges with geometric features --
     the natural input for whole-tree models.
 \end{itemize}
 
 \textbf{Families of methods.}
 \begin{description}
-  \item[(a) PCA and functional PCA --- the baseline.] Resample, align, find the directions of
+  \item[(a) PCA and functional PCA -- the baseline.] Resample, align, find the directions of
     greatest variation, and plot each mode at $\pm 2$ standard deviations to see what it encodes.
     This has been done for the left main bifurcation \cite{medranogracia2017bifurcation} and on
     carotid curvature profiles \cite{sangalli2009aneurisk}. If a network cannot beat it, the
@@ -454,10 +483,10 @@ enough samples to train properly.
     individual components of such models mapped onto recognisable 3D shape features, and their
     encodings predicted myocardial infarction better than clinical benchmarks
     \cite{beetz2022meshvae, beetz2025pointvae}.
-  \item[(d) Self-supervised learning on windows --- the best fit here.] \emph{Contrastive:} two
+  \item[(d) Self-supervised learning on windows -- the best fit here.] \emph{Contrastive:} two
     altered copies of a window are pulled together in embedding space and pushed away from other
-    windows. The alterations define what counts as noise --- random rotation, resampling jitter,
-    quantisation to the 0.5~mm grid, a changed smoothing $\sigma$ --- so the embedding is trained
+    windows. The alterations define what counts as noise -- random rotation, resampling jitter,
+    quantisation to the 0.5~mm grid, a changed smoothing $\sigma$ -- so the embedding is trained
     to ignore exactly the artefacts that make hand-crafted curvature unstable, which also serves
     the reproducibility objective. \emph{Masked:} hide a stretch of centerline and predict it from
     its surroundings; to do so the network must learn how vessels bend. Clustering the window
@@ -480,7 +509,7 @@ enough samples to train properly.
   \item \emph{Linear probes}: regress each hand-crafted measure ($L/D$, $\bar\kappa_a$, $T_\kappa$,
     torsion, inflections) on the embedding and report $R^2$.
   \item \emph{The residual}: regress the hand-crafted panel out of the embedding and inspect what
-    remains by latent traversal or cluster maps --- structure nobody thought to measure.
+    remains by latent traversal or cluster maps -- structure nobody thought to measure.
   \item \emph{The six curves} of \Cref{fig:week3-tortuosity-ambiguity}: a good representation
     separates all of them, the proximal/distal pair only if position along the vessel is kept.
   \item \emph{Invariance}: embed the same vessel at different smoothing and sampling and compare

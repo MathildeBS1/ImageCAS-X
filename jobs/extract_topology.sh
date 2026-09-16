@@ -30,7 +30,7 @@ echo "=== 1/3 radius cache for the 800 GT cases ==="
 python scripts/compute_centerline_radius.py --workers 8
 
 echo "=== 2/3 GT bifurcation angles ==="
-python scripts/extract_bifurcation_angles.py --source gt
+python scripts/extract_bifurcation_angles.py
 
 echo "=== 3/3 direction sensitivity on GT ==="
 python scripts/angle_sensitivity.py
