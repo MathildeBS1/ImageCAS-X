@@ -1,0 +1,60 @@
+% Working note, not thesis prose -- current state, to revisit together once confirmed.
+% Companion to coronary_tree_graph.tex: that file covers why a tree has to be built and what it
+% checks out against; this one is the algorithm inside topology/graph.py, build_tree, step by step.
+
+\section*{Building the tree is not a geometric step}
+
+The delivered centerlines need no geometric correction before use. Their points are already
+unique and already in physical millimeters (LPS), and no affine transform or spacing correction
+touches them, unlike the segmentation volumes, which go through resampling before anything reads
+them. There is nothing to reproject and nothing to reslice.
+
+What \texttt{graph.build\_tree(centerline)} does instead is graph construction: turning a file of
+separate polylines and flags into one rooted tree, with the connectivity, orientation and labels
+that feature extraction needs made explicit per segment.
+
+\begin{itemize}
+  \item \textbf{Degree.} \texttt{build\_tree} counts, over every polyline in the file, how many
+  times each point index appears as a \texttt{line[0]} or \texttt{line[-1]}. That count is the
+  point's degree in the underlying graph.
+
+  \item \textbf{Junctions.} A junction is any point whose degree is not 2, plus every
+  \texttt{start\_points} index, pinned in explicitly so an ostium can never be merged straight
+  through even if some numerical quirk gave it degree 2.
+
+  \item \textbf{Merging.} \texttt{\_merge\_chains} glues polylines together through the degree-2
+  points between junctions, so a segment always runs junction to junction, not polyline to
+  polyline as the file stores it. A polyline that forms a closed loop touching no junction at all
+  is reported rather than silently dropped; none occur in this dataset, but the check runs
+  regardless.
+
+  \item \textbf{Components.} \texttt{\_components}, a union-find over the merged chains, finds
+  connected pieces, since 13 of the 1600 sides are not one connected tree.
+
+  \item \textbf{Rooting.} Each component is rooted at its own \texttt{start\_points} index where
+  one exists. Two sides (84, 272) have a fragment with no start point at all; that fragment is
+  rooted at whichever of its degree-1 nodes lies nearest the already-rooted tree, and the choice
+  is logged as a warning rather than made silently.
+
+  \item \textbf{Orientation.} A breadth-first search from each root orients every chain proximal
+  to distal. If the search reaches a node it has already visited, that edge closes a cycle, which
+  a coronary tree should not have. It is diverted into \texttt{chords} instead of the tree, again
+  with a warning. This happens on three sides: 8 left, 455 right, 776 left.
+
+  \item \textbf{Labeling.} A segment's artery label is a majority vote over its interior points,
+  not its endpoints. The endpoints are shared junction points and carry the parent vessel's
+  label, which would otherwise be read straight into the child segment.
+
+  \item \textbf{Node kind.} Whether a node is an ostium, bifurcation, terminus or pass-through
+  comes from how many children it ends up with in the tree that was actually built, not from its
+  raw degree in the file. A node whose extra edge was dropped as a chord keeps a raw degree of 3
+  but has only one child, so it is typed pass-through, not bifurcation.
+
+  \item \textbf{Vessels.} \texttt{\_build\_vessels} chains same-named segments back together into
+  vessels, since a side branch usually cuts a named artery into several segments. Where a name
+  splits across more than one child of the same name, the longest downstream run of that name
+  continues the vessel; the rest start vessels of their own.
+\end{itemize}
+
+None of this changes a single coordinate. It only makes explicit the connectivity, orientation
+and labeling the file already encodes but does not spell out on its own.
