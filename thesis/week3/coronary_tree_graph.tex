@@ -7,37 +7,31 @@
 \section*{The coronary tree graph}
 
 Turning a coronary centerline into a tree lets branching pattern, bifurcation angle, tortuosity and
-dominance be read off one structure instead of each being re-derived separately. This note covers
-how that tree was built and checked; the bifurcation angle built on top of it is covered elsewhere.
+dominance be read off one structure instead of each being re-derived separately.
 
 Kit delivered the centerline for each case, one per side, already built from the hand-corrected
 mask (ground truth in the usual sense): skeletonized to a one-voxel line and Gaussian-smoothed
 ($\sigma = 0.5$\,mm) \cite{bransby2026imagecasx}, no segmentation network involved, with segment
 names (LM, LAD, \ldots) carried over from the discarded hand traces by nearest-point matching. What
-arrived was raw VTK geometry, not a tree: points and polylines with a per-point name. Before I
-could read off branching pattern, angle or tortuosity, that geometry first had to become a rooted
-structure, which the rest of this note covers.
+arrived was raw VTK geometry, not a tree: points and polylines with a per-point name, no encoded
+direction and no record of which polylines share a vessel.
 
-\subsection*{Building the tree}
+That file gives three things: points in 3D, which points connect to which (short polylines between
+them), and which artery each point belongs to. None of the three settles where one vessel ends and
+the next begins. A junction point's name is the parent vessel's, not the daughter's, so name alone
+misplaces exactly the boundary that matters; and a vessel is often split across several polylines
+wherever the skeletonizer happened to break the chain, not only at real branch points, so
+connectivity alone gives adjacency, not vessel identity or direction.
 
-That per-point name is not enough to make a tree. A centerline file stores points and polylines,
-short chains between consecutive points, with no encoded direction and no record of which
-polylines share a vessel: a vessel is often split across several, usually wherever a side branch
-leaves it. The name doesn't resolve either problem, since it labels a point, not a connection or a
-direction: two polylines with the same name aren't thereby one vessel rather than, say, the trunk
-and an unrelated sub-branch inheriting that name past an unnamed split (456 such splits occur in
-the cohort). It is least reliable where it matters most, too: a junction point carries only the
-parent vessel's label, so reading it off directly would misplace the points deciding where one
-vessel ends and the next begins. Direction is a further fact no label supplies, fixed only once a
-root is chosen and the tree walked outward from it.
-
-\texttt{topology/graph.py} resolves connectivity and direction from the polylines and a chosen root
-before using the names at all: it roots each side at its ostium, orients every polyline outward,
-and merges one vessel's polylines into a single segment. Only then is a segment named, by majority
-vote over its interior points, excluding the two endpoints since they carry the parent's label.
-\Cref{fig:week3-tree-case1} shows one case: the centerline in space (left) and the same tree as a
-dendrogram (right), height being distance from the ostium, so branch order and segment length read
-off directly rather than estimated from the 3D view.
+\texttt{topology/graph.py} resolves connectivity and direction first, from the points and polylines
+alone, before touching a name: it roots each side at its ostium, orients every polyline outward, and
+merges one vessel's polylines into a single segment. Only then is each segment named, by majority
+vote over its own interior points. What the tree adds, that the file alone did not have, is
+structure: every point is now either an ostium, a bifurcation or a terminus, or lies on one directed
+segment running between two of those, each segment with a known length, direction and name.
+Branching pattern, bifurcation angle, tortuosity and dominance are all read directly off that
+structure, not re-derived per case. \Cref{fig:week3-tree-case1} shows one case: the centerline in
+space and the same tree as a dendrogram, height being distance from the ostium.
 
 \begin{figure}[htbp]
   \centering
@@ -47,63 +41,13 @@ off directly rather than estimated from the 3D view.
   \label{fig:week3-tree-case1}
 \end{figure}
 
-\subsection*{Checking the tree}
-
-This tree was checked two ways. First, its connectivity against the branch-point and end-point
-flags the dataset ships, defined independently via \texttt{scripts/survey\_topology.py}: across all
-1600 sides it matches exactly (not fully independent, since the flags follow the same degree rule,
-but it confirms the tree was recovered correctly). 1584 of 1600 sides form one clean rooted tree;
-the other 16 are real anatomy or data defects, kept and flagged rather than dropped: 11 left sides
-have two ostia, the absent-left-main variant where LAD and LCx arise separately and carry no LM
-label; 2 left sides (84, 272) are a genuinely detached fragment, rooted at whichever endpoint sits
-nearest the main tree, the closest justifiable stand-in for an ostium; 3 sides (8 left, 455 right,
-776 left) contain a cycle, which a coronary tree cannot have, so the cycle-closing edge is dropped
-and the drop recorded rather than silent.
-
-Second, whether the tree's points are still the delivered centerline's own, not a redrawn
-approximation. A \texttt{Segment}'s points are a direct slice of the raw array; building the tree
-only decides which slice belongs to which segment and which way is outward, never resampling or
-smoothing. A bifurcation is no exception: the junction point is the same array entry read into
-every segment that meets there, not double-counted when segments chain into a vessel, but not
-discarded either. \Cref{tab:week3-junction-points} lists the LAD segment's last two points running
-into the D1 origin (case 1, left); the second, to machine precision, is also the first point of the
-continuing LAD segment and of the D1 branch.
-
-\begin{table}[htbp]
-  \centering
-  \small
-  \begin{tabular}{@{}llrrr@{}}
-    \toprule
-    Segment & Point & $x$ (mm) & $y$ (mm) & $z$ (mm) \\
-    \midrule
-    LAD segment 1 (incoming) & second-to-last & 38.538 & $-172.704$ & 125.401 \\
-    LAD segment 1 (incoming) & last            & 38.958 & $-172.489$ & 125.450 \\
-    LAD segment 4 (continuing) & first         & 38.958 & $-172.489$ & 125.450 \\
-    D1 (branch) & first                        & 38.958 & $-172.489$ & 125.450 \\
-    \bottomrule
-  \end{tabular}
-  \caption{The LAD/D1 bifurcation point in case 1, left side, as it is stored in each of the three
-    segments that meet there. The three ``first''/``last'' rows are the same coordinate, read
-    from \texttt{topology/graph.py}'s \texttt{Segment.points}: nothing is re-measured or
-    re-estimated when a point is shared.}
-  \label{tab:week3-junction-points}
-\end{table}
-
-\Cref{fig:week3-tree-zoom} shows those same two points in place: the left panel redraws the left
-tree of \Cref{fig:week3-tree-case1} in true 3D rather than its flat coronal projection, so
-out-of-plane bending isn't hidden, star marking the zoomed pair; the right panel zooms into that
-pair, labeling both coordinates, $(\Delta x, \Delta y, \Delta z)$, and the 0.47\,mm distance between
-them, the delivered centerline's native point spacing and no coarser.
-
-\begin{figure}[htbp]
-  \centering
-  \includegraphics[width=\linewidth]{content/methods/topology/figures/1_06_tree_zoom.png}
-  \caption{Case 1's left tree (\Cref{fig:week3-tree-case1}) redrawn in true 3D (left), and the two
-    points of \Cref{tab:week3-junction-points} zoomed all the way in (right), with every number
-    describing that step, both points' coordinates, their difference, and the distance between
-    them, labelled directly on the plot.}
-  \label{fig:week3-tree-zoom}
-\end{figure}
+Checked against the branch-point and end-point flags the dataset ships
+(\texttt{scripts/survey\_topology.py}): matches across all 1600 sides. 1584 of 1600 sides form one
+clean rooted tree; the other 16 are real anatomy or data defects, kept and flagged rather than
+dropped: 11 left sides have two ostia, the absent-left-main variant where LAD and LCx arise
+separately; 2 left sides are a detached fragment, rooted at the endpoint nearest the main tree; 3
+sides contain a cycle, which a coronary tree cannot have, so the cycle-closing edge is dropped and
+recorded.
 
 \subsection*{Extending to Herlev--{\O}sterbro}
 
@@ -111,8 +55,6 @@ None of the inputs above exist there: no corrected mask, no delivered centerline
 segment names. The mask instead comes from the segmentation network's prediction, skeletonized the
 same way (Lee et al.\ 1994, the method ImageCAS-X itself cites) and Gaussian-smoothed at
 $\sigma = 0.5$\,mm, feeding \texttt{graph.build\_tree} unchanged; the ostium comes from a
-TotalSegmentator aorta \cite{wasserthal2023totalsegmentator}; segment names have no answer yet,
-beyond training on the 14 labels directly instead of vessel-vs-background. Before a real
-Herlev--{\O}sterbro scan, the plan is to run the same pipeline on the 160 ImageCAS-X test cases and
-measure how far angles drift with a predicted mask instead of the corrected one: that drift is the
-error this step adds, and it needs to be small next to how much the angle varies between people.
+TotalSegmentator aorta \cite{wasserthal2023totalsegmentator}; segment names have no answer yet. The
+plan is to run the same pipeline on the 160 ImageCAS-X test cases and measure how far angles drift
+with a predicted mask instead of the corrected one, since that drift is the error this step adds.

@@ -1,0 +1,117 @@
+% Standalone section -- paste into the weekly report, or \input it.
+% Week 3 working note: whether the tortuosity panel (tortuosity_and_representation.tex,
+% topology/tortuosity.py) separates healthy from diseased ImageCAS-X cases, and whether the
+% metrics scripts/tortuosity_sensitivity.py found most reproducible under a smoothing-scale sweep
+% are the ones that do. Companion to bifurcation_angle_and_disease.tex, which asks the same
+% disease-separation question of bifurcation angle and finds a well-powered null; this one finds
+% the opposite shape of result, a real signal concentrated in the metrics least trusted for
+% reproducibility. Numbers from scripts/tortuosity_disease.py, run 2026-09-16 (800 cases).
+
+\section*{Tortuosity and disease: the reproducible metric is not the discriminating one}
+
+The smoothing-scale sensitivity study that followed the tortuosity panel's first description
+settled which of its metrics survive a defensible range of preprocessing choices: non-planarity
+and the out-of-plane distance family, not curvature or the turning-angle sum, which reorder the
+cohort under a different sigma badly enough to reshuffle a top-5\% tail
+(tortuosity\_and\_representation.tex). The natural next question is whether those same reproducible
+metrics are the ones that separate ImageCAS-X's diseased cases from its healthy ones, on the same
+800 cases the bifurcation angle comparison already tested (bifurcation\_angle\_and\_disease.tex).
+They are not. Eighteen of sixty vessel-by-metric tests survive Benjamini--Hochberg correction at
+5\% (\texttt{scripts/tortuosity\_disease.py}), and the largest, most significant effects sit
+entirely in curvature and the turning-angle sum, the metrics flagged least stable under a
+smoothing-scale change, while non-planarity and the out-of-plane distance family, recommended for
+exactly this kind of extreme-value flag, come back null in every vessel. The one metric that is
+both reproducible and disease-associated is the plain distance ratio, $L/D$, on the LAD.
+
+\subsection*{Curvature and turning rate separate the cohorts; the metrics kept for reproducibility do not}
+
+The RCA and LCx show the clearest effect. Diseased RCAs turn 12.7\% more per millimeter than
+healthy ones (mean turning-angle sum 0.0742 to 0.0836 rad/mm, $n_h=412$, $n_d=386$,
+$p=4.4\times10^{-13}$) and their mean curvature is 12.3\% higher (0.0743 to 0.0834 mm$^{-1}$,
+$p=1.3\times10^{-12}$); the LCx shows the same pattern at similar magnitude (turning-angle sum
+$+12.5\%$, $p=1.1\times10^{-7}$; mean curvature $+12.2\%$, $p=1.9\times10^{-7}$). The LAD shows the
+same direction at roughly half the effect size (mean curvature $+6.7\%$, $p=0.0002$). Even torsion,
+the noisiest metric in the whole panel, comes back significant on the RCA ($+4.5\%$,
+$p=3.0\times10^{-6}$), though its effect is the smallest of any significant result, consistent with
+a real but small signal sitting inside a mostly noise-dominated measurement. Against that,
+non-planarity and the out-of-plane distance family are flat in every vessel: RCA non-planarity
+moves $+20.4\%$ in the same direction but does not clear $p=0.15$, and the other three vessels move
+by less and no more significantly.
+
+One metric in the panel matches the clinical literature's own definition directly,
+three or more bends exceeding $45^\circ$ \cite{li2011tortuosity, zebicmihic2023tortuosity}, and it
+is null everywhere: the median bend count is identical between healthy and diseased cases in all
+four vessels (LM 0, LAD 4, LCx 3, RCA 3), and no vessel's difference clears $p=0.07$. The clinical
+bend count and the continuous curvature measures are answering different questions on the same
+centerlines, and only the continuous ones separate this cohort.
+
+\subsection*{Not an artifact of image quality}
+
+Diseased scans in ImageCAS-X carry a slightly lower quality grade than healthy ones (median 4 vs.\
+3 on the dataset's 4-point scale, $n=800$, $p=0.003$), which is exactly the confound that would
+manufacture a spurious curvature effect: noisier segmentations produce noisier centerlines, and
+curvature is the metric most sensitive to that noise. Restricting the comparison to
+Image Quality~$=4$ only (the best grade, $n_h\approx247$, $n_d\approx187$--$189$ depending on
+vessel) removes the confound rather than assuming it away, and the RCA and LCx effects survive
+essentially unchanged: RCA mean curvature $+10.6\%$ ($p=4.8\times10^{-6}$), RCA turning-angle sum
+$+9.7\%$ ($p=4.2\times10^{-6}$), LCx turning-angle sum $+10.2\%$ ($p=0.002$). The LAD's curvature
+effect weakens to borderline within this stratum ($p=0.02$--$0.03$), but its $L/D$ effect does not
+($+5.2\%$, $p=0.003$). Whatever is driving the RCA and LCx result, it is not simply that diseased
+scans are worse images.
+
+\subsection*{The null on the reproducible metrics is well powered for the LAD, not for the others}
+
+A null result needs its own power check before it licenses anything, and the answer here differs
+by vessel. On the LAD, this cohort's size gives 80\% power to detect an effect as small as $12.9\%$
+of the healthy median for non-planarity, $5.6\%$ for the out-of-plane distance ratio, and $6.0\%$
+for the out-of-plane angle: an effect of the size seen in curvature ($+6.7\%$) would very likely
+have been caught if it were present in these metrics too, so the LAD's null is a genuine one, not a
+power shortfall. On the RCA, the out-of-plane distance and angle nulls are similarly well powered
+(minimum detectable effect $11$--$12\%$ of the healthy median), but the non-planarity null is not
+($49\%$): RCA vessels are close enough to planar, and non-planarity's own spread across the cohort
+small enough, that only a very large relative shift would register at all. The LM is uninformative
+on every reproducible metric: its plane fit is degenerate on most cases (its own best-fit plane is
+undefined on a vessel this short and this close to straight, topology/tortuosity.py), which drops
+its usable $n$ from $\sim\!400$ to $82$ vs.\ $85$ and pushes the minimum detectable effect past
+$33\%$ everywhere. An LM tortuosity--disease null, on this evidence, says nothing either way.
+
+\subsection*{The direction does not resolve against either published pattern}
+
+The largest tortuosity cohort found, Groves et al.'s 1,221 consecutive angiograms, associates
+severe tortuosity with a significantly \emph{lower} incidence of significant coronary artery
+disease ($p=0.003$) \cite{groves2009tortuosity}; Li et al., in 1,010 angiography patients using the
+same three-bends-over-$45^\circ$ definition, found the same inverse direction (odds ratio $0.755$,
+95\% CI $0.574$--$0.994$, $p=0.045$) and no difference in major adverse events over 2--4 years
+\cite{li2011tortuosity}. Zebić Mihić et al., in 131 patients, found the opposite sign but for a
+different endpoint: tortuosity was associated with ischemia specifically in the \emph{absence} of
+obstructive disease (odds ratio $7.96$) \cite{zebicmihic2023tortuosity}, and a second, 160-patient
+cohort from the same group showed a continuous tortuosity index detects territory-matched ischemia
+associations that the clinical bend count misses almost entirely
+\cite{zebicmihic2024index}. ImageCAS-X's \texttt{Disease} field is a single yes/no with no severity
+grade and no obstructive/non-obstructive distinction, so this comparison cannot say which of those
+two literatures, if either, the RCA and LCx effect agrees with: a coarse label large enough to
+contain both obstructive and non-obstructive disease could produce a positive average of two
+populations that individually run in opposite directions. What it does establish is that "more
+curved" is not obviously the direction the obstructive-disease literature would predict, which is
+reason enough not to read this result as confirming the field's more common assumption that
+tortuosity and disease simply rise together.
+
+\subsection*{What this licenses}
+
+Within ImageCAS-X, the RCA and LCx bend measurably more in cases flagged diseased, an effect that
+survives multiple-comparison correction and an image-quality stratification built specifically to
+rule out the most obvious confound; the LAD's $L/D$ carries the same signal at smaller size while
+also being the one metric in the panel already shown stable under a smoothing-scale sweep. What
+this does not establish is which literature that effect agrees with, since the two published
+directions require a severity grade this dataset's label cannot provide, and it does not establish
+that non-planarity or the out-of-plane family are uninformative in general, only that they are
+uninformative against this particular coarse label, on vessels short enough that several of the
+tests were never well powered to see anything else. \texttt{Disease} is also a per-patient flag
+tested against a per-vessel measurement, exactly the dilution
+bifurcation\_angle\_and\_disease.tex's own literature comparison already named as the gap between a
+site-matched clinical design and a whole-tree present/absent label, and there is still no age, sex
+or BMI field in ImageCAS-X to check against, the same confounder gap that comparison could only flag rather than close.
+A severity-graded, site-matched redesign is where this belongs next, and the project plan already
+names it: the CGPS baseline-vs-progression cohort, once it exists, is where tortuosity's
+association with disease should be tested for real, not reproduced from a two-value label a second
+time.

@@ -1,0 +1,155 @@
+% Standalone section -- paste into the weekly report, or \input it.
+% Week 3 working note: closes the open question left at the end of
+% tortuosity_and_representation.tex ("A quantised-synthetic-curve test would settle the noise
+% floor of each measure"). Companion to tortuosity_and_disease.tex, which asks whether the
+% reproducible metrics are the discriminating ones; this one asks the prior question, how much of
+% the derivative-based measures is signal at all, at the smoothing scale the rest of the panel
+% already uses by default.
+%
+% PROVENANCE. scripts/tortuosity_noise_floor.py, run 2026-09-16, 800 usable cases plus case 1 for
+% the figure. Figure from scripts/make_noise_floor_figure.py. Both are my own analysis, not a
+% literature result, in the same spirit as the T_kappa noise-bias derivation in
+% tortuosity_and_representation.tex Sec.\ 4.
+
+\section*{Tortuosity}
+
+\textbf{Tortuosity} isn't one thing. The word bundles together several distinct geometric
+properties: how much longer a path is than the straight-line distance ($L/D$), how sharply it
+bends locally (curvature), how much it corkscrews out of a flat plane (torsion, non-planarity),
+how often it oscillates (inflections, SOAM). \\
+The measures that matter most, curvature and torsion, are also the least trustworthy, because
+they need derivatives. A centerline is a list of points with some position error in it: jitter
+from skeletonisation, rounding to the voxel grid. Curvature takes two derivatives of that noisy
+signal, torsion takes three, and each derivative makes the noise worse. \\
+
+I started by investigating: at the current smoothing level, how much of the reported curvature
+is real bending, and how much is just noise?
+
+
+\subsection*{Lower bound for the noise}
+
+A centerline point comes from a segmentation mask, which is a grid of voxels: each voxel is
+either ``vessel'' or not. Wherever the true, continuous vessel boundary actually falls inside a
+voxel, the mask can only place it at the voxel's resolution, not any finer. This rounding is
+\emph{quantisation}, and it has a known, standard result: if a true position is rounded onto a
+grid of spacing $h$, and there is no reason for that position to line up with the grid, i.e.\ a
+patient's coronary anatomy has no relationship to the CT scanner's reconstruction grid, the
+rounding error has variance exactly $h^2/12$, i.e.\ a standard deviation of
+\begin{equation}
+  \varepsilon = \frac{h}{\sqrt{12}}.
+  \label{eq:week3-quant-floor}
+\end{equation}
+Any further source of error, segmentation mistakes, skeletonisation artefacts, only adds more
+noise on top of this; it cannot remove it. So the total position noise is always
+\textbf{at least} $h/\sqrt{12}$.
+
+Reading the actual NIfTI headers of 60 ImageCAS-X volumes gives:
+\begin{itemize}
+  \item \textbf{in-plane} ($x$, $y$): 0.309--0.430~mm, varies scan to scan (median 0.359~mm)
+  \item \textbf{through-plane} ($z$): exactly 0.5~mm, on every one 
+\end{itemize}
+I chose to take the $z$ spacing to be sure I don't understate the true floor on any scan:
+\[
+  \varepsilon \;\geq\; \frac{0.5~\text{mm}}{\sqrt{12}} \;\approx\; 0.144~\text{mm}.
+\]
+
+This noise-floor is the best case for the data, since we must expect some humen error when tracing the arteries, which is not added her.
+
+\subsection{The derivative problem}
+
+
+\textbf{Why derivatives make noise worse, in one example.} Take three points on a perfectly
+straight line ($h = 0.5$~mm apart), each off by the position noise derived in
+position\_noise\_lower\_bound.tex ($\varepsilon = 0.144$~mm), alternating sign:
+$y_{i-1}, y_i, y_{i+1} = +\varepsilon, -\varepsilon, +\varepsilon$. The tangent,
+$(y_{i+1}-y_{i-1})/2h$, comes out around $\varepsilon/h$: noise in, noise out, roughly the same
+size. The curvature, $(y_{i+1} - 2y_i + y_{i-1})/h^2 = 4\varepsilon/h^2 \approx 2.3$~mm$^{-1}$, is
+ten times larger than a real coronary bend ($0.05$--$0.3$~mm$^{-1}$) from the same $0.144$~mm
+wiggle. One extra derivative, and a division by $h^2$ instead of $h$, turns invisible position
+noise into a curvature reading bigger than any real vessel produces.
+
+
+So computing curvature or torsion point to point is out of the question. Noise is roughly
+zero-mean and independent point to point, so averaging $N$ points shrinks the noise variance by
+about $1/N$, while a real bend, which persists over many consecutive points rather than flipping
+sign from one to the next, does not average away the same way. Averaging is the way out; the only
+questions left are how much of it, and measured against what.
+
+\subsection*{The floor, measured}
+
+Not the three-point sketch above, but the same idea done properly: 500 straight lines, each
+150~mm long, every point given independent noise of size $\varepsilon = 0.144$~mm. Each line is
+smoothed and differentiated exactly as a real vessel is, at a few different smoothing scales
+$\sigma$. Since every one of these lines is truly straight, every curvature or torsion value that
+comes out the other end is pure noise; the 95th percentile of that pooled result, one per
+$\sigma$, is the floor.
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \begin{tabular}{@{}rrr@{}}
+    \toprule
+    Smoothing $\sigma$ (mm) & curvature floor (mm$^{-1}$) & torsion floor (mm$^{-1}$) \\
+    \midrule
+    0.0 & 3.218 & 11.790 \\
+    0.5 & 0.760 & 8.441 \\
+    1.0 & 0.169 & 5.225 \\
+    2.0 & 0.031 & 2.754 \\
+    \bottomrule
+  \end{tabular}
+  \caption{The noise floor at each smoothing scale: the curvature/torsion value a perfectly
+    straight line still reports, from 500 noisy synthetic lines
+    (\texttt{scripts/tortuosity\_noise\_floor.py}). More smoothing lowers the floor a lot, but
+    also erases real bends, so it is not free (\Cref{tab:week3-sweep} in
+    tortuosity\_and\_representation.tex).}
+  \label{tab:week3-noise-floor}
+\end{table}
+
+\subsection*{What survives at $\sigma = 1.0$mm}
+
+Take a real vessel's own curvature at every point along its length, at the codebase's default
+smoothing, and check how much of it clears the matching floor above. Across the 800 usable cases,
+it is low everywhere: the LAD clears its own floor for a median of 14.5\% of its length, the LCx
+for 12.6\%, the RCA for only 4.3\%, and torsion for about 1.2\% on every vessel, so torsion is
+essentially never trustworthy at this smoothing scale.
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \begin{tabular}{@{}lrr@{}}
+    \toprule
+    Vessel & curvature above floor (median \% of length) & torsion above floor (median \%) \\
+    \midrule
+    LM  & 0.0\%  & 0.0\% \\
+    LAD & 14.5\% & 1.2\% \\
+    LCx & 12.6\% & 1.2\% \\
+    RCA & 4.3\%  & 1.2\% \\
+    \bottomrule
+  \end{tabular}
+  \caption{Fraction of each vessel's length whose curvature (torsion) is above the noise floor, at
+    $\sigma = 1.0$~mm, across 800 usable cases.}
+  \label{tab:week3-clearance}
+\end{table}
+
+\Cref{fig:week3-noise-floor} shows one example, case 1's RCA: the left panel is the floor itself
+(curvature measured on a straight line, so all of it is noise); the right panel is the real
+vessel, same floor line drawn on top. Only the shaded part above the line counts as real bending.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\linewidth]{content/background/figures/tortuosity_noise_floor_1.pdf}
+  \caption{Left: curvature measured on 500 noisy straight lines at $\sigma=1.0$~mm; every value
+    here is noise. Right: case 1's real RCA curvature profile, same floor line; only the shaded
+    11.5\% of its length sits above it (\texttt{scripts/make\_noise\_floor\_figure.py}).}
+  \label{fig:week3-noise-floor}
+\end{figure}
+
+\subsection*{Consistency with the existing pipeline}
+
+\texttt{curvature\_profile}, the point-by-point function introduced for this test, is not used
+elsewhere in the codebase. \texttt{topology.tortuosity.measure}, the function through which every
+real vessel is processed, does not return that raw series: it reports a mean, an RMS, and a
+windowed maximum over a sliding 20~mm stretch (\texttt{curvature\_rms\_window\_max}), the
+averaging argued for above, implemented before this test was written. The point-by-point profile
+serves here to calibrate the noise floor against which those existing averages should be checked,
+at whatever $\sigma$ they were computed at.

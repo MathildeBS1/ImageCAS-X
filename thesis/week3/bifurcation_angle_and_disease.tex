@@ -1,0 +1,106 @@
+% Standalone section -- paste into the weekly report, or \input it.
+% Week 3 working note: whether bifurcation angle, measured the way bifurcation_angle.tex describes,
+% separates healthy from diseased cases the way local branch volume does, why it does not, and what
+% a fair comparison against the published literature would need. Companion to
+% bifurcation_volume.tex, which asks the same disease-separation question of local branch volume and
+% finds a signal. Numbers from scripts/bifurcation_volume.py and
+% scripts/extract_bifurcation_angles.py, run 2026-09-16 (800 cases); assumes the angle definition
+% from bifurcation_angle.tex.
+
+\section*{Bifurcation angle and disease: a well-powered null}
+
+Four independent CCTA cohorts in the published literature report wider bifurcation angle going with
+more disease, so the natural next question after measuring angle descriptively
+(bifurcation\_angle.tex) was whether the same angle, on the same 800 cases, separates
+ImageCAS-X's diseased cases from its healthy ones. It does not, at any of the five named
+bifurcations, under any of the tests below, including ones built specifically to be as sensitive as
+this cohort's binary disease label allows. That null result turned out to need more explaining than
+a positive one would have: whether it is genuinely a gap between angle and disease, or an artifact
+of not enough cases, is answered in the first subsection; whether angle is at least hiding a signal
+that only shows up alongside volume (bifurcation\_volume.tex) is answered in the second; and what
+the literature's own cohorts had that this comparison lacks is worked through last, since a null
+result on a two-line label is not the same claim as a null result on angle itself.
+
+\subsection*{LM: well powered for a literature-sized effect, and null}
+
+The left main is the bifurcation the published literature bets on, so it is the fairest place to
+ask whether this cohort could have detected the effect those studies report. At the LM, the
+per-case pooled standard deviation is $22.4^\circ$ ($n_h = 404$, $n_d = 384$); at that spread, 80\%
+power detects an effect of $4.5^\circ$, and the effect actually observed is $2.4^\circ$, below that
+floor (\texttt{scripts/extract\_bifurcation\_angles.py}). Reaching 80\% power for the observed
+effect would need roughly 1,390 cases per group, well beyond what ImageCAS-X has. But a gradient the
+size of the published literature's, $11.8^\circ$ between normal and significantly stenosed arteries
+\cite{juan2017bifurcation}, needs only 57 cases per group at our own measured spread, seven times
+fewer than we have. So the test run here is not underpowered for the effect the literature claims;
+it is underpowered only for the much smaller effect actually present in this cohort's own numbers,
+which is a different and more informative statement than "not enough data."
+
+\subsection*{Combining with volume does not recover a signal}
+
+If angle carries some disease information that only becomes visible once the confound of branch
+size is accounted for, adding volume as a second predictor should reveal it. It does not: at CRUX,
+the bifurcation with the strongest volume signal, angle alone predicts disease status at chance
+(5-fold cross-validated AUC $0.488 \pm 0.039$), volume alone reaches $0.576 \pm 0.039$, and angle
+added to volume does not improve on volume alone ($0.572 \pm 0.025$). Angle is not merely a weaker
+version of the same signal volume carries; on this evidence it carries no signal at all, standing
+alone or alongside volume.
+
+\subsection*{Pooling across all five bifurcations does not either}
+
+A single bifurcation's test may simply be unlucky, so the next check pools every named bifurcation
+into one per-patient composite: each case's angle at each bifurcation, expressed as a z-score
+against that bifurcation's own population, averaged across the bifurcations that case has. That is
+the single most powerful angle-only test this label supports, and it is well powered: at this
+cohort's own size it detects effects as small as $0.11$ SD at 80\% power. It trends the expected
+direction (diseased $+0.038$ SD vs.\ healthy $-0.017$ SD) but does not reach significance
+($p = 0.149$, $n_h = 412$, $n_d = 388$). Angle is not underpowered here in the ordinary sense; it is
+being asked a question this label cannot answer.
+
+\subsection*{What the literature had that this comparison does not}
+
+None of the four cohorts that motivated this test used a coarse present/absent label, which is the
+most direct explanation for why they found an effect and this comparison does not. Temov \& Sun
+measured the angle on 196 CCTA cases (mean $79.4^\circ \pm 23.0^\circ$) and found it shifted with
+sex and BMI rather than disease alone \cite{temov2016bifurcation}; Juan et al., across 313 cases
+stratified by stenosis severity, reported $75.5^\circ$ (normal) rising to $87.3^\circ$ (significant
+stenosis) \cite{juan2017bifurcation}; Mansouri et al., in 122 patients with both CCTA and invasive
+angiography, correlated angle against the continuous Gensini severity score at $r = 0.684$
+($p = 0.0001$), stronger than plaque volume ($0.281$) or calcium score ($0.217$) in the same
+patients \cite{mansouri2024bifurcation}; and Tommasino et al.'s CLAP score, following 499 patients,
+found an angle above $80^\circ$ the strongest predictor of major adverse cardiac events in that
+cohort, HR $4.47$ ($95\%$ CI $3.80$--$6.70$, $p<0.001$), ahead of diabetes and obstructive disease
+\cite{tommasino2024clap}. A fifth, smaller cohort reported by a 2026 review of coronary anatomy and
+hemodynamics found the same direction in diseased left coronaries ($94^\circ \pm 19.7^\circ$ vs.\
+$75.5^\circ \pm 19.8^\circ$, $n=30$, $p=0.02$), while noting that computational studies of the same
+relationship disagree on whether angle drives adverse hemodynamics at all \cite{shen2026geometry}.
+What every one of the four primary cohorts has and ImageCAS-X's \texttt{Disease} field does not is a
+severity grade, a stenosis threshold, or a continuous score, measured at the same site as the angle.
+Comparing angle against a patient-level yes/no that can be true because of disease three segments
+away dilutes exactly the local effect these studies find; that is a design gap in this comparison,
+not evidence that the effect itself is absent.
+
+\subsection*{How far a tighter design alone could close that gap}
+
+Two further findings bound how much of that gap a site-matched, severity-graded redesign could
+actually close on its own, without also fixing the measurement itself. Givehchi et al.\ built nine
+phantoms of known bifurcation angle, imaged them by CCTA, and measured the same LAD--LCx angle by
+two accepted techniques: mean absolute error against the true angle was $2.4^\circ \pm 2.2^\circ$ by
+multiplanar reformation and $3.8^\circ \pm 2.9^\circ$ by volume rendering, and applied to 50 real
+clinical cases the two techniques disagreed with each other by $12.0^\circ \pm 10.6^\circ$
+\cite{givehchi2018phantom}, essentially the same size as Juan et al.'s $11.8^\circ$ disease
+gradient. The published angle--disease association sits at the edge of measurement noise even
+before a coarse label is introduced, which is why every angle in this thesis comes from one
+deterministic, centerline-based definition rather than a manual reformation. Separately, Kwon et
+al.\ followed 177 subjects' carotid bifurcation angle over a mean $130.2 \pm 8.1$ months and found
+it increased significantly with age alone ($p<0.001$) \cite{kwon2022carotid}; ImageCAS-X carries no
+age field at all, so this confound cannot even be checked here, only flagged for any future
+angle-outcome comparison on a cohort that does.
+
+\subsection*{What this licenses}
+
+Angle's case for a disease association rests on a site-matched, severity-graded design that this
+dataset's binary label cannot provide, not on a claim that the effect is real but small; the tests
+above were built specifically to be sensitive to a small effect and still came back null. The ramus
+intermedius natural experiment (\texttt{IM} label, Section~\ref{sec:tree}) and the CGPS
+baseline-vs-progression design already in the project plan are where that design exists, and where
+angle should be tested next, not here.

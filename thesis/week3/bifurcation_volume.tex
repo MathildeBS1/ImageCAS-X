@@ -1,0 +1,115 @@
+% Standalone section -- paste into the weekly report, or \input it.
+% Week 3 working note: whether local branch volume at a bifurcation separates healthy from
+% diseased cases, and a candidate mechanism (Glagov remodeling) for why the sign of that
+% separation flips between bifurcations. Companion to bifurcation_angle_and_disease.tex, which asks
+% the same disease-separation question of angle instead and comes back null. Numbers from
+% scripts/bifurcation_volume.py, run 2026-09-16 (800 cases); assumes the tree and angle/caliber
+% definitions from coronary_tree_graph.tex and bifurcation_angle.tex.
+
+\section*{Local branch volume separates healthy from diseased cases}
+
+Bifurcation angle, measured in bifurcation\_angle.tex, is a direction: it says nothing about how
+much lumen the two daughter branches actually carry. The caliber panel already read alongside that
+angle, radius ratio and the two branches' absolute radii, hints that size at the junction is where
+the disease signal might actually sit. This note turns that hint into a proper test by extending
+the same measurement past a single cross-section into a volume: \textbf{local branch volume}, the
+frustum-integrated lumen volume of the main and side daughter over the same shaft window the angle
+and radius are already read from (past the bifurcation core, out to 3\,mm of arc). Reusing that
+window rather than defining a new one keeps volume directly comparable to the angle and caliber
+numbers already in hand, case for case and bifurcation for bifurcation, rather than a whole-vessel
+volume that would mix in geometry the angle measurement never sees.
+
+\subsection*{Setup: integrating a frustum along the shaft}
+
+\texttt{scripts/bifurcation\_volume.py} walks the same shaft window \texttt{topology/angles.py}
+uses for direction and caliber and, between each pair of consecutive centerline points in that
+window, treats the vessel as a frustum (a cone with the top cut off) of the two points' radii and
+sums $\frac{\pi}{3} d (r_0^2 + r_0 r_1 + r_1^2)$ over every step, $d$ being the distance between the
+points. That is exact for a straight-walled cone and a close approximation everywhere the radius
+changes smoothly point to point, which the shaft window is chosen to guarantee by construction. The
+same window is walked for the main branch and the side branch separately, and their sum, on a log
+scale, is also tested as a single per-bifurcation size variable (\texttt{v\_total}).
+
+Every comparison below is Mann--Whitney $U$ on the per-case mean of that quantity, healthy against
+diseased, with Benjamini--Hochberg FDR correction applied across all 18 bifurcation$\times$field
+combinations run together, not per test, so that finding six real effects among eighteen is not
+easier by chance than it looks.
+
+\subsection*{Result: three of five bifurcations separate, after correction}
+
+Local branch volume is larger in diseased cases at two of five named bifurcations and smaller at a
+third, and all three survive that correction (\Cref{tab:week3-volume}). Neither the
+daughter-daughter angle nor its parent-relative split (\texttt{theta\_main\_deg},
+\texttt{theta\_side\_deg}) survives correction at any of the 48 angle/caliber tests run the same
+way, at any bifurcation, so the separation volume finds is not simply size finding what angle also
+finds; the two quantities disagree about which cases are diseased. The companion note,
+bifurcation\_angle\_and\_disease.tex, works through the angle side of that disagreement in full,
+including whether adding volume to angle recovers a signal angle lacks on its own (it does not: at
+CRUX, angle alone predicts disease at chance while volume alone reaches AUC 0.576, and angle added
+to volume does not improve on volume).
+
+\begin{table}[h]
+  \centering
+  \caption{Diseased vs.\ healthy local main-daughter branch volume, per-case mean, Mann--Whitney
+    $U$ with Benjamini--Hochberg FDR across all 18 bifurcation\,$\times$\,volume-field tests run.
+    Only the six surviving $q < 0.05$ are shown; the pooled-over-all-bifurcations and LM/LAD-D2
+    tests did not (\texttt{scripts/bifurcation\_volume.py}).}
+  \label{tab:week3-volume}
+  \begin{tabular}{lrrrrr}
+    \hline
+    Bifurcation & $n$ healthy & $n$ diseased & healthy (mm$^3$) & diseased (mm$^3$) & $q$ \\
+    \hline
+    CRUX (PDA/PLA) & 400 & 371 & 6.74 & 7.78 (+15.5\%) & 0.003 \\
+    LCX/OM1        & 352 & 342 & 7.59 & 8.45 (+11.3\%) & 0.036 \\
+    LAD/D1         & 407 & 380 & 10.80 & 10.02 ($-$7.2\%) & 0.036 \\
+    \hline
+  \end{tabular}
+\end{table}
+
+The disease-status label used throughout (\texttt{Disease}, alongside \texttt{Image Quality} and
+\texttt{Dominance}) is ImageCAS-X's own binary annotation, present or absent, with no severity
+grade and no record of which vessel carries it \cite{bransby2026imagecasx}; every comparison in
+this note inherits that granularity, and the discussion below returns to what it costs.
+
+\subsection*{The signal is not an artifact of mixing dominance}
+
+The crux is measured at a different pair of vessels depending on dominance, R-PDA/R-PLA or
+L-PDA/L-PLA, so a pooled CRUX comparison risks averaging over two anatomically distinct junctions,
+and the worry going in was that this alone might be manufacturing the effect. Splitting by the
+cohort's own dominance annotation resolves this rather than weakening the result: restricted to the
+721 right-dominant cases, a single fixed anatomical site in every one of them, the CRUX effect is
+stronger, not weaker ($+17.1\%$, $p = 6.1\times10^{-5}$, $n_h=374$, $n_d=347$), and LCX/OM1
+replicates the same direction ($+12.0\%$, $p = 0.0089$, $n_h=316$, $n_d=307$). The 32 left-dominant
+and 30 codominant cases split too thinly by bifurcation ($n \le 19$ per disease group) to test on
+their own, and what little signal is there trends the opposite way; whether the effect is
+dominance-independent and simply underpowered in those two strata, or a real interaction with
+dominance, is open and cannot be settled inside ImageCAS-X.
+
+\subsection*{A candidate mechanism: compensatory remodeling, not a fixed reading}
+
+The sign flip in \Cref{tab:week3-volume}, larger at two bifurcations and smaller at a third, needed
+some explanation before it could be trusted rather than shrugged off as noise, and the most direct
+one on offer is arterial remodeling. Glagov et al.\ examined histologic sections of the left main
+from 136 hearts at autopsy and found the artery wall enlarges as plaque accumulates: wall area
+correlated with lesion area ($r = 0.44$, $p < 0.001$), and lumen area did not shrink while the
+lesion occupied up to 40\% of the internal elastic lamina area, falling sharply only above that
+threshold ($r = -0.73$, $p < 0.001$) \cite{glagov1987remodeling}. This licenses a specific reading
+of the sign flip: CRUX and LCX/OM1, where diseased volume is larger, sit in the compensated regime;
+LAD/D1, where it is smaller, has exceeded it, or has less remodeling reserve to begin with. It does
+not license treating this as settled: ImageCAS-X's binary \texttt{Disease} label carries no
+plaque-burden fraction, so the 40\% threshold itself cannot be tested against our own cases, only
+proposed as the mechanism a burden variable would need to check. Glagov's finding also states the
+caveat that governs every comparison in this note: a lumen segmentation has already been reshaped
+by the disease it is being asked to predict, so a cross-sectional geometry--disease association is
+partly the disease writing its own predictor rather than a property that preceded it.
+
+\subsection*{What this licenses}
+
+Local branch volume, not angle, is the ImageCAS-X-level disease signal worth carrying forward, with
+Glagov's compensatory-remodeling law as a stated, not yet tested, mechanism for why it changes sign
+between bifurcations. What it does not license is reading that sign flip as causal or as a stage
+marker: without a plaque-burden fraction to place each case on Glagov's curve, the same 800 cases
+that produced \Cref{tab:week3-volume} cannot distinguish "compensated" from "decompensated" any
+other way. The ramus intermedius natural experiment (\texttt{IM} label, Section~\ref{sec:tree}) and
+the CGPS baseline-vs-progression design already in the project plan are where a severity-graded or
+longitudinal test of this mechanism becomes possible.

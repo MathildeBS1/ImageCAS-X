@@ -1,0 +1,73 @@
+% Standalone section -- paste into the weekly report, or \input it.
+% Compressed summary of bifurcation_volume.tex for the weekly narrative: the one number and the
+% one figure, without the dominance stratification, the angle comparison, or the remodeling
+% discussion. Read bifurcation_volume.tex for the full working note. Numbers and figure from
+% scripts/bifurcation_volume.py and scripts/plot_volume_example.py, run 2026-09-16 (800 cases).
+% Second half added the same day: the same frustum volume, read over each named artery's whole
+% length rather than a bifurcation-local window, from scripts/named_segment_volume.py.
+
+\section*{Local branch volume differs between diseased and healthy arteries}
+
+At the crux of the heart (CRUX), where the posterior descending and posterolateral arteries
+branch, the main daughter's lumen volume is larger in diseased cases than in healthy ones:
+median 7.78\,mm$^3$ against 6.74\,mm$^3$ (+15.5\%), Mann--Whitney $U$, $q = 0.003$ after
+Benjamini--Hochberg correction across all 18 bifurcation-by-field tests run together
+($n_h = 400$, $n_d = 371$). Two of the other four named bifurcations separate the same way
+after correction; the full result, including why the effect reverses sign at one of them, is in
+bifurcation\_volume.tex.
+
+Volume is read off the same 3\,mm window of centerline, past the bifurcation core, that
+bifurcation angle and caliber are already measured from. Between each pair of consecutive
+centerline points in that window, the vessel is treated as a frustum (a cone with the tip cut
+off) of the two points' radii, and the frustum volumes are summed along the window.
+
+\Cref{fig:week3-volume-example} shows two real branches at that volume: one healthy case and one
+diseased case, each the closest match in the cohort to its own group's median.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\linewidth]{content/methods/topology/figures/volume_example.png}
+  \caption{CRUX main-daughter lumen radius over the same window the volume is integrated across,
+    for one real healthy case (case 335, 6.75\,mm$^3$) and one real diseased case (case 54,
+    7.78\,mm$^3$), each the closest match in the cohort to its group's median volume. The shaded
+    area is the quantity the Mann--Whitney test above compares.}
+  \label{fig:week3-volume-example}
+\end{figure}
+
+\subsection*{The effect holds over the whole vessel, not just the junction}
+
+If disease enlarges these arteries rather than the bifurcation window happening to land on a
+locally affected spot, the same separation should show up over each vessel's whole length, not
+only the 3\,mm read near CRUX. Repeating the same frustum-volume sum over every point of each of
+the 13 named coronary arteries (\texttt{docs\_thesis/label\_map.json}, labels 1--13), rather than
+a bifurcation-local window, confirms this: 6 of the 26 name-by-field tests (Mann--Whitney $U$,
+Benjamini--Hochberg FDR across all 26 together) survive correction, and every one of them is in
+the distal right-coronary/crux territory, R-PDA, R-PLA, RCA and L-PLA, the same two vessels CRUX
+itself joins (\Cref{tab:week3-vessel-volume}). None of the proximal left arteries (LM, LAD, LCX)
+separate at all. The whole R-PDA and R-PLA are larger in diseased cases, not just the stretch
+nearest the junction, so the CRUX result above is the near-junction edge of a whole-vessel effect,
+not something specific to the bifurcation itself (\texttt{scripts/named\_segment\_volume.py}).
+
+\begin{table}[h]
+  \centering
+  \caption{Whole-vessel volume and radius, diseased vs.\ healthy, for the 6 of 26 name
+    $\times$ field tests (13 named arteries $\times$ \{volume, radius\}) surviving
+    Benjamini--Hochberg FDR (\texttt{scripts/named\_segment\_volume.py}).}
+  \label{tab:week3-vessel-volume}
+  \begin{tabular}{llrrrrr}
+    \hline
+    Artery & Field & $n_h$ & $n_d$ & healthy & diseased & $q$ \\
+    \hline
+    R-PDA & volume & 379 & 365 & 74.9\,mm$^3$  & 92.1\,mm$^3$  & 0.003 \\
+    R-PDA & radius & 379 & 365 & 0.673\,mm     & 0.697\,mm     & 0.003 \\
+    R-PLA & volume & 378 & 358 & 104.6\,mm$^3$ & 127.4\,mm$^3$ & 0.003 \\
+    R-PLA & radius & 378 & 358 & 0.724\,mm     & 0.750\,mm     & 0.003 \\
+    RCA   & radius & 412 & 386 & 1.187\,mm     & 1.244\,mm     & 0.008 \\
+    L-PLA & volume & 31  & 39  & 27.6\,mm$^3$  & 68.4\,mm$^3$  & 0.023 \\
+    \hline
+  \end{tabular}
+\end{table}
+
+L-PLA's separation rests on far fewer cases than the rest of this table (31 healthy, 39 diseased,
+against 358+ for R-PDA/R-PLA), since L-PLA only exists in left- and co-dominant hearts; it is
+reported for completeness, not weighted the same as the other five rows.

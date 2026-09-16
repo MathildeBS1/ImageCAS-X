@@ -1,0 +1,56 @@
+% ===============================================================
+% WEEKLY REPORT — copy this file to week02.tex, week03.tex, ...
+% In Overleaf: use the file dropdown above the editor (or
+% Menu > Settings > Main document) to pick which root to compile.
+% ===============================================================
+\documentclass[11pt,a4paper]{article}
+
+\input{setup/project}
+\input{setup/preamble}
+\input{setup/weekly}
+
+% No paragraph indentation; separate paragraphs with vertical space instead.
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.6em}
+
+
+\begin{document}
+
+\weeklytitle{3}
+
+\section{Week 3: 14--18 September 2026}
+
+\sectionprogress
+
+\textbf{Coronary tree graph built from the centerlines.} From the raw centerlines, points and
+polyline connections per vessel side, \texttt{topology/graph.py} builds a tree that knows the
+ostium (root), which way is downstream, and which segments chain into one continuous named vessel
+(LAD, LCx, etc.). This matters for every feature built on top: a bifurcation angle only means
+something once each branch's direction points away from the junction, and a vessel's length or
+tortuosity only accumulates correctly walking ostium to tip. I checked the tree against the
+delivered flags marking "branch point" / "endpoint."
+
+\textbf{First features: angle, volume, tortuosity.} On top of that tree I started computing
+bifurcation angle, angle together with local branch volume, and tortuosity, split into its several
+distinct parts: the straight-line-distance ratio ($L/D$), local bending (curvature), out-of-plane
+corkscrewing (torsion, non-planarity), and how often the vessel oscillates (inflections, SOAM).
+
+\textbf{Tortuosity's sharper measures may not be trustworthy.} Curvature needs a second derivative
+of the centerline and torsion a third; derivatives amplify noise, so these two measures may be far
+less reliable than the others.
+
+\textbf{CAS-Net pipeline reproduced end to end.} I went through the whole pipeline and wrote up
+each stage, trained from scratch for 5 epochs, then ran the full inference and evaluation off the
+delivered pretrained weights and reproduced the expected results.
+
+\include{content/methods/topology/volume_disease}
+\include{content/methods/topology/tortuosity}
+\include{content/methods/pipeline/data_preparation}
+\include{content/methods/pipeline/model_architecture}
+\include{content/methods/pipeline/training}
+\include{content/methods/pipeline/inference}
+\include{content/methods/pipeline/evaluation_metrics}
+
+
+
+\end{document}

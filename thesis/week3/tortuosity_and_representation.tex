@@ -548,8 +548,10 @@ measurement-nuisance augmentations; cluster into a bend vocabulary and map it on
   \item Whole-vessel tortuosity needs each label's pieces chained from its origin to its tip; the
     current per-segment rows describe only the longest piece.
   \item Which smoothing scale $\sigma$ is defensible, and is it the same for ImageCAS-X centerlines
-    (already smoothed at 0.5~mm) and for tracer output on CGPS? A quantised-synthetic-curve test
-    would settle the noise floor of each measure.
+    (already smoothed at 0.5~mm) and for tracer output on CGPS? \textbf{Answered for ImageCAS-X in
+    tortuosity\_noise\_floor.tex}: at the codebase's default $\sigma=1.0$~mm, curvature clears its
+    own noise floor for a cohort median of 4.3--14.5\% of arc length depending on vessel, and
+    torsion for about 1.2\% everywhere; the CGPS tracer-output version of this test is still open.
   \item For Bj{\o}rn: is a local bend vocabulary the kind of ``structure'' the thesis wants, or is a
     per-vessel or per-tree embedding more useful for the CGPS risk model?
 \end{itemize}

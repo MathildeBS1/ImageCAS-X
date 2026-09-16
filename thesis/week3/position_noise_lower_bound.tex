@@ -1,0 +1,75 @@
+% Standalone section -- paste into the weekly report, or \input it.
+% Week 3 working note: where the position-noise number used in tortuosity_noise_floor.tex's
+% synthetic straight-line test actually comes from, and why it is correct to call it a lower
+% bound rather than an assumption. Corrects that file's earlier text, which borrowed the wrong
+% pipeline's grid (the CGPS tracer's) to justify a number that happens to be numerically right
+% for ImageCAS-X, but for the wrong reason.
+%
+% PROVENANCE. Voxel spacing read directly from 60 ImageCAS-X NIfTI headers with nibabel,
+% 2026-09-16 (not a documentation claim).
+
+\section*{The centerline's position noise: a lower bound, not an assumption}
+
+The noise-floor test in tortuosity\_noise\_floor.tex needs one number: how much position error a
+real ImageCAS-X centerline point actually has. That number decides how noisy the synthetic
+straight line has to be to stand in for a real vessel. Too small, and the test is too lenient,
+letting some of what is actually noise look like signal. This section derives a number we can
+defend as a genuine minimum, not a guess.
+
+\subsection*{The formula}
+
+A centerline point comes from a segmentation mask, which is a grid of voxels: each voxel is
+either ``vessel'' or not. Wherever the true, continuous vessel boundary actually falls inside a
+voxel, the mask can only place it at the voxel's resolution, not any finer. This rounding is
+\emph{quantisation}, and it has a known, standard result: if a true position is rounded onto a
+grid of spacing $h$, and there is no reason for that position to line up with the grid, i.e.\ a
+patient's coronary anatomy has no relationship to the CT scanner's reconstruction grid, the
+rounding error has variance exactly $h^2/12$, i.e.\ a standard deviation of
+\begin{equation}
+  \varepsilon = \frac{h}{\sqrt{12}}.
+  \label{eq:week3-quant-floor}
+\end{equation}
+Any further source of error, segmentation mistakes, skeletonisation artefacts, only adds more
+noise on top of this; it cannot remove it. So the total position noise is always
+\textbf{at least} $h/\sqrt{12}$. That is what makes \Cref{eq:week3-quant-floor} a lower bound
+rather than an assumption: it is not a claim about how much error there actually is, only a
+claim about how little there could possibly be.
+
+\subsection*{The number, for ImageCAS-X}
+
+\Cref{eq:week3-quant-floor} needs $h$, the grid spacing, and that is not one fixed value: it
+depends on the scan and the axis. Reading the actual NIfTI headers of 60 ImageCAS-X volumes gives:
+\begin{itemize}
+  \item \textbf{in-plane} ($x$, $y$): 0.309--0.430~mm, varies scan to scan (median 0.359~mm)
+  \item \textbf{through-plane} ($z$): exactly 0.5~mm, on every one of the 60 scans checked
+\end{itemize}
+I chose to take the $z$ spacing: it is both the coarser of the two and the only one that is
+fixed rather than scan-dependent, so it is the one number I could guarantee would not understate
+the true floor on any scan:
+\[
+  \varepsilon \;\geq\; \frac{0.5~\text{mm}}{\sqrt{12}} \;\approx\; 0.144~\text{mm}.
+\]
+This is the value the noise-floor test already uses (\texttt{GRID\_MM = 0.5} in
+\texttt{scripts/tortuosity\_noise\_floor.py}). The number was correct; the comment that justified
+it was not, it previously cited the CGPS tracer's grid, a different pipeline that ImageCAS-X
+centerlines never pass through. The number stands regardless: 0.144~mm is a lower bound for
+ImageCAS-X on its own grid.
+
+\subsection*{What this means for the tortuosity work}
+
+Two consequences follow directly.
+
+\begin{enumerate}
+  \item \textbf{The noise-floor test's number is defensible, but its label needs fixing.} The
+    code comment and any text describing it as ``the tracer's grid'' should instead say ``the
+    dataset's own fixed 0.5~mm through-plane voxel spacing.'' No numbers need to change.
+  \item \textbf{The noise-floor test is a best case for the data, not a worst case.} Because
+    0.144~mm is only a lower bound, real position noise is almost certainly larger once
+    segmentation error is added, and no measurement of that additional error exists for this
+    dataset. A larger true noise would only push the calibrated floor higher, which would make
+    \emph{less} of a real vessel's curvature clear it, not more. So the finding already reported
+    in tortuosity\_noise\_floor.tex, that most of a vessel's arc length does not clear its own
+    curvature noise floor at $\sigma = 1.0$~mm, is if anything an optimistic estimate: the true
+    fraction clearing the floor is unlikely to be higher than what was measured, and could be
+    lower.
+\end{enumerate}

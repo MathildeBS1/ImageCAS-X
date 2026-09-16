@@ -20,6 +20,7 @@
 
 \section{Week 2: 7--11 September 2026}
 
+
 \sectionprogress
 
 \textbf{Hemodynamics.} I read up on wall shear stress (WSS) in particular, and on fractional flow
@@ -41,16 +42,10 @@ unchanged. Comparing these two groups could reveal geometric patterns that prece
 feature-extraction work with three vessels -- the left main (LM), left anterior descending (LAD) and
 left circumflex (LCX) arteries -- for the reasons given in \Cref{sec:week2-major-vessel}.
 
-\textbf{Features, mostly tortuosity.} Bifurcation angle is the one coronary feature with a
+\textbf{Features, focus on tortuosity.} Bifurcation angle is the one coronary feature with a
 standardized definition, although the same angle can hide very different branch diameters.
 Tortuosity is the opposite case. Its dominant measure, the tortuosity index $\tau = L/D$, cannot
-tell apart vessels that bend in very different ways (\Cref{fig:week2-tortuosity-ambiguity}), and in
-127 patients without CAD it showed no relation to low wall shear stress, whereas curvature did
-\cite{kashyap2022tortuosity}. I wrote a first implementation that computes, for each vessel's
-centerline, the index together with curvature, turning angle per mm, inflections, torsion,
-non-planarity and lumen radius. Everything except the index depends on how much the centerline is
-smoothed before the derivatives are taken, so the measures that best reflect the flow are also the
-hardest to make reproducible.
+tell apart vessels that bend in very different ways (\Cref{fig:week2-tortuosity-ambiguity}). This I will find a way to do better.  
 
 \textbf{CAS-Net pipeline.} I went through the methods used in CAS-Net \cite{dong2023casnet} in more
 depth, at a high level: data preparation and preprocessing, network architecture, training, inference
@@ -61,56 +56,6 @@ the overlap with the reference annotations is already high, whereas the topology
 
 \textbf{Rigshospitalet.} I received an ID card for Rigshospitalet -- I am now an impostor medical
 student.
-
-\subsection{Next week}
-
-Next week has two tracks: training CAS-Net from scratch, and turning the tortuosity work from a
-script into a method.
-
-\textbf{Training CAS-Net from scratch.} First I will run inference and evaluation with the delivered
-weights. That tests my environment in hours rather than weeks and gives the reference numbers my own
-run will be judged against. A five-epoch timing run then measures the time per iteration and the
-memory use. From that I can size the full run, whose published schedule of 1000 epochs does not
-fit in one 72-hour job and has to be chained, or, depending on the answer to the question below,
-continue from the pretrained weights instead.
-
-\textbf{Tortuosity: describing a vessel's shape with numbers.} The goal is a description of each
-vessel that tells apart the three curves in \Cref{fig:week2-tortuosity-ambiguity}, which the index
-cannot. I see two routes, and I want to try both on the LM, LAD and LCX.
-
-\begin{itemize}
-  \item \textbf{Hand-crafted descriptors.} I choose the numbers, each with a geometric meaning, as
-    the current script does. Two extensions. Keep curvature as a profile along the vessel rather
-    than averaging it into one number, so that where a bend sits is not lost. And read every bend
-    and angle against the vessel's thickness: the same curvature disturbs the flow more in a thick
-    vessel than in a thin one, and the same bifurcation angle means something different when a
-    thick vessel splits into two thin branches than when it splits into one thick and one thin
-    (\Cref{fig:week2-bifurcation-angle}).
-
-  \item \textbf{Learned representations.} A network finds the structure instead. An encoder, for
-    example an autoencoder, trained to compress each vessel (its centerline, or the segmentation
-    around it) into a short vector of numbers, an \emph{embedding}, and to reconstruct it again, has
-    to keep whatever varies most between vessels. Whether that includes tortuosity is something to
-    check, not assume.
-
-  \item \textbf{PCA as the baseline.} Principal component analysis on the vessel shapes is the
-    linear version of the same idea: resample every centerline to the same number of points from
-    the ostium, align them, and find the few directions in which the population varies most. This
-    is a statistical shape model, which the field's review recommends for combining many shape
-    factors \cite{shen2026geometry} and which has been applied to the left main bifurcation
-    \cite{medranogracia2017bifurcation}. If an autoencoder cannot beat PCA, the network adds
-    nothing.
-
-  \item \textbf{t-SNE to look at the result.} Projecting the descriptor or embedding vectors to two
-    dimensions and coloring them by vessel, by tortuosity index and by dominance shows what a
-    representation has picked up: if the LAD and LCX separate it carries anatomy, and if vessels with
-    the same index spread out it carries more than the index. t-SNE is for looking, not measuring,
-    since distances between its clusters are not meaningful.
-\end{itemize}
-
-The two routes check each other. A learned dimension that correlates with curvature confirms a
-hand-crafted descriptor; one that correlates with none of them is structure I did not think to
-measure. I will discuss these directions with Bj{\o}rn.
 
 \subsection{Questions}
 

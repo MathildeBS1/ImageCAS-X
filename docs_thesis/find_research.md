@@ -626,8 +626,12 @@ Stage 6.
 - **Repeat-scan reproducibility of imaging-derived vascular measurements** — still open from
   `literature.md`. Kwon 2022 is the nearest thing found here and it is carotid MRA over ten years,
   not repeat CCTA. Objective 6's reliability study needs its own pass.
-- **Coronary vessel taper and Murray-law deviation as predictors** — `taylor2024murray` gives the
-  exponent, but no study relating deviation from it to disease was searched for.
+- **Coronary vessel taper and Murray-law deviation as predictors** — **corrected 2026-09-16 on
+  reading `taylor2024murray` in full: the "exponent" is not Murray's cubic 3.0.** Their meta-analysis
+  (18 studies, 1,070 coronary trees) pools an empirical flow-diameter exponent of 2.39
+  (95% CI 2.24–2.54, I²=99%), matching Kassab's theoretical 7/3 = 2.33, not the textbook cube law.
+  No study relating deviation from it to disease was found, and the paper itself says the exponent's
+  clinical utility across patient groups is uncertain. See `docs_thesis/papers/taylor2024murray.md`.
 - **Sex differences in coronary geometry** — three papers in this pass report a sex effect
   (Temov & Sun, Groves, Kwon) and none of them is about sex. Worth a dedicated query.
 - **CArTI** (AI-informed Coronary Artery Tortuosity Index predicting 5-year MACE) is an AHA 2025

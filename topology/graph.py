@@ -1,29 +1,16 @@
 """Rooted vessel trees built from the dataset's centerlines.
 
-This is the structure every topological feature is computed on (objective 6), so
-it is built exactly rather than heuristically. The dataset's centerlines make that
-possible -- verified over all 1600 sides:
+The centerlines already encode the tree: points are unique, physical-mm, and
+VTK polylines meet only at shared point indices, so degree at a point is degree
+in the graph -- ``end_points``/``branch_points`` match degree 1/>=3 on all 1600
+sides. Degree-2 points are mid-vessel pass-throughs, merged so one ``Segment``
+spans junction to junction.
 
-- Centerline points are unique and already in physical mm (LPS). No affine needed.
-- The VTK polylines *are* the tree edges: they meet only at shared point indices,
-  and a point shared by k polyline ends has graph degree k.
-- ``end_points`` is exactly the set of degree-1 nodes and ``branch_points``
-  exactly the set of degree >= 3 nodes, in every side. The flags shipped with the
-  dataset and the connectivity agree perfectly.
-- A few points are shared by exactly two polyline ends. Those are pass-throughs
-  mid-vessel, not anatomy, and are merged away here so one ``Segment`` spans
-  ostium/bifurcation to bifurcation/terminus.
-
-1584 of 1600 sides are then a single clean rooted tree. The 16 that are not are
-real and are handled explicitly rather than dropped (see ``CoronaryTree.warnings``):
-
-- 11 left sides come apart into two components with two ostia. These are exactly
-  the 11 left sides with no ``LM`` label -- the absent-left-main variant, where LAD
-  and LCX arise from separate ostia. Anatomy, not corruption.
-- 2 left sides (84, 272) are fragmented with a single ostium; the orphan fragment
-  is rooted at its end nearest the rooted tree and flagged.
-- 3 sides (8 left, 455 right, 776 left) contain a cycle. A coronary tree has none,
-  so the cycle-closing edge is dropped into ``chords`` and flagged.
+1584 of 1600 sides build as one clean rooted tree. The other 16 are real
+anatomy, not corruption, and handled explicitly (see ``CoronaryTree.warnings``):
+11 left sides have two ostia (absent ``LM``, LAD/LCX arise separately), 2 left
+sides fragment into an orphan piece rooted at its nearest point, 3 sides
+contain a cycle whose closing edge is dropped into ``chords``.
 
 ``scripts/survey_topology.py`` re-derives all of the above from scratch.
 """
@@ -121,28 +108,43 @@ class Segment:
 
 
 
+def shaft_window(points: np.ndarray, core_radius_mm: float,
+                 window_mm: float) -> tuple[int, int, str | None]:
+    """The index range of ``points`` beyond the bifurcation core and within ``window_mm`` of arc
+    past it. ``points[lo:hi]`` is the window used for both direction and caliber, so the two are
+    always read off the same stretch of vessel. ``(0, 0, reason)`` when it cannot be placed.
+
+    Points closer than ``core_radius_mm`` to the first point (the junction) are skipped: inside
+    the core the skeletons of parent and daughters merge, and a direction taken from the junction
+    point itself depends strongly on how far out it is read (the LM angle's cohort median moved
+    from 99 to 81 degrees between 1.5 and 5 mm secants). This follows the idea of measuring
+    bifurcation vectors outside the maximal inscribed sphere at the junction (VMTK).
+    """
+    outside = np.linalg.norm(points - points[0], axis=1) >= core_radius_mm
+    if not outside.any():
+        return 0, 0, "vessel ends inside the bifurcation core"
+    lo = int(np.argmax(outside))
+    tail = points[lo:]
+    arc = np.concatenate([[0.0], np.cumsum(np.linalg.norm(np.diff(tail, axis=0), axis=1))])
+    n = int(np.searchsorted(arc, window_mm, side="right"))
+    if n < 3:
+        return 0, 0, f"fewer than 3 points in the {window_mm:g} mm past the core"
+    return lo, lo + n, None
+
+
 def outgoing_direction(points: np.ndarray, core_radius_mm: float,
                        window_mm: float = 3.0) -> tuple[np.ndarray, str | None]:
     """Unit direction a vessel leaves its first point with, measured past the bifurcation core.
     Returns ``(vector, None)``, or ``(zeros, reason)`` when it cannot be measured.
 
-    Points closer than ``core_radius_mm`` to the first point (the junction) are skipped: inside
-    the core the skeletons of parent and daughters merge, and a direction taken from the junction
-    point itself depends strongly on how far out it is read (the LM angle's cohort median moved
-    from 99 to 81 degrees between 1.5 and 5 mm secants). A line is then fitted (principal axis) to
-    the next ``window_mm`` of arc length and oriented away from the junction. This follows the idea
-    of measuring bifurcation vectors outside the maximal inscribed sphere at the junction (VMTK).
-    Pass the points of the whole vessel onward (``Vessel.points_from``), not one segment: the
-    first segment after a split is often cut by a side branch within a few mm.
+    A line is fitted (principal axis) to ``shaft_window`` and oriented away from the junction.
+    Pass the points of the whole vessel onward (``Vessel.points_from``/``Vessel.shaft``), not one
+    segment: the first segment after a split is often cut by a side branch within a few mm.
     """
-    outside = np.linalg.norm(points - points[0], axis=1) >= core_radius_mm
-    if not outside.any():
-        return np.zeros(3), "vessel ends inside the bifurcation core"
-    tail = points[int(np.argmax(outside)):]
-    arc = np.concatenate([[0.0], np.cumsum(np.linalg.norm(np.diff(tail, axis=0), axis=1))])
-    window = tail[arc <= window_mm]
-    if len(window) < 3:
-        return np.zeros(3), f"fewer than 3 points in the {window_mm:g} mm past the core"
+    lo, hi, reason = shaft_window(points, core_radius_mm, window_mm)
+    if reason:
+        return np.zeros(3), reason
+    window = points[lo:hi]
     centre = window.mean(axis=0)
     axis = np.linalg.svd(window - centre, full_matrices=False)[2][0]
     if np.dot(axis, centre - points[0]) < 0:
@@ -189,6 +191,24 @@ class Vessel:
         k = next(i for i, s in enumerate(self.segments) if s.index == segment.index)
         rest = self.segments[k:]
         return np.concatenate([rest[0].points] + [s.points[1:] for s in rest[1:]])
+
+    def shaft(self, segment: Segment, upstream: bool = False) -> tuple[np.ndarray, np.ndarray | None]:
+        """Points and radii from ``segment`` (one of this vessel's) onward to the vessel's end
+        (``upstream=False``, i.e. ``points_from`` plus the matching radii), or backward to the
+        vessel's start (``upstream=True``).
+
+        ``upstream=True`` starts at ``segment``'s distal (end) node and walks toward the vessel's
+        own origin: the direction and caliber a vessel arrives at its own downstream junction
+        with, before that junction. Radii are ``None`` if any segment needed lacks them.
+        """
+        k = next(i for i, s in enumerate(self.segments) if s.index == segment.index)
+        chain = self.segments[: k + 1][::-1] if upstream else self.segments[k:]
+        flip = (lambda a: a[::-1]) if upstream else (lambda a: a)
+        points = np.concatenate([flip(chain[0].points)] + [flip(s.points)[1:] for s in chain[1:]])
+        if any(s.radii is None for s in chain):
+            return points, None
+        radii = np.concatenate([flip(chain[0].radii)] + [flip(s.radii)[1:] for s in chain[1:]])
+        return points, radii
 
 
 def _build_vessels(segments: list[Segment]) -> tuple[Vessel, ...]:
