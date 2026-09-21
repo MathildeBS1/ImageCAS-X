@@ -1,0 +1,110 @@
+% ===============================================================
+% WEEKLY REPORT — copy this file to week02.tex, week03.tex, ...
+% In Overleaf: use the file dropdown above the editor (or
+% Menu > Settings > Main document) to pick which root to compile.
+% ===============================================================
+\documentclass[11pt,a4paper]{article}
+
+\input{setup/project}
+\input{setup/preamble}
+\input{setup/weekly}
+
+% No paragraph indentation; separate paragraphs with vertical space instead.
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.6em}
+
+
+\begin{document}
+
+\weeklytitle{3}
+
+\section{Week 3: 14--18 September 2026}
+
+\sectionprogress
+
+\textbf{Coronary tree graph built from the centerlines.} From the raw centerlines, points and
+polyline connections per vessel side, I built a tree graph structure so future topology features could be extracted off the same structure.
+
+
+\textbf{First features: angle, volume, tortuosity.} On top of that tree I started computing
+bifurcation angle, angle together with local branch volume, and tortuosity, split into its several
+distinct parts: the straight-line-distance ratio ($L/D$), local bending (curvature), out-of-plane
+corkscrewing (torsion, non-planarity), and how often the vessel oscillates (inflections, SOAM).
+
+\textbf{Radius attached to every centerline point.} The delivered centerlines carry no radius, so I
+measure it separately at each point: the distance to the nearest background voxel in the paired
+segmentation mask, i.e.\ the radius of the largest sphere centered there that still fits inside the
+lumen. Both volume and bifurcation angle need this, and not just as extra context: it also sets the
+window skipped past each junction before the angle itself is measured.
+
+\textbf{Tortuosity's more interesting measures may not be trustworthy.} Curvature needs a second derivative of the centerline and torsion a third; derivatives amplify noise, so these two measures may be far less reliable than the others but they may also carry more signal.
+
+
+\textbf{CAS-Net pipeline reproduced end to end.} I went through the whole pipeline and wrote up
+each stage, trained from scratch for 5 epochs, then ran the full inference and evaluation off the
+delivered pretrained weights and reproduced the expected results.
+
+\textbf{Extending to Herlev--{\O}sterbro.} Herlev--{\O}sterbro comes with no delivered centerlines
+and no segment names, so my plan is to extract centerlines from the 160 ImageCAS-X test
+predictions and measure how far the features drift compared to the corrected masks, as a baseline
+error estimate. Herlev--{\O}sterbro will be out of distribution for CAS-Net, though, so I don't yet
+know how much that baseline will actually tell me about it.
+
+\subsection{Next week}
+
+I will spend the full week at an internal hackathon hosted by Microsoft, so sadly I won't be able
+to join next week's meeting :(
+
+\begin{itemize}
+    \item Continue investigating how to extract features, now that I have predictions.
+    \item Compute centerlines from the predicted segmentations and check how far the feature
+    extraction deviates from the values computed on the delivered centerlines.
+    \item Start looking into representation-learning approaches for the tortuosity features.
+\end{itemize}
+
+\subsection{Questions}
+
+\begin{itemize}
+    \item For building the tree and the first features, is it correct to start from the delivered
+    ground-truth centerlines, before centerlines recomputed on my own predicted segmentations are
+    available?
+    \item For representation learning on the tree topology, patients do not share a fixed tree
+    structure (branch counts and even which named vessels are present vary), so any fixed-length
+    input already assumes a correspondence across patients that has not been established. Is
+    solving that correspondence by hand (e.g.\ per named vessel, as planned) the right approach, or
+    should this push toward a model that consumes the tree structure directly?
+    \item I have not read up on this properly yet, so these are initial thoughts, tell me if this is
+    not the right direction.
+
+    If I do not do representation learning, I am bounded by whatever finite set of descriptors I
+    compute on the topology; representation learning does not have that limitation. Tortuosity is, I
+    think, the most important of these features, so I want to reason from that starting point
+    specifically. For representation learning I would still start from the centerlines, and for
+    tortuosity specifically I do not think I lose anything by working from there rather than the
+    full volume.
+
+    Concretely, would I feed the 3D point sequence of a centerline directly into an encoder, and
+    check afterward whether cases like a single tight loop and a curve with many small wiggles end
+    up far apart in the embedding space, even though a plain distance/chord ratio would score them
+    as nearly identical? Would this be done per coronary artery, or over the whole tree at once? And
+    do I need to separate by coronary dominance, so that any separation in the embedding comes from
+    intrinsic tortuosity rather than from right- versus left-dominant anatomy?
+
+    On the outcome side, if the latent space does separate different tortuosity types and only some
+    of them turn out to predict the outcome, how would I then identify which geometric property is
+    responsible for that difference?
+
+    Right now the outcome can just be diseased vs.\ healthy in ImageCAS, but it would be really
+    interesting if this is the direction to take Herlev--{\O}sterbro: first scan and later outcome.
+    So, to see if there is a latent representation of tortuosity that can predict future plaque
+    occurrence.
+\end{itemize}
+
+\include{content/methods/topology/coronary_tree_graph}
+\include{content/methods/pipeline/data_preparation}
+\include{content/methods/pipeline/model_architecture}
+\include{content/methods/pipeline/training}
+\include{content/methods/pipeline/inference}
+\include{content/methods/pipeline/evaluation_metrics}
+
+\end{document}

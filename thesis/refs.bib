@@ -1612,10 +1612,16 @@
   pages   = {102829},
   year    = {2026},
   doi     = {10.1016/j.jacadv.2026.102829},
-  note    = {[BIBLIOGRAPHY VERIFIED] Crossref, PMC13308244. Invasive angiography (RCA, LAO),
-             22,334 patients. Discrete turning angle per centerline point, normalized by pi. A
-             transformer on the full local profile: AUROC 0.67 for CAD vs 0.60 for the global
-             mean}
+  note    = {[VERIFIED] Full text read 2026-09-18, docs_thesis/papers/telloayala2026tortuosity.md.
+             38,691 RCA angiograms (LAO view, 2D projection), 22,334 patients. Discrete turning
+             angle per centerline point, normalized by pi; transformer on the full local profile
+             beats a global-mean logistic regression, AUROC 0.67 (0.65-0.69) vs 0.60 (0.58-0.63),
+             no significance test reported for that gap. CAREFUL: CAD label is a qualitative call
+             by the same cardiologist on the same LAO frames used for tortuosity -- circularity
+             risk the authors do not address. 2D single-plane projection (foreshortening/view-angle
+             confounds not discussed), RCA only, segmentation succeeded in only 78.7% of eligible
+             loops with untested tortuosity-dependent bias. Does not license claims about 3D
+             CTA-derived centerlines}
 }
 
 @article{sangalli2009aneurisk,
