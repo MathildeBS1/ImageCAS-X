@@ -1,0 +1,181 @@
+train: 560 cases, 1680 vessels, 0 failures, 47 s
+
+== LAD: 560 vessels, median length 135 mm
+  SCC density  rho vs l=4: l2=0.93 l3=0.98 l4=1.00 l5=0.98 l6=0.95 l8=0.88
+               zero-fraction: l2=0.00 l3=0.00 l4=0.00 l5=0.00 l6=0.00 l8=0.00
+               ICC(jitter 0.5 mm, l=4)=0.74  rho(length)=0.15
+               PASS stable=True icc=False floor=True length=True
+  Grisan 3D    rho vs l=4: l2=0.89 l3=0.91 l4=1.00 l5=0.88 l6=0.79 l8=0.64
+               zero-fraction: l2=0.00 l3=0.00 l4=0.00 l5=0.00 l6=0.00 l8=0.01
+               ICC(jitter 0.5 mm, l=4)=0.82  rho(length)=0.26
+               PASS stable=False icc=True floor=True length=True
+  Grisan n_turns at l=4: median 12, share with 1 turn 0.00
+  Spearman SCC vs Grisan: 0.88; SCC vs arc/chord: 0.38
+
+== LCX: 560 vessels, median length 86 mm
+  SCC density  rho vs l=4: l2=0.90 l3=0.96 l4=1.00 l5=0.96 l6=0.92 l8=0.83
+               zero-fraction: l2=0.00 l3=0.00 l4=0.00 l5=0.00 l6=0.00 l8=0.00
+               ICC(jitter 0.5 mm, l=4)=0.64  rho(length)=0.17
+               PASS stable=True icc=False floor=True length=True
+  Grisan 3D    rho vs l=4: l2=0.84 l3=0.84 l4=1.00 l5=0.82 l6=0.74 l8=0.61
+               zero-fraction: l2=0.00 l3=0.01 l4=0.01 l5=0.02 l6=0.07 l8=0.14
+               ICC(jitter 0.5 mm, l=4)=0.80  rho(length)=0.32
+               PASS stable=False icc=True floor=True length=True
+  Grisan n_turns at l=4: median 6, share with 1 turn 0.01
+  Spearman SCC vs Grisan: 0.81; SCC vs arc/chord: 0.40
+
+== RCA: 560 vessels, median length 106 mm
+  SCC density  rho vs l=4: l2=0.87 l3=0.96 l4=1.00 l5=0.97 l6=0.96 l8=0.92
+               zero-fraction: l2=0.00 l3=0.00 l4=0.00 l5=0.00 l6=0.00 l8=0.00
+               ICC(jitter 0.5 mm, l=4)=0.50  rho(length)=0.24
+               PASS stable=True icc=False floor=True length=True
+  Grisan 3D    rho vs l=4: l2=0.74 l3=0.84 l4=1.00 l5=0.79 l6=0.74 l8=0.69
+               zero-fraction: l2=0.00 l3=0.00 l4=0.02 l5=0.12 l6=0.20 l8=0.34
+               ICC(jitter 0.5 mm, l=4)=0.82  rho(length)=0.43
+               PASS stable=False icc=True floor=True length=True
+  Grisan n_turns at l=4: median 5, share with 1 turn 0.02
+  Spearman SCC vs Grisan: 0.69; SCC vs arc/chord: 0.46
+val: 80 cases, 240 vessels, 0 failures, 7 s
+
+== LAD: 80 vessels, median length 140 mm
+  SCC density  rho vs l=4: l2=0.91 l3=0.95 l4=1.00 l5=0.98 l6=0.95 l8=0.91
+               zero-fraction: l2=0.00 l3=0.00 l4=0.00 l5=0.00 l6=0.00 l8=0.00
+               ICC(jitter 0.5 mm, l=4)=0.70  rho(length)=0.26
+               PASS stable=True icc=False floor=True length=True
+  Grisan 3D    rho vs l=4: l2=0.88 l3=0.92 l4=1.00 l5=0.86 l6=0.65 l8=0.62
+               zero-fraction: l2=0.00 l3=0.00 l4=0.00 l5=0.00 l6=0.00 l8=0.03
+               ICC(jitter 0.5 mm, l=4)=0.83  rho(length)=0.36
+               PASS stable=False icc=True floor=True length=True
+  Grisan n_turns at l=4: median 11, share with 1 turn 0.00
+  Spearman SCC vs Grisan: 0.87; SCC vs arc/chord: 0.42
+
+== LCX: 80 vessels, median length 81 mm
+  SCC density  rho vs l=4: l2=0.90 l3=0.95 l4=1.00 l5=0.97 l6=0.94 l8=0.87
+               zero-fraction: l2=0.00 l3=0.00 l4=0.00 l5=0.00 l6=0.00 l8=0.00
+               ICC(jitter 0.5 mm, l=4)=0.64  rho(length)=0.29
+               PASS stable=True icc=False floor=True length=True
+  Grisan 3D    rho vs l=4: l2=0.81 l3=0.88 l4=1.00 l5=0.85 l6=0.84 l8=0.70
+               zero-fraction: l2=0.00 l3=0.00 l4=0.00 l5=0.04 l6=0.11 l8=0.15
+               ICC(jitter 0.5 mm, l=4)=0.83  rho(length)=0.48
+               PASS stable=True icc=True floor=True length=True
+  Grisan n_turns at l=4: median 6, share with 1 turn 0.00
+  Spearman SCC vs Grisan: 0.78; SCC vs arc/chord: 0.43
+
+== RCA: 80 vessels, median length 104 mm
+  SCC density  rho vs l=4: l2=0.84 l3=0.96 l4=1.00 l5=0.97 l6=0.95 l8=0.89
+               zero-fraction: l2=0.00 l3=0.00 l4=0.00 l5=0.00 l6=0.00 l8=0.00
+               ICC(jitter 0.5 mm, l=4)=0.41  rho(length)=0.22
+               PASS stable=True icc=False floor=True length=True
+  Grisan 3D    rho vs l=4: l2=0.61 l3=0.79 l4=1.00 l5=0.75 l6=0.61 l8=0.63
+               zero-fraction: l2=0.00 l3=0.01 l4=0.03 l5=0.11 l6=0.30 l8=0.44
+               ICC(jitter 0.5 mm, l=4)=0.77  rho(length)=0.49
+               PASS stable=False icc=True floor=True length=True
+  Grisan n_turns at l=4: median 5, share with 1 turn 0.03
+  Spearman SCC vs Grisan: 0.53; SCC vs arc/chord: 0.41
+test: 160 cases, 480 vessels, 0 failures, 14 s
+
+== LAD: 160 vessels, median length 135 mm
+  SCC density  rho vs l=4: l2=0.90 l3=0.97 l4=1.00 l5=0.97 l6=0.97 l8=0.85
+               zero-fraction: l2=0.00 l3=0.00 l4=0.00 l5=0.00 l6=0.00 l8=0.00
+               ICC(jitter 0.5 mm, l=4)=0.72  rho(length)=0.20
+               PASS stable=True icc=False floor=True length=True
+  Grisan 3D    rho vs l=4: l2=0.87 l3=0.92 l4=1.00 l5=0.88 l6=0.83 l8=0.63
+               zero-fraction: l2=0.00 l3=0.00 l4=0.00 l5=0.00 l6=0.00 l8=0.04
+               ICC(jitter 0.5 mm, l=4)=0.84  rho(length)=0.33
+               PASS stable=True icc=True floor=True length=True
+  Grisan n_turns at l=4: median 11, share with 1 turn 0.00
+  Spearman SCC vs Grisan: 0.88; SCC vs arc/chord: 0.39
+
+== LCX: 160 vessels, median length 85 mm
+  SCC density  rho vs l=4: l2=0.88 l3=0.95 l4=1.00 l5=0.95 l6=0.92 l8=0.82
+               zero-fraction: l2=0.00 l3=0.00 l4=0.00 l5=0.00 l6=0.00 l8=0.00
+               ICC(jitter 0.5 mm, l=4)=0.62  rho(length)=0.08
+               PASS stable=True icc=False floor=True length=True
+  Grisan 3D    rho vs l=4: l2=0.74 l3=0.83 l4=1.00 l5=0.79 l6=0.72 l8=0.50
+               zero-fraction: l2=0.00 l3=0.00 l4=0.01 l5=0.04 l6=0.06 l8=0.10
+               ICC(jitter 0.5 mm, l=4)=0.81  rho(length)=0.21
+               PASS stable=False icc=True floor=True length=True
+  Grisan n_turns at l=4: median 7, share with 1 turn 0.01
+  Spearman SCC vs Grisan: 0.77; SCC vs arc/chord: 0.32
+
+== RCA: 160 vessels, median length 106 mm
+  SCC density  rho vs l=4: l2=0.86 l3=0.96 l4=1.00 l5=0.98 l6=0.96 l8=0.92
+               zero-fraction: l2=0.00 l3=0.00 l4=0.00 l5=0.00 l6=0.00 l8=0.00
+               ICC(jitter 0.5 mm, l=4)=0.45  rho(length)=0.05
+               PASS stable=True icc=False floor=True length=True
+  Grisan 3D    rho vs l=4: l2=0.61 l3=0.70 l4=1.00 l5=0.74 l6=0.69 l8=0.59
+               zero-fraction: l2=0.00 l3=0.01 l4=0.03 l5=0.12 l6=0.19 l8=0.38
+               ICC(jitter 0.5 mm, l=4)=0.85  rho(length)=0.27
+               PASS stable=False icc=True floor=True length=True
+  Grisan n_turns at l=4: median 5, share with 1 turn 0.03
+  Spearman SCC vs Grisan: 0.58; SCC vs arc/chord: 0.23
+800 RCAs of 800 scans; cut-offs scc_5 0.0388 / 0.0760 1/mm
+group
+low         80
+average    640
+high        80
+group changes scc_5 -> scc_4: 40 of 800
+group changes scc_5 -> scc_8: 160 of 800
+150 label images, 0 failed (label_failed.txt)
+
+------------------------------------------------------------
+Sender: LSF System <lsfadmin@hpc.dtu.dk>
+Subject: Job 29536093: <tortuosity_deciles> in cluster <dcc> Done
+
+Job <tortuosity_deciles> was submitted from host <hpclogin1> by user <s254124> in cluster <dcc> at Wed Sep 30 17:49:06 2026
+Job was executed on host(s) <n-62-31-22>, in queue <hpc>, as user <s254124> in cluster <dcc> at Wed Sep 30 17:49:08 2026
+</zhome/e2/6/224426> was used as the home directory.
+</zhome/e2/6/224426/project/ImageCAS-X> was used as the working directory.
+Started at Wed Sep 30 17:49:08 2026
+Terminated at Wed Sep 30 17:51:27 2026
+Results reported at Wed Sep 30 17:51:27 2026
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+#!/bin/sh
+
+#BSUB -q hpc
+#BSUB -J tortuosity_deciles
+#BSUB -n 1
+#BSUB -R "rusage[mem=4GB]"
+#BSUB -W 4:00
+#BSUB -o logs/tortuosity_deciles_%J.out
+#BSUB -e logs/tortuosity_deciles_%J.err
+
+# RCA scores T_l for all 800 scans (train, val, test), then the decile groups and figures. CPU only.
+#   bsub < jobs/tortuosity_deciles.sh
+# Scores: $ImageCAS_X_results_path/tortuosity_merged/{train,val,test}_vessels.csv
+# Groups: $ImageCAS_X_results_path/tortuosity_deciles/groups.csv, figures/rca_tortuosity_{deciles,examples}.pdf
+# The log prints the cut-offs and group changes quoted in thesis/week5/rca_tortuosity.tex.
+
+source env.sh
+for s in train val test; do python -m tortuosity.run_merged_tests cohort --split $s; done
+python scripts/tortuosity_deciles.py make
+
+------------------------------------------------------------
+
+Successfully completed.
+
+Resource usage summary:
+
+    CPU time :                                   95.67 sec.
+    Max Memory :                                 190 MB
+    Average Memory :                             169.75 MB
+    Total Requested Memory :                     4096.00 MB
+    Delta Memory :                               3906.00 MB
+    Max Swap :                                   -
+    Max Processes :                              4
+    Max Threads :                                5
+    Run time :                                   139 sec.
+    Turnaround time :                            141 sec.
+
+The output (if any) is above this job summary.
+
+
+
+PS:
+
+Read file <logs/tortuosity_deciles_29536093.err> for stderr output of this job.
+

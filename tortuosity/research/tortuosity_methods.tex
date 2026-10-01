@@ -1,0 +1,229 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=2.2cm]{geometry}
+\usepackage{amsmath,amssymb,booktabs,graphicx,xcolor,enumitem}
+\usepackage[hidelinks]{hyperref}
+\setlist{itemsep=2pt,topsep=3pt}
+\newcommand{\ka}{\kappa_a}
+\title{Coronary centerline tortuosity: choices and mathematics}
+\author{Working document, ImageCAS-X development cohort}
+\pdfstringdefDisableCommands{\def\ka{kappa_a}}
+\date{26 September 2026 (provisional, not pre-registered)}
+
+\begin{document}
+\maketitle
+
+\noindent\textbf{Status.} Every choice below was made on the ImageCAS-X training split (560 scans), which is a
+development cohort: clinically referred patients, about half with plaque, mixed cardiac phase, no age or sex.
+Nothing here is a normal range. No descriptor has yet been tested for agreement between reference and
+CAS-Net-derived centerlines, and the region limits were chosen on the same scans they are evaluated on.
+They must be frozen in a dated commit and checked on the validation split before any thesis claim.
+
+\section{Input and preprocessing}
+
+\begin{itemize}
+\item \textbf{Data.} Only the delivered centerlines,
+  \path{<id>.coronary_{left,right}_centerline.vtk}: LPS coordinates in mm, per-point
+  \texttt{segment\_label}, native spacing about 0.45\,mm.
+\item \textbf{Vessel path.} For a trunk label $t$ (RCA 9, LAD 2, LCx 3) the path is the longest geodesic
+  path through edges whose two ends both carry label $t$. It is oriented from the ostium (RCA, via the
+  \texttt{start\_points} array) or from the LM (LAD, LCx) to the distal end.
+\item \textbf{No extra smoothing.} The dataset regenerated the centerlines by skeletonising the corrected
+  masks and applying a Gaussian of $\sigma=0.5$\,mm over a 5-vertex window. The path is only resampled at
+  $h=0.25$\,mm of arc length, giving points $\mathbf{x}_0,\dots,\mathbf{x}_n$ with arc length
+  $s_i = \sum_{j<i}\lVert\mathbf{x}_{j+1}-\mathbf{x}_j\rVert$ and $L=s_n$. Adding $\sigma=1$\,mm changed
+  $\ka$ medians by 2 to 4\,\% (Spearman 0.98 to 0.99). Any centerline from another source (CAS-Net,
+  CGPS) must first pass through the same skeleton plus $\sigma=0.5$\,mm step.
+\item \textbf{Exception.} Descriptors that need a second derivative (Section~\ref{sec:bishop}) use an extra
+  Gaussian of $\sigma_0 = 1.25$\,mm along arc length, fixed from a noise bound before any cohort number.
+\end{itemize}
+
+\section{Descriptors}
+
+\subsection{Arc/chord (distance metric)}
+\[
+  \mathrm{DM} = \frac{L}{\lVert \mathbf{x}_n - \mathbf{x}_0 \rVert}, \qquad
+  \mathrm{DM}_{2D} = \frac{\sum_i \lVert P(\mathbf{x}_{i+1}-\mathbf{x}_i)\rVert}{\lVert P(\mathbf{x}_n-\mathbf{x}_0)\rVert},
+\]
+where $P\in\mathbb{R}^{2\times3}$ projects onto the image plane of an angiographic view. The viewing
+direction for LAO/RAO angle $\alpha$ and cranial/caudal angle $\gamma$ is
+$\mathbf{d} = (\sin\alpha\cos\gamma,\,-\cos\alpha\cos\gamma,\,\sin\gamma)$ in LPS, and $P$ has rows
+$\mathbf{e}_1 = \mathbf{d}\times\hat{\mathbf{z}}/\lVert\cdot\rVert$ and $\mathbf{e}_2=\mathbf{d}\times\mathbf{e}_1$.
+Standard views: RCA LAO\,30 ($\alpha=30^\circ$), LAD RAO\,20/CRA\,30, LCx RAO\,20/CAU\,30.
+DM measures the overall course and grows with vessel length (Spearman 0.70 to 0.84 per whole vessel).
+
+\subsection{Mean chord curvature $\ka$ (primary)}
+Chord resampling places vertices $\mathbf{v}_0=\mathbf{x}_0,\mathbf{v}_1,\dots$ on the curve with
+$\lVert\mathbf{v}_{k+1}-\mathbf{v}_k\rVert=\ell$ exactly (solved on each polyline segment). With unit
+chords $\mathbf{u}_k = (\mathbf{v}_{k+1}-\mathbf{v}_k)/\ell$ and turning angles
+$\theta_k = \arccos(\mathbf{u}_{k-1}\cdot\mathbf{u}_k)$ at vertex $\mathbf{v}_k$,
+\[
+  \ka^{(\ell)} = \frac{1}{L}\sum_k \theta_k \quad [\text{rad/mm}], \qquad \ell = 5\ \text{mm}.
+\]
+Total turning is $\Theta = \sum_k\theta_k = \ka L$. For a smooth curve $\theta_k \approx \int_{\text{chord}}\kappa\,ds$,
+so $\ka$ is a low-pass mean absolute curvature at scale $\ell$. It is insensitive to vessel length (Spearman
+0.2 to 0.3), not affected by dominance or image quality, and it cannot see a bend closer than one chord to
+the path end (so it ignores an ostial hook by construction).
+
+\subsection{Bends and the largest bend angle}
+At $\ell=1$\,mm chords, a vertex is \emph{bending} if $\theta_k > \kappa_{\min}\ell$ with
+$\kappa_{\min}=0.02$\,mm$^{-1}$ (bend radius under 50\,mm). A bend is a maximal run of bending vertices,
+split where the binormal $\mathbf{b}_k=\mathbf{u}_{k-1}\times\mathbf{u}_k$ reverses
+($\mathbf{b}_k\cdot\mathbf{b}_{k-1}<0$). Its angle is $\sum_{k\in\text{run}}\theta_k$ and its position the
+$\theta$-weighted mean arc length. Reported: the \textbf{largest bend angle} per region. Bend counts
+($\ge45^\circ$, $\ge90^\circ$) are descriptive only, because they depend on $\kappa_{\min}$ and smoothing.
+
+\subsection{Bishop curvature spectrum}\label{sec:bishop}
+On the $\sigma_0$-smoothed curve $\mathbf{c}(s)$ with unit tangent $\mathbf{T}$, carry a rotation-minimising
+(Bishop) frame $(\mathbf{T},\mathbf{M}_1,\mathbf{M}_2)$ by parallel transport and write the curvature vector
+$\mathbf{T}'$ as one complex number
+\[
+  \psi(s) = k_1 + i k_2 = \mathbf{T}'\cdot\mathbf{M}_1 + i\,\mathbf{T}'\cdot\mathbf{M}_2, \qquad |\psi| = \kappa .
+\]
+$\psi$ needs no torsion, is defined through inflections, and for a planar curve is the signed 2D curvature
+up to a constant phase. This is what unifies the 2D and 3D descriptions.
+
+\begin{itemize}
+\item \textbf{Bending energy.} $\displaystyle k_B = \Big(\frac{1}{|R|}\int_R |\psi|^2\,ds\Big)^{1/2}$ (mm$^{-1}$),
+  the RMS curvature over region $R$.
+\item \textbf{Out-of-plane share.} With a Gaussian window $g_W$ of standard deviation $W=5$\,mm,
+  \[
+    f_{\text{twist}} = 1 - \frac{\int_R |g_W * \psi^2|\,ds}{\int_R g_W * |\psi|^2\,ds}\in[0,1].
+  \]
+  Squaring removes the sign, so $g_W*\psi^2$ is large only when bending keeps one plane over the window.
+  $f_{\text{twist}}=0$ exactly for any planar curve, whatever its inflections; for a helix of curvature
+  $\kappa$ and torsion $\tau$ it is $1-e^{-2\tau^2W^2}$.
+\item \textbf{Wiggle share} (dropped, defined for completeness). An orthonormal DCT of $\psi$ is split by a
+  power-complementary Gaussian, $|H_L(\omega)|^2 = e^{-(\omega s_c)^2}$, $|H_H|^2 = 1-|H_L|^2$,
+  $s_c = \sqrt{\ln 2}\,\lambda_c/2\pi$, $\lambda_c=20$\,mm; $f_{\text{wiggle}} = \int_R|\psi_H|^2/\int_R(|\psi_L|^2+|\psi_H|^2)$.
+\end{itemize}
+The classical indices are moments of the same $\psi$ spectrum: RMS curvature is moment 0, a Grisan-type
+turn index is about moment $-1$, and arc/chord is about moment $-2$, which explains why arc/chord follows
+length and truncation.
+
+\subsection{Regional attribution}
+Every quantity is computed once on the whole vessel and then attributed to a region $R=[a,b)$ of arc length:
+$\ka(R) = \sum_{k:\,s(\mathbf{v}_k)\in R}\theta_k/|R|$; bends are assigned by their centre; $k_B$,
+$f_{\text{twist}}$ and $f_{\text{wiggle}}$ integrate their pointwise densities over $R$; DM uses the
+sub-curve. Regional totals therefore add up to the whole-vessel value and no region loses its edges to a
+chord or a filter. Regions shorter than 10\,mm, or without their landmark, give an explicit NaN row with the reason.
+
+\section{Regions per vessel}
+Take-off positions are the arc length of the trunk point joined by an edge to the first point of the side
+branch label (nearest trunk point within 3\,mm if no edge exists).
+
+\begin{center}
+\small
+\begin{tabular}{@{}lp{3.6cm}p{4.2cm}p{4.6cm}@{}}
+\toprule
+Vessel & Proximal & Mid & Distal / end window\\
+\midrule
+RCA & 5 to 40\,mm (first 5\,mm trimmed) & 40\,mm to $L-20$ & crux: last 20\,mm before R-PDA/R-PLA\\
+LAD & LM to D1 & D1 to D2, else halfway to end & rest\\
+LCx & LM to OM1 & OM1 to OM2, else halfway to end & rest\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{itemize}
+\item \textbf{RCA 5\,mm trim.} Many RCAs start with a sharp hook where the centerline leaves the aortic
+  root. In scan 662 it holds most of the vessel's bending energy; trimming 5\,mm cut the proximal $k_B$
+  from 0.121 to 0.041\,mm$^{-1}$. The LAD and LCx show no such hook (whole vs trimmed $\ka$, Spearman
+  0.99 to 1.00), so they are not trimmed.
+\item \textbf{Crux window.} Defined only when the RCA label ends at R-PDA/R-PLA: 512 of 513 right-dominant,
+  6 of 15 co-dominant, 0 of 32 left-dominant scans.
+\item \textbf{Landmark coverage.} Measurable proximal regions: RCA 560, LAD 424 (D1 median 18\,mm from the LM,
+  127 regions under 10\,mm), LCx 365 (OM1 missing in 69 right-dominant scans, 126 under 10\,mm).
+  Recommendation (untested for LAD and LCx): fixed proximal windows as primary, landmark segments as secondary.
+\end{itemize}
+
+\section{Evidence behind the choices (560 training scans)}
+
+\textbf{Regional $\ka$ values are nearly independent}, so a single whole-vessel number hides where
+bending sits (Spearman between regions):
+
+\begin{center}
+\small
+\begin{tabular}{@{}lccc@{}}
+\toprule
+ & RCA (prox$_\text{trim}$/mid/crux) & LAD (prox/mid/distal) & LCx (prox/mid/distal)\\
+\midrule
+proximal vs mid & 0.55 & 0.13 & 0.14\\
+proximal vs distal/crux & 0.21 & 0.20 & 0.10\\
+mid vs distal/crux & 0.24 & 0.37 & 0.25\\
+whole vs distal/crux & 0.43 & 0.89 & 0.71\\
+\bottomrule
+\end{tabular}
+\end{center}
+The whole-LAD value is mostly the distal (apical) LAD, which is not where first plaque forms.
+
+\textbf{Added information.} Share of each descriptor's rank variance \emph{not} explained by
+($\ka$, vessel length), in the plaque-relevant proximal and mid regions:
+
+\begin{center}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Descriptor & RCA & LAD & LCx\\
+\midrule
+$f_{\text{twist}}$ & 94 to 96\,\% & 98 to 99\,\% & 98 to 99\,\%\\
+largest bend angle & 39 to 57\,\% & 69 to 83\,\% & 66 to 70\,\%\\
+regional DM (3D) & 19 to 43\,\% & 64 to 66\,\% & 44 to 60\,\%\\
+$k_B$ & 19 to 30\,\% & 48 to 69\,\% & 41\,\%\\
+mean 10\,mm arc/chord & 16 to 17\,\% & 46 to 68\,\% & 42\,\%\\
+\bottomrule
+\end{tabular}
+\end{center}
+Mean 10\,mm arc/chord and $k_B$ agree with each other at Spearman 0.88 to 0.98 in every proximal and mid region, so at most
+one of them can be kept. In short regions some of the apparent new information may be estimation noise.
+
+\textbf{Confounds.} Proximal and mid $\ka$: no dominance effect (all $p\ge0.2$), $|\rho|\le0.09$ with image quality.
+Whole-vessel DM shifts with dominance in all three vessels ($p$ from $10^{-5}$ to $10^{-10}$). Distal LCx
+descriptors follow length ($\ka$ $\rho$ 0.47, bends 0.61), because the distal LCx extent depends on dominance.
+
+\section{Decision}
+
+\begin{center}
+\small
+\begin{tabular}{@{}lp{7.2cm}p{5.4cm}@{}}
+\toprule
+Status & Descriptor & Where / condition\\
+\midrule
+Primary & $\ka^{(5)}$ & every plaque-relevant region\\
+Secondary & largest bend angle & same regions\\
+Conditional & $f_{\text{twist}}$ & proximal and mid, only if reliable\\
+Literature only & whole-vessel DM (3D and 2D view), whole-vessel $\ka$ & reported with length and dominance\\
+Descriptive & bend counts $\ge45^\circ$; RCA crux; distal LCx & distal LCx stratified by dominance\\
+Exploratory & $k_B$ & RCA only after the 5\,mm trim\\
+Dropped & mean 10\,mm arc/chord, total turning, $f_{\text{wiggle}}$, regional 2D DM, regional bends $\ge90^\circ$,
+  inflection count, ICM, full SOAM, writhe, box-counting dimension, SRVF distance to a line & \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent\textbf{Open before adoption.}
+\begin{enumerate}
+\item Reliability per region: jitter and, above all, reference versus CAS-Net-derived centerlines.
+  Whole-vessel $f_{\text{twist}}$ fell to ICC 0.15 to 0.32 under 0.5\,mm correlated jitter, while $\ka$
+  held 0.74 to 0.81.
+\item Fixed-window versus landmark proximal regions for the LAD and LCx.
+\item Freeze regions and thresholds in a dated commit; confirm on the validation split.
+\item CGPS needs a labeller (no artery names) and the same smoothing step before any of this applies.
+\end{enumerate}
+
+\section*{Figures}
+\begin{center}
+\includegraphics[width=\textwidth]{/work3/s254124/imagecasx_results/tortuosity_research/case_study/rca_tortuosity_comparison.png}\\[2pt]
+{\small Two length-matched RCAs (scans 662, 518) in LAO\,30 with easy and advanced descriptors.}\\[8pt]
+\includegraphics[width=0.85\textwidth]{/work3/s254124/imagecasx_results/tortuosity_research/case_study/regional_lao30.png}\\[2pt]
+{\small The same RCAs split into proximal, mid and crux regions (before the 5\,mm trim is applied).}
+\end{center}
+
+\section*{Code and outputs}
+{\small\raggedright
+Scripts in \path{tortuosity/research/}: \path{simple/compute_simple.py}, \path{unified/bishop.py},
+\path{case_study/easy.py}, \path{advanced.py}, \path{regional.py}, \path{regional_analysis.py}, \path{visualise.py}.
+Outputs in \path{/work3/s254124/imagecasx_results/tortuosity_research/case_study/}:
+\path{regional_train560.csv}, \path{regional_lad_train560.csv}, \path{regional_lcx_train560.csv} and the matching
+\path{_analysis.txt} files.
+Rebuild with \path{latexmk -pdf tortuosity_methods.tex}.\par}
+
+\end{document}

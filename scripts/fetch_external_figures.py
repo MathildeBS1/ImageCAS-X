@@ -85,6 +85,38 @@ FIGURES: list[dict] = [
         ),
         "bibkey": "murasato2022bifurcation",
     },
+    {
+        "filename": "tello2026_fig1.jpg",
+        "source": "pmc",
+        "download_url": "https://cdn.ncbi.nlm.nih.gov/pmc/blobs/aec2/13308244/c3310ba78f54/gr1.jpg",
+        "doi": "10.1016/j.jacadv.2026.102829",
+        "journal": "JACC: Advances",
+        "year": 2026,
+        # Transcribed from the article's licence statement; verified 2026-09-30.
+        # ND licence: reproduce unmodified (no cropping or relabelling).
+        "author": "Tello Ayala JR, Supriami K, Swaroop S, et al.",
+        "licence_short": "CC BY-NC-ND 4.0",
+        "licence_long": "Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International",
+        "article_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13308244/",
+        "illustrates": "RCA tortuosity pipeline and the turning angle at one centerline point",
+        "bibkey": "tello2026tortuosity",
+    },
+    {
+        "filename": "tello2026_fig2.jpg",
+        "source": "pmc",
+        "download_url": "https://cdn.ncbi.nlm.nih.gov/pmc/blobs/aec2/13308244/ab2e31605fd0/gr2.jpg",
+        "doi": "10.1016/j.jacadv.2026.102829",
+        "journal": "JACC: Advances",
+        "year": 2026,
+        # Transcribed from the article's licence statement; verified 2026-09-30.
+        # ND licence: reproduce unmodified (no cropping or relabelling).
+        "author": "Tello Ayala JR, Supriami K, Swaroop S, et al.",
+        "licence_short": "CC BY-NC-ND 4.0",
+        "licence_long": "Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International",
+        "article_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13308244/",
+        "illustrates": "Low, average and high RCA tortuosity deciles with example angiograms",
+        "bibkey": "tello2026tortuosity",
+    },
 ]
 
 # --------------------------------------------------------------------------------------
@@ -168,13 +200,27 @@ def resolve_plos(entry: dict) -> dict:
     }
 
 
-RESOLVERS = {"wikimedia": resolve_wikimedia, "plos": resolve_plos}
+def resolve_pmc(entry: dict) -> dict:
+    """PMC figure blobs have no licence API; the URL, author and licence come from the manifest."""
+    return {
+        "download_url": entry["download_url"],
+        "descriptionurl": entry["article_url"],
+        "width": None,
+        "height": None,
+        "author": entry["author"],
+        "licence_short": entry["licence_short"],
+        "licence_long": entry["licence_long"],
+        "attribution_source": "declared in manifest, verified against the article page",
+    }
+
+
+RESOLVERS = {"wikimedia": resolve_wikimedia, "plos": resolve_plos, "pmc": resolve_pmc}
 
 
 def credit_line(entry: dict, meta: dict) -> str:
     if entry["source"] == "wikimedia":
         return f"Figure by {meta['author']}, {meta['licence_short']}, via Wikimedia Commons."
-    if entry["source"] == "plos":
+    if entry["source"] in ("plos", "pmc"):
         return (
             f"Figure from {meta['author']}, {entry['journal']} {entry['year']}, "
             f"doi:{entry['doi']}, {meta['licence_short']}."

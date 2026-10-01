@@ -1,0 +1,509 @@
+% Coronary features chosen for coupling to plaque development, the features abandoned, and the
+% per-artery risk models they feed, for the Herlev--Osterbro cohort.
+%
+% VERSION 2 (2026-09-28). Revises 01_model_features.tex after reports/Risk model feature review.md.
+% Changes: (1) the left main is now a fourth outcome domain; (2) the sign of Delta_HK is left open
+% and tested two-sided; (3) additive radius error is named and gets a perturbation study;
+% (4) Model 0 (clinical only) is added, Model 2 is now the same penalized regression with
+% functional-PCA scores of the curvature profile, and the network is Model 3, exploratory;
+% (5) sample size follows Riley et al. instead of 20 events per weight; (6) citations that were
+% stronger than the study are restated; (7) validation, clustering by patient and interval-censoring
+% are added. Bifurcation correlation and reliability numbers in the review came from simulation and
+% from unsaved inline curvature code, so none is used here.
+% Sources: every study number below was checked on 2026-09-28 against its Europe PMC record or,
+% where the bib note says so, its full text. Read level is recorded in each refs.bib note.
+% The Kashyap R^2 values are the full-text figures recorded in thesis/week4/locked_tortuosity_metrics.tex.
+% Cohort numbers come from scripts/check_vessel_planarity.py (ImageCAS-X test split, 160 cases).
+% The bifurcation-descriptor reliability numbers in reports/ come from scratchpad scripts that
+% are not yet in the repo, so none of them is used here.
+%
+% CHECK BEFORE SUBMISSION: size of the repeat-scan subset and the scan interval (weekly report 2
+% says "about ten years apart") must be confirmed against the Herlev--Osterbro data once access
+% is granted.
+
+\section{Features and models for predicting new plaque}
+\label{sec:risk-features}
+
+The features this thesis computes from each coronary tree are chosen for one purpose: to be coupled later to where new plaque develops.
+Low shear at the vessel wall is the best-established mechanism linking coronary geometry to plaque (Section~\ref{sec:geometry}), and shear computed at a first scan predicts where disease progresses.
+In patients re-imaged 6 to 10 months after an acute coronary syndrome, low shear at baseline predicted where the lumen narrowed, the study's secondary endpoint \cite{stone2012prediction}.
+In 17 bifurcations followed for three years by computed tomography, low shear predicted an increase in plaque burden ($p = 0.0006$), and the prediction improved when the daughter branch was modeled and flow was split between the branches by Murray's law \cite{sakellarios2017bifurcation}.
+Both studies followed disease that was already present, so they establish shear as a predictor of progression.
+Whether shear, or the geometry that sets it, predicts where plaque first forms in a healthy tree is the open question that a population cohort scanned twice can answer.
+Simulating flow through every tree of a population cohort is not practical, so each feature below is a geometric stand-in for low shear, computed from the centerline and the vessel radius alone.
+
+\subsection{Measuring at a bifurcation}
+
+Bifurcations are where early plaque concentrates, which is why most of the features are measured there.
+In 65 computed tomography cross-sections near coronary bifurcations, van der Giessen et al.\ found plaque in 72\% of the low-shear outer-wall quarters against 31\% of the flow-divider quarters, and never at the flow divider alone \cite{vandergiessen2009bifurcation}.
+In the ICONIC study (Incident Coronary Syndromes Identified by Computed Tomography), 116 lesions that later caused an acute coronary syndrome sat at a bifurcation in 73.3\% of cases, against 38.9\% of lesions that did not \cite{han2022plaque}.
+Lesions with one adverse feature of location or shape (proximity to the vessel origin, a bifurcation site, or tortuosity) carried a hazard ratio of 2.90 (95\% confidence interval, CI, 1.38--6.08) for becoming a future culprit, and lesions with two or more a hazard ratio of 6.84 (3.33--14.04) \cite{han2022plaque}.
+ICONIC did not test bifurcation angle or caliber, but it shows that where a lesion sits in the tree's geometry carries prognostic information, which is the premise the features below extend to healthy trees.
+
+Three bifurcations are measured in each tree.
+The first is the left main (LM) dividing into the left anterior descending (LAD) and left circumflex (LCx) arteries.
+The other two lie along the arteries themselves: the LAD giving off its first diagonal branch (D1), and the LCx giving off its first obtuse marginal branch (OM1).
+The side branches are included because vulnerable plaque is most often found outside the left main \cite{shen2026geometry}, and because the one disease finding for the Huo--Kassab feature below was made at side-branch bifurcations \cite{schoenenberger2012murray}.
+The left main is included because the low-shear mechanism acts on its wall directly, and new plaque in the left main is itself an outcome (Section~\ref{sec:risk-domains}).
+Some trees have a ramus intermedius, a third branch arising from the left main between the LAD and LCx, which makes the left main a trifurcation.
+Such trees are flagged, the LM features are computed on the LAD and LCx as the two daughters, and every analysis is repeated without the flagged trees.
+
+At each bifurcation, $r_0$ is the radius of the parent vessel and $r_1$, $r_2$ are the radii of the two daughters.
+Each radius is the median of the Euclidean distance transform (EDT), the distance from a centerline point to the nearest point outside the vessel, over a 3\,mm window of centerline.
+Every window starts one junction radius $r_J$, the EDT value at the branch point itself, away from the branch point.
+The offset exists because the parent and daughter lumens merge at the branch point, so the largest sphere that fits there is wider than either daughter and the EDT reads close to the parent's radius whether or not the lumen widens.
+
+The caliber features below are ratios of radii, which gives them a property absolute diameters lack.
+If every radius in a scan is multiplied by the same factor, whether through a larger heart or a different scanner calibration, every ratio stays unchanged.
+Finet et al.\ observed exactly this in 173 bifurcations: the ratio of the parent to its daughters held ``at all levels of bifurcation, whatever diameter the mother vessel'' \cite{finet2008fractal}.
+Ratios compare bifurcations across trees of different size, which is what a population model needs.
+The cancellation is exact only for multiplicative error.
+Segmentation blur, thresholding and the discretization of the distance transform shift every radius by roughly the same amount, up to about half a voxel (0.25\,mm at 0.5\,mm spacing), and an additive shift does not cancel in a ratio.
+Its effect on each feature is therefore measured before any outcome is opened: on the ImageCAS-X trees, the segmentation is dilated and eroded by one voxel, the junction offset is varied (0.5, 1 and 2 $r_J$) and the window length is varied (2, 3 and 5\,mm), and the reliability of each feature under these changes is reported.
+The curvature features are not scale-free, since curvature is measured in reciprocal millimeters, and the same scale is used in every tree.
+
+\subsection{Bifurcation angle}
+
+The \textbf{bifurcation angle} $\theta$ is the angle between the directions in which the two daughters leave the branch point.
+Each direction is a straight line fitted to the daughter's centerline over the same window as the radii, $[r_J, r_J + 3\,\mathrm{mm}]$, so that the curvature of the vessel further downstream does not tilt it:
+\begin{equation}
+  \theta = \arccos\left(\mathbf{t}_1 \cdot \mathbf{t}_2\right),
+  \label{eq:risk-angle}
+\end{equation}
+where $\mathbf{t}_1$ and $\mathbf{t}_2$ are the unit direction vectors of the two daughters.
+Flow entering each daughter separates from its lateral wall, leaving low shear there, and a wider angle is associated with a larger such region \cite{murasato2022bifurcation}.
+In 196 patients imaged with coronary computed tomography angiography (CCTA), the LM angle averaged $79.4^\circ \pm 23.0^\circ$ and ranged from $35.5^\circ$ to $178^\circ$ \cite{temov2016bifurcation}, so there is wide variation between people for a model to use.
+In 106 patients, the LAD--LCx angle remained an independent predictor of significant left coronary stenosis, with an odds ratio of 1.42 (unit not stated in the abstract) \cite{cui2017bifurcation}.
+In 122 patients it correlated at $r = 0.684$ with the Gensini score, which weights each narrowing by its severity and location \cite{mansouri2024bifurcation}.
+In 313 patients the angle was $87.3^\circ$ in significantly narrowed arteries against $75.5^\circ$ in normal ones, though not after adjustment ($p = 0.064$) \cite{juan2017bifurcation}.
+Clustering 76 left main arteries by shape, Wang et al.\ found the phenotype with the largest angle had the most low shear around the LAD branch point \cite{wang2024lmphenotypes}.
+The three association studies measured patients referred for suspected disease, so none can say whether a wide angle came first.
+That is the question Herlev--{\O}sterbro can answer, which is why the angle is computed at every measured bifurcation, with a wider angle expected to raise risk.
+The angle is fitted over a 3\,mm window, six voxels at 0.5\,mm spacing, so its measurement error is checked against the between-person standard deviation of $23^\circ$ by the perturbation study above, with windows of 2, 3 and 5\,mm.
+
+\subsection{Daughter ratio and the left main log ratio}
+
+The \textbf{daughter ratio} compares the two daughters with each other,
+\begin{equation}
+  \rho = \frac{\min(r_1, r_2)}{\max(r_1, r_2)}, \qquad 0 < \rho \leq 1,
+  \label{eq:risk-daughter}
+\end{equation}
+so $\rho = 1$ is a symmetric split and a small $\rho$ a lopsided one.
+Garcha and Grande Guti\'errez simulated blood flow through 230 synthetic left coronary trees in which angle, branch position, tortuosity and diameter were varied \cite{garcha2025sensitivity}.
+The area of low shear followed a quadratic curve in the LAD/LCx diameter ratio with $R^2 = 0.91$ and $0.94$ in the two dominance groups, and it formed in the smaller branch \cite{garcha2025sensitivity}.
+The diameter ratio also amplified the other features: tortuous trees with a lopsided split had 8.8\% to 10.1\% of their wall under low shear, against 1.2\% for the same tortuosity with a balanced split \cite{garcha2025sensitivity}.
+In 39 patient left coronary trees from the public ASOCA dataset (Automated Segmentation of Coronary Arteries), vessel diameter was the only geometric quantity whose correlation with shear survived correction for multiple comparisons \cite{shen2025helical}.
+That result concerns absolute diameter, which the ratio features remove, so the absolute radius of the parent vessel is added as a secondary analysis, adjusted for sex, and the ratio features are judged against it.
+The daughter ratio has the strongest mechanistic support of the caliber features, though that support comes from synthetic geometries.
+Garcha's low-shear area is curved in the diameter ratio, with a neutral point near 0.94 rather than 1 \cite{garcha2025sensitivity}, so the linear term used below is a first approximation, and a quadratic term in the log ratio is tested as a secondary analysis.
+
+At the LM, the daughters are the LAD and the LCx, and new plaque in each is predicted separately (Section~\ref{sec:risk-domains}), so which daughter is the smaller matters, and $\rho$ discards it.
+The LM therefore enters as the log ratio
+\begin{equation}
+  \lambda = \ln\frac{r_{\mathrm{LAD}}}{r_{\mathrm{LCx}}},
+  \label{eq:risk-lambda}
+\end{equation}
+which is zero for a symmetric split, negative when the LAD is the smaller daughter and positive when the LCx is.
+Since low shear forms in the smaller branch, a negative $\lambda$ is expected to raise LAD risk and a positive $\lambda$ LCx risk.
+At the side-branch bifurcations both daughters belong to the same artery, so $\rho$ is used, and a small $\rho$ is expected to raise risk.
+In the LM domain the outcome is plaque in the left main itself, where neither daughter is favored, so $\rho$ is used there too.
+$\lambda$ and $\rho$ carry the same information at the LM ($\lvert\lambda\rvert = -\ln\rho$), so they never enter the same model, and neither $\lvert\lambda\rvert$ nor $\lambda^2$ is added beside $\lambda$ in the same model.
+
+\subsection{Deviation from the Huo--Kassab law}
+
+Murray's law predicts how a healthy parent relates to its daughters: if the flow a vessel carries scales as its radius raised to a power $n$, and the parent's flow equals the sum of its daughters', then
+\begin{equation}
+  r_0^{\,n} = r_1^{\,n} + r_2^{\,n}.
+  \label{eq:risk-murray}
+\end{equation}
+Murray derived $n = 3$, but pooling 18 studies covering 1070 coronary trees, Taylor et al.\ placed the coronary exponent at 2.39 (95\% CI 2.24--2.54), with large heterogeneity between studies ($I^2 = 99\%$) \cite{taylor2024murray}.
+That is close to the value $n = 7/3 \approx 2.33$ that Huo and Kassab derived from the minimum energy needed to build and run a vascular tree, which the coronary version of Equation~\ref{eq:risk-murray} therefore uses \cite{huo2012scaling}.
+The pooled exponent is a property of trees, not a per-bifurcation equality, so individual healthy bifurcations are expected to scatter around $\Delta_{HK} = 0$, and the ImageCAS-X reference distribution shows how far.
+Witt et al.\ turned such a law into a direct feature for retinal vessels, the \textbf{optimality ratio}, which is simpler to compute and more robust to noise than solving for $n$ \cite{witt2010optimality}.
+The coronary form of their ratio, with the Huo--Kassab exponent, is
+\begin{equation}
+  \Gamma_{HK} = \frac{1}{r_0}\left(\frac{r_1^{\,7/3} + r_2^{\,7/3}}{2}\right)^{3/7},
+  \qquad
+  \Delta_{HK} = \Gamma_{HK} - 2^{-3/7}.
+  \label{eq:risk-gamma}
+\end{equation}
+Its optimal value follows in one line: if the law holds, $r_1^{7/3} + r_2^{7/3} = r_0^{7/3}$, so
+\begin{equation*}
+  \Gamma_{HK} = \frac{1}{r_0}\left(\frac{r_0^{\,7/3}}{2}\right)^{3/7} = 2^{-3/7} \approx 0.743,
+\end{equation*}
+whatever the asymmetry of the daughters.
+The feature is the signed deviation $\Delta_{HK}$, which is zero for a bifurcation that follows the law and is defined for every bifurcation.
+
+Departure from an optimal ratio has been linked both to endothelial function and to plaque, in both directions.
+In a double-blind crossover study of six healthy male volunteers, the retinal optimality ratio rose, a positive deviation, when nitric oxide synthesis was blocked ($p = 0.03$) \cite{witt2010optimality}.
+That is a sensitivity of the ratio to the vessel lining's response to flow, whose loss is an early step in atherosclerosis \cite{chatzizisis2007ess}, shown in retinal vessels and not yet in epicardial ones.
+In 253 patients imaged with intravascular ultrasound, bifurcations whose parent was wide relative to its daughters, a departure from Murray's law with $n = 3$, held more dense calcium on both sides of the branch point after adjustment for age, sex and risk factors \cite{schoenenberger2012murray}.
+That finding is cross-sectional and used the cubic exponent, under which shear is unchanged across a bifurcation that obeys the law.
+With the coronary exponent $n = 7/3$, shear scales as $r^{-2/3}$ across a bifurcation that obeys the law, so $\Delta_{HK} = 0$ marks a typical healthy tree and not a shear-neutral one.
+At a fixed flow, shear falls with the cube of the radius (Equation~\ref{eq:wss}), so a parent wide relative to its daughters, a negative $\Delta_{HK}$, has a wall under lower shear; flow is not fixed in a real tree, and the opposite sign is supported by the retinal finding.
+The direction of the effect is therefore treated as open, and the models test the signed term two-sided.
+A squared term $\Delta_{HK}^2$, which asks whether departure in either direction marks risk, is a pre-specified secondary analysis.
+Whichever direction the data support, a feature that has support in both directions for disease is a good place to start.
+We found no coronary study reporting $\Gamma_{HK}$, so the reference distribution from the 800 ImageCAS-X trees (Section~\ref{sec:pipeline-data}) will be its first, and Herlev--{\O}sterbro its first test against outcome.
+$\Delta_{HK}$ combines three radii and so accumulates their errors: its reliability under the perturbation study above is reported next to that of $\lambda$ and $\rho$, and a floor for it is fixed on ImageCAS-X before any outcome is opened, below which $\Delta_{HK}$ is analyzed as exploratory.
+
+\subsection{Curvature, as a mean and as a profile}
+
+\textbf{Curvature} $\kappa$ measures how sharply a vessel bends at a point: the reciprocal of the radius of the circle that best fits the centerline there, so a straight segment has $\kappa = 0$.
+Along an artery, curvature is a profile $\kappa(s)$, where $s$ is the distance along the vessel from its origin.
+Averaging the profile gives the \textbf{mean absolute curvature}
+\begin{equation}
+  \bar\kappa_a = \frac{1}{L}\int_0^L \lvert \kappa(s) \rvert \, \mathrm{d}s,
+  \label{eq:risk-kappa}
+\end{equation}
+where $L$ is a fixed length from the origin, the same in every tree.
+Both are computed from the same centerline, smoothed at the same scale, with the centerline around each branch point removed.
+
+Of the measures of tortuosity, how much a vessel winds, mean absolute curvature has the best-tested link to low shear.
+Kashyap et al.\ simulated flow around the left main bifurcation of 127 patients without coronary artery disease and regressed the area of wall under low shear on every tortuosity measure in use \cite{kashyap2022tortuosity}.
+Mean absolute curvature explained the most variance, $R^2 = 0.112$ ($p < 0.001$) \cite{kashyap2022tortuosity}.
+In the same 39 ASOCA trees as above, average curvature separated stenosed from non-stenosed trees with an area under the receiver operating characteristic curve (AUC) above 0.71 \cite{zhang2024curvature}.
+The mean is therefore computed for every artery.
+It also discards where along the artery the bend sits, which is why the profile $\kappa(s)$ is kept as well (Section~\ref{sec:risk-profile}).
+Many other summaries of bending exist (counts of bends above a set angle, the largest bend, total turning), and they measure the same bending as the mean.
+Exactly one curvature scalar, $\bar\kappa_a$, enters Model~1, and the correlation of the other summaries with it is measured on the ImageCAS-X training trees and reported.
+
+\subsection{Metrics considered and abandoned}
+
+Six further metrics were considered and left out of the models, because each duplicates a kept metric, measures noise, or lacks a route to plaque.
+
+\paragraph{Tortuosity index.}
+The ratio of a vessel's length to the straight-line distance between its ends is the tortuosity measure most used clinically.
+In Kashyap's 127 patients it explained none of the low-shear area, $R^2 \approx 0$ ($p = 0.86$), because a vessel can be long relative to that line either by winding back and forth or by sweeping through one gentle arc \cite{kashyap2022tortuosity}.
+
+\paragraph{Root-mean-square curvature.}
+Squaring curvature before averaging weights sharp bends more, and in the same patients it explained $R^2 = 0.093$ ($p = 0.002$), slightly less than the mean \cite{kashyap2022tortuosity}.
+It measures the same bending as $\bar\kappa_a$ and squares a noisy derivative, so only the mean is kept.
+
+\paragraph{Junction exponent.}
+Solving Equation~\ref{eq:risk-murray} for $n$ at each bifurcation has no closed form, is biased when the radii carry noise \cite{witt2010optimality}, and has no solution at all when a noisy daughter radius reads as large as the parent's.
+$\Delta_{HK}$ asks the same question without these failures.
+
+\paragraph{Finet ratio.}
+The Finet ratio compares the parent to the sum of its daughters, $F = r_0/(r_1 + r_2)$.
+In 47 patients with normal angiograms, Finet et al.\ found $F = 0.678$ across 173 bifurcations \cite{finet2008fractal}.
+Once overall size is removed, the three radii of a bifurcation reduce to two numbers, so any third ratio is a function of the other two.
+Writing $r_1$ for the larger daughter, so that $r_2 = \rho\, r_1$ and $r_0 = F r_1 (1 + \rho)$, with $\rho = e^{-\lvert\lambda\rvert}$ at the LM, Equation~\ref{eq:risk-gamma} becomes
+\begin{equation}
+  \Gamma_{HK} = \frac{1}{F\,(1 + \rho)} \left(\frac{1 + \rho^{\,7/3}}{2}\right)^{3/7}.
+  \label{eq:risk-dependence}
+\end{equation}
+A regression given $F$, the daughter ratio and $\Delta_{HK}$ could never change one while holding the other two fixed, so their weights would have no meaning.
+$\Delta_{HK}$ is kept because it uses the coronary exponent and carries a disease finding with a predicted direction \cite{schoenenberger2012murray}.
+$F$ is still reported for every tree, as a check that the radii are measured sensibly.
+The check compares $F$ with the value the Huo--Kassab law predicts at the measured daughter ratio, $F_{HK}(\rho) = (1 + \rho^{7/3})^{3/7}/(1 + \rho)$, which is 0.673 at $\rho = 1$, 0.72 at $\rho = 0.5$ and 0.79 at $\rho = 0.3$, and not with the single value 0.678 that Finet found in normal angiograms.
+
+\paragraph{Torsion.}
+\textbf{Torsion} $\tau$ measures how fast a curve twists out of the plane in which it is bending.
+It was a natural candidate, because simulation studies proposed that twisting drives a spiral flow that protects the wall \cite{shen2026geometry}.
+It fails on measurement: curvature needs the second derivative of the centerline position and torsion the third, and each numerical derivative divides the small position errors of the centerline points by a small step.
+On the 160 ImageCAS-X test cases, the median root-mean-square distance of the LAD from its own best-fit plane is 2.1\% of its length, and of the left main 0.5\%.
+Yet the same code reports a mean absolute torsion of 0.50 to 0.57\,mm$^{-1}$ in every vessel, a full twist every 12\,mm whatever the vessel's planarity, so the measurement is most likely dominated by noise (\texttt{scripts/check\_vessel\_planarity.py}).
+A small out-of-plane distance does not by itself bound torsion, which also grows without limit where curvature approaches zero, on straight stretches; both effects argue against a per-vessel torsion feature.
+It also fails on mechanism: in the same 39 ASOCA trees, no correlation between torsion and spiral flow survived correction for multiple comparisons, and the spiral flow shrank the wall area under low shear but enlarged the area under adversely high shear \cite{shen2025helical}, which is associated with plaque becoming more prone to rupture \cite{bajraktari2021highwss}.
+
+\paragraph{Right coronary crux.}
+The label scheme records no right coronary artery (RCA) branch between its origin and the crux, where it divides into the posterior descending (PDA) and posterolateral (PLA) branches, so the only RCA bifurcation that could be measured is its last.
+Lesions that later caused an acute coronary syndrome lay nearer the vessel origin than lesions that did not \cite{han2022plaque}, whereas the crux is the far end of the RCA.
+We found no study linking crux geometry to plaque, and the RCA divides into both branches only in a right-dominant tree, so crux features would largely re-encode dominance.
+With no mid-RCA branch to measure, the RCA carries no bifurcation features.
+
+\subsection{Four models for risk prediction}
+
+The features are coupled to plaque development in the Herlev--{\O}sterbro cohort of the Copenhagen General Population Study, which imaged 9533 adults aged 40 years or older without symptoms of heart disease using CCTA \cite{fuchs2023cgps}.
+Participants whose first scan showed obstructive plaque had a 9.19-fold adjusted risk of myocardial infarction (95\% CI 4.49--18.11) over a median of 3.5 years \cite{fuchs2023cgps}.
+That analysis described each tree only by how narrow and how widespread its plaque was, never by its shape.
+Part of the cohort is scanned a second time, about ten years later (the interval and the size of this subset are to be confirmed once data access is granted), so the outcome is observable: new plaque at the second scan in an artery that had none at the first.
+
+Four models predict that outcome, each adding one thing to the one before.
+\textbf{Model~0} is a logistic regression on age, sex and dominance alone, together with the classical risk factors and the coronary artery calcium score where the cohort records them.
+It is the baseline that geometry has to beat, because age and sex predict plaque before any shape is measured.
+\textbf{Model~1} adds the geometric features, with curvature as the mean $\bar\kappa_a$.
+A logistic regression writes the log-odds of the outcome as a weighted sum of the inputs, so each weight reads as the effect of one feature.
+The log-odds is the logarithm of the probability of the outcome divided by the probability of its absence.
+Both are fitted with a ridge penalty, which shrinks the weights that the events cannot support (Section~\ref{sec:risk-collinearity}).
+\textbf{Model~2} is Model~1 with the mean curvature replaced by $K$ scores that summarize the curvature profile $\kappa(s)$, with $K$ between 3 and 5 (Section~\ref{sec:risk-profile}).
+Model~2 is nested in the same regression family as Model~1, so the value of keeping the position of each bend is a comparison of two fits of the same kind, and it costs only $K - 1$ extra weights.
+\textbf{Model~3} is a small neural network that reads the profile itself and joins the other features just before its output layer, a design called late fusion.
+A control network, identical to Model~3 but given $\bar\kappa_a$ in place of the profile, separates the value of the profile from the value of the network's freedom to combine features nonlinearly.
+Model~3 has many more parameters than the expected events can support, so it is an exploratory analysis whose failure to beat Model~2 would not be evidence against the profile, and Model~2 is the primary test of the profile.
+Every feature enters all four models as the same number, computed by the same code, except for the curvature entry.
+The participant-level features of Model~0, including any risk factors and the calcium score, enter every later model, so each step is nested in the next; the weight counts in the tables below count age, sex and dominance only.
+
+\subsection{One set of models per artery domain}
+\label{sec:risk-domains}
+
+Plaque risk is predicted separately for the LAD, the LCx, the RCA and the left main, each with its own set of models.
+Shear acts locally, on the wall that feels it (Section~\ref{sec:geometry}), so predicting each artery on its own asks where plaque will form, not only in whom.
+A single score per patient mixes arteries whose geometry and risk differ; across 1010 patients undergoing angiography, more tortuous arteries even went with less coronary artery disease, not more \cite{li2011tortuosity}.
+Scoring each artery against its own outcome keeps a harmful geometry in one artery from being averaged with a harmless one in another.
+The arteries also carry different features: $\lambda$ is expected to push LAD and LCx risk in opposite directions, and the RCA has no measured bifurcation.
+
+Each outcome covers the artery's whole domain: the LAD with all its diagonals, the LCx with all its obtuse marginals, the RCA with the PDA and PLA it gives off, and the LM domain, which is the left main and the ramus intermedius where present.
+The LM domain is a separate outcome because the mechanism behind the LM bifurcation features acts on the left main wall itself, so new plaque there is the outcome those features most directly predict.
+Plaque in the left main is uncommon in a population without symptoms, so the LM models are the ones most limited by events, and the sample-size calculation below is done for them separately.
+In a left-dominant tree the PDA and PLA come off the LCx and count toward the LCx domain, and in a codominant tree each counts toward the artery it comes off.
+The outcome definition therefore depends on dominance, which is also a predictor, and every analysis is repeated with the PDA and PLA left out of the outcome.
+The models are fitted on participants whose whole tree was free of plaque at the first scan, because an artery enlarges outward as plaque accumulates and so changes the geometry that would predict it \cite{glagov1987remodeling}.
+
+Each set receives the participant-level features and the geometry of its own domain only (Tables~\ref{tab:risk-lad} to~\ref{tab:risk-lm}).
+The LAD models see the LM and LAD--D1 bifurcations and the curvature of the LAD, and the LCx models the LM and LCx--OM1 bifurcations and the curvature of the LCx.
+The RCA models see the curvature of the RCA, which makes the RCA set the cleanest test of curvature as a mean against curvature as a profile.
+The LM models see the LM bifurcation only; the left main is too short to carry a curvature profile, so the LM set has Models~0 and~1.
+The LAD and LCx models share the same three LM features, and the opposite signs expected for $\lambda$ make them one contrast, not two independent findings.
+A patient contributes an outcome to every domain, so the four results are correlated, and they are analyzed with the patient as the unit of resampling (Section~\ref{sec:risk-validation}).
+A tree can lack a D1 or an OM1, and such a bifurcation is coded as absent rather than dropped.
+Writing $I$ for an indicator that is 1 when the bifurcation exists and $\mathbf{x}$ for its three features, its contribution to the log-odds is
+\begin{equation}
+  \gamma\, I + I \, \boldsymbol{\beta}^{\top} \mathbf{x},
+  \label{eq:risk-presence}
+\end{equation}
+so the weights $\boldsymbol{\beta}$ are learned only from trees that have the bifurcation, while $\gamma$ absorbs any difference in risk between trees that have it and trees that do not.
+Models~2 and~3 receive the same $I$ and $I\mathbf{x}$, and each domain's models are fitted on the same participants, so the comparison is made once per domain.
+
+\begin{table}[tbp]
+  \centering
+  \small
+  \newcommand{\fused}{same number, late fusion}
+  \caption{The LAD models: LM and LAD--D1 bifurcation features and LAD curvature.
+    In the regression column, the sign in parentheses is the predicted direction of the weight: $+$ means a larger value raises risk, $-$ that it lowers risk; blank means not pre-specified, and ``sign open'' means the weight is tested two-sided.
+    $I$ is 1 when D1 exists, and the D1 features enter multiplied by it (Equation~\ref{eq:risk-presence}).
+    LM: left main; D1: first diagonal.}
+  \label{tab:risk-lad}
+  \begin{tabular}{@{}p{3.3cm}p{1.9cm}p{4.0cm}p{5.0cm}@{}}
+    \toprule
+    Feature & Measured at & Models~1 and~2 (regression) & Model~3 (network) \\
+    \midrule
+    Age, sex & participant & 1 weight each & \fused \\
+    Dominance & participant & 2 weights (3 categories) & \fused \\
+    Angle $\theta$ & LM & 1 weight ($+$) & \fused \\
+    Log ratio $\lambda$ & LM & 1 weight ($-$) & \fused \\
+    Deviation $\Delta_{HK}$ & LM & 1 weight (sign open) & \fused \\
+    Presence $I$ & LAD--D1 & 1 weight & \fused \\
+    $\theta$, $\rho$, $\Delta_{HK}$, each $\times I$ & LAD--D1 & 1 weight each ($+$, $-$, open) & \fused \\
+    Curvature & LAD & Model~1: mean $\bar\kappa_a$, 1 weight; Model~2: $K$ profile scores & profile $\kappa(s)$, convolutional encoder \\
+    \midrule
+    Total & & Model~1: 12 weights; Model~2: $11 + K$ & encoder, plus a head on the 11 scalars \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{1.5em}
+  \caption{The LCx models mirror the LAD models, with LCx--OM1 in place of LAD--D1, and the LM log ratio $\lambda$ expected to carry the opposite sign.
+    OM1: first obtuse marginal.}
+  \label{tab:risk-lcx}
+  \begin{tabular}{@{}p{3.3cm}p{1.9cm}p{4.0cm}p{5.0cm}@{}}
+    \toprule
+    Feature & Measured at & Models~1 and~2 (regression) & Model~3 (network) \\
+    \midrule
+    Age, sex & participant & 1 weight each & \fused \\
+    Dominance & participant & 2 weights (3 categories) & \fused \\
+    Angle $\theta$ & LM & 1 weight ($+$) & \fused \\
+    Log ratio $\lambda$ & LM & 1 weight ($+$) & \fused \\
+    Deviation $\Delta_{HK}$ & LM & 1 weight (sign open) & \fused \\
+    Presence $I$ & LCx--OM1 & 1 weight & \fused \\
+    $\theta$, $\rho$, $\Delta_{HK}$, each $\times I$ & LCx--OM1 & 1 weight each ($+$, $-$, open) & \fused \\
+    Curvature & LCx & Model~1: mean $\bar\kappa_a$, 1 weight; Model~2: $K$ profile scores & profile $\kappa(s)$, convolutional encoder \\
+    \midrule
+    Total & & Model~1: 12 weights; Model~2: $11 + K$ & encoder, plus a head on the 11 scalars \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{1.5em}
+  \caption{The RCA models carry no bifurcation features, so the RCA set isolates curvature as a mean against curvature as a profile.}
+  \label{tab:risk-rca}
+  \begin{tabular}{@{}p{3.3cm}p{1.9cm}p{4.0cm}p{5.0cm}@{}}
+    \toprule
+    Feature & Measured at & Models~1 and~2 (regression) & Model~3 (network) \\
+    \midrule
+    Age, sex & participant & 1 weight each & \fused \\
+    Dominance & participant & 2 weights (3 categories) & \fused \\
+    Curvature & RCA & Model~1: mean $\bar\kappa_a$, 1 weight; Model~2: $K$ profile scores & profile $\kappa(s)$, convolutional encoder \\
+    \midrule
+    Total & & Model~1: 5 weights; Model~2: $4 + K$ & encoder, plus a head on the 4 scalars \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{1.5em}
+  \caption{The LM models predict new plaque in the left main and the ramus intermedius from the LM bifurcation alone, with $\rho$ in place of $\lambda$ because neither daughter is favored.
+    There is no curvature profile, so only Models~0 and~1 are fitted.}
+  \label{tab:risk-lm}
+  \begin{tabular}{@{}p{3.3cm}p{1.9cm}p{4.0cm}p{5.0cm}@{}}
+    \toprule
+    Feature & Measured at & Model~1 (regression) & Model~3 (network) \\
+    \midrule
+    Age, sex & participant & 1 weight each & not fitted \\
+    Dominance & participant & 2 weights (3 categories) & not fitted \\
+    Angle $\theta$ & LM & 1 weight ($+$) & not fitted \\
+    Daughter ratio $\rho$ & LM & 1 weight ($-$) & not fitted \\
+    Deviation $\Delta_{HK}$ & LM & 1 weight (sign open) & not fitted \\
+    \midrule
+    Total & & 7 weights & \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Age, sex and dominance change what is normal}
+
+A geometric feature can only mark risk as a departure from what is normal for comparable people, and what is normal depends on sex, dominance and age.
+Dodge et al.\ selected 83 angiograms with smooth, disease-free lumen borders from 9160 consecutive studies and measured normal coronary diameter at 96 points \cite{dodge1992diameter}.
+Women's arteries were 9\% narrower than men's, a difference that remained after correcting for body size \cite{dodge1992diameter}.
+\textbf{Dominance} records which artery supplies the back of the heart's lower wall: the RCA in a right-dominant tree, the LCx in a left-dominant one (Section~\ref{sec:dominance}).
+It changed normal size in the arteries it concerns: the proximal RCA measured $3.9 \pm 0.6$\,mm in right-dominant trees against $2.8 \pm 0.5$\,mm in left-dominant ones, and the LCx $3.4 \pm 0.5$ against $4.2 \pm 0.6$\,mm, while the LAD was unaffected \cite{dodge1992diameter}.
+The ratio features cancel the overall size difference between men and women, but not this one: a left-dominant tree has a normally larger LCx, so its normal $\lambda$ is lower.
+A model given $\lambda$ without dominance would read a normal left-dominant tree as a lopsided one.
+Age did not change normal diameter \cite{dodge1992diameter}, but tortuosity increases with age \cite{kahe2020tortuosity}, so the normal curvature of an older artery is higher.
+Age, sex and dominance therefore enter every model, so that each geometric feature is judged against people of the same kind.
+
+Dominance may also carry risk of its own.
+In 1425 patients referred for CCTA and followed for a median of 24 months, a left-dominant tree predicted non-fatal myocardial infarction and death with a hazard ratio of 3.20 (1.67--6.13), on top of stenosis severity \cite{veltman2012dominance}.
+The larger CONFIRM registry, 6382 patients from 12 CCTA centers followed for 60 months, found no overall effect, but left dominance combined with left main disease carried a hazard ratio of 6.45 (1.66--25.0) \cite{gebhard2015dominance}.
+Pooling 255{,}718 patients with acute coronary syndrome, left dominance raised mortality with an odds ratio of 1.27 (1.13--1.42) \cite{khan2016dominance}.
+
+\subsection{What the curvature profile adds}
+\label{sec:risk-profile}
+
+Keeping curvature as a profile preserves where along the artery a bend sits, and position matters for plaque.
+In ICONIC, lesions that later caused an acute coronary syndrome lay a median 35.1\,mm from the vessel origin, against 44.5\,mm for those that did not \cite{han2022plaque}.
+Tello Ayala et al.\ tested the gain directly on 38{,}691 right coronary angiograms from 22{,}334 patients \cite{telloayala2026tortuosity}.
+A transformer, a neural network that reads a sequence while weighing every position against every other, read the turning angle at each point of the RCA and predicted coronary artery disease with an AUC of 0.67 (0.65--0.69) \cite{telloayala2026tortuosity}.
+A logistic regression given the same measure averaged over the vessel reached 0.60 (0.58--0.63) \cite{telloayala2026tortuosity}.
+The study measured two-dimensional angiographic projections rather than three-dimensional CCTA centerlines, one cardiologist graded disease on the same images, and no test of the difference was reported, so the gain is a promising signal rather than proof \cite{telloayala2026tortuosity}.
+It is also the only study we found that compares a curvature profile against its mean, and it motivates the profile models directly: the RCA set repeats its comparison on three-dimensional centerlines, with new plaque as the outcome.
+
+Model~2 summarizes each profile by $K$ scores from functional principal components, the few smooth shapes into which the profiles of a population decompose, which are fitted on the ImageCAS-X training trees and so use no outcome.
+Each score says how strongly an artery's profile resembles one of these shapes, for example a bend concentrated near the origin.
+The scores enter the regression of Model~1 in place of $\bar\kappa_a$, so the likelihood-ratio test of Model~2 against Model~1 asks directly whether the position of bends adds to their mean.
+Profiles are defined over a fixed length $L$ from the origin; the value of $L$, and the rule for arteries shorter than $L$, are fixed on the ImageCAS-X trees before any outcome is opened.
+
+Model~3 reads each profile with a one-dimensional convolutional encoder, a small network that slides the same learned filters along the profile to detect bends wherever they sit.
+It pools the result into a short summary, joins it with the scalar features of its domain by late fusion, and outputs a probability of new plaque.
+If Model~3 outperforms the control network given $\bar\kappa_a$, the gain comes from keeping the position of the bend, but a gain over Model~2 would show only what the network's nonlinearity adds beyond the same information.
+
+\subsection{How many features the events can support}
+
+Model~1 has 12 weights for the LAD and the LCx: age, sex, two for dominance, the angle, $\lambda$ and $\Delta_{HK}$ at the LM, the side-branch indicator with its three features, and the mean curvature.
+It has 5 for the RCA (age, sex, two for dominance, and the mean curvature) and 7 for the LM domain.
+Model~2 adds $K - 1$ weights for the profile.
+A common rule asks for 10 to 20 outcome events per weight, and Ogundimu et al.\ found in resampled primary-care records that 20 events removed the bias of Cox regression weights when low-prevalence binary predictors were present, while about 10 sufficed for continuous ones \cite{ogundimu2016epv}.
+That result concerns another model and other predictors, and any fixed number of events per weight has weak support, so it is not used to plan this study.
+The events needed are instead set by the criteria of Riley et al., which ask that the model's predictions be shrunk by no more than 10\%, that the fit change little between the sample and the population, and that the overall risk be estimated precisely, and which depend on the number of weights and on how much of the outcome the model is expected to explain \cite{riley2020samplesize}.
+Geometry alone is expected to explain little of a ten-year outcome, and the smaller that share, the more participants these criteria demand.
+The calculation is done for each domain and for the LM domain separately with the tool of Riley et al., before any outcome is opened, once the cohort size and the number of new plaques are known.
+Every model is fitted with a ridge penalty chosen by nested cross-validation \cite{pavlou2015fewevents}, and where the calculation shows too few events for the side-branch features of the LAD or LCx, the LM features remain the primary set and the side-branch block is penalized more heavily, identically in all models (Section~\ref{sec:risk-collinearity}).
+The network of Model~3 has far more parameters than these criteria allow for, and no attempt is made to justify it with them.
+
+Each modeled feature has a mechanistic route to low wall shear and at least one study linking it to plaque.
+The branch diameters that set the flow split in the serial study above \cite{sakellarios2017bifurcation} are what the caliber features carry, without a flow simulation.
+Herlev--{\O}sterbro offers the first chance to test whether these features, measured in trees that are still healthy, identify the people, and the arteries, in which plaque will form.
+
+\subsection{Validation, clustering and the interval between scans}
+\label{sec:risk-validation}
+
+A patient contributes an outcome to each domain, so a bootstrap or cross-validation that resamples arteries would place the same patient's arteries on both sides of a split.
+Every resampling step therefore draws whole patients.
+Models are compared by optimism-corrected discrimination (the area under the receiver operating characteristic curve after correcting for fitting and testing on the same participants by bootstrap), by the calibration slope and intercept, and by the Brier score, following the reporting guideline for prediction models \cite{collins2024tripodai}.
+There is no external cohort, so internal validation is the strongest test available, and this is stated with every result.
+A sensitivity analysis fits one model across the domains with a domain indicator and an interaction between domain and curvature, with patient-level clustering of the standard errors, to ask whether curvature acts alike in the arteries.
+Machine learning has not outperformed logistic regression across published clinical prediction studies \cite{christodoulou2019systematic}, which is a further reason that Model~2, and not Model~3, is the primary test of the profile.
+
+Plaque is known only to have formed between two scans, so the time of onset is unknown, and a fixed-horizon logistic model assumes the same interval for every participant.
+If the interval varies between participants, it enters as a covariate, or the outcome is modeled in discrete time.
+Participants who died, had a myocardial infarction or did not return before the second scan are missing from the outcome in a way that may depend on their geometry, and the baseline features of those rescanned and those not are compared and reported.
+
+\subsection{Correlated features: harmless for prediction, misleading for interpretation}
+\label{sec:risk-collinearity}
+
+Several of the features are correlated with each other, and whether that matters depends on what the models are asked to do.
+Two features are \textbf{collinear} when one can be largely predicted from the others, so the data hold little information about what either does while the other is held fixed.
+Shmueli separates explanatory modeling, which asks why an outcome occurs and so needs each weight to mean something, from predictive modeling, which asks only how well the outcome can be forecast \cite{shmueli2010explain}.
+The same correlated features are harmless for the second goal and misleading for the first.
+Table~\ref{tab:risk-correlations} lists the correlations expected in these models and where each comes from.
+
+\begin{table}[tbp]
+  \centering
+  \small
+  \caption{Four feature pairs are expected to correlate for known reasons, and three pairs must be measured before their correlation is known.
+    The correlation matrix of every model is computed on the ImageCAS-X training trees before any Herlev--{\O}sterbro outcome is opened.}
+  \label{tab:risk-correlations}
+  \begin{tabular}{@{}p{3.6cm}p{5.4cm}p{5.2cm}@{}}
+    \toprule
+    Pair & Source of the correlation & Handling \\
+    \midrule
+    $\lambda$ or $\rho$ with $\Delta_{HK}$ & computed from the same three radii of one bifurcation, but $\Delta_{HK}$ is the Finet ratio measured against its law-predicted value at that $\rho$ (Equation~\ref{eq:risk-dependence}), so a strong correlation is not expected & measured on ImageCAS-X; one caliber family if $\lvert r \rvert > 0.7$ \\
+    $\lambda$ with $\rho$ & $\lvert\lambda\rvert = -\ln\rho$ at the LM & never in the same model \\
+    $\Delta_{HK}$ at the LM with $\Delta_{HK}$ at D1 or OM1 & the radius just past the LM is a daughter at the LM and the parent at the side branch, so one reading enters both & measured on ImageCAS-X; block generalized VIF reported \\
+    $\lambda$ with dominance & a left-dominant tree has a normally larger LCx \cite{dodge1992diameter} & dominance stays in; $\lambda$ read within dominance \\
+    $\bar\kappa_a$ with age & tortuosity rises with age \cite{kahe2020tortuosity} & curvature weight is its effect beyond age \\
+    $I$ with $I\mathbf{x}$ & $I\mathbf{x}$ is zero wherever $I$ is & removed by centering (Equation~\ref{eq:risk-center}) \\
+    Angle with caliber features & no source establishes it for these features & measured on ImageCAS-X \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\paragraph{For prediction, correlation is not a problem.}
+A model's predicted probability depends on the features only through the weighted sum in its log-odds.
+Two correlated features can trade weight between them, one weight rising as the other falls, while that sum and so every prediction stays almost unchanged.
+Collinearity therefore makes the individual weights unreliable by inflating their variance \cite{dormann2013collinearity}, but not the fitted values.
+This holds as long as new data has the same correlation structure as the data the model was fitted on.
+Dormann et al.\ compared regression and machine-learning methods on simulated data at eight levels of collinearity, and every method predicted worse when the correlation structure of the new data differed from that of the training data \cite{dormann2013collinearity}.
+The Herlev--{\O}sterbro models are fitted and evaluated within the same cohort by cross-validation, on features from one segmentation pipeline, so training and test data share one correlation structure.
+That guarantee would not carry over to trees segmented another way.
+Random measurement error adds variance to each feature without adding to their covariance, so a pipeline with different error changes the correlations the weights rely on.
+
+\paragraph{For interpretation, individual weights are not independent effects.}
+The weight of $\lambda$ answers one question: how risk changes when $\lambda$ changes while $\Delta_{HK}$, the angle and every other feature stay fixed.
+When $\lambda$ and $\Delta_{HK}$ move together in real trees, the data contain few trees in which one changes without the other, so the weight rests on those few and can take either sign.
+No individual weight is therefore read as the independent effect of its descriptor.
+How far each weight is affected is measured by its \textbf{variance inflation factor} (VIF),
+\begin{equation}
+  \mathrm{VIF}_j = \frac{1}{1 - R_j^2},
+  \label{eq:risk-vif}
+\end{equation}
+where $R_j^2$ is the fraction of the variance of feature $j$ explained by all the other features.
+The variance of weight $j$ is $\mathrm{VIF}_j$ times what it would be if feature $j$ were uncorrelated with the rest, so its standard error grows by $\sqrt{\mathrm{VIF}_j}$; a VIF of 5 means $R_j^2 = 0.8$ and a standard error 2.2 times larger.
+Dominance, with its two weights, and the side-branch block, with its four, are terms of more than one weight, and for these the generalized VIF of Fox and Monette measures the joint inflation, with its power $1/(2\,\mathrm{df})$ comparable to $\sqrt{\mathrm{VIF}}$ \cite{fox1992gvif}.
+The VIFs of every model are reported, first on the ImageCAS-X training trees and again in Herlev--{\O}sterbro.
+O'Brien warns against thresholds such as $\mathrm{VIF} > 10$ used as rules, because the usual remedies of dropping variables, ridge regression or merging variables into an index can create problems more serious than the collinearity itself \cite{obrien2007vif}.
+The VIFs are therefore reported as a diagnostic, and the response to correlation is fixed in advance rather than triggered by a threshold.
+
+\paragraph{Two routes to interpretable weights.}
+Where the thesis asks which descriptor matters, it uses one of two pre-specified routes, each with a stated cost.
+The first is \textbf{ridge regression}, which fits the weights under a limit on the sum of their squares \cite{hoerl1970ridge,pavlou2015fewevents}.
+Correlated features then share weight, instead of one taking a large positive weight and its partner a large negative one, which stabilizes the weights at the cost of pulling them toward zero.
+The features are standardized first, so that the limit treats each feature equally.
+In Dormann's simulations a regression with a ridge penalty was among the best-performing approaches under collinearity \cite{dormann2013collinearity}, and ridge is usually preferred when the predictors are specified in advance, as here \cite{pavlou2015fewevents}.
+It is the same penalty the sample-size plan already applies to the side-branch features.
+Ridge weights are stable but shrunken, so they rank features rather than measure their effects.
+
+The second route keeps \textbf{one descriptor per family} of features that measure the same thing, whenever a pair within the family exceeds $\lvert r \rvert = 0.7$, the level at which Dormann et al.\ found collinearity begins to severely distort estimation and prediction \cite{dormann2013collinearity}.
+The level flags a family for review and is not a VIF cutoff; the descriptor kept is the most reliable under the perturbation study, then the one with the clearest mechanism, then the one with the simplest definition, and the choice is made on ImageCAS-X training trees before any outcome is opened.
+Selecting by outcome would destabilize the choice of features and bias the weights that remain \cite{dormann2013collinearity}.
+The kept descriptor then carries the information of the dropped one, so its weight is read as the effect of the whole family, not of that descriptor alone \cite{dormann2013collinearity}.
+Removing the Finet ratio was a case of this route taken to its limit, since $F$ was an exact function of the other two caliber features (Equation~\ref{eq:risk-dependence}).
+
+Whether a family matters can be tested even when the weights of its members cannot be read.
+The likelihood-ratio test compares the fit of the model with and without the whole family, and the fitted values depend only on what the family contributes jointly, not on how that contribution is split among its correlated members.
+The test is run on unpenalized fits, or its reference distribution is built by permutation, because the ordinary chi-squared reference is not valid for a ridge fit.
+Claims about which features matter are therefore made per family: the caliber family, the angle family, curvature, and the participant-level features.
+
+\paragraph{The presence indicator is centered.}
+The side-branch features enter as $I\mathbf{x}$ (Equation~\ref{eq:risk-presence}), and when a feature $x$ sits far from zero, $Ix \approx \bar{x}\,I$, so $I$ and $Ix$ are nearly collinear by construction.
+Centering $x$ on its mean $\bar{x}_1$ among the trees that have the branch removes this: writing $p$ for the fraction of trees with the branch and $z = I(x - \bar{x}_1)$, the mean of $z$ is $p$ times the mean of $x - \bar{x}_1$ over those trees, which is zero, so
+\begin{equation}
+  \operatorname{Cov}(I, z) = \operatorname{E}[Iz] - \operatorname{E}[I]\operatorname{E}[z] = \operatorname{E}[z]\,(1 - p) = 0,
+  \label{eq:risk-center}
+\end{equation}
+using $Iz = z$ because $I$ is either 0 or 1.
+In the sample, $I$ and the centered $I\mathbf{x}$ are then exactly uncorrelated.
+
+\paragraph{Model~3 is judged by refitting, not by shuffling.}
+A common way to ask what a network uses is to shuffle one feature in held-out data and see how much its predictions worsen.
+Hooker et al.\ showed that when features are correlated, shuffling one breaks its link to the others and forces the network to predict for combinations that never occur in real data, so such measures can vastly overstate the importance of correlated features \cite{hooker2021permutation}.
+They recommend refitting the model without the feature instead \cite{hooker2021permutation}.
+Model~3's features are therefore judged by retraining without them, family by family, as the control network already does for the curvature profile.
+Predictions are judged as wholes, and descriptors as families.

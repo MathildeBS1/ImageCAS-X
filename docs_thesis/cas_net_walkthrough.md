@@ -372,11 +372,11 @@ sufficient: only `evaluate.py` reads them.
 ```bash
 python -m utils.verify_dataloaders -c configs/cas_net.json \
     --n-batches 1 --num-workers 2 \
-    --out-dir /dtu/blackhole/0a/224426/imagecasx_derived/dataloader_check
+    --out-dir /work3/s254124/imagecasx_derived/dataloader_check
 ```
 
 CPU only, about a minute. Keep `--num-workers` small — the login node is shared, and the
-config's 14 would be antisocial. Send `--out-dir` to blackhole; the default writes into the
+config's 14 would be antisocial. Send `--out-dir` to work3; the default writes into the
 repo, and `/zhome` is at 25.9/30 GB.
 
 Real output from this repo:

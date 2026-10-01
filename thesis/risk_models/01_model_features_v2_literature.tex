@@ -1,0 +1,165 @@
+% Literature table for 01_model_features_v2.tex: every cited study, what it found, and what that
+% changed in the thesis design. Findings are as stated in the v2 text and in
+% reports/Risk model feature review.md. Read level of each study is in its refs.bib note; rows marked
+% UNVERIFIED are cited from memory.
+\begingroup
+\small
+\setlength{\LTleft}{0pt}\setlength{\LTright}{0pt}
+\begin{longtable}{@{}p{2.6cm}p{6.6cm}p{6.6cm}@{}}
+\caption{Literature behind the feature and model choices of the risk-model section: what each study found and what that meant for the thesis direction.}\label{tab:risk-literature}\\
+\toprule
+Study & What it found & Consequence for the thesis \\
+\midrule
+\endfirsthead
+\toprule
+Study & What it found & Consequence for the thesis \\
+\midrule
+\endhead
+\midrule \multicolumn{3}{r}{\emph{continued}}\\
+\endfoot
+\bottomrule
+\endlastfoot
+
+\multicolumn{3}{@{}l}{\textbf{Shear as the mechanism linking geometry to plaque}}\\
+Stone 2012 \cite{stone2012prediction} &
+Post-acute coronary syndrome patients re-imaged 6 to 10 months later: low baseline shear predicted where the lumen narrowed (a secondary endpoint). &
+Shear is a validated predictor of progression, so geometric stand-ins for shear are a sound starting point. It does not show initiation; v2 states this and frames initiation as the open question the cohort answers. \\
+Sakellarios 2017 \cite{sakellarios2017bifurcation} &
+17 bifurcations followed 3 years by CT: low shear predicted plaque-burden increase ($p = 0.0006$), better when the daughter branch and a Murray-law flow split were modeled. &
+Branch diameters that set the flow split are what the caliber features ($\lambda$, $\rho$, $\Delta_{HK}$) carry without a flow simulation. Small sample, so used as motivation only. \\
+van der Giessen 2009 \cite{vandergiessen2009bifurcation} &
+65 CT cross-sections near bifurcations: plaque in 72\% of low-shear outer-wall quarters vs 31\% of flow-divider quarters. &
+Justifies measuring at bifurcations. \\
+Chatzizisis 2007 \cite{chatzizisis2007ess} &
+Review: endothelial shear stress governs the natural history of coronary atherosclerosis; loss of endothelial function is an early step. &
+Supports the shear mechanism; cited for the endothelial link of the optimality ratio, now stated as shown in retinal vessels only. \\
+Bajraktari 2021 \cite{bajraktari2021highwss} &
+Meta-analysis: high wall shear worsens plaque vulnerability. &
+One reason torsion and spiral flow are not used: spiral flow can enlarge the high-shear area. \\
+Shen 2025 \cite{shen2025helical} &
+39 ASOCA trees: absolute vessel diameter was the only geometric quantity whose correlation with shear survived multiple-comparison correction; no torsion--spiral-flow correlation survived. &
+Torsion dropped on mechanism. It also supports absolute diameter, which ratios remove, so v2 adds absolute parent radius as a secondary analysis. \\
+Shen 2026 \cite{shen2026geometry} &
+Review of arterial geometry and coronary disease: vulnerable plaque is most often outside the left main; simulations proposed twisting drives protective spiral flow. &
+Side-branch bifurcations (D1, OM1) are measured, and torsion was considered as a candidate. \\
+
+\multicolumn{3}{@{}l}{\textbf{Where and in whom plaque forms}}\\
+Han 2022 (ICONIC) \cite{han2022plaque} &
+116 lesions that later caused an acute coronary syndrome: 73.3\% at a bifurcation vs 38.9\%; nearer the origin (35.1 vs 44.5\,mm); one adverse feature of location or shape gave HR 2.90, two or more 6.84. &
+Location and shape carry prognostic information before plaque is symptomatic. It did not test angle or caliber, so v2 no longer implies it did. Motivates the curvature profile, and the RCA crux is left out because the crux is far from the origin. \\
+Fuchs 2023 (CGPS) \cite{fuchs2023cgps} &
+9533 adults 40 years or older, no symptoms, CCTA: obstructive plaque at the first scan gave a 9.19-fold adjusted risk of infarction over a median 3.5 years. &
+Defines the Herlev--{\O}sterbro cohort; that analysis described plaque burden only, never shape, which is the gap the features fill. \\
+Glagov 1987 \cite{glagov1987remodeling} &
+Arteries enlarge outward as plaque accumulates. &
+Models are fitted only on participants whose whole tree was plaque-free at the first scan, so remodeling does not distort the predictor geometry. \\
+Li 2011 \cite{li2011tortuosity} &
+1010 angiography patients: more tortuous arteries went with less coronary disease. &
+Predict each artery against its own outcome instead of one score per patient. \\
+
+\multicolumn{3}{@{}l}{\textbf{Bifurcation angle}}\\
+Murasato 2022 \cite{murasato2022bifurcation} &
+Review: wider angle goes with a larger separated low-shear region at the lateral wall. &
+Angle computed at every measured bifurcation, wider angle expected to raise risk. \\
+Temov 2016 \cite{temov2016bifurcation} &
+196 CCTA patients: LM angle $79.4^\circ \pm 23.0^\circ$, range $35.5^\circ$ to $178^\circ$. &
+Shows enough between-person variation for a model to use; angle error is checked against the $23^\circ$ spread. \\
+Cui 2017 \cite{cui2017bifurcation} &
+106 patients: LAD--LCx angle an independent predictor of significant left coronary stenosis (OR 1.42, unit not stated). &
+Supports a positive angle weight; cross-sectional in referred patients. \\
+Mansouri 2024 \cite{mansouri2024bifurcation} &
+122 patients: angle correlated $r = 0.684$ with the Gensini score. &
+Same: positive expected sign, cross-sectional. \\
+Juan 2017 \cite{juan2017bifurcation} &
+313 patients: $87.3^\circ$ in narrowed vs $75.5^\circ$ in normal arteries, not significant after adjustment ($p = 0.064$). &
+Keeps the direction hypothesis honest; the three association studies cannot say whether a wide angle came first, which the cohort can. \\
+Wang 2024 \cite{wang2024lmphenotypes} &
+76 left main arteries clustered by shape: the largest-angle phenotype had the most low shear around the LAD branch point. &
+Mechanistic link between angle and low shear at the LM. \\
+
+\multicolumn{3}{@{}l}{\textbf{Caliber: daughter ratio, log ratio, Huo--Kassab deviation}}\\
+Garcha 2025 \cite{garcha2025sensitivity} &
+230 synthetic left trees: low-shear area quadratic in the LAD/LCx diameter ratio ($R^2 = 0.91$, $0.94$), neutral near 0.94, in the smaller branch; a lopsided split amplified tortuosity (8.8--10.1\% vs 1.2\%). &
+Strongest mechanistic support for $\rho$ and $\lambda$, and the reason $\lambda$ has a direction. Because the curve is quadratic, a quadratic $\lambda$ term is a secondary analysis. Synthetic geometry, so support is mechanistic only. \\
+Finet 2008 \cite{finet2008fractal} &
+173 bifurcations in 47 normal angiograms: parent/daughter ratio $F = 0.678$ at every scale. &
+Basis for scale invariance of ratios. $F$ is dropped as a feature (exact function of the other two) and kept as a check against the law-predicted $F_{HK}(\rho)$. \\
+Taylor 2024 \cite{taylor2024murray} &
+Meta-analysis of 18 studies, 1070 coronary trees: exponent 2.39 (2.24--2.54), $I^2 = 99\%$. &
+Coronary exponent, not the cubic one; the heterogeneity means healthy bifurcations scatter around $\Delta_{HK} = 0$. \\
+Huo 2012 \cite{huo2012scaling} &
+Derived $n = 7/3$ from minimum energy to build and run a vascular tree. &
+Exponent used in $\Gamma_{HK}$ and $\Delta_{HK}$. Not read in full in the review. \\
+Witt 2010 \cite{witt2010optimality} &
+Retinal optimality ratio: simpler and more robust to noise than solving for $n$; it rose under nitric oxide blockade in six healthy male volunteers ($p = 0.03$). &
+Basis of $\Delta_{HK}$ and reason the junction exponent is dropped. The rise is a positive deviation, so the sign of $\Delta_{HK}$ is left open and tested two-sided. \\
+Schoenenberger 2012 \cite{schoenenberger2012murray} &
+253 IUS patients: bifurcations with a wide parent (Murray exponent 3) held more dense calcium, adjusted for age, sex, risk factors. &
+Only disease finding for a Murray-type feature, and made at side branches, so D1 and OM1 are included. Cross-sectional and cubic, so it is not used as directional support. \\
+
+\multicolumn{3}{@{}l}{\textbf{Curvature and tortuosity}}\\
+Kashyap 2022 \cite{kashyap2022tortuosity} &
+127 patients without CAD, left main flow simulation: mean absolute curvature explained most low-shear area ($R^2 = 0.112$), RMS curvature 0.093, tortuosity index none. &
+Mean absolute curvature is the one curvature scalar; RMS and the tortuosity index are abandoned. \\
+Zhang 2024 \cite{zhang2024curvature} &
+39 ASOCA trees: average curvature separated stenosed from non-stenosed trees, AUC above 0.71. &
+Second support for computing mean curvature for every artery. \\
+Kahe 2020 \cite{kahe2020tortuosity} &
+Review: tortuosity increases with age. &
+Age enters every model, and curvature is read beyond age. \\
+Tello Ayala 2026 \cite{telloayala2026tortuosity} &
+38{,}691 RCA angiograms, 22{,}334 patients: a transformer on the turning-angle profile reached AUC 0.67 vs 0.60 for the averaged measure; 2D projections, one grader, no significance test. &
+Only study comparing profile against mean, and the motivation for Model~2. Weak evidence, stated as a promising signal. \\
+
+\multicolumn{3}{@{}l}{\textbf{Age, sex and dominance}}\\
+Dodge 1992 \cite{dodge1992diameter} &
+83 disease-free angiograms: women 9\% narrower; proximal RCA $3.9$ vs $2.8$\,mm and LCx $3.4$ vs $4.2$\,mm by dominance; no age effect on diameter. &
+Age, sex and dominance enter every model; $\lambda$ is read within dominance because a left-dominant LCx is normally larger. \\
+Veltman 2012 \cite{veltman2012dominance} &
+1425 CCTA patients, median 24 months: left dominance HR 3.20 (1.67--6.13) for infarction and death. &
+Dominance may carry risk of its own, another reason to keep it in. \\
+Gebhard 2015 \cite{gebhard2015dominance} &
+6382 CONFIRM patients, 60 months: no overall effect, but left dominance with left main disease HR 6.45 (1.66--25.0). &
+Same; also relevant to the new LM domain. \\
+Khan 2016 \cite{khan2016dominance} &
+255{,}718 acute coronary syndrome patients pooled: left dominance raised mortality, OR 1.27 (1.13--1.42). &
+Same. \\
+
+\multicolumn{3}{@{}l}{\textbf{Sample size, model choice and reporting}}\\
+Ogundimu 2016 \cite{ogundimu2016epv} &
+Resampling of primary-care records with Cox regression: 20 events needed for low-prevalence binary predictors, about 10 for continuous; sample size is not simply tied to events per variable. &
+v2 no longer plans with 20 events per weight; re-scoped as a weak rule of thumb for another model. \\
+Riley 2020 \cite{riley2020samplesize} (UNVERIFIED) &
+Sample size from criteria on shrinkage, optimism and overall-risk precision, depending on the number of parameters and expected $R^2$. &
+Sample-size calculation per domain, including the LM domain, before outcomes are opened. \\
+Pavlou 2015 \cite{pavlou2015fewevents} &
+Ridge fits under a limit on squared weights; usually preferred when predictors are pre-specified. &
+All models fitted with a ridge penalty chosen by nested cross-validation. \\
+Christodoulou 2019 \cite{christodoulou2019systematic} (UNVERIFIED) &
+Review of studies: no performance benefit of machine learning over logistic regression. &
+Model~3 (network) is exploratory; Model~2 is the primary test of the profile. \\
+Collins 2024 \cite{collins2024tripodai} (UNVERIFIED) &
+TRIPOD+AI reporting guideline for regression and machine-learning prediction models. &
+Reporting, optimism-corrected validation and calibration are added; item-level requirements are still to be checked. \\
+
+\multicolumn{3}{@{}l}{\textbf{Correlated features}}\\
+Shmueli 2010 \cite{shmueli2010explain} &
+Explanatory and predictive modeling are different goals. &
+Correlation is treated as harmless for prediction and misleading for interpretation. \\
+Dormann 2013 \cite{dormann2013collinearity} &
+Simulations at eight collinearity levels: methods predict worse when the correlation structure changes; ridge was among the best; $\lvert r \rvert > 0.7$ distorts estimation. &
+Ridge as the default; the 0.7 level flags a family for outcome-blind review. \\
+Fox 1992 \cite{fox1992gvif} &
+Generalized VIF for terms with more than one weight. &
+GVIF for dominance and the side-branch block. \\
+O'Brien 2007 \cite{obrien2007vif} &
+Warns against VIF cutoffs as rules. &
+VIFs are diagnostic; the response is fixed in advance, not triggered by a threshold. \\
+Hoerl 1970 \cite{hoerl1970ridge} &
+Original ridge regression. &
+Cited for the penalty. \\
+Hooker 2021 \cite{hooker2021permutation} &
+Permutation importance can vastly overstate correlated features; refit instead. &
+Model~3 features are judged by refitting, family by family. \\
+\end{longtable}
+\endgroup

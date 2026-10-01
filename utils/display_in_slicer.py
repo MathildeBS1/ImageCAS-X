@@ -35,7 +35,7 @@ import slicer
 # ----------------------------- CONFIG ---------------------------------------
 MODE = "segments"  # "segments" (GT coloured per coronary segment) or "compare"
 
-DATA_ROOT = ""
+DATA_ROOT = "/Users/mathildebrinchsorensen/Desktop/Speciale/ImageCAS-X_dataset"
 SCAN_ID = ""  # edit to the scan you want to view
 
 MASK_DIR = "segmentations"

@@ -1,0 +1,119 @@
+% Week 5 summary of thesis/risk_models/01_model_features_v2.tex. Numbers and citations are carried over
+% from that file unchanged; nothing new was read for this note.
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{microtype}
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+
+\title{Week 5: the plan for predicting new plaque from tree geometry}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Progress}
+
+\textbf{Question fixed.} The overall research question this thesis sets out to answer is: Does geometry of a coronary tree that is still healthy at the first scan predict where new plaque forms at the second scan? Former research found that low wall shear stress is a risk factor for plaque formation, and geometry has been proven to predict wall shear. Therefore is is a plausable theory to test that geometry can predict plaque risk. For the most part research has been conducted on trees with plaque present. 
+
+The question is now phrased in terms of geometry alone, because the thesis will not simulate flow through every tree of a population cohort.
+The data are the Herlev--{\O}sterbro (CGPS) cohort,
+the outcome is new plaque in an artery that had none at baseline, and I have chosen features going into my risk predictions model has some geometric tie to wall shear. All features are computed from the centerline and the vessel radius alone.
+
+
+\textbf{Features locked.} Three bifurcations are measured per tree: the left main (LM) into the left
+anterior descending (LAD) and left circumflex (LCx), the LAD giving off its first diagonal (D1), and
+the LCx giving off its first obtuse marginal (OM1). Trees with a ramus intermedius are flagged and
+every analysis is repeated without them. A missing D1 or OM1 is coded as absent, not dropped.
+Radii are the median Euclidean distance transform over a 3\,mm window that starts one junction
+radius past the branch point.
+
+\begin{center}
+\small
+\begin{tabular}{@{}p{3.3cm}p{5.6cm}p{5.6cm}@{}}
+\toprule
+Feature & Definition & Expected direction \\
+\midrule
+Angle $\theta$ & angle between the two daughters' fitted directions, 3\,mm window &  (wider angle, more risk) \\
+Daughter ratio $\rho$ & $\min(r_1,r_2)/\max(r_1,r_2)$; used at D1, OM1 and for the LM outcome &  (lopsided split, more risk) \\
+LM log ratio $\lambda$ & $\ln(r_\mathrm{LAD}/r_\mathrm{LCx})$; used for LAD and LCx outcomes & for LAD, for LCx \\
+Deviation $\Delta_{HK}$ & $\frac{1}{r_0}\big(\frac{r_1^{7/3}+r_2^{7/3}}{2}\big)^{3/7}-2^{-3/7}$, the departure from the Huo--Kassab law & sign open, tested two-sided \\
+Mean curvature $\bar\kappa_a$ & $\frac{1}{L}\int_0^L|\kappa(s)|\,\mathrm{d}s$ from the vessel origin & \\
+Curvature profile $\kappa(s)$ & the curve itself, keeping where along the artery the bend sits & tested against the mean \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Ratios of radii were chosen because they cancel any multiplicative scale error, as in Finet et al.
+Segmentation blur is additive and does not cancel, so its effect on each feature is measured on the
+ImageCAS-X trees (one voxel of dilation and erosion, junction offset 0.5, 1 and 2 $r_J$, window 2, 3 and
+5\,mm) before any outcome is opened. $\lambda$ and $\rho$ carry the same information at the LM, so
+they never enter the same model.
+
+\textbf{Metrics dropped.} The tortuosity index (explained no low-shear area in Kashyap et al.,
+$R^2\approx 0$), root-mean-square curvature (same bending as the mean, with a noisier derivative), the
+junction exponent (no closed form and biased by radius noise), the Finet ratio (an exact function of
+$\rho$ and $\Delta_{HK}$, so its weight could not be interpreted), torsion (third derivative of a noisy
+centerline; the median LAD is planar to within 2.1\% of its length yet the code reports a full twist every
+12\,mm) and right coronary crux features (no supporting study, and they mostly re-encode dominance).
+The finding on torsion comes from \texttt{scripts/check\_vessel\_planarity.py} on the 160 test cases.
+
+\textbf{Four models.} Each adds one thing to the one before.
+\begin{itemize}
+  \item \textbf{Model 0:} logistic regression on age, sex and dominance, plus classical risk factors
+    and the calcium score where recorded. The baseline that geometry has to beat.
+  \item \textbf{Model 1:} adds the geometric features, with curvature as $\bar\kappa_a$.
+  \item \textbf{Model 2:} replaces $\bar\kappa_a$ by $K$ (3 to 5) functional principal component scores of
+    $\kappa(s)$, fitted on ImageCAS-X. The likelihood-ratio test against Model 1 is the primary test of
+    whether the position of a bend adds anything to the mean.
+  \item \textbf{Model 3:} a small one-dimensional convolutional network on the profile with late fusion of
+    the scalar features, against a control network given $\bar\kappa_a$. Exploratory only, since it has far
+    more parameters than the events can support.
+\end{itemize}s
+Age, sex and dominance enter every model, because what is normal depends on them (a left-dominant tree
+has a larger LCx, so a lower normal $\lambda$).
+
+\textbf{One model set per artery domain.} LAD, LCx, RCA and LM are each predicted on their own,
+because shear acts locally and one score per patient would average a harmful geometry in one artery
+with a harmless one in another. The RCA has no bifurcation feature, so it isolates curvature as a mean
+against a profile. The LM is too short for a profile, so it gets Models 0 and 1 with $\rho$ in place of
+$\lambda$. Models are fitted on participants whose whole tree was plaque free at baseline, because an
+artery enlarges outward as plaque accumulates. Model 1 has 12 weights for LAD and LCx, 5 for RCA and 7
+for LM.
+
+\textbf{Statistics fixed before any outcome is opened.}
+\begin{itemize}
+  \item \emph{Sample size:} the Riley criteria, per domain and separately for the LM. Where events are
+    too few, the side-branch block is penalised harder in all models. No events-per-weight rule is used.
+  \item \emph{Fitting:} ridge penalty chosen by nested cross-validation.
+  \item \emph{Validation:} the bootstrap resamples whole patients, since a patient contributes an outcome
+    to every domain. Reported are the optimism-corrected AUC, calibration slope and intercept, and Brier
+    score (TRIPOD+AI). Internal validation only, and this is stated with every result.
+  \item \emph{Scan interval:} unknown onset time, so the interval enters as a covariate or the outcome is
+    modelled in discrete time. Baseline features of participants who died, had an infarction or did not
+    return are compared with those rescanned.
+  \item \emph{Correlated features:} harmless for prediction, misleading for interpretation. Correlations
+    and (generalised) VIFs are reported on ImageCAS-X first and on Herlev--{\O}sterbro after, with no VIF
+    cutoff. Weights are read through ridge or one descriptor per family ($|r|>0.7$ flags a family), and
+    family importance by likelihood-ratio test with a permutation reference under ridge. The side-branch
+    features enter as $I\mathbf{x}$ with $\mathbf{x}$ centred, so $I$ and $I\mathbf{x}$ are uncorrelated.
+  \item \emph{Model 3 importance:} refitting without a feature family, not shuffling (Hooker et al.).
+\end{itemize}
+
+\textbf{Locked on ImageCAS-X first.} The reliability floor for $\Delta_{HK}$, the length $L$ and the rule
+for arteries shorter than $L$, $K$ for the functional PCA, and the correlation matrices.
+
+\subsection*{Open points}
+
+\begin{itemize}
+  \item The size of the rescanned CGPS subset and the interval between scans are still to be
+    confirmed once data access is granted. The sample-size calculation depends on both.
+  \item Model 3 cannot be justified by the events, so a failure to beat Model 2 is not evidence against
+    the profile.
+  \item The Huo--Kassab deviation has no coronary study to lean on, so its direction is treated as open.
+\end{itemize}
+
+\end{document}

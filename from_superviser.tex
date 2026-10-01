@@ -1,0 +1,54 @@
+Hi Mathilde, 
+Sorry I didnt get back to you on Friday. 
+
+My intuition tells me that it is more important to find a strong representation of the CAs than to craft a big set of descriptor features. Maybe establish baseline model without any "major" feature engineering and experiment with adding more as ablation.
+
+In my mind, the descriptor features should allow the model to gain access to information that might not be trivially extracted from the modality you chose the represent the CAs as. 
+
+What I mean is essentially what you wrote to Kit; "bounded by whatever finite set of descriptors I compute on the geometry" 
+While this is true it also saves you from black-box nature of NNs. If you have an interpretable set of features, the chance your NN learns something interpretable increases. 
+
+I would look into suitable ways to represent the data. I don't think representing the data as binary volumes makes any sense as the CAs are so sparse. Even sparse convolutions does not really sit right with me. 
+If you decide to represent them as a graph then I think there is a correspondence issue, e.g. vertices at the same position in the sequence corresponding to widely different anatomical points on the CA. It makes it way harder for a neural network to learn anything if there is not any consistency in the representation. This could imply that you need to cook a good CA -> graph algorithm (I would likely also normalize everything having to do with a distance away here so it's purely the tree-structure remaining). Essentially you want to tokenize your tree in my opinion.
+
+I would start with xyz corrdinates, lumen radius, arc-length from root, depth, L/R embedding, or something like this or combinations of this on nodes and go for a "variable length input - fixed length embeddings". Something like a fixed set of learned latent queries cross-attending to a variable-size node set. 
+
+Be careful when using transformers. A lot of literature shows that the positional encodings really does require a lot of data (some talking about 20k+ data points for language lol) to really get there. You could also look into creating anatomically realistic data augmentation to alleviate the issue a bit here 
+
+best regards,
+bjørn
+
+Hej Mathilde, 
+
+I will include Kit as cc on the mail.
+
+I had I brief talk with Kit after the meeting about your thesis' objective. I have not been fully in the loop, but as far as I understand (and please correct me if I wrong) the goal is to sort of categorize typical variation in the CA into some classes/phenotypes? Perhaps link classes to outcome data if time allows? 
+
+A lot of my work has been about identifying robust and clinically interpretable features for the LA+LAA. This could be e.g. the volume, elongation and sphericity. Some of these features could likely be transferable to the CA, but I think it makes most sense to have a meeting and start the design from scratch. For example, I have nothing on curvature or tortousity (I found this in my research to be a fragile measurement for different reasons), but this could perhaps be highly relevant for you. 
+
+My approach is usually to pretend I am a neural network and ask myself how I discriminate between two different cases. What "features" do I observe that makes me notice a difference between person A and B? Is it symmetry between the left and right arteries? Is it a size difference between them? Is it the complexity or number of branches? 
+
+
+I proposed to Kit that you could represent the CAs as a graph with features associated to the vertices, edges, both and/or global features. Maybe this could allow you to aggregate the information nicely with a network and allow you to investigate the latents. 
+I think this approach also comes with a set of challenges. What are we trying to fit here? What is the objective? Could this be trained in a contrastive manner, or should it maybe be done with an autoencoder? Supervised or unsupervised? 
+
+I hope I am not creating more questions than I am answering. I will happily arrange a meeting and we can figure something nice out.
+
+Best regards,
+Bjørn
+
+Hey Mathilde, 
+
+The reason I suggested representing learning is that I hope we can learn an embedding space which separates different shapes. One cluster could represent higher tortuosity, another may represent certain types of bifurcations. 
+
+I spoke with Bjorn after the meeting, and we had some thoughts: 
+Representing the coronaries as a graph is a good idea with a feature vector for each vertices, which are some hand-crafted descriptors (tortuosity, angles, position relative to 4 chambers, neighbourhood)
+The embeddings may not separate on the shape descriptors we are interested in. More likely they will separate on the features that describe the largest differences such as heart size, dominance, number of branches. 
+Normalising by volume, size, number of branches may help. 
+Embedding the full coronary tree at once may be expensive. 
+
+There are a lot of questions and uncertainties, and I don't want you to get bogged down in the details of representation learning for now. I think there are lots of other simpler approach to try first. 
+
+I absolutely agree with you that the main goal is the HØ dataset and matching the shape descriptors with outcome. For now I suggest you use ImageCAS to develop the shape descriptors, and compute some statistics on these. 
+
+Let me know if you have any more thoughts 🙂

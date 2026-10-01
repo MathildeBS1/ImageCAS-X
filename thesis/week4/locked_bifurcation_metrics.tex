@@ -1,0 +1,315 @@
+% Standalone note. Paste into the weekly report, or \input it, the same way
+% thesis/week4/locked_tortuosity_metrics.tex is used.
+%
+% READING DISCIPLINE. No new reading was done for this note. Every number, citation and evidence
+% tag below is carried over unchanged from two reports already written in this repo:
+%   - reports/Coronary bifurcation diameter descriptors.md (the locked descriptor panel, its math,
+%     its ImageCAS-X reliability numbers, and its clinical-evidence sourcing)
+%   - reports/Bifurcation calibre in both models.md (how the panel is consumed by Model 1 and
+%     Model 2)
+% and their backing research_notes/ directories. Evidence tags follow those reports' own
+% convention: [FT] full text read, [ABS] abstract only, [SNIP] search summary only, [DERIVED]
+% worked out analytically, [SIM] phantom or Monte Carlo run, [MEASURED] run on ImageCAS-X data.
+% Citations to external sources are given as direct links rather than \cite{} against
+% thesis/refs.bib, because most of them have not yet been added there as verified bib entries;
+% three that were already locked for the tortuosity note (taylor2024murray, asakura1990flow,
+% chatzizisis2007ess) are cited normally, since they already exist as verified entries.
+%
+% ORDERING. Descriptors below are ranked by (1) how comparable the measurement is across trees at
+% the same anatomical bifurcation (reliability and how often the junction exists at all), then (2)
+% how plausible, not proven, a link to future coronary artery disease (CAD) is. This follows Kit's
+% stated priority, "the main goal is the H\O{} dataset and matching the shape descriptors with
+% outcome" and "I don't want you to get bogged down in the details of representation learning for
+% now" (supervisor correspondence, from\_superviser.tex), and repeats this project's own precedent
+% from locking the tortuosity panel: mean absolute curvature was locked as primary because it was
+% the measure that survived a real evidence test ($R^2=0.112$), not the arc/chord tortuosity index
+% the literature had focused on, which tested at $R^2\approx 0$ on the same data. Reliability first,
+% literature enthusiasm second, applied again here.
+
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{textcomp}
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{microtype}
+
+\title{Locked bifurcation calibre descriptors: clinical evidence, the math, and how they enter Model 1 and Model 2}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+\vspace{-2em}
+
+\section*{The locked bifurcation calibre panel, and why each piece is in it}
+
+A bifurcation is where one vessel splits into two, and it is the other canonical site, alongside a
+sharp bend, where plaque tends to start: tracing flow through human coronary trees after death,
+Asakura and Karino found almost every plaque at the inner wall of a bend or the outer wall just past
+a bifurcation (\href{https://doi.org/10.1161/01.RES.66.4.1045}{Asakura and Karino 1990}), and
+chronically low wall shear stress (WSS) is the mechanism already used to motivate the locked
+tortuosity panel (\href{https://doi.org/10.1016/j.jacc.2007.02.059}{Chatzizisis et al.\ 2007}). This note extracts
+the analogous locked panel for bifurcation \textbf{calibre}, meaning vessel radius, rather than
+bending. It covers five descriptors, the covariates carried alongside them, two descriptors that were
+considered and left out, and, new relative to the tortuosity note, exactly how each piece enters
+this thesis's two comparison models.
+
+\subsection*{Model 1 and Model 2, and the two zones every measurement avoids}
+
+\textbf{Model 1} is a logistic regression on hand-built scalar descriptors (plus age, sex and
+covariates); \textbf{Model 2} is a small network that reads a per-point profile along the vessel
+directly, with the same covariates late-fused in. The whole point of building a fair comparison is
+that neither model should see information the other is denied.
+
+Every measurement below is read from the \textbf{EDT radius}: at each point on the vessel's
+centerline, the distance from that point to the nearest vessel-wall voxel, which is the standard
+inscribed-sphere estimate of the local vessel radius. Right at a bifurcation this measurement is
+misleading. Picture the vessel as a garden hose briefly flaring into a Y-joint before narrowing back
+into two branches: the EDT algorithm works by finding the largest circle that fits inside the vessel
+at each point, and near the joint that circle can keep touching the far wall of the \emph{combined}
+Y-shape, so it reads close to the parent's radius for a few millimetres in every direction, whether
+or not the vessel actually widens there at all. Phantom testing confirms this is mostly a
+computational artefact, not anatomy: on a bifurcation phantom built with no real flare, the ratio of
+the junction reading to the true parent radius still sits at 0.93 to 0.99 [SIM]. Every
+descriptor below is therefore read from a window that starts one \textbf{junction-sphere radius}
+($r_J$, the EDT value at the branch point itself) away from the branch point, so the artefact zone is
+skipped before any radius is averaged.
+
+\subsection*{1. The left main (LM) Finet ratio, the primary measure}
+
+The left main splits into the left anterior descending (LAD) and left circumflex (LCx). Writing
+$r_0$ for the median EDT radius on the parent (LM) over a 3\,mm window starting $1{\cdot}r_J$
+upstream of the split, and $r_1, r_2$ for the same measurement on the two daughters starting
+$1{\cdot}r_J$ downstream, the first locked measure is
+\begin{equation}
+  F = \frac{r_0}{r_1 + r_2} .
+  \label{eq:finet}
+\end{equation}
+Finet and colleagues found, across 173 bifurcations in 47 patients with normal coronary
+angiograms, that the parent radius tracks a fixed fraction of the sum of the daughters,
+$r_0 \approx 0.678\,(r_1+r_2)$
+(\href{https://eurointervention.pcronline.com/article/fractal-geometry-of-arterial-coronary-bifurcations-a-quantitative-coronary-angiography-and-intravascular-ultrasound-analysis}{Finet
+et al.\ 2008} [FT]). $F$ close to 0.678 means a bifurcation follows that classical proportion; a
+lower $F$ means the parent reads narrow relative to its daughters. On 36 ImageCAS-X test-split
+reference cases the median is $F=0.615$, and on 100 training-split cases $F=0.63$
+[MEASURED], somewhat below Finet's 0.678 and below a CT atlas mean of $0.658\pm0.083$
+(\href{https://doi.org/10.4244/EIJV12I7A139}{Medrano-Gracia et al.\ 2016} [FT]); the diameter report's error analysis shows this gap is largely a
+measurement-convention effect of the EDT estimator, not necessarily anatomy.
+
+No study has tested $F$ itself against coronary outcome. The closest real evidence is retinal:
+individual-participant data on 22{,}159 people free of coronary disease found narrower retinal
+arterioles carried a hazard ratio (HR) of 1.17 per 20\,\textmu m in women and 1.02 in men for later
+coronary heart disease
+(\href{https://pubmed.ncbi.nlm.nih.gov/19755365/}{McGeechan et al.\ 2009} [ABS]), and two further
+cohorts gave HR 1.06 to 1.20 per standard deviation (SD) narrower
+(\href{https://pubmed.ncbi.nlm.nih.gov/27682886/}{Seidelmann et al.\ 2016} [ABS];
+\href{https://doi.org/10.1038/s41551-020-00626-4}{Cheung et al.\ 2021} [ABS]). This is borrowed from
+a different vascular bed and a different disease pathway, not a coronary bifurcation precedent, and
+should be read as a rough prior on effect size, not evidence for $F$ specifically.
+
+\emph{Comparability.} Every coronary tree has exactly one LM bifurcation, so $F$ is measurable in
+essentially every case, and it is the most reliable descriptor in the panel: intraclass correlation
+coefficient (ICC) 0.85 for the EDT-versus-surface-distance method and 0.90 for the choice of
+measurement window [MEASURED].
+
+\subsection*{2. The daughter ratio, the best-evidenced measure mechanistically}
+
+At any of the four named junctions this thesis measures (LM$\to$LAD/LCx, LAD$\to$D1,
+LCx$\to$OM1, and the RCA crux $\to$PDA/PLB), the second locked measure is the smaller daughter
+radius over the larger,
+\begin{equation}
+  \rho = \frac{\min(r_1, r_2)}{\max(r_1, r_2)} \in (0, 1] ,
+  \label{eq:daughter-ratio}
+\end{equation}
+with $\rho=1$ a perfectly symmetric split and $\rho \to 0$ a highly asymmetric one. This is the
+descriptor with the strongest mechanistic case in the whole panel. In 230 synthetic left-coronary
+computational fluid dynamics (CFD) models, the area of vessel wall running under low WSS followed a
+quadratic curve in the LAD/LCx diameter ratio with $R^2 = 0.91$ to $0.94$, and the low-shear area
+formed preferentially in the \emph{smaller} branch
+(\href{https://pmc.ncbi.nlm.nih.gov/articles/PMC11770140/}{Garcha and Grande Guti\'errez 2025}
+[FT]). In 39 real human left coronary trees, diameter was the only piece of vessel geometry that
+survived correction for multiple comparisons as a correlate of WSS
+(\href{https://arxiv.org/abs/2502.06161}{Shen et al.\ 2025} [FT, preprint]). The physical intuition
+is direct: an asymmetric split still has to carry the same total flow, so the smaller daughter
+receives less flow than its own size alone would suggest is efficient, which is exactly the kind of
+mismatch that produces chronically low WSS.
+
+\emph{Comparability.} Best at the LM, ICC 0.86, degrading toward the distal junctions (ICC
+approximately 0.63 to 0.79 at LAD-D1, LCx-OM1 and the crux) [MEASURED]. The LCx-OM1 junction is
+missing in about 20 of every 100 trees, since OM1 is not always present, so this descriptor needs an
+explicit absence flag rather than silent dropping.
+
+\subsection*{3. The Huo-Kassab optimality-ratio deviation ($\Gamma_{HK}$), in place of the raw exponent}
+
+The classical way to ask whether a bifurcation follows an optimal flow-diameter law is to solve for
+the exponent $n$ in
+\begin{equation}
+  r_0^{\,n} = r_1^{\,n} + r_2^{\,n} .
+  \label{eq:exponent}
+\end{equation}
+Murray's cube law sets $n=3$, derived from the assumption that the body minimises the combined cost
+of pumping blood and maintaining vessel tissue, which is optimised when wall shear stress is
+constant across the junction. In practice coronary trees run lower than this: pooling 1070 coronary
+trees, the exponent's 95\,\% confidence interval sits at 2.24 to 2.54, centred on 2.39, distinctly
+below 3 (\href{https://doi.org/10.1152/ajpheart.00142.2024}{Taylor et al.\ 2024}), closer to the Huo-Kassab value $n=7/3\approx2.33$, an extension of
+Murray's law that accounts for how blood's effective viscosity itself depends on vessel diameter.
+
+Equation~\ref{eq:exponent} is a poor number to compute directly. It has no closed-form solution, so
+it must be found numerically, and it is \textbf{ill-conditioned}: a small radius-measurement error
+gets amplified by a factor of roughly $n^2/H$, where $H$ measures how unevenly the flow is split
+between the two daughters, and the equation has \emph{no solution at all} once a noisy daughter
+radius reads as large as, or larger than, the parent's [DERIVED]. On the real LM data, exactly this
+happened in 10 of 36 junctions, 28\,\% [MEASURED].
+
+The fix borrowed here comes from the retinal-imaging literature, which solved the same
+ill-conditioning problem with an \textbf{optimality ratio} rather than an exponent. For the cube law,
+$\Gamma = \left(\tfrac{d_1^3+d_2^3}{2}\right)^{1/3}/d_0$, which equals $2^{-1/3}=0.794$ exactly at a
+Murray optimum, for any daughter asymmetry, and which rose measurably under a drug that blocks
+nitric-oxide synthase, showing it is sensitive to real endothelial function, not just noise
+(\href{https://pmc.ncbi.nlm.nih.gov/articles/PMC2954284/}{Witt et al.\ 2010} [FT]). The coronary
+version of this ratio, matching the coronary field's own $7/3$ exponent instead of the retinal cube,
+is
+\begin{equation}
+  \Gamma_{HK} = \frac{1}{r_0}\left(\frac{r_1^{\,7/3} + r_2^{\,7/3}}{2}\right)^{3/7} ,
+  \qquad\text{locked descriptor: } \Gamma_{HK} - 0.743 ,
+  \label{eq:gamma-hk}
+\end{equation}
+where $2^{-3/7}\approx0.743$ is the value $\Gamma_{HK}$ takes exactly whenever the Huo-Kassab law
+holds precisely, again for any asymmetry between the daughters [DERIVED here]. The locked descriptor
+is the signed deviation $\Gamma_{HK}-0.743$: unlike $n$, it stays well-defined and numerically stable
+under measurement noise, because, like $F$ and $\rho$ above, it is built entirely from ratios of
+radii and inherits their well-behaved error algebra rather than the exponent's.
+
+The clinical motivation is one step removed and worth stating carefully. In 253 patients imaged with
+intravascular ultrasound, a higher value of a Murray-type ratio, in Schoenenberger and colleagues'
+own convention describing how large the parent vessel reads relative to its daughters, was
+associated with denser calcium at the bifurcation after adjustment for age, sex and standard risk
+factors (\href{https://pubmed.ncbi.nlm.nih.gov/22261173/}{Schoenenberger et al.\ 2012} [ABS]). Their
+ratio convention is the mirror image of $\Gamma_{HK}$ (parent over daughters, rather than daughters
+over parent), so this finding is evidence that a law-deviation descriptor in this family is worth
+including, not yet licence to predict which sign of $\Gamma_{HK}-0.743$ should carry the risk; that
+sign should be checked, not assumed, once $\Gamma_{HK}$ is actually computed.
+
+\emph{Comparability.} $\Gamma_{HK}$ is always mathematically defined, with none of $n$'s unsolvable
+cases, but it is not yet implemented in this project's code and so has no measured ImageCAS-X ICC
+yet; because it is built from the same two radii as the daughter ratio above, similar reliability is
+expected but not confirmed.
+
+\subsection*{4. Parent-to-daughter ratios, secondary and the most window-sensitive}
+
+The two simple ratios that make up the Finet ratio's own numerator and denominator,
+\begin{equation}
+  \frac{r_{\mathrm{LAD}}}{r_{\mathrm{LM}}}, \qquad \frac{r_{\mathrm{LCx}}}{r_{\mathrm{LM}}} ,
+  \label{eq:parent-daughter}
+\end{equation}
+read 0.884 and 0.774 on ImageCAS-X [MEASURED]. They carry no clinical evidence beyond what $F$ and
+$\rho$ already capture, since they are literally $F$'s two components taken apart, and they are the
+single most window-sensitive descriptor measured: moving the measurement window from the branch
+point to this project's default offset shifted them by 0.10 to 0.12, about two-thirds of a
+between-subject standard deviation [DERIVED, MEASURED]. They are kept as secondaries because
+disaggregating $F$ into its two sides is occasionally informative, but they should never be reported
+without the exact window definition stated alongside them.
+
+\subsection*{5. Side-branch Finet ratio, exploratory}
+
+The same formula as Equation~\ref{eq:finet}, applied at LAD-D1, LCx-OM1 and the RCA crux instead of
+the LM. Reliability falls the further the junction sits from the LM: ICC roughly 0.79 at LAD-D1,
+0.67 at LCx-OM1, and only 0.44 at the crux [MEASURED], the last of which is too unreliable to trust
+as a modelled predictor at all. The crux additionally exists only in right-dominant trees, and OM1
+is absent in about a fifth of trees. Kept as an exploratory, reported-only item, not a modelled
+feature, at these junctions.
+
+\subsection*{Covariates carried alongside the panel}
+
+Three further quantities travel with the calibre panel as covariates rather than as calibre
+descriptors in their own right: the fixed-tangent bifurcation angle, already this project's locked
+primary geometric descriptor from the separate regional-geometry work; a binary ramus flag, since a
+third LM daughter changes the bifurcation's whole geometry and cases with one should be reported as
+their own stratum rather than pooled; and LM length (typically $10.5\pm5.3$\,mm), needed because a
+short LM can clip the parent measurement window.
+
+\subsection*{Considered, not locked}
+
+The raw junction exponent $n$ (Equation~\ref{eq:exponent}) is kept as a descriptive number only,
+never a modelled feature: it is unsolvable in 12 to 37\,\% of junctions and its ICC runs only 0.48 to
+0.69 even where it can be computed [MEASURED]. An area-ratio analogue of Equation~\ref{eq:daughter-ratio},
+$(r_1^2+r_2^2)/r_0^2$, was also considered and left out: its relative measurement error runs at
+roughly twice that of a radius ratio for the same input noise, and it adds no information the radius
+ratios above do not already carry.
+
+\section*{How the panel enters Model 1 and Model 2}
+
+The mechanism is the same one already locked for plain vessel diameter, repeated here at junction
+scale: \textbf{both arms see the identical numbers, and neither arm sees information the other
+lacks.} Concretely, at the LM this is an 8-field vector: the Finet ratio (primary), the daughter
+ratio, the $\Gamma_{HK}$ deviation, the two parent-to-daughter ratios, the angle, the ramus flag, and
+LM length. LAD-D1 and LCx-OM1 drop to 3 continuous fields (there is only one daughter to compute a
+ratio against, and no LM-length equivalent) plus the angle, with LCx-OM1 adding an OM1-absence flag.
+The crux keeps the same shape but stays reported-only, per its ICC 0.44.
+
+\begin{itemize}
+  \item \textbf{Model 1} receives every field as an extra regression term: continuous fields spline-
+    transformed with a handful of pre-specified knots, the ramus flag as a stratum indicator rather
+    than a pooled covariate.
+  \item \textbf{Model 2} receives the identical numbers, late-fused into the network \emph{after} its
+    pooled sequence embedding, in addition to the masked raw radius profile it already reads on each
+    limb (the profile with the flare artefact zone removed, exactly as Model 1's windows are).
+\end{itemize}
+Giving Model 2 both the scalar and the raw profile is not an unfair advantage to the network: the
+scalar is a fixed, deterministic function of the same profile the network already reads, so nothing
+is handed to it that it could not in principle compute for itself, and nothing is withheld from
+Model 1 that changes what it is allowed to see.
+
+One place this differs from the whole-vessel design: for a full-length profile, an
+``information-matched'' middle rung between Model 1 and Model 2, functional logistic regression on
+the profile's leading principal components, was proposed elsewhere in this project's design. That
+does not transfer safely to a 3\,mm junction window. At the 0.5\,mm resolution this project's data
+is cached at, a 3\,mm window holds roughly six to seven points along the centerline, too few to fit a
+stable functional model with more than one or two real modes of variation [DERIVED, not yet
+measured]. The recommended substitute at junction scale is a short, fixed set of summary statistics
+(the window median already used above, plus an endpoint-to-plateau ratio, since the diameter report
+already measured exactly this quantity), not a functional-data method.
+
+A learned alternative, a network that builds its own embedding of a junction from raw points rather
+than being handed the explicit 8-field vector, is the design one supervisor (Bj\o rn) has asked for.
+No coronary, cerebral or retinal precedent found in this project's research trains a junction
+embedding that way; the one close match, a 2025 Circle-of-Willis pipeline, computes bifurcation
+features with exactly the Finet and Huo-Kassab formulas already locked above, which supports the
+descriptor \emph{content} chosen here but not a learned \emph{architecture}
+(\href{https://arxiv.org/html/2510.13720v1}{Musio et al.\ 2025} [FT]). Consistent with Kit's stated
+priority, the explicit vector above is the default design; a learned junction token stays a later,
+optional ablation, not the starting point.
+
+\section*{Priority order: comparable first, then a plausible CAD link}
+
+This is a research question, so the CAD-link column below is a prior worth testing, not a
+demonstrated association; no coronary bifurcation calibre descriptor has ever been tested against a
+real coronary outcome.
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{@{}p{0.4cm}p{3.6cm}p{5.1cm}p{5.6cm}@{}}
+\toprule
+\# & Descriptor & Comparable across trees? & Plausible CAD link (a prior, not proof) \\
+\midrule
+1 & LM Finet ratio & Highest: present at every LM, ICC 0.85--0.90 & Weak--moderate, borrowed from retinal calibre (HR $\sim$1.05--1.20/SD); no coronary bifurcation-outcome study exists \\
+2 & Daughter ratio & High at LM (ICC 0.86), lower distally (ICC $\sim$0.63--0.79); OM1 missing $\sim$20\% & Strongest in the panel: CFD $R^2$=0.91--0.94; only geometry surviving correction in a human WSS study \\
+3 & $\Gamma_{HK}$ deviation & Always defined (no unsolvable cases); not yet measured on ImageCAS-X & Specific but thin: one IVUS study links a related ratio to bifurcation calcium; sign unresolved for this exact formula \\
+4 & Parent-to-daughter ratios & Present at LM; most window-sensitive descriptor measured & None beyond what \#1 and \#2 already carry (they are \#1's own components) \\
+5 & Side-branch Finet & Degrades away from LM: ICC 0.79 / 0.67 / 0.44; crux right-dominant only & None; untested transplant of the LM formula \\
+--- & Exponent $n$, area ratio & \emph{Considered, not locked}: $n$ unsolvable in 12--37\,\% of junctions & Not usable as a modelled predictor regardless of any CAD evidence \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+None of the five locked descriptors is a direct measurement of wall shear stress or of disease, and
+a high or low score on one is a candidate risk marker, not proof of risk, exactly as already stated
+for the tortuosity panel. The order above optimises for what this project can actually deliver first,
+a reliable, reproducible measurement at a named anatomical location across the whole cohort, and
+treats the coronary artery disease link as the open question the Herlev-\O{}sterbro outcome data will
+have to answer, not one the literature has already settled.
+
+\end{document}

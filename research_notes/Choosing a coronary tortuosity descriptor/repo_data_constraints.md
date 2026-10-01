@@ -1,0 +1,114 @@
+# Repo data and code constraints for a coronary tortuosity descriptor
+
+Sources are local repo files, cited as paths. Numbers marked "measured" come from the two read-only CPU scripts listed under "Code path used" (first 20 cases of `filelist/test.txt`: 878, 844, 80, 686, 87, 789, 448, 625, 954, 580, 85, 368, 806, 88, 423, 509, 316, 488, 775, 676; 40 sides). No em dashes used. Nothing was submitted, nothing in the repo was modified.
+
+## Q1. What are the stated criteria, plans, decisions and existing code for tortuosity?
+
+### Takeaway
+`tortuosity/CLAUDE.md` fixes the design (continuous, length-normalised index per vessel and segment, anatomically keyed, plaque-free vessels, plaque never used to pick the metric) and lists 8 plaque-blind selection criteria with thresholds to be set beforehand. Prior art (`topology/tortuosity.py`, `scripts/make_tortuosity_ambiguity.py`) exists but is explicitly not to be imported or edited; new methods are to be written from scratch in `tortuosity/`, one module per method.
+
+### Cited Findings
+- Folder `tortuosity/` contains only: `CLAUDE.md` and two PDFs (`3D Tortuosity computation as a shape descriptor.pdf`, `A_Novel_Method_for_the_Automatic_Grading_of_Retinal_Vessel_Tortuosity.pdf`). No code exists there yet. — `tortuosity/`
+- Scope: find the best coronary tortuosity representation (objective 7), extraction methods written from scratch in that folder; `topology/tortuosity.py` and `scripts/make_tortuosity_ambiguity.py` are prior art "to compare against: do not import from or edit them". — `tortuosity/CLAUDE.md`
+- Fixed design: continuous index not bend count (bend count missed associations the index found, Zebić Mihić 2023b); direction of association depends on the endpoint (inverse with obstructive disease, Groves 2009); per vessel and per segment, length-normalised; outputs keyed by patient and scan; segments keyed by anatomical label so they match across serial scans; CGPS predictions are binary lumen with no artery names so CGPS needs a labelling or correspondence method first; must not read high because plaque distorts the centerline. — `tortuosity/CLAUDE.md`
+- Eight selection criteria, none using plaque, "do not open `Disease`", thresholds set first: (1) synthetic curves: zero on a line, monotone in amplitude and frequency, rotation/translation invariance, separates one wide arc from several tight bends; (2) vessel ranking stable across smoothing and resampling (Spearman); (3) ~0.5 mm point jitter moves values far less than between-vessel spread (ICC); (4) reference vs CAS-Net-derived centerline agreement (ICC), needs a centerline extractor for predictions (repo only skeletonises for metrics); (5) no floor or ceiling effect; (6) low correlation with vessel length, radius and Image Quality; (7) agreement with blind expert ranking of ~30 vessels (Kendall tau); (8) healthy CGPS distribution, higher in women (Groves 2009), no expected direction for age or hypertension. — `tortuosity/CLAUDE.md`
+- Measurement rules: state population behind every number; each derivative amplifies noise (angle 1, curvature 2, torsion 3), so show sensitivity to smoothing scale and resampling step; too-short or missing vessels return explicit NaN row with reason, never dropped. — `tortuosity/CLAUDE.md`
+- Analysis design decided 2026-09-22: target is serial CCTA (baseline tortuosity vs plaque change at follow-up, ideally plaque-free at baseline); CGPS has participants scanned about ten years apart (reported by supervisor, not yet seen in data), so those pairs cannot give reproducibility; no within-patient segment vs segment comparison; adjust for age, sex, hypertension (smoking, cholesterol if available); hypothesis is association with non-obstructive, not obstructive, disease; ImageCAS is cross-sectional so say "associated with plaque". — `tortuosity/CLAUDE.md`
+- Working rules: minimum code, one module per method, no shared framework until two methods need it, per-case output files, failed cases logged, every number from a rerunnable script with parameters saved, no em dashes. Before designing read `docs_thesis/papers/telloayala2026tortuosity.md` and `thesis/week3/tortuosity_and_representation.tex`. — `tortuosity/CLAUDE.md`
+- Supervisor question 2: "average absolute curvature, or a small panel with one declared primary?" Default written by the student: curvature as primary, one index reported alongside. Item 3: CGPS repeats are years apart, so use repeat manual labelling for measurement error. — `docs_thesis/supervisor_questions.md`
+- Literature: three operational definitions in the Nannini-type CCTA pipeline (local arc-to-chord ratio over 1 cm reference arcs, direction-change tortuosity angle, clinical score = branches with 3 or more bends over 45 degrees) and proximal/medial/distal zoning by normalised geodesic distance from ostium; their finding is negative correlation of tortuosity with calcific plaque volume. — `docs_thesis/literature.md` lines 55-65
+- Groves 2009 (n=1221): severe tortuosity (two consecutive 180 degree turns) in 12.45%, significantly lower incidence of significant CAD (p=0.003), more common in women (p=0.039); Zebić Mihić 2023b measured both a continuous index and bend count, tortuosity higher in non-obstructive disease. — `docs_thesis/find_research.md` section 1.2 (lines 89-121)
+- Tello Ayala 2026 (JACC Adv): mean of per-point turning angle divided by pi on 2D angiography RCA skeletons, at least 20 points; a transformer on the ordered per-point profile. Relevant as prior art for a profile representation. — `docs_thesis/papers/telloayala2026tortuosity.md`
+- Existing prior-art module `topology/tortuosity.py` (306 lines): `measure(points, sigma_mm=1.0, step_mm=0.25, window_mm=20)` does arc-length resample to 0.25 mm, Gaussian smoothing sigma 1 mm, then computes L/D, SOAM per mm, total turning, inflection count, ICM, curvature mean/max/rms, torsion mean abs (masked below 10% of peak curvature), non-planarity, bends over 45 degrees, best-fit-plane distance and angle families, sliding-window maxima (20 mm). Vessels LM, LAD, LCX, RCA (`VESSEL_SIDES`); `extract_trees` returns one row per name with NaN plus `reason` when missing (fewer than 7 resampled points). `curvature_profile` exposes arc, curvature, torsion. Its docstring refers to `scripts/tortuosity_sensitivity.py` and `scripts/tortuosity_noise_floor.py`, which do NOT exist on this branch (`scripts/` holds only `make_tortuosity_ambiguity.py`, `make_tortuosity_simple.py`, and unrelated figure scripts). — `topology/tortuosity.py`
+- `topology.graph.Segment` already has `length`, `chord`, and `tortuosity` (= arc/chord, 1.0 if chord 0). — `topology/graph.py` lines 85-98
+- `utils/metrics.py` has no curvature, arc length or tortuosity function (only dice, hausdorff_95, cl_dice, betti, volume, precision/recall, centerline point metrics). Nothing there to reuse. — `utils/metrics.py`
+- `utils/io.py` provides `load_vtk_centerline` (flat points and point arrays) and `load_vtk_centerline_branches` (per-polyline point arrays in walk order); neither reads segment_label into a tree. — `utils/io.py` lines 118-191
+- `CLAUDE.thesis.md` does not exist in the working tree (only `CLAUDE.md` at repo root, which says the thesis context was moved to it and gitignored). Could not be read. — `ls` result
+
+### Inferences
+- Existing `topology/tortuosity.py` is the only geometry code for curvature and arc length; a from-scratch module cannot import it under the rules, so it must re-derive resample, smoothing and curvature (about 30 lines). It is a useful checklist of what has already been tried (L/D, SOAM, curvature, torsion, plane-distance, windowed maxima).
+- Criterion 3 says "about 0.5 mm jitter". The measured raw point-to-smoothed deviation is much smaller than that (see Q2), so a 0.5 mm jitter test is a deliberately pessimistic perturbation, not a description of the GT noise.
+
+### Gaps
+- `CLAUDE.thesis.md` and `thesis/week3/tortuosity_and_representation.tex` were not read (first absent from the tree; second not requested in the task list and not opened).
+- Pass thresholds for the eight criteria are not yet set anywhere in the repo.
+
+## Q2. What centerline data are available, and what are the sampling, noise and labelling properties?
+
+### Takeaway
+Each scan has two VTK polydata files (left: LM, LAD, LCX and branches; right: RCA and branches), with points in LPS mm at about 0.45 mm median spacing, per-point `segment_label` plus flags, but NO radius array in the delivered files. Point noise is low (median 0.07 mm from a 1 mm-smoothed curve) yet consecutive tangents differ by a median 5.9 degrees, so raw curvature is unusable without smoothing. The `tree-extraction` branch's topology rebuild gives labelled segments and named vessels; on the current branch it is incomplete.
+
+### Cited Findings
+- Files: `$ImageCAS_X_data_path/centerlines/<id>.coronary_{left,right}_centerline.vtk`, 1600 files (800 scans x 2); VTK legacy 5.1 BINARY POLYDATA, float points. — measured (`ls`, header)
+- Arrays (per-point unless noted), measured on every one of the 40 sides read: `segment_label` int32 (N,), `branch_points` int32 (N,), `end_points` int32 (N,), `start_points` int32 (N,), and `segment_name` (a string array of shape (1,), NOT per point). No `radius` array. — measured, `probe.py` output line for case 878
+- Left labels seen on case 878: 1 to 4 (LM, LAD, LCX, D1); right: 9, 10, 11 (RCA, R-PDA, R-PLA). Label map: 1 LM, 2 LAD, 3 LCX, 4 D1, 5 D2, 6 OM1, 7 OM2, 8 IM, 9 RCA, 10 R-PDA, 11 R-PLA, 12 L-PDA, 13 L-PLA, 14 Other. — `git show tree-extraction:docs_thesis/label_map.json`
+- `tortuosity/CLAUDE.md` says the radius array is "not yet checked"; `topology/radius.py` header states neither delivered nor predicted centerlines carry a radius, so radius is measured from the mask (distance to nearest background voxel, over-reads by up to half a voxel) and cached. — `topology/radius.py`; confirmed by measurement above
+- Tree rebuild (`topology/graph.py`, identical on `tree-extraction` and the current branch): points are unique, polylines meet only at shared point indices, degree at a point equals graph degree; degree-2 points merged so a `Segment` spans junction to junction; segment name by majority vote over interior points (end points carry parent label); 1584 of 1600 sides build as a clean rooted tree, 11 left sides have two ostia (no LM), 2 left sides fragment, 3 sides contain a cycle. 456 junctions in the cohort continue into two or more children of the same name. — `topology/graph.py` docstring, lines 1-16 and 160-165
+- `graph.Vessel` chains same-named segments proximal to distal (junction point counted once), with `points`, `length`, `is_main`; where a name splits, the child with the longest downstream run of that name continues (stated to be "a choice, not anatomy"). `vessel.points` is what `topology/tortuosity.py` measures. — `topology/graph.py` lines 160-260
+- Measured on the 20 cases: 0 tree-build warnings, mean 6.4 segments per side. — `probe.py`
+- Sampling spacing between consecutive points (mm), n=24125 steps, percentiles 5/25/50/75/95/99: 0.343 / 0.395 / 0.450 / 0.522 / 0.606 / 0.671. So roughly 2.2 points per mm, non-uniform (about factor 2 spread). — measured
+- Angle between consecutive raw segment tangents (deg) 5/25/50/75/95/99: 1.05 / 3.72 / 5.91 / 8.93 / 14.5 / 19.7; mean 6.68. A vessel of 100 mm has about 220 points; summing raw turning angles would give roughly 220 x 6.7 = about 1470 degrees of turning on a nearly straight vessel, dominated by discretisation noise. — measured; the 1470 figure is arithmetic on the mean
+- Distance of each raw point from the same segment Gaussian-smoothed at sigma 1 mm (interior points only), mm, 5/25/50/75/95/99: 0.019 / 0.045 / 0.071 / 0.104 / 0.171 / 0.231. This is an upper-ish estimate of jitter (it also contains real curvature). — measured
+- Length shrink from smoothing (LAD/LCX/RCA main vessels, n=61, after 0.25 mm arc-length resample), median (max): sigma 0.5 mm 0.990 (0.993); sigma 1 mm 0.979 (0.987); sigma 2 mm 0.958 (0.977) of unsmoothed length. Smoothing lowers arc length by about 2 percent at 1 mm and about 4 percent at 2 mm, so L/D is biased low and scale-dependent. — measured, `probe2.py`
+- Distance metric L/D (raw points, LAD/LCX/RCA main vessels, n=61) percentiles 5/50/95: 1.133 / 1.446 / 2.345. Median L/D near 1.45 shows no floor effect at whole-vessel scale in this sample; the 95th percentile of 2.3 is long-tailed. — measured
+- Spurious small branches: tree from graph has 149 terminal segments in 40 sides; only 1 is under 5 mm, 4 under 10 mm, 22 under 20 mm. So tiny spur branches are rare in these 20 cases. Segments under 10 mm are mostly LM (10 of 20) and short junction-to-junction pieces (see Q3). — measured
+
+### Inferences
+- With 0.45 mm sampling and per-step turning noise of about 6 degrees, any curvature or turning-angle sum must resample by arc length (the existing module uses 0.25 mm, which is finer than the native spacing and only interpolates) and smooth at 1 mm or more; a naive discrete-turning index like Tello Ayala's (mean turning angle / pi) on these raw points would mostly measure discretisation, and would depend on the local point density, which varies by a factor of about 2.
+- Left/right split means an LM-LAD-LCX vessel set sits in one file with a real junction (trifurcation or bifurcation); vessels crossing a junction must be walked using the rebuilt tree, not the raw polyline order (`utils/io.load_vtk_centerline_branches` gives polylines, not vessels).
+- Because `segment_label` is on points but end points carry the parent label, an implementation using raw labels per point would mislabel junction points; the segment-level majority vote in `graph.build_tree` avoids that.
+
+### Gaps
+- Sample is 20 cases (40 sides) from the test split only, not the cohort. Percentiles for tails (for example 1600-side rate of spur branches) would need a cohort run.
+- Whether native point spacing tracks the CT voxel size (which varies per case) was not investigated.
+- I did not check whether the centerline points lie at the true lumen centre or are voxel-snapped; the 0.07 mm figure does not separate snapping from real deviation.
+
+## Q3. What per-branch length distribution is there, and which tortuosity scales does it allow?
+
+### Takeaway
+Junction-to-junction segments are short (median about 10 mm for LM, 25 to 40 mm for most branches); of 255 segments in 20 cases, 26 are under 10 mm and 74 under 20 mm. Chained named vessels are much longer for the big three (LAD median 128 mm, RCA 107 mm, LCX 81 mm), but the LM is 10 mm median with 19 of 20 under 20 mm, so LM cannot carry a tortuosity value at any scale above about 5 mm.
+
+### Cited Findings
+- Segment lengths (junction to junction, arc length of centerline points), n per name / median mm / min mm / count under 10 mm / count under 20 mm: LAD 51/28.6/2.2/2/16; LCX 41/37.8/3.3/3/8; R-PLA 26/38.2/2.2/3/8; R-PDA 24/42.4/5.8/2/2; D1 22/34.3/11.0/0/5; RCA 22/106.2/8.5/1/1; LM 20/10.1/2.8/10/19; OM1 20/25.6/5.6/1/6; D2 10/30.2/10.3/0/3; IM 10/32.6/2.0/3/4; OM2 6/51.7/7.4/1/1; Other 2; L-PLA 1. — measured, `probe.py`
+- All 255 segments: 26 under 10 mm (10 percent), 74 under 20 mm (29 percent), 112 under 30 mm (44 percent). — measured
+- Main vessels (chained same-name segments via `graph.Vessel`, `is_main` only), n / 5th, 50th, 95th percentile mm / min / count under 20 mm / count under 40 mm: LAD 21 / 74.7, 127.8, 150.7 / 20.9 / 0 / 1; LCX 20 / 37.8, 81.0, 126.9 / 37.2 / 0 / 2; RCA 20 / 74.1, 107.0, 128.6 / 70.5 / 0 / 0; LM 20 / 4.1, 10.1, 19.0 / 2.8 / 19 / 20; D1 19 / 17.5, 41.9, 59.9 / 11.0 / 2 / 8; R-PDA 22 / 20.8, 47.6, 73.0 / 6.4 / 1 / 7; R-PLA 19 / 14.5, 44.5, 106.4 / 8.0 / 2 / 8; OM1 14 / 15.3, 44.7, 81.9 / 14.3 / 4 / 6; D2 10 / 12.9, 30.2, 59.9 / 10.3 / 3 / 6; IM 7 / 17.1, 40.0, 52.7 / 10.0 / 1 / 4; OM2 6 / 11.3, 51.7, 86.9 / 7.4 / 1 / 2. — measured, `probe.py`
+- Existing module's own limits: `MIN_RESAMPLED_POINTS = 7` at 0.25 mm step (about 1.5 mm of arc), `DEFAULT_WINDOW_MM = 20` for windowed maxima, sigma 1 mm. — `topology/tortuosity.py` lines 27-31
+- Literature scale: 1 cm reference arcs (local arc/chord) in the CCTA pipeline cited in `docs_thesis/literature.md` line 59.
+
+### Inferences
+- Vessel-level (chained) tortuosity for LAD, LCX and RCA is measurable on all 61 vessels in the sample (minimum lengths 20.9, 37.2, 70.5 mm), so it is not limited by length. The LM is effectively unmeasurable by shape descriptors (median 10 mm, one 19 mm at the 95th percentile) and should be reported as NaN with reason, or merged with LAD or LCX as a proximal segment, which is a design choice not an anatomical fact.
+- A 10 mm scale (1 cm arcs) is usable for the main trunks but 10 percent of all junction-to-junction segments are shorter than that; a 20 mm window excludes 29 percent of segments and about a fifth of side branches (D1, D2, OM1 and PLA/PDA vessels: 1 to 4 of 6 to 22 vessels under 20 mm). Per-segment scores keyed by anatomical label (as the CLAUDE.md design wants) will therefore have many missing values for short segments; a segment-length floor must be declared and the NaN rate reported.
+- Multi-scale or windowed measures need window less than or equal to 10 mm to be defined on the LAD/LCX/RCA shortest cases (LAD min vessel 20.9 mm).
+- The definition of a "vessel" depends on `_build_vessels` tie-breaking (longest downstream run of same name), so per-vessel tortuosity for D1, D2, OM1 etc. inherits a non-anatomical choice.
+
+### Gaps
+- Only 20 test-split cases; counts of "under 10 mm" and "under 20 mm" are small-sample and cannot support cohort claims. A cohort run over all 1600 sides would be quick (about 40 sides took well under the 110 s window) but was outside the "up to 20 scans" limit.
+- Segment length here is centerline arc length from the raw (unsmoothed) points, so it slightly overstates smoothed length (about 2 percent at sigma 1 mm).
+
+## Q4. What repo conventions constrain the implementation, and what is broken or missing on this branch?
+
+### Takeaway
+Minimum code, one module per method under `tortuosity/`, per-case outputs, NaN with reason, no em dashes, outputs only to work3, rerunnable scripts with saved parameters. On this branch (`tree-extraction_essential`) the `topology/` package is incomplete and the venv lacks pandas, pyvista and nibabel, so the tree rebuild cannot be imported as is.
+
+### Cited Findings
+- Repo-level `CLAUDE.md`: write the minimum code, no defensive scaffolding, no configuration knobs, no helper layers; no em dashes in thesis prose or chat; record every deviation; per-case output files; data read-only, outputs to `/work3/s254124/` only; user submits jobs, never `bsub`; login node has no GPU. — `/zhome/e2/6/224426/project/ImageCAS-X/CLAUDE.md`
+- `tortuosity/CLAUDE.md` gives the data root as `/dtu/blackhole/0a/224426/imagecasx_data` and says write only under `/dtu/blackhole/0a/224426/`, while `env.sh` (modified in working tree) exports `ImageCAS_X_data_path=/work3/s254124/ImageCAS-X_dataset` and the repo CLAUDE.md says write only to `/work3/s254124/`. `topology/paths.py` falls back to the blackhole path if the env var is unset (which happened when I forgot to `source env.sh`, giving FileNotFoundError). The two path conventions conflict. — `tortuosity/CLAUDE.md`, `env.sh`, `git show tree-extraction:topology/paths.py`
+- On the current branch, `topology/` has only `angles.py`, `graph.py`, `radius.py`, `tortuosity.py` (commit "Bring over the 4 core topology modules from tree-extraction"). These import `from . import io, paths` (and `coords` in `radius.py`), and `topology/__init__.py`, `io.py`, `paths.py`, `coords.py` are absent, as is `docs_thesis/label_map.json` (used by `graph.label_names`). They exist on branch `tree-extraction`. So `import topology.graph` fails here. — `ls topology`, `git ls-tree -r tree-extraction`
+- Venv `/work3/s254124/venvs/imagecasx` has `vtk` 9.7.0 and numpy/scipy but NOT `pyvista`, `pandas` or `nibabel` (import errors). `topology/io.py` on `tree-extraction` requires pyvista and nibabel, `paths.py` requires pandas. `utils/io.py` (framework) reads VTK via `vtk` directly and is importable. — measured
+- `git status` (start of session): modified `docs_thesis/cas_net_walkthrough.md`, `env.sh`; untracked `from_superviser.tex`. Branch `tortuosity_focus` also exists but was not inspected.
+
+### Inferences
+- A from-scratch `tortuosity/` module has to get vessel walking from somewhere: either restore the missing topology files (violates "do not import from topology/tortuosity.py" only for that one file, `graph.py` is not forbidden), or use vtk directly and rebuild vessels itself. Minimum-code path: reuse `topology.graph` for named vessels after restoring `io/paths/coords/__init__` and `label_map.json` from `tree-extraction`, and install or shim pyvista (my probe replaced `io.py` with a 20-line vtk-based loader, which is a working alternative).
+- The `/dtu/blackhole` vs `/work3` mismatch should be resolved in `tortuosity/CLAUDE.md` before a script writes outputs.
+
+### Gaps
+- Not checked: `tortuosity_focus` branch contents, `thesis/week3/tortuosity_and_representation.tex`, `scripts/make_tortuosity_ambiguity.py` internals.
+- Whether `CLAUDE.thesis.md` says anything further on tortuosity or CGPS labelling could not be determined (file absent).
+
+## Code path used (for reproducibility)
+
+All in `/tmp/claude-324426/-zhome-e2-6-224426-project-ImageCAS-X/95342cdc-997a-4936-86b1-8ef0c6bb5ebe/scratchpad/`, run with `source env.sh` then `/work3/s254124/venvs/imagecasx/bin/python`, CPU only, login node:
+- `repo/topology/{__init__,coords,graph,paths,radius}.py` and `repo/docs_thesis/label_map.json`: copied verbatim from `git show tree-extraction:<path>`; `graph.py` is byte-identical to the current branch's file.
+- `repo/topology/io.py`: my shim, same `Centerline` dataclass and `load_centerline` as `tree-extraction:topology/io.py` but reading with `vtk.vtkPolyDataReader` (pyvista missing). It skips the `segment_name` string array (returned as a placeholder) and sets `radius=None` because the files have none.
+- `probe.py`: for the first 20 ids of `filelist/test.txt`, both sides, `graph.build_tree`; computes step lengths (`np.linalg.norm(np.diff(points))` per segment), tangent-angle between consecutive raw steps within a segment, deviation from `gaussian_filter1d(points, 1.0/mean_step)` per segment (segments with more than 8 points, first and last 3 points dropped), segment lengths by name via `Segment.length`, terminal segment lengths, and main-vessel lengths via `Vessel.length` for `is_main` vessels.
+- `probe2.py`: main vessels LAD, LCX, RCA (n=61); L/D from `Vessel.points`; arc-length resample at 0.25 mm then Gaussian smoothing at sigma 0, 0.5, 1, 2 mm, ratio of smoothed length to unsmoothed resampled length; prints flag counts on case 878.

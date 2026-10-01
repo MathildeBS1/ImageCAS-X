@@ -1,0 +1,134 @@
+% Week 5: how each geometric feature is computed and why it is connected to wall shear stress (WSS).
+% Numbers and citations are carried over from thesis/risk_models/01_model_features_v2.tex and
+% thesis/week4/locked_tortuosity_metrics.tex. Nothing new was read for this note.
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{microtype}
+\usepackage[backend=biber,style=numeric,sorting=none]{biblatex}
+\addbibresource{../refs.bib}
+\DeclareSourcemap{\maps[datatype=bibtex]{\map{\step[fieldset=note,null]}\map{\step[fieldset=abstract,null]}}}
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+
+\title{Week 5: the geometric features and their connection to wall shear stress}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Why these features}
+
+\textbf{Wall shear stress is the link.} Wall shear stress (WSS) is the frictional drag that flowing blood puts on the artery wall.
+For steady flow $Q$ of blood with viscosity $\mu$ through a straight tube of radius $r$, it is
+\begin{equation}
+  \tau = \frac{4\mu Q}{\pi r^{3}},
+  \label{eq:wss}
+\end{equation}
+so at a fixed flow a wider vessel has a lower wall shear, falling with the cube of the radius.
+Bends and branches make the flow uneven, so shear is not the same along a vessel.
+Where shear is low the flow also tends to oscillate, pushing the wall first one way and then the other over the heartbeat instead of steadily along the vessel.
+This low and oscillating shear inflames the cells lining the wall and impairs their function, which lets low-density cholesterol be retained in the wall and starts plaque, and it is the oscillation that harms the lining most \cite{chatzizisis2007ess}.
+Shear that is high and steady is protective in a healthy artery.
+Once plaque has narrowed the vessel, however, shear at the narrowing is high and can rupture the plaque and form a clot, so high shear is dangerous in a diseased artery and worsens plaque vulnerability \cite{bajraktari2021highwss}.
+The features below concern the first case, a healthy tree, so the shear they stand in for is the low and oscillating kind.
+Equation~\ref{eq:wss} describes steady flow and so captures the level of shear but not its oscillation.
+Asakura and Karino traced flow through human coronary trees and found plaque concentrated at the inner wall of bends and the outer wall of bifurcations, both places where shear is low \cite{asakura1990flow}.
+
+\textbf{Shear predicts where disease progresses.} In patients re-imaged 6 to 10 months after an acute coronary syndrome, low shear at the first scan predicted where the lumen narrowed \cite{stone2012prediction}.
+In 17 bifurcations followed for three years by computed tomography, low shear predicted an increase in plaque burden ($p = 0.0006$), and it predicted better when the daughter branch was modeled and the flow split by Murray's law \cite{sakellarios2017bifurcation}.
+Both studies followed disease that was already there.
+Whether shear, or the geometry that sets it, predicts where plaque first forms in a healthy tree is the open question that the Herlev--{\O}sterbro cohort, scanned twice, can answer.
+Running a flow simulation through every tree of a cohort is not practical, so each feature below is a geometric stand-in for low shear, computed from the centerline and the vessel radius alone.
+
+\textbf{Where geometry is measured.} Early plaque concentrates at bifurcations.
+In 65 computed tomography cross-sections near coronary bifurcations, plaque sat in 72\% of the low-shear outer-wall quarters and 31\% of the flow-divider quarters \cite{vandergiessen2009bifurcation}.
+In the ICONIC study, 73.3\% of 116 lesions that later caused an acute coronary syndrome lay at a bifurcation, against 38.9\% of lesions that did not \cite{han2022plaque}.
+I therefore measure three bifurcations per tree: the left main (LM) into the left anterior descending (LAD) and left circumflex (LCx) arteries, the LAD giving off its first diagonal (D1), and the LCx giving off its first obtuse marginal (OM1).
+
+\section{How the features are computed}
+
+\textbf{Radii.} At each bifurcation, $r_0$ is the radius of the parent vessel and $r_1$, $r_2$ are the radii of the two daughters.
+A radius is the median of the Euclidean distance transform (EDT) along a 3\,mm window of the centerline.
+The EDT gives, for every voxel inside the vessel, the distance to the nearest voxel outside it, so on the centerline it reads the local lumen radius.
+The window starts one junction radius $r_J$, the EDT value at the branch point itself, away from the branch point.
+The offset is needed because the parent and daughter lumens merge at the branch point, so the largest sphere that fits there is wider than either daughter.
+All caliber features are ratios of radii.
+If every radius is scaled by the same factor, by a larger heart or a different scanner calibration, every ratio is unchanged, and Finet et al.\ saw the same parent-to-daughter constancy in 173 bifurcations \cite{finet2008fractal}.
+Segmentation blur shifts every radius by about the same amount (up to half a voxel, 0.25\,mm), which does not cancel in a ratio, so I measure its effect on ImageCAS-X before any outcome is opened.
+
+\textbf{Bifurcation angle $\theta$.} Each daughter's direction is a straight line fitted to its centerline over the window $[r_J, r_J + 3\,\mathrm{mm}]$, so that the bending of the vessel further downstream does not tilt it, and
+\begin{equation}
+  \theta = \arccos\left(\mathbf{t}_1\cdot\mathbf{t}_2\right),
+  \label{eq:angle}
+\end{equation}
+where $\mathbf{t}_1$ and $\mathbf{t}_2$ are the unit direction vectors.
+
+\textbf{Daughter ratio $\rho$ and LM log ratio $\lambda$.}
+\begin{equation}
+  \rho = \frac{\min(r_1, r_2)}{\max(r_1, r_2)}, \qquad
+  \lambda = \ln\frac{r_\mathrm{LAD}}{r_\mathrm{LCx}}.
+  \label{eq:ratios}
+\end{equation}
+$\rho = 1$ is a symmetric split.
+I use $\rho$ at D1, OM1 and for plaque in the left main, where neither daughter is favored.
+At the LM the two daughters are different arteries whose plaque is predicted separately, so $\lambda$ keeps which one is smaller: negative when the LAD is the smaller, positive when the LCx is.
+Since $\lvert\lambda\rvert = -\ln\rho$ at the LM, the two never enter the same model.
+
+\textbf{Deviation from the Huo--Kassab law $\Delta_{HK}$.} Murray's law says a healthy parent and its daughters satisfy $r_0^n = r_1^n + r_2^n$.
+Murray derived $n = 3$, but pooling 1070 coronary trees Taylor et al.\ found 2.39 (95\% confidence interval 2.24 to 2.54) \cite{taylor2024murray}, close to the $n = 7/3$ that Huo and Kassab derived from the minimum energy needed to build and run a vascular tree \cite{huo2012scaling}.
+Following the optimality ratio that Witt et al.\ used for retinal vessels \cite{witt2010optimality}, I compute
+\begin{equation}
+  \Gamma_{HK} = \frac{1}{r_0}\left(\frac{r_1^{7/3} + r_2^{7/3}}{2}\right)^{3/7},
+  \qquad
+  \Delta_{HK} = \Gamma_{HK} - 2^{-3/7}.
+  \label{eq:hk}
+\end{equation}
+If the law holds, $r_1^{7/3} + r_2^{7/3} = r_0^{7/3}$, so $\Gamma_{HK} = 2^{-3/7} \approx 0.743$ whatever the asymmetry of the daughters, and $\Delta_{HK} = 0$.
+
+\textbf{Mean absolute curvature $\bar\kappa_a$.} Curvature $\kappa$ is the reciprocal of the radius of the circle that best fits the centerline at a point, so a straight segment has $\kappa = 0$.
+Along an artery it is a profile $\kappa(s)$ of the distance $s$ from the vessel origin, and
+\begin{equation}
+  \bar\kappa_a = \frac{1}{L}\int_0^L \lvert\kappa(s)\rvert\,\mathrm{d}s,
+  \label{eq:kappa}
+\end{equation}
+where $L$ is a fixed length, the same in every tree.
+The centerline is smoothed at the same scale everywhere, and the stretch around each branch point is removed.
+The profile $\kappa(s)$ is kept as well as the mean, so that where along the artery a bend sits is not thrown away.
+
+\section{Why each is connected to WSS, and what the earlier work found}
+
+\textbf{Bifurcation angle.} Flow entering a daughter separates from its lateral wall, which leaves low shear there, and a wider angle is associated with a larger such region \cite{murasato2022bifurcation}.
+Clustering 76 left main arteries by shape, Wang et al.\ found that the phenotype with the largest angle had the most low shear around the LAD branch point \cite{wang2024lmphenotypes}.
+In 196 patients with coronary computed tomography angiography (CCTA) the LM angle averaged $79.4^\circ \pm 23.0^\circ$ and ranged from $35.5^\circ$ to $178^\circ$ \cite{temov2016bifurcation}, so people differ enough for a model to use it.
+In 106 patients the LAD--LCx angle was an independent predictor of significant left coronary stenosis \cite{cui2017bifurcation}, and in 313 patients it was $87.3^\circ$ in significantly narrowed arteries against $75.5^\circ$ in normal ones, though not after adjustment ($p = 0.064$) \cite{juan2017bifurcation}.
+These studies measured patients referred for suspected disease, so none can say whether the wide angle came first.
+
+\textbf{Daughter ratio and log ratio.} The flow a daughter carries is set mostly by its radius, and Equation~\ref{eq:wss} shows how steeply shear depends on radius.
+Garcha and Grande Guti\'errez simulated flow through 230 synthetic left coronary trees, and the area of low shear followed a quadratic curve in the LAD/LCx diameter ratio ($R^2 = 0.91$ and $0.94$ in the two dominance groups) and formed in the smaller branch \cite{garcha2025sensitivity}.
+Tortuous trees with a lopsided split had 8.8\% to 10.1\% of their wall under low shear, against 1.2\% for the same tortuosity with a balanced split.
+This is the strongest mechanistic support of the caliber features, but it comes from synthetic geometries.
+In 39 patient trees from the ASOCA dataset, diameter was the only geometric quantity whose correlation with shear survived correction for multiple comparisons \cite{shen2025helical}.
+That concerns absolute diameter, which ratios remove, so I add the absolute parent radius as a secondary analysis.
+
+\textbf{Huo--Kassab deviation.} Shear falls with the cube of the radius at a fixed flow (Equation~\ref{eq:wss}), so a parent that is wide relative to its daughters, a negative $\Delta_{HK}$, has a wall under lower shear.
+Flow is not fixed in a real tree, and with $n = 7/3$ shear scales as $r^{-2/3}$ across a bifurcation that obeys the law, so $\Delta_{HK} = 0$ marks a typical healthy tree and not a shear-neutral one.
+The direction is therefore left open and tested two-sided.
+The evidence points both ways.
+In 253 patients imaged with intravascular ultrasound, bifurcations whose parent was wide relative to its daughters (a departure from Murray's law with $n = 3$) held more dense calcium on both sides of the branch point \cite{schoenenberger2012murray}.
+In six healthy volunteers the retinal optimality ratio rose when nitric oxide synthesis, the vessel lining's response to flow, was blocked ($p = 0.03$) \cite{witt2010optimality}.
+I found no coronary study reporting $\Gamma_{HK}$, so ImageCAS-X gives its first reference distribution and Herlev--{\O}sterbro its first test against outcome.
+
+\textbf{Curvature.} A bend pushes flow toward its outer wall and leaves low shear on the inner wall.
+Kashyap et al.\ simulated flow around the left main bifurcation of 127 people without coronary artery disease and regressed the area of wall under low shear on every tortuosity measure in use.
+Mean absolute curvature explained the most, $R^2 = 0.112$ ($p < 0.001$), while the arc-to-chord tortuosity index explained none, $R^2 \approx 0$ ($p = 0.86$) \cite{kashyap2022tortuosity}.
+In the same 39 ASOCA trees, mean curvature separated stenosed from non-stenosed trees with an area under the receiver operating characteristic curve above 0.71 \cite{zhang2024curvature}.
+Keeping the profile is motivated by Tello Ayala et al., who on 38{,}691 right coronary angiograms from 22{,}334 patients predicted coronary artery disease with an area under the curve of 0.67 (0.65 to 0.69) from the profile, against 0.60 (0.58 to 0.63) from its mean \cite{telloayala2026tortuosity}.
+That used two-dimensional angiograms and one cardiologist's grading, so it is a promising signal and not proof.
+
+\textbf{What this note does not claim.} Every feature above is a stand-in for low shear. None has yet been tested against shear computed on our own trees, and none has been tested against new plaque in a healthy tree.
+The effect sizes are modest ($R^2 = 0.112$ for the best curvature measure), and the angle studies are cross-sectional.
+
+\printbibliography
+
+\end{document}

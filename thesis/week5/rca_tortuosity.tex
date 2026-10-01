@@ -1,0 +1,288 @@
+\section{Low, average and high tortuosity in 800 right coronary arteries}
+
+\medskip
+
+
+\noindent Which measure, we use to describe a vessel's shape decides whether it tracks low wall shear stress
+(WSS): Kashyap et al.\ found mean absolute curvature, the sum of all the vessel's changes in
+direction divided by its length, to be the best geometric descriptor of low WSS, and interestingly found the tortuosity index (most standard in the literature) to be one of the worst
+\cite{kashyap2022tortuosity}.
+They simulated blood flow through the left main bifurcation of 127 people without coronary artery
+disease (CAD), took the share of the wall below 0.4~Pa of time-averaged WSS as the low-shear zone,
+and regressed four tortuosity measures against it: mean absolute curvature explained the most
+variance, $R^2 = 0.112$ ($p < 0.001$), while the tortuosity index, arc length over the
+straight-line distance between the ends, explained none ($p = 0.865$) \cite{kashyap2022tortuosity}.
+
+
+\medskip
+\noindent \textbf{A turning-angle score is linked to CAD in 22,334 patients}
+
+
+\noindent I therefore looked for studies that link a turning-angle measure to CAD, and Tello Ayala
+et al.\ are the most recent: they grouped patients by the extremes of such a score and related it
+to CAD \cite{tello2026tortuosity}.
+They scored the right coronary artery (RCA) in 38,691 invasive coronary angiograms from 22,334
+patients referred for catheterization, using a centerline traced in a single 2D X-ray frame
+(Figure~\ref{fig:tello}a) \cite{tello2026tortuosity}.
+The centerline is a list of 2D points $p_i = (x_i, y_i)$, positions in the image, ordered from the
+start of the RCA to its distal end \cite{tello2026tortuosity}, so the direction of the vessel at each
+point follows from its neighbors.
+The step arriving at $p_i$ is the vector $a_i = p_i - p_{i-1}$, and the step leaving it is
+$b_i = p_{i+1} - p_i$.
+The turning angle $\theta_i$ is the angle needed to rotate the arriving step onto the leaving one
+\cite{tello2026tortuosity}, and it follows from the dot product of the two steps,
+\begin{equation}
+  \cos\theta_i = \frac{a_i \cdot b_i}{\lvert a_i\rvert\,\lvert b_i\rvert},
+  \label{eq:turn}
+\end{equation}
+so $\theta_i = 0$ where the vessel runs straight and grows as it bends.
+The score is the mean turning angle over all $n$ points, divided by $\pi$,
+\begin{equation}
+  T = \frac{1}{n}\sum_{i=1}^{n} \frac{\lvert\theta_i\rvert}{\pi}.
+  \label{eq:tello}
+\end{equation}
+Dividing by $\pi$, the largest possible turn ($180^\circ$, the vessel doubling straight back on itself),
+bounds the score between 0 for a straight line and 1 for a line that doubles back at every point
+\cite{tello2026tortuosity}.
+They split the scores into low (bottom decile), average (middle eight deciles) and high (top
+decile) tortuosity (Figure~\ref{fig:tello}b).
+
+\begin{figure}[h]
+  \centering
+  \begin{subfigure}[t]{0.68\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{content/methods/research_question/tello2026_fig1.jpg}
+    \caption{From angiogram to scored centerline; the turning angle $\theta_i$ at point $x_i$ ($p_i$ in the
+      text) is the local tortuosity.}
+    \label{fig:tello-method}
+  \end{subfigure}\hfill
+  \begin{subfigure}[t]{0.28\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{content/methods/research_question/tello2026_fig2.jpg}
+    \caption{Score distribution split at the 10th and 90th percentiles, with two example
+      angiograms per group.}
+    \label{fig:tello-deciles}
+  \end{subfigure}
+  \caption{Tello Ayala et al.\ score each right coronary artery by the mean turning angle along its
+    2D skeleton and group the scores at the 10th and 90th percentiles; their axis is a mean angle per
+    skeleton point over $\pi$, not comparable to Figure~\ref{fig:deciles}.
+    Reproduced unmodified from Tello Ayala et al.\ \cite{tello2026tortuosity}, JACC: Advances 2026,
+    CC BY-NC-ND 4.0.}
+  \label{fig:tello}
+\end{figure}
+
+
+\medskip
+\noindent \textbf{The mean absolute turning angle implemented for our 3D centerline}
+
+
+\noindent Our centerlines, which currently come from ImageCAS-X, describe each coronary tree from the coronary
+CT angiography (CCTA) volume as a list of 3D points $(x, y, z)$ in millimeters, about 0.47\,mm apart,
+with every point labeled by artery \cite{bransby2026imagecasx}.
+I expect the signals of different arteries to corrupt each other if the turning is averaged over
+the whole tree, so I split the analysis by artery, starting with the RCA.
+The RCA is the longest path through the points labeled RCA, from the ostium to where that label ends
+at the crux of the heart.
+I implement the mean absolute turning angle on this centerline in four steps
+(\texttt{tortuosity/merged.py}):
+\begin{enumerate}
+  \item \emph{Respace the points.}
+    Starting at the ostium, each new point $v_j$ is placed on the centerline exactly $\ell$
+    in a straight line from the previous one, so every step is a straight chord of length $\ell$; a
+    remainder shorter than $\ell$ at the far end is dropped.
+    The delivered points are 0.47\,mm apart only on average, so respacing to a fixed chord makes
+    every angle cover the same distance; Tello Ayala et al.\ use the skeleton points as they come, a
+    difference examined below.
+  \item \emph{Form the arriving and leaving steps.}
+    The points $v_j$ are ordered along the vessel, so the step arriving at $v_j$ is
+    $a_j = v_j - v_{j-1}$ and the step leaving it is $b_j = v_{j+1} - v_j$, now vectors with three
+    components $(x, y, z)$.
+  \item \emph{Measure the turning angle.}
+    $\theta_j$ is the angle of Equation~\eqref{eq:turn}, now between 3D steps, computed as
+    \begin{equation}
+      \theta_j = \operatorname{atan2}\bigl(\lvert a_j \times b_j\rvert,\; a_j \cdot b_j\bigr).
+      \label{eq:atan2}
+    \end{equation}
+    The dot product tells how far the second step keeps going in the direction of the first, and the length of the cross product tells how far it strays off that line.
+    Take a first step $a_j = (5,0,0)$ and compare a vessel that carries straight on with one that turns a corner, like turning from a street into a cross street:
+    \begin{align*}
+      b_j &= (5,0,0): & a_j \cdot b_j &= 25, & \lvert a_j \times b_j\rvert &= 0, & \theta_j &= \operatorname{atan2}(0, 25) = 0^\circ, \\
+      b_j &= (0,5,0): & a_j \cdot b_j &= 0,  & \lvert a_j \times b_j\rvert &= 25, & \theta_j &= \operatorname{atan2}(25, 0) = 90^\circ.
+    \end{align*}
+    Every other turn falls in between, with part of the step going forward and part going off to the side, and $\operatorname{atan2}$ converts that split into an angle.
+    Figure~\ref{fig:turning-angle-3d} shows a turn in 3D with $\ell = 5$\,mm.
+    The vessel comes in flat along $a_j = (4,3,0)$ and leaves along $b_j = (4,0,3)$, climbing 3\,mm in $z$:
+    \begin{gather*}
+      a_j \cdot b_j = 16, \qquad
+      a_j \times b_j = (9, -12, -12), \qquad
+      \lvert a_j \times b_j\rvert = \sqrt{369} = 19.21, \\
+      \theta_j = \operatorname{atan2}(19.21, 16) = 50.2^\circ.
+    \end{gather*}
+    Put simply, 3.2\,mm of the 5\,mm step still goes forward and 3.84\,mm goes off to the side.
+    Seen from above, the second step looks like $b_j' = (4,0,0)$ and the turn like only $\operatorname{atan2}(12, 16) = 36.9^\circ$ (gray arc), so this view hides $13.3^\circ$ of the bend.
+    $\operatorname{atan2}$ gives the same answer as the arccosine in Equation~\eqref{eq:turn}, but copes better when the vessel is nearly straight.
+    There the cosine sits so close to 1 that small turns hardly change it, and the arccosine struggles to tell them apart.
+    On a flat 2D image every bend is seen from the same side, so each turn goes either left or right and carries a sign; the $\lvert\theta_i\rvert$ in Equation~\eqref{eq:tello} throws that sign away.
+    In 3D each bend lies in a plane of its own, with no shared side to look from, so left and right lose their meaning.
+    $\theta_j$ is therefore always between $0^\circ$ and $180^\circ$, and Equation~\eqref{eq:tortuosity-3d} needs no absolute value.
+  \item \emph{Divide the total turning by the length.}
+    \begin{equation}
+      T_\ell = \frac{1}{L_c}\sum_j \theta_j ,
+      \label{eq:tortuosity-3d}
+    \end{equation}
+    where $L_c$ is the number of angles times $\ell$.
+    There is always one more step than there are angles, so dividing by the full length of all the steps would pull short vessels down more than long ones.
+\end{enumerate}
+Tello Ayala et al.\ divide by the number of points; dividing by length instead makes $T_\ell$ the average turning per millimeter, in radians per millimeter (mm$^{-1}$), which is the mean absolute curvature measured at scale $\ell$.
+I leave out the division by $\pi$.
+With no angle above $\pi$, $T_\ell$ can reach at most $\pi/\ell$, not $\pi$, and only if the vessel doubles back at every step.
+Dividing by $\pi/\ell$ would just turn $T_\ell$ back into the mean angle over $\pi$ of Equation~\eqref{eq:tello} and lose the per-millimeter meaning.
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{content/methods/research_question/turning_angle_3d.png}
+    \caption{Projection changes a turning angle when the vessel leaves the image plane; here it hides $13.3^\circ$ of the turn.
+      The vessel arrives along $a_j = (4,3,0)$ in the $xy$-plane and leaves along $b_j = (4,0,3)$,
+      rising 3\,mm in $z$; measured from the straight-on continuation of $a_j$ (dashed), it turns
+      $\theta_j = 50.2^\circ$.
+      Its shadow on the $xy$-plane (gray) turns only $36.9^\circ$.
+      Produced by \texttt{scripts/make\_turning\_angle\_3d.py}.}
+    \label{fig:turning-angle-3d}
+  \end{figure}
+
+\medskip
+\noindent \textbf{The chord is 5\,mm instead of the skeleton step}
+
+\noindent Tello Ayala et al.\ measured the angle between neighboring skeleton points and do not
+report how far apart these are \cite{tello2026tortuosity}.
+The spacing matters, because with short steps small errors in where each point sits look like turns.
+If each point is off by a random amount $\sigma$, a straight vessel picks up about $3\sigma/\ell$
+radians of false turning per angle, or $3\sigma/\ell^2$ per millimeter, so halving the chord makes
+it four times larger.
+The false turns never cancel, since every angle counts as positive, but they mainly affect straight
+vessels: on a real bend the error tilts an angle that is already large rather than adding to it.
+
+I explored how much this matters by scoring the 560 ImageCAS-X training RCAs at chords of 2, 5 and 8\,mm.
+The median score fell from 0.087\,mm$^{-1}$ at 2\,mm to 0.051\,mm$^{-1}$ at 5\,mm, a 41\% drop, but
+only to 0.045\,mm$^{-1}$ at 8\,mm, a further 13\%, so most of the change happens below 5\,mm, where noise dominates.
+I therefore use $\ell = 5$\,mm, the chord van Zandwijk et al.\ chose for coronary curvature on CCTA
+in 71 patients as ``an adequate and robust option'' \cite{vanzandwijk2019curvature}.
+The price is that bends shorter than a few millimeters are invisible.
+The delivered centerlines are already smoothed \cite{bransby2026imagecasx}, so I apply no further
+smoothing.
+Van Zandwijk et al.\ report a mean artery curvature of 0.081 to 0.090\,mm$^{-1}$ across the cardiac
+cycle \cite{vanzandwijk2019curvature}, 1.6 to 1.7 times our median RCA, for reasons not yet known.
+
+\medskip
+\noindent \textbf{Results: the groups on 800 ImageCAS-X RCAs}
+
+\noindent I scored all 800 RCAs in ImageCAS-X, from the training, validation and test splits alike
+(\texttt{jobs/tortuosity\_deciles.sh}).
+Every RCA was longer than the 15\,mm minimum; the typical one is 105\,mm long, and nine in ten are
+between 69 and 136\,mm.
+The typical RCA turns 0.052 radians, about $3^\circ$, for every millimeter it runs, and the middle half
+of the RCAs turn between 0.043 and 0.063\,mm$^{-1}$.
+The least tortuous tenth, 80 RCAs, turn less than 0.039\,mm$^{-1}$ ($2.2^\circ$ per millimeter), the
+most tortuous tenth, also 80, turn more than 0.076\,mm$^{-1}$ ($4.4^\circ$ per millimeter), and the
+other 640 lie in between (Figure~\ref{fig:deciles}).
+Every RCA in the high group therefore turns about twice as much per millimeter as any RCA in the low
+group, or more.
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}[t]{0.49\textwidth}
+    \vspace{0pt}
+    \centering
+    \includegraphics[width=\linewidth]{rca_tortuosity_deciles.pdf}
+    \caption{Mean absolute curvature $T_5$ of all 800 ImageCAS-X RCAs, split at the 10th and
+      90th percentiles into low, average and high groups as in Tello Ayala et al.\
+      \cite{tello2026tortuosity}; the top axis gives the same scale in degrees per millimeter.}
+    \label{fig:deciles}
+  \end{minipage}\hfill
+  \begin{minipage}[t]{0.47\textwidth}
+    \vspace{0pt}
+    \centering
+    \includegraphics[width=\linewidth]{rca_tortuosity_examples.pdf}
+    \caption{The high-group right coronary artery bends more often and more tightly than the
+      low-group one, in every view.
+      One RCA per group, the one closest to the group's median $T_5$, drawn in four projections that
+      share one scale per RCA (see the 10\,mm bar); the dot marks the ostium.}
+    \label{fig:examples}
+  \end{minipage}
+\end{figure}
+
+\medskip
+\noindent \textbf{Next: a blinded visual check}
+
+\noindent To repeat the check of Tello Ayala et al., 50 RCAs were drawn from each group (seed 42),
+rendered in the four views of Figure~\ref{fig:examples} with no score shown, and shuffled.
+I will label each tortuous or not, then relabel 20 of them at least a week later, since my
+agreement with myself bounds any agreement with the score.
+Agreement is reported as precision, recall and Cohen's $\kappa$ with a bootstrap 95\% CI, next to
+their $\kappa = 0.52$.
+At $\kappa \approx 0.5$, 150 labels give an interval of about $\pm 0.14$, narrow enough to tell
+whether the 3D score agrees with the eye better or worse than the 2D score did.
+
+\begin{table}[H]
+  \centering
+  \small
+  \begin{tabular}{@{}p{2.3cm}p{6.3cm}p{6.3cm}@{}}
+    \toprule
+    & Tello Ayala et al.\ \cite{tello2026tortuosity} & This work \\
+    \midrule
+    Images & invasive angiography, LAO view & CCTA \\
+    Centerline & U-Net outline of one 2D frame, skeletonized & delivered 3D centerline, labeled by artery \\
+    RCA extent & ostium to distal end of PDA & ostium to end of the RCA label at the crux \\
+    Cohort & 22,334 patients referred for catheterization & 800 ImageCAS-X scans \\
+    Turning angle & between consecutive skeleton points & between 5\,mm chords \\
+    Normalization & mean over points, divided by $\pi$ & sum over length (rad/mm) \\
+    Smoothing & not reported & none beyond the delivered centerline \\
+    Visual check & 1 interventional cardiologist, 100 per group & 1 student rater, 50 per group, 20 repeats \\
+    \bottomrule
+  \end{tabular}
+  \caption{Every departure from Tello Ayala et al.\ that a comparison with their numbers must state.}
+  \label{tab:deviations}
+\end{table}
+
+\medskip
+\noindent \textbf{Next: predicting future CAD from the turning angles}
+
+\noindent The part of this work I am most interested in is giving the turning angles themselves,
+one every 5\,mm along the RCA, to a neural network that predicts future CAD.
+Tello Ayala et al.\ did this for CAD that was already present: a local-attention transformer given
+the ordered turning angles, age and sex reached an area under the receiver-operating characteristic
+curve (AUROC) of 0.67 (95\% CI 0.65 to 0.69), against 0.60 (0.58 to 0.63) for a logistic regression
+on the mean score, age and sex \cite{tello2026tortuosity}.
+Where along the artery the bends sit therefore seems to carry information that the mean throws away,
+which fits where plaque forms: in optical coherence tomography of all three arteries in 131
+patients, vulnerable plaques clustered in the proximal segments rather than spreading evenly along
+the vessel \cite{araki2020plaques}.
+Whether the bends also foretell disease that has not yet appeared is open.
+
+The Herlev--{\O}sterbro cohort of the Copenhagen General Population Study scanned people without
+symptoms with CCTA \cite{fuchs2023cgps}, and for the participants scanned a second time it records
+which artery developed plaque, together with each person's sex and age.
+The outcome is new plaque in an artery at the second scan in a person whose tree had none at the first.
+I will compare two models, both given sex and age and validated internally by AUROC with a
+bootstrap 95\% CI over participants.
+The first is a logistic regression on $T_5$ per standard deviation, as in the association analysis
+of Tello Ayala et al.\ \cite{tello2026tortuosity}.
+The second is the neural network, given the ordered turning angles $\theta_j$ from the ostium
+outward on centerlines from the baseline scans; for a typical 105\,mm RCA that is about 20 angles,
+far fewer than one per skeleton point as in Tello Ayala et al.
+The network is exploratory, because the number of new-plaque events is likely to be small against
+its number of parameters.
+
+Tello Ayala et al.\ scored only the RCA and left the left system for future work, because its
+bifurcations, overlap and foreshortening are harder to handle on a 2D angiogram
+\cite{tello2026tortuosity}.
+A 3D centerline has no overlap or foreshortening, and ours already separate the left anterior descending
+(LAD) and left circumflex (LCX) arteries, so I will score both in the same way and give each artery
+its own sequence of angles, so that the proximal LAD, where the vulnerable plaques clustered most
+\cite{araki2020plaques}, is covered too.
+Later, the models can take features beyond the bends, chiefly at the bifurcations: the angle
+between the two daughter branches, which ranged from $35.5^\circ$ to $178^\circ$ between the LAD and
+LCX in 196 patients \cite{temov2016bifurcation}, and how far the daughter diameters depart from
+Murray's law for optimal flow, with the coronary exponent of 2.39 pooled over 1070 trees
+\cite{taylor2024murray}.

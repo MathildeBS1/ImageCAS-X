@@ -1,0 +1,149 @@
+% Standalone section. Paste into the weekly report, or \input it.
+% Week 4 note: the locked panel of geometric measures this thesis extracts from a centerline,
+% written for a reader meeting the concept for the first time, because the two existing notes it
+% draws on (thesis/week2/hemodynamics.tex and thesis/week3/tortuosity_and_representation.tex) were
+% written for a supervisor who already knows the field.
+%
+% READING DISCIPLINE. No new reading was done for this note; every number and every citation below
+% reuses a fact already recorded, with its own provenance, in the two notes above and in
+% thesis/clinical_background/05_hemodynamics.tex:
+%   - kashyap2022tortuosity: R^2 and p-values read from the full text (PMC8764056, Tables 1 and 4),
+%     per week3's own disclosure.
+%   - telloayala2026tortuosity, hart1999tortuosity, grisan2008tortuosity, bullitt2003tortuosity,
+%     groves2009tortuosity: read at abstract level only, per week3's own disclosure. Re-read before
+%     this note is merged into the thesis proper.
+%   - asakura1990flow, chatzizisis2007ess, zhang2024curvature, li2011tortuosity, griffo2026wss,
+%     taylor2024murray: as read and cited in thesis/clinical_background/05_hemodynamics.tex and
+%     thesis/week2/hemodynamics.tex.
+%   - shen2026geometry is cited for framing only, second-hand, exactly as week2 and week3 flag it.
+%
+% RECONCILIATION WITH THE DEEP-RESEARCH PASS. An earlier pass at this same question, run without
+% access to this repository's own reading, proposed the Horton-Strahler bifurcation ratio and
+% torsion as the two locked "advanced" methods. That pass had no primary-source WSS evidence for
+% either. This note supersedes it: the locked panel below follows the evidence and the reasoning
+% already worked out in week2 and week3, which is stronger because it is anchored in numbers read
+% from the primary text rather than search summaries.
+%
+% Citation keys resolve against thesis/refs.bib.
+
+\section*{The locked geometry panel, and why each piece is in it}
+
+This thesis extracts five things from every coronary centerline: three curvature-based numbers and
+two decisions about how those numbers, and the local curvature they come from, are computed and
+kept. All five are locked in here because each has an evidenced or a mechanistically argued
+connection to wall shear stress (WSS), the frictional drag blood exerts on the artery wall as it
+flows past. That drag is not uniform along a vessel; it falls, or reverses over the heartbeat,
+wherever the vessel bends or divides, and the endothelial cells lining the wall respond to
+chronically low drag by turning inflamed and plaque-prone, which is where and why plaque starts
+\cite{chatzizisis2007ess}. Tracing the flow through human coronary trees after death, Asakura and
+Karino found almost every plaque in exactly two places: the inner wall of a bend and the outer wall
+just past a bifurcation \cite{asakura1990flow}. The five measures below exist to locate those two
+places without running a flow simulation for every patient.
+
+\subsection*{1. Mean absolute curvature, the primary measure}
+
+\textbf{Curvature} $\kappa$ describes how sharply a curve bends at a point: a tight bend has a small
+radius of curvature $R$ and a large $\kappa = 1/R$, and a straight stretch has $\kappa = 0$. A
+vessel's curvature therefore changes continuously along its length, so the first locked measure
+takes its average over the whole vessel,
+\begin{equation}
+  \bar\kappa_a = \frac{1}{L}\int_0^L \lvert\kappa(s)\rvert\,\mathrm{d}s ,
+  \label{eq:kappa-a}
+\end{equation}
+where $L$ is the vessel's length and $s$ the distance traveled along it. Every local bend adds
+positively to this average, because the absolute value keeps a bend to the left from canceling a
+bend to the right; the same quantity can be computed by summing the turning angle between every pair
+of consecutive short steps along the vessel and dividing by $L$, a construction called the sum of
+angles metric \cite{bullitt2003tortuosity}.
+
+Kashyap and colleagues tested this measure, and three others, against a hemodynamic simulation of
+127 people without coronary artery disease: for each person's left main bifurcation, they computed
+the percentage of the vessel wall running below 0.4~Pa of time-averaged wall shear stress, a
+simulation's stand-in for a chronically low-shear zone, and regressed each candidate tortuosity
+measure against it \cite{kashyap2022tortuosity}. Mean absolute curvature $\bar\kappa_a$
+(\Cref{eq:kappa-a}) explained the most variance of any measure they tried, $R^2 = 0.112$
+($p < 0.001$). The classic \textbf{tortuosity index}, the ratio of the vessel's arc length to the
+straight-line distance between its ends, explained essentially none, $R^2 \approx 0$
+($p = 0.865$): a vessel can be long relative to that straight line either because it winds back and
+forth or because it sweeps through one long, gentle curve, and the ratio cannot tell those two
+apart. This is why $\bar\kappa_a$, not the tortuosity index, is this thesis's primary locked
+measure, and why the tortuosity index is not carried forward as a feature at all.
+
+\subsection*{2. Root-mean-square curvature, the sharp-bend companion}
+
+A single sharp kink and a long, gentle arc can share the same total turning and so the same
+$\bar\kappa_a$, yet a sharp kink disturbs flow more. The second locked measure weights sharper bends
+more heavily by squaring curvature before averaging,
+\begin{equation}
+  \kappa_{\mathrm{rms}} = \left(\frac{1}{L}\int_0^L \kappa(s)^2\,\mathrm{d}s\right)^{1/2} .
+  \label{eq:kappa-rms}
+\end{equation}
+In the same 127-person test, $\kappa_{\mathrm{rms}}$ also tracked the low-shear area,
+$R^2 = 0.093$ ($p = 0.002$) \cite{kashyap2022tortuosity}, close to $\bar\kappa_a$ though not quite
+as strongly. The same quantity, defined for retinal vessels as total squared curvature normalized
+by length, was Hart and colleagues' original tortuosity measure, and separated tortuous from normal
+retinal vessels with 91 to 95 percent accuracy \cite{hart1999tortuosity} (read at abstract level
+only; the size of that classification test is not recorded here and should be checked before this
+note is merged into the thesis). Because it squares a derivative, $\kappa_{\mathrm{rms}}$ is noisier
+than $\bar\kappa_a$ and moves more with how much the centerline is smoothed before differentiating,
+so it is reported only alongside a stated smoothing scale, never as a bare number.
+
+\subsection*{3. Torsion and non-planarity, the out-of-plane part}
+
+Curvature alone cannot tell a bend that stays flat from one that also twists out of its own plane,
+the way a coiled spring twists as it bends. \textbf{Torsion} $\tau$ is the rate at which the plane
+of the bend rotates about the vessel's own direction of travel: zero for a bend confined to one
+plane, and nonzero once the vessel corkscrews out of it. Some simulation studies argue that this
+out-of-plane twisting drives a spiral, helical flow pattern that protects the wall rather than
+harming it \cite{shen2026geometry}, though that claim is read here at review level, from a table
+summarizing other groups' simulations, not from the primary studies themselves. Because torsion
+might help rather than hurt, it is kept as its own number rather than folded into $\bar\kappa_a$ or
+$\kappa_{\mathrm{rms}}$, so a vessel that twists a great deal is never mistaken for one that simply
+bends a great deal.
+
+\subsection*{4. Bifurcation angle together with branch diameter}
+
+At a bifurcation, the angle between the two daughter vessels changes where the incoming flow
+separates from the wall, but the angle alone does not say how much flow each daughter carries: that
+is set mostly by each daughter's own diameter. Pooling 1070 coronary trees, Taylor and colleagues
+placed this flow-to-diameter relation, known as Murray's law, at an exponent of 2.39
+(95\% CI 2.24 to 2.54), close to but below the cubic value classical theory predicts
+\cite{taylor2024murray}. Because the drag a branch's wall feels depends steeply on how much flow it
+carries, two bifurcations with the same angle but different diameter ratios load their walls
+differently. The fourth locked measure is therefore the angle and the two daughter diameters
+together, extracted as one unit, rather than the angle on its own.
+
+\subsection*{5. Keeping curvature as a profile, not one number per vessel}
+
+The first three measures each reduce a whole vessel to a single number, and a single number can hide
+where along the vessel the bending actually sits. Tello Ayala and colleagues trained a model to read
+the turning-angle profile along each vessel directly, rather than its average, on 22{,}334 patients
+undergoing angiography, and it predicted coronary artery disease better than the same information
+collapsed to its global mean, an area under the receiver operating characteristic curve (AUROC) of
+0.67 against 0.60 for the mean alone \cite{telloayala2026tortuosity} (read at abstract level only).
+The fifth locked choice follows from this: this thesis keeps the curvature profile $\kappa(s)$ along
+each vessel, per segment, rather than collapsing it to $\bar\kappa_a$ immediately, so that where a
+bend sits is never thrown away before it can be used.
+
+\subsection*{Considered, not locked}
+
+Three further ways of scoring tortuosity were considered and left out. Grisan and colleagues'
+tortuosity density cuts a vessel at each point it changes bending direction and combines the
+arc-to-chord ratio of every resulting piece \cite{grisan2008tortuosity}; it captures turning as well
+as elongation, but it inherits whatever noise the inflection-point detection carries, on top of the
+noise curvature already carries, for no clear gain over $\bar\kappa_a$ on the one evidenced test
+above. Categorical clinical scores, such as counting bends sharper than 45 degrees or consecutive
+180-degree turns \cite{groves2009tortuosity}, are simple to read off a scan but throw away the
+continuous magnitude that $\bar\kappa_a$ and $\kappa_{\mathrm{rms}}$ keep, and neither has been
+tested against a shear simulation the way the measures above have. And a single tortuosity score per
+patient, rather than per vessel segment, was ruled out directly: across 1010 people undergoing
+angiography, more tortuous arteries were, if anything, associated with less coronary artery disease,
+not more \cite{li2011tortuosity}, the opposite of what a whole-patient score implies if disease
+tracked tortuosity everywhere. Flow acts locally, so this thesis measures locally, one vessel
+segment at a time.
+
+None of the five locked measures is a direct measurement of wall shear stress, and a high score on
+one is a candidate risk marker, not proof of risk. Even a full hemodynamic simulation only
+moderately separated lesions that went on to cause a heart attack from those that did not, in
+patients who already had one, area under the curve 0.63 to 0.68 \cite{griffo2026wss}; a shape
+measure computed without running that simulation should not be expected to do better.

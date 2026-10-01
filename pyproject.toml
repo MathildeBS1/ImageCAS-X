@@ -24,6 +24,8 @@ dependencies = [
     "matplotlib",
     "openpyxl",
     "nibabel>=5.4.2",
+    "pyvista",
+    "pandas",
 ]
 
 [tool.setuptools]
