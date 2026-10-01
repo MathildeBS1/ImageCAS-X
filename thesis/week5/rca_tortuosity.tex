@@ -84,7 +84,7 @@ the whole tree, so I split the analysis by artery, starting with the RCA.
 The RCA is the longest path through the points labeled RCA, from the ostium to where that label ends
 at the crux of the heart.
 I implement the mean absolute turning angle on this centerline in four steps
-(\texttt{tortuosity/merged.py}):
+(\texttt{tortuosity/curvature.py}):
 \begin{enumerate}
   \item \emph{Respace the points.}
     Starting at the ostium, each new point $v_j$ is placed on the centerline exactly $\ell$
@@ -147,7 +147,7 @@ Dividing by $\pi/\ell$ would just turn $T_\ell$ back into the mean angle over $\
       rising 3\,mm in $z$; measured from the straight-on continuation of $a_j$ (dashed), it turns
       $\theta_j = 50.2^\circ$.
       Its shadow on the $xy$-plane (gray) turns only $36.9^\circ$.
-      Produced by \texttt{scripts/make\_turning\_angle\_3d.py}.}
+      Produced by \texttt{tortuosity/figure\_turning\_angle.py}.}
     \label{fig:turning-angle-3d}
   \end{figure}
 

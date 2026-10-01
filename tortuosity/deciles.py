@@ -1,16 +1,12 @@
-"""RCA tortuosity deciles and a blinded visual check, after PMC13308244 (Figure 2 and its 300-angiogram check).
+"""RCA tortuosity groups at the 10th and 90th percentiles, their figures, and a blinded visual check.
 
-    source env.sh
-    python scripts/tortuosity_deciles.py make     # groups, figures, blinded labelling sample
-    python scripts/tortuosity_deciles.py score    # after filling labels_todo.csv (and repeat_todo.csv)
+Follows Tello Ayala et al., JACC: Advances 2026 (their Figure 2 and 300-angiogram visual check).
 
-Score: scc_5 from `python -m tortuosity.run_merged_tests cohort --split <s>` ({train,val,test}_vessels.csv) =
-tortuosity/merged.py:scc_density(P, 5), the sum of 3D turning angles between consecutive 5 mm chords
-over their length (rad/mm), walked from the ostium, on the delivered centerline (already smoothed by
-the dataset, no extra smoothing). The paper's turning angle at a 5 mm chord, without its /pi.
+    python -m tortuosity.deciles make     # groups, figures, blinded labelling sample
+    python -m tortuosity.deciles score    # after filling labels_todo.csv (and repeat_todo.csv)
 
-Groups as in the paper, on all 800 ImageCAS-X RCAs (train + val + test): low = bottom decile, average = middle 8 deciles,
-high = top decile. RCA = longest label-9 path (tortuosity/vessels.py), so side branches are excluded.
+Reads T_5 from `python -m tortuosity.score --split <s>` for train, val and test, so all 800
+ImageCAS-X RCAs are grouped: low = bottom decile, average = middle eight deciles, high = top decile.
 
 Labelling: open label_imgs/<token>.png in token order and write 1 (tortuous) or 0 in the
 `tortuous` column of labels_todo.csv. Do not open key.csv until you are done. At least a week
@@ -26,16 +22,16 @@ import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-from tortuosity.vessels import load_vessels  # noqa: E402
+from .vessels import load_vessels  # noqa: E402
 
-SRC = "/work3/s254124/imagecasx_results/tortuosity_merged"
+RESULTS = os.environ.get("ImageCAS_X_results_path", ".")
+SRC = f"{RESULTS}/tortuosity_scores"
+OUT = f"{RESULTS}/tortuosity_deciles"
 SPLITS = ("train", "val", "test")
-OUT = "/work3/s254124/imagecasx_results/tortuosity_deciles"
 FIG = os.path.join(os.path.dirname(__file__), "..", "figures", "rca_tortuosity_deciles")
 FIG_EX = os.path.join(os.path.dirname(__file__), "..", "figures", "rca_tortuosity_examples")
 SEED = 42
-N_PER_GROUP, N_REPEAT = 50, 20  # the paper sampled 100 from each group
+N_PER_GROUP, N_REPEAT = 50, 20  # Tello Ayala et al. sampled 100 from each group
 GROUPS = ("low", "average", "high")
 COLORS = {"low": "#2a78d6", "average": "#b5b3ad", "high": "#e34948"}
 INK, MUTED = "#0b0b0b", "#52514e"
@@ -57,7 +53,7 @@ def basis(d):
 
 
 VIEWS = {"AP": view_dir(0, 0), "LAO 30": view_dir(30, 0), "Left lateral": view_dir(90, 0), "Axial": view_dir(0, 90)}
-PAPER = "PMC13308244: tortuous precision 75.3 %, recall 58.0 %; non-tortuous 85.6 % / 83.5 %; kappa 0.52 (0.41-0.63), n = 300"
+PAPER = "Tello Ayala et al. 2026: tortuous precision 75.3 %, recall 58.0 %; non-tortuous 85.6 % / 83.5 %; kappa 0.52 (0.41-0.63), n = 300"
 
 
 def groups(x):
@@ -92,16 +88,16 @@ def make():
     df = pd.concat([pd.read_csv(f"{SRC}/{s}_vessels.csv").assign(split=s) for s in SPLITS])
     df = df[df.vessel == "RCA"].reset_index(drop=True)
     n_scans = sum(1 for s in SPLITS for _ in open(f"{os.environ['ImageCAS_X_data_path']}/filelist/{s}.txt") if _.strip())
-    df["group"], lo, hi = groups(df.scc_5.values)
-    df[["case", "split", "length_mm", "scc_5", "group"]].to_csv(f"{OUT}/groups.csv", index=False)
-    print(f"{len(df)} RCAs of {n_scans} scans; cut-offs scc_5 {lo:.4f} / {hi:.4f} 1/mm")
+    df["group"], lo, hi = groups(df.T_5.values)
+    df[["case", "split", "length_mm", "T_5", "group"]].to_csv(f"{OUT}/groups.csv", index=False)
+    print(f"{len(df)} RCAs of {n_scans} scans; cut-offs T_5 {lo:.4f} / {hi:.4f} 1/mm")
     print(df.group.value_counts().reindex(GROUPS).to_string())
     tr = df[df.split == "train"]
-    print("chord choice, median over", len(tr), "training RCAs:", ", ".join(f"scc_{l} {tr[f'scc_{l}'].median():.4f}" for l in (2, 5, 8)))
+    print("chord choice, median over", len(tr), "training RCAs:", ", ".join(f"T_{l} {tr[f'T_{l}'].median():.4f}" for l in (2, 5, 8)))
 
     plt.rcParams.update({"font.size": 9, "font.family": "sans-serif", "axes.edgecolor": MUTED})
     fig, ax = plt.subplots(figsize=(4.0, 5.0), facecolor="white")
-    t5 = df.scc_5
+    t5 = df.T_5
     bins = np.linspace(t5.min(), t5.max(), 36)
     ax.hist([t5[df.group == g] for g in GROUPS], bins, stacked=True, color=[COLORS[g] for g in GROUPS],
             edgecolor="white", lw=0.6, label=[f"{g} (n = {(df.group == g).sum()})" for g in GROUPS])
@@ -126,10 +122,10 @@ def make():
     for row, g in enumerate(GROUPS):
         sub = df[df.group == g]
         cells = gs[row].subgridspec(1, len(VIEWS), wspace=0.05)
-        r = sub.loc[(sub.scc_5 - sub.scc_5.median()).abs().idxmin()]
+        r = sub.loc[(sub.T_5 - sub.T_5.median()).abs().idxmin()]
         axes = [fig.add_subplot(cells[j]) for j in range(len(VIEWS))]
         draw(axes, rca(r.case), COLORS[g])
-        axes[0].text(0, 1.32, f"{g}: scan {r.case}\n$T_5$ = {r.scc_5:.3f} rad/mm ({np.degrees(r.scc_5):.1f}\u00b0/mm)",
+        axes[0].text(0, 1.32, f"{g}: scan {r.case}\n$T_5$ = {r.T_5:.3f} rad/mm ({np.degrees(r.T_5):.1f}\u00b0/mm)",
                      transform=axes[0].transAxes, fontsize=8, color=INK, va="bottom")
     fig.savefig(f"{FIG_EX}.png", dpi=200, bbox_inches="tight")
     fig.savefig(f"{FIG_EX}.pdf", bbox_inches="tight")
@@ -151,7 +147,7 @@ def make():
         except Exception as e:
             fails.append(f"{r.token}\t{r.case}\t{e!r}\n")
     open(f"{OUT}/label_failed.txt", "w").writelines(fails)
-    sample.sort_values("token")[["token", "case", "group", "scc_5"]].to_csv(f"{OUT}/key.csv", index=False)
+    sample.sort_values("token")[["token", "case", "group", "T_5"]].to_csv(f"{OUT}/key.csv", index=False)
     pd.DataFrame({"token": sorted(sample.token), "tortuous": ""}).to_csv(f"{OUT}/labels_todo.csv", index=False)
     pd.DataFrame({"token": rng.choice(sample.token, N_REPEAT, replace=False), "tortuous": ""}).to_csv(
         f"{OUT}/repeat_todo.csv", index=False)

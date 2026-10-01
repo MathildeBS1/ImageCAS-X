@@ -4,7 +4,7 @@ Three centerline points (0,0,0), (4,3,0), (8,3,3) mm, spaced l = 5 mm. The vesse
 in the xy-plane and leaves through the xz-plane, turning 50.2 degrees; its shadow on the
 xy-plane turns only 36.9 degrees, the part a 2D projection would see.
 
-    uv run python scripts/make_turning_angle_3d.py
+    python -m tortuosity.figure_turning_angle
 
 Writes figures/turning_angle_3d.{pdf,png}.
 """
