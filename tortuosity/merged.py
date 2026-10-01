@@ -1,4 +1,4 @@
-"""The merged method from reports/Merged tortuosity methods for coronaries.md.
+"""The merged method from knowledge/reports/Merged tortuosity methods for coronaries.md.
 
 Slope-chain substrate: resample at constant chord l (mm), turning angle per vertex.
   scc_density   sum(theta) / L over the interior vertices, rad/mm: the threshold-free companion.

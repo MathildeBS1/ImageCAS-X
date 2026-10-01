@@ -27,7 +27,6 @@ import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-from tortuosity.research.simple.compute_simple import basis, view_dir  # noqa: E402
 from tortuosity.vessels import load_vessels  # noqa: E402
 
 SRC = "/work3/s254124/imagecasx_results/tortuosity_merged"
@@ -40,7 +39,23 @@ N_PER_GROUP, N_REPEAT = 50, 20  # the paper sampled 100 from each group
 GROUPS = ("low", "average", "high")
 COLORS = {"low": "#2a78d6", "average": "#b5b3ad", "high": "#e34948"}
 INK, MUTED = "#0b0b0b", "#52514e"
-# LPS viewer directions (compute_simple.view_dir: primary angle LAO > 0, secondary cranial > 0)
+
+
+def view_dir(a, c):
+    """LPS viewer direction for primary angle a (LAO > 0) and secondary angle c (cranial > 0), degrees."""
+    a, c = np.radians(a), np.radians(c)
+    return np.array([np.sin(a) * np.cos(c), -np.cos(a) * np.cos(c), np.sin(c)])
+
+
+def basis(d):
+    """Screen axes (patient right, inferior) for viewing direction d, as a (3, 2) matrix."""
+    e1 = np.cross(d, [0, 0, 1.0])
+    if np.linalg.norm(e1) < 1e-6:
+        e1 = np.array([1.0, 0, 0])
+    e1 /= np.linalg.norm(e1)
+    return np.stack([e1, np.cross(d, e1)], 1)
+
+
 VIEWS = {"AP": view_dir(0, 0), "LAO 30": view_dir(30, 0), "Left lateral": view_dir(90, 0), "Axial": view_dir(0, 90)}
 PAPER = "PMC13308244: tortuous precision 75.3 %, recall 58.0 %; non-tortuous 85.6 % / 83.5 %; kappa 0.52 (0.41-0.63), n = 300"
 
@@ -57,7 +72,7 @@ def rca(case):
 
 def draw(axes, P, color):
     """The RCA in each of VIEWS, all at one mm scale, ostium as a dot, 10 mm scale bar in the first."""
-    # compute_simple.basis gives screen axes (patient right, inferior); negating is a 180 degree
+    # basis gives screen axes (patient right, inferior); negating is a 180 degree
     # turn to the radiological view (patient right on screen left, superior up)
     Q = {k: -(P - P.mean(0)) @ basis(d) for k, d in VIEWS.items()}
     r = max(np.abs(q).max() for q in Q.values()) * 1.05

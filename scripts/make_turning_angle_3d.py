@@ -9,12 +9,23 @@ xy-plane turns only 36.9 degrees, the part a 2D projection would see.
 Writes figures/turning_angle_3d.{pdf,png}.
 """
 
+import os
+
 import matplotlib.pyplot as plt
 import numpy as np
 
-from make_research_question_figures import save
-from make_tortuosity_ambiguity import INK, MUTED
-from make_wss_schematic import HIGH, LOW
+OUT_DIR = os.path.join(os.path.dirname(__file__), "..", "figures")
+INK, MUTED = "#1f2933", "#7b8794"
+LOW, HIGH = "#e8590c", "#2a78d6"
+
+
+def save(fig, name):
+    os.makedirs(OUT_DIR, exist_ok=True)
+    for ext in ("pdf", "png"):
+        fig.savefig(os.path.join(OUT_DIR, f"{name}.{ext}"), dpi=300)
+    plt.close(fig)
+    print(f"wrote figures/{name}.{{pdf,png}}")
+
 
 P = np.array([[0, 0, 0], [4, 3, 0], [8, 3, 3]], dtype=float)
 
