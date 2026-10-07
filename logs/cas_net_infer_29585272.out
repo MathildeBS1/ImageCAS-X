@@ -1,0 +1,69 @@
+[inference] method=cas_net  device=cpu  split=test
+[inference] results_dir=/work3/s254124/imagecasx_results/cas_net_pretrained
+[inference] checkpoint=/work3/s254124/imagecasx_results/cas_net_pretrained/cas_net_best.pt
+
+------------------------------------------------------------
+Sender: LSF System <lsfadmin@hpc.dtu.dk>
+Subject: Job 29585272: <cas_net_infer> in cluster <dcc> Exited
+
+Job <cas_net_infer> was submitted from host <hpclogin1> by user <s254124> in cluster <dcc> at Sun Oct  4 16:59:57 2026
+Job was executed on host(s) <8*n-62-18-4>, in queue <gpua40>, as user <s254124> in cluster <dcc> at Sun Oct  4 17:02:34 2026
+</zhome/e2/6/224426> was used as the home directory.
+</zhome/e2/6/224426/project/ImageCAS-X> was used as the working directory.
+Started at Sun Oct  4 17:02:34 2026
+Terminated at Mon Oct  5 05:02:54 2026
+Results reported at Mon Oct  5 05:02:54 2026
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+#!/bin/sh
+
+#BSUB -q gpua40
+#BSUB -J cas_net_infer
+#BSUB -n 8
+#BSUB -gpu "num=1:mode=exclusive_process"
+#BSUB -R "span[hosts=1]"
+#BSUB -R "rusage[mem=8GB]"
+#BSUB -W 12:00
+#BSUB -o logs/cas_net_infer_%J.out
+#BSUB -e logs/cas_net_infer_%J.err
+
+# CAS-Net inference + evaluation on the 160 test scans with the delivered pretrained weights.
+#   bsub -env "all, RUN_DIR=cas_net_pretrained" < jobs/infer_eval_cas_net.sh
+# RUN_DIR is a directory under $ImageCAS_X_results_path holding cas_net_best.pt
+# (cas_net_pretrained/ symlinks it to the delivered weights). Inference resumes by default.
+# Results: $ImageCAS_X_results_path/$RUN_DIR/{predictions/,cas_net_results.json}
+
+source env.sh
+RUN_DIR=${RUN_DIR:-cas_net_pretrained}
+python -m inference -c configs/cas_net.json -r "$ImageCAS_X_results_path/$RUN_DIR"
+python -m evaluate  -c configs/cas_net.json -r "$ImageCAS_X_results_path/$RUN_DIR"
+
+------------------------------------------------------------
+
+TERM_RUNLIMIT: job killed after reaching LSF run time limit.
+Exited with exit code 140.
+
+Resource usage summary:
+
+    CPU time :                                   43884.00 sec.
+    Max Memory :                                 13270 MB
+    Average Memory :                             9135.86 MB
+    Total Requested Memory :                     65536.00 MB
+    Delta Memory :                               52266.00 MB
+    Max Swap :                                   -
+    Max Processes :                              18
+    Max Threads :                                64
+    Run time :                                   43219 sec.
+    Turnaround time :                            43377 sec.
+
+The output (if any) is above this job summary.
+
+
+
+PS:
+
+Read file <logs/cas_net_infer_29585272.err> for stderr output of this job.
+

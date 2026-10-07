@@ -1,5 +1,10 @@
 # State of the art (objective 4) — structure and direction
 
+> **Superseded 2026-10-04.** The chapter was written to a new structure (segmentation, CCTA
+> reliability, geometry to WSS to plaque, cohort limitations) in `thesis/state_of_the_art/01-04`,
+> because the introduction's aim is now prediction of new plaque in CGPS, not population
+> distributions or outlier detection. The evidence matrix and the reading queue below still apply.
+
 ## Context
 
 `06_geometry_risk.tex` moves out of the clinical background into this new chapter, so the clinical

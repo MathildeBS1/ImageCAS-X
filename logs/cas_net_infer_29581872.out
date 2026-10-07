@@ -1,0 +1,230 @@
+[inference] method=cas_net  device=cpu  split=test
+[inference] results_dir=/work3/s254124/imagecasx_results/cas_net_pretrained
+[inference] checkpoint=/work3/s254124/imagecasx_results/cas_net_pretrained/cas_net_best.pt
+[evaluate] method=cas_net
+[evaluate] results_dir=/work3/s254124/imagecasx_results/cas_net_pretrained
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/844.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/580.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/509.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/465.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/103.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/932.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/759.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/474.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/396.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/244.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/725.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/354.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/799.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/125.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/661.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/306.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/41.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/952.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/9.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/928.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/789.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/488.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/42.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/496.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/324.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/768.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/431.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/543.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/43.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/657.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/363.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/196.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/271.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/139.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/148.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/837.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/817.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/129.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/972.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/686.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/85.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/775.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/335.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/52.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/218.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/138.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/211.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/985.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/252.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/173.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/124.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/947.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/265.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/14.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/502.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/830.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/406.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/593.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/667.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/87.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/806.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/676.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/808.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/30.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/417.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/341.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/251.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/63.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/45.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/95.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/813.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/69.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/454.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/908.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/273.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/109.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/274.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/825.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/997.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/448.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/423.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/790.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/280.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/995.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/544.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/436.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/828.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/114.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/621.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/102.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/901.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/941.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/958.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/669.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/907.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/381.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/527.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/422.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/751.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/80.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/368.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/832.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/937.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/874.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/758.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/842.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/616.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/461.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/471.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/980.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/507.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/554.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/473.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/973.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/328.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/869.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/683.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/690.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/935.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/878.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/954.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/88.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/680.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/727.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/512.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/675.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/377.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/911.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/698.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/757.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/984.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/773.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/151.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/546.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/272.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/754.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/389.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/618.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/812.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/659.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/625.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/316.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/909.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/738.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/175.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/687.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/569.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/300.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/993.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/549.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/466.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/890.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/100.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/112.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/408.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/342.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/645.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/284.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/3.nii.gz — skipping scan
+    [warn] prediction not found: /work3/s254124/imagecasx_results/cas_net_pretrained/predictions/847.nii.gz — skipping scan
+
+------------------------------------------------------------
+Sender: LSF System <lsfadmin@hpc.dtu.dk>
+Subject: Job 29581872: <cas_net_infer> in cluster <dcc> Exited
+
+Job <cas_net_infer> was submitted from host <hpclogin1> by user <s254124> in cluster <dcc> at Sun Oct  4 12:42:03 2026
+Job was executed on host(s) <8*n-62-18-4>, in queue <gpua40>, as user <s254124> in cluster <dcc> at Sun Oct  4 15:02:11 2026
+</zhome/e2/6/224426> was used as the home directory.
+</zhome/e2/6/224426/project/ImageCAS-X> was used as the working directory.
+Started at Sun Oct  4 15:02:11 2026
+Terminated at Sun Oct  4 15:02:37 2026
+Results reported at Sun Oct  4 15:02:37 2026
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+#!/bin/sh
+
+#BSUB -q gpua40
+#BSUB -J cas_net_infer
+#BSUB -n 8
+#BSUB -gpu "num=1:mode=exclusive_process"
+#BSUB -R "span[hosts=1]"
+#BSUB -R "rusage[mem=8GB]"
+#BSUB -W 12:00
+#BSUB -o logs/cas_net_infer_%J.out
+#BSUB -e logs/cas_net_infer_%J.err
+
+# CAS-Net inference + evaluation on the 160 test scans with the delivered pretrained weights.
+#   bsub -env "all, RUN_DIR=cas_net_pretrained" < jobs/infer_eval_cas_net.sh
+# RUN_DIR is a directory under $ImageCAS_X_results_path holding cas_net_best.pt
+# (cas_net_pretrained/ symlinks it to the delivered weights). Inference resumes by default.
+# Results: $ImageCAS_X_results_path/$RUN_DIR/{predictions/,cas_net_results.json}
+
+source env.sh
+RUN_DIR=${RUN_DIR:-cas_net_pretrained}
+python -m inference -c configs/cas_net.json -r "$ImageCAS_X_results_path/$RUN_DIR"
+python -m evaluate  -c configs/cas_net.json -r "$ImageCAS_X_results_path/$RUN_DIR"
+
+------------------------------------------------------------
+
+Exited with exit code 1.
+
+Resource usage summary:
+
+    CPU time :                                   13.00 sec.
+    Max Memory :                                 144 MB
+    Average Memory :                             144.00 MB
+    Total Requested Memory :                     65536.00 MB
+    Delta Memory :                               65392.00 MB
+    Max Swap :                                   -
+    Max Processes :                              4
+    Max Threads :                                7
+    Run time :                                   25 sec.
+    Turnaround time :                            8434 sec.
+
+The output (if any) is above this job summary.
+
+
+
+PS:
+
+Read file <logs/cas_net_infer_29581872.err> for stderr output of this job.
+

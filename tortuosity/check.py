@@ -4,7 +4,7 @@
 """
 import numpy as np
 
-from .curvature import chord_resample, mean_abs_curvature
+from .curvature import chord_resample, mean_abs_curvature, profile
 
 
 def circle(R, n=4000):
@@ -30,6 +30,9 @@ def main():
     P = np.c_[s, 4 * np.sin(2 * np.pi * s / 25), np.cos(s / 7)]
     Q, _ = np.linalg.qr(np.random.default_rng(0).normal(size=(3, 3)))
     assert np.isclose(mean_abs_curvature(P, 5), mean_abs_curvature(P @ Q.T + 5.0, 5))
+
+    # the per-point profile is the same measurement as T_l, only not yet collapsed to its mean
+    assert np.isclose(profile(P, 5).mean(), mean_abs_curvature(P, 5)), "profile mean must give T_l"
 
     # point jitter sigma on a straight line adds about 3 sigma / l^2 of false turning per mm
     rng = np.random.default_rng(0)

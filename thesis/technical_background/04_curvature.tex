@@ -1,0 +1,43 @@
+% Technical Background, section 4. Pointed back to by: methodology/05_curvature.tex.
+% Model: the derivation chain of Aida 3.3.1 (guide section 5.1), name the assumption at each step.
+% A single section without subsections; this is the chapter's main equation chain.
+% Cite: zhang2024curvature, telloayala2026tortuosity (only as a discrete curvature estimator, the
+%   turning angle; its CAD results belong in the literature review).
+% CITE WANTED: a differential geometry of curves source (e.g. do Carmo).
+% Split with the Methodology: kappa(s), and the turning angle over equal steps as its discrete
+%   estimate (atan2 form), are defined HERE. The Methodology keeps only what carries a setting: the
+%   per-artery path, the 5 mm chord, T_ell = sum(theta)/L_c and the ordered angle sequence.
+% No hazard closer: the noise problem is stated as fact in P4 and resolved in the Methodology.
+
+\section{Curvature of a Centerline}
+\label{sec:tech-curvature}
+% P1 definition opener: a centerline as a space curve c(s) parametrised by arc length.
+% P2 curvature kappa(s) = ||c''(s)||, the inverse radius of the osculating circle; equation + where.
+%    It does not depend on the position or orientation of the curve, so it needs no common frame.
+%    Draft prose below moved from clinical_background_v2/04_flow_to_geometry.tex (2026-10-05); add
+%    the equation when P1 is written.
+
+Curvature is defined at a point on the centerline as the inverse of the radius of the circle that
+best fits the curve there, so that a tight bend has high curvature and a straight segment has none.
+The mean curvature is its average along the vessel, whereas the curvature profile is the curve of
+curvature against distance from the origin of the vessel, preserving where along the vessel a bend
+is located.
+The tortuosity index, the ratio of a vessel's length to the straight-line distance between its
+ends, instead summarizes the whole vessel in one number and cannot distinguish a vessel with one
+sharp bend from one with several gentle bends (Figure~\ref{fig:curvature}).
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.85\textwidth]{content/background/figures/rq_curvature.pdf}
+  \caption{The tortuosity index cannot tell these three vessels apart, but curvature can.
+    Each synthetic centerline is 50\,mm long between ends 40\,mm apart, so all three share the
+    tortuosity index of 1.25, yet their mean curvature differs sixfold. Color shows local
+    curvature $\kappa$.}
+  \label{fig:curvature}
+\end{figure}
+
+% P3 a centerline is a sequence of points, so derivatives are estimated: finite differences, fitted
+%    splines, or the turning angle between consecutive segments (telloayala2026tortuosity).
+% P4 each derivative amplifies point noise, the second more than the first, so curvature is
+%    estimated after smoothing or over a longer step, and depends on that choice; for the turning
+%    angle, false turning from point noise sigma scales as sigma / step^2 per unit length.

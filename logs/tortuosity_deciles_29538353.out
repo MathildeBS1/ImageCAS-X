@@ -1,0 +1,81 @@
+jitter on a straight 100 mm line: measured T_l vs predicted 3 sigma / l^2 (rad/mm)
+  sigma 0.25 mm, l 2 mm: 0.1561 vs 0.1875
+  sigma 0.25 mm, l 5 mm: 0.0231 vs 0.0300
+  sigma 0.25 mm, l 8 mm: 0.0094 vs 0.0117
+  sigma 0.5 mm, l 2 mm: 0.3702 vs 0.3750
+  sigma 0.5 mm, l 5 mm: 0.0511 vs 0.0600
+  sigma 0.5 mm, l 8 mm: 0.0195 vs 0.0234
+all checks passed
+train: 560 cases, 1680 vessels, 0 failures, 10 s
+val: 80 cases, 240 vessels, 0 failures, 1 s
+test: 160 cases, 480 vessels, 0 failures, 3 s
+800 RCAs of 800 scans; cut-offs T_5 0.0388 / 0.0760 1/mm
+group
+low         80
+average    640
+high        80
+chord choice, median over 560 training RCAs: T_2 0.0868, T_5 0.0514, T_8 0.0448
+key.csv exists: labelling sample kept as is
+
+------------------------------------------------------------
+Sender: LSF System <lsfadmin@hpc.dtu.dk>
+Subject: Job 29538353: <tortuosity_deciles> in cluster <dcc> Done
+
+Job <tortuosity_deciles> was submitted from host <hpclogin1> by user <s254124> in cluster <dcc> at Thu Oct  1 08:35:08 2026
+Job was executed on host(s) <n-62-31-24>, in queue <hpc>, as user <s254124> in cluster <dcc> at Thu Oct  1 08:35:09 2026
+</zhome/e2/6/224426> was used as the home directory.
+</zhome/e2/6/224426/project/ImageCAS-X> was used as the working directory.
+Started at Thu Oct  1 08:35:09 2026
+Terminated at Thu Oct  1 08:35:55 2026
+Results reported at Thu Oct  1 08:35:55 2026
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+#!/bin/sh
+
+#BSUB -q hpc
+#BSUB -J tortuosity_deciles
+#BSUB -n 1
+#BSUB -R "rusage[mem=4GB]"
+#BSUB -W 1:00
+#BSUB -o logs/tortuosity_deciles_%J.out
+#BSUB -e logs/tortuosity_deciles_%J.err
+
+# RCA scores T_l for all 800 scans (train, val, test), then the decile groups and figures. CPU only.
+#   bsub < jobs/tortuosity_deciles.sh
+# Scores: $ImageCAS_X_results_path/tortuosity_scores/{train,val,test}_vessels.csv
+# Groups: $ImageCAS_X_results_path/tortuosity_deciles/groups.csv, figures/rca_tortuosity_{deciles,examples}.pdf
+# The log prints the cut-offs and group sizes quoted in thesis/week5/rca_tortuosity.tex.
+
+source env.sh
+python -m tortuosity.check
+for s in train val test; do python -m tortuosity.score --split $s; done
+python -m tortuosity.deciles make
+
+------------------------------------------------------------
+
+Successfully completed.
+
+Resource usage summary:
+
+    CPU time :                                   26.21 sec.
+    Max Memory :                                 85 MB
+    Average Memory :                             84.67 MB
+    Total Requested Memory :                     4096.00 MB
+    Delta Memory :                               4011.00 MB
+    Max Swap :                                   -
+    Max Processes :                              4
+    Max Threads :                                5
+    Run time :                                   46 sec.
+    Turnaround time :                            47 sec.
+
+The output (if any) is above this job summary.
+
+
+
+PS:
+
+Read file <logs/tortuosity_deciles_29538353.err> for stderr output of this job.
+

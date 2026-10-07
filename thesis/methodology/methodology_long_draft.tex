@@ -1,0 +1,349 @@
+% Methodology -- first draft, written 2026-10-05 after thesis/style_guide_methodology_aida.md.
+% Scope: what is done on the Herlev-Osterbro (CGPS) cohort. ImageCAS-X appears only as the
+% development set on which outcome-free choices are locked. Deliberately not tied to the code in
+% this repo: tools are named by role, so the text survives a change of segmentation model or tracer.
+%
+% STANDING CONSTRAINT: no exact figure from CGPS in this file until data access. Every cohort
+% number is a placeholder [n]; every open decision is a % TODO next to the sentence it affects.
+% Feature and model choices follow thesis/week5/risk_model_plan.tex.
+
+\chapter{Methodology}
+\label{ch:methodology}
+
+The methodology followed in this work is summarized in Figure~\ref{fig:method-overview} and
+consists of six main stages: (1) selection of the study population and definition of the outcome;
+(2) segmentation of the coronary lumen in each baseline scan; (3) extraction of the coronary
+centerline tree and its orientation from the ostium to the distal vessels; (4) labeling of each
+centerline segment with the artery it belongs to; (5) computation of geometric features at the
+bifurcations and along the arteries; and (6) statistical modeling of new plaque from these
+features.
+All choices in stages 2 to 5 that do not depend on the outcome were fixed on a public development
+dataset before any follow-up data from Herlev--{\O}sterbro were opened.
+
+\begin{figure}[htbp]
+  \centering
+  % TODO: overview figure, one box per stage, ImageCAS-X shown as a side lane feeding stages 2 to 5.
+  \fbox{\parbox{0.9\linewidth}{\centering\vspace{2cm}Placeholder: methodology overview\vspace{2cm}}}
+  \caption{Overview of the methodology, from the baseline scan to the risk model. The public
+    development dataset is used to train the segmentation and labeling models and to fix every
+    outcome-free parameter before the Herlev--{\O}sterbro outcomes are used.}
+  \label{fig:method-overview}
+\end{figure}
+
+
+\section{Study Population and Outcome}
+\label{sec:method-population}
+
+The analysis uses the coronary computed tomography angiography (CCTA) sub-study of the
+Copenhagen General Population Study, referred to in this thesis as Herlev--{\O}sterbro
+\cite{fuchs2023cgps}.
+Participants were scanned as part of a research protocol rather than on clinical indication, so
+their coronary trees sample a general population rather than a referred one.
+A subset of participants underwent a second CCTA scan, and this subset forms the study population.
+% TODO: rescan protocol, selection of who was rescanned, and the scan interval once data access is granted.
+
+Participants were included if their whole coronary tree was free of plaque at the baseline scan.
+The restriction applies to the whole tree rather than to the artery being modeled, since an
+artery enlarges outward as plaque accumulates \cite{glagov1987remodeling} and a tree with plaque
+in one artery may already carry remodeled geometry in another.
+Scans with insufficient image quality or incomplete coverage of the coronary tree were excluded.
+From the [n] participants with two scans, [n] were retained after these criteria, and every
+exclusion was recorded with its reason.
+% TODO: exclusion counts per reason, as a flow diagram or a table.
+
+The outcome is new plaque at the follow-up scan, defined separately for four artery domains: the
+left main (LM), the left anterior descending (LAD) artery, the left circumflex (LCx) artery and
+the right coronary artery (RCA).
+A domain was counted as an event when plaque was present at follow-up in any of its segments.
+% TODO: who graded plaque at follow-up, on which segment scheme (SCCT?), and whether calcified and
+% non-calcified plaque are pooled.
+Side branches were assigned to the domain of the artery they arise from.
+Defining the outcome per domain rather than per participant keeps a harmful geometry in one artery
+from being averaged with a harmless one in another, as wall shear stress acts locally
+\cite{chatzizisis2007ess}.
+
+Age, sex and coronary dominance were recorded for every participant, together with the classical
+risk factors available in the study.
+% TODO: list the risk factors and the calcium score definition available in CGPS.
+
+
+\section{Lumen Segmentation}
+\label{sec:method-segmentation}
+
+The coronary lumen was segmented automatically in each baseline scan, since manual segmentation of
+a population cohort is not feasible.
+A deep-learning segmentation model was trained on ImageCAS-X \cite{bransby2026imagecasx}, a
+curated release of the public ImageCAS dataset \cite{zeng2023imagecas} with corrected coronary
+segmentations.
+The model was chosen from the methods benchmarked on that dataset, and its published training
+settings were followed.
+% TODO: name the model and cite it. Candidates: CAS-Net \cite{dong2023casnet}, nnU-Net \cite{isensee2021nnunet}.
+Every deviation from the published settings is listed in Table~\ref{tab:method-deviations} with
+its reason.
+
+ImageCAS-X was split into training, validation and test sets as provided with the dataset, and the
+test set was used only to report segmentation performance.
+Performance was measured with the Dice similarity coefficient between the predicted segmentation
+$P$ and the reference $G$,
+\begin{equation}
+  \mathrm{Dice}(P, G) = \frac{2\,|P \cap G|}{|P| + |G|},
+  \label{eq:method-dice}
+\end{equation}
+where $|\cdot|$ denotes the number of voxels in a region.
+Dice measures overlap and is dominated by the large proximal vessels, so connectivity was also
+measured with the centerline Dice (clDice) \cite{shit2021cldice}, which scores how much of each
+centerline lies inside the other segmentation.
+A break in a vessel changes Dice little but changes every feature measured downstream of it, which
+makes clDice the more relevant of the two for this work.
+
+The trained model was then applied to the Herlev--{\O}sterbro baseline scans without further
+training, since no reference segmentations exist for this cohort.
+Each scan was resampled to the voxel spacing used in training, and the prediction was resampled
+back to the original geometry.
+Connected components smaller than a fixed volume were removed, as they are not attached to the
+coronary tree.
+A random sample of [n] predictions was inspected visually in three orthogonal views and in 3D,
+and the failure modes found were counted.
+% TODO: automatic quality flags (number of components, total tree length, missing major artery)
+% and the count of scans excluded on them.
+
+
+\section{Centerline Extraction and Tree Construction}
+\label{sec:method-tree}
+
+The centerline of each segmented tree was extracted and represented as a set of points in physical
+coordinates joined by polylines.
+% TODO: state which extractor is used on CGPS: the group's in-house tracer or a skeleton of the
+% segmentation. If the in-house tracer, cite it and say it was used without modification.
+A centerline alone describes the geometry of the vessels but not the direction of flow through
+them, so each tree was converted into a rooted graph oriented from the ostium to the distal
+vessels.
+
+Points where three or more polylines meet were taken as bifurcations and points where a single
+polyline ends were taken as termini.
+Polylines were joined through points shared by exactly two of them, so that each segment of the
+graph runs from one junction to the next.
+The ostium of each side was placed at the centerline point closest to the aortic surface, with
+the aorta segmented by TotalSegmentator \cite{wasserthal2023totalsegmentator}.
+Starting from the ostium, a breadth-first traversal oriented every segment away from the root and
+recorded its parent segment, its child segments and its generation, defined as the number of
+bifurcations between the segment and the ostium.
+
+Three departures from a single rooted tree were handled explicitly rather than discarded.
+A left tree without an LM, in which the LAD and LCx arise from the aorta through separate ostia
+\cite{topaz1991absentlm}, was represented as two rooted trees.
+A fragment disconnected from the tree was rooted at its end nearest to the rest of the tree, since
+that end is the most plausible proximal point.
+A loop in the graph is not anatomical in a coronary tree, so the segment closing it was removed
+and the case was flagged.
+The number of trees affected by each departure was recorded.
+
+
+\section{Artery Labeling}
+\label{sec:method-labeling}
+
+The features in Section~\ref{sec:method-features} are defined per named artery, but the extracted
+trees carry no artery names.
+Each segment was therefore labeled with one of the coronary artery classes of ImageCAS-X by a
+graph neural network operating on the oriented tree \cite{hampe2024gnn}.
+The network was trained on the labeled centerline trees delivered with ImageCAS-X, with segment
+position, direction, length and radius as input, expressed in a frame defined by the heart
+chambers so that the input does not depend on how the patient lay in the scanner.
+% TODO: final input features, the heart frame definition, and the label set once fixed.
+
+Accuracy was measured on the ImageCAS-X test trees, both on the delivered centerlines and on
+centerlines extracted from predicted segmentations, since only the second reflects the trees the
+network sees in Herlev--{\O}sterbro.
+For the participants with disease, Herlev--{\O}sterbro also provides artery labels produced by
+commercial software (Medis).
+These labels are generated automatically and were treated as a reference of uncertain quality, so
+agreement with them was reported together with a visual check of [n] disagreements.
+They exist only for participants with disease, whereas the study population is plaque free at
+baseline, so labeling accuracy on the study population was estimated from a visual check of [n]
+randomly drawn baseline trees.
+% TODO: mapping from Medis segment names onto the ImageCAS-X label set.
+
+Two labeling outcomes need a rule, as they occur in normal anatomy.
+Trees with a ramus intermedius were flagged, and every analysis was repeated without them.
+A missing first diagonal (D1) or first obtuse marginal (OM1) was coded as absent rather than
+treated as missing data, since the absence is itself a property of the tree.
+
+
+\section{Geometric Features}
+\label{sec:method-features}
+
+All features were computed from the oriented centerline and the vessel radius, without flow
+simulation, since simulating flow through every tree of a population cohort is not feasible and
+depends on assumed boundary conditions.
+Each feature was chosen for a published link between the geometry it measures and wall shear
+stress.
+The tortuosity index, torsion and root-mean-square curvature were considered and not used; the
+reasons are given in Section~\ref{sec:method-dropped}.
+
+\subsection{Vessel Radius}
+
+The radius at each centerline point was taken as the distance from that point to the lumen
+boundary, computed with a Euclidean distance transform of the segmentation.
+Near a bifurcation the lumens of the parent and daughter vessels merge, and a radius or direction
+measured there describes the junction rather than either vessel.
+Radii and directions at a bifurcation were therefore measured over a 3\,mm window of each vessel
+that starts one junction radius beyond the branch point, following the inscribed-sphere convention
+of VMTK \cite{antiga2008vmtk}.
+The radius of a vessel at a bifurcation is the median over that window, which is less sensitive to
+single noisy points than the mean.
+
+\subsection{Bifurcation Features}
+
+Three bifurcations were measured in each left tree: the LM into the LAD and LCx, the LAD into the
+D1, and the LCx into the OM1.
+At each, the direction of each daughter vessel was the principal axis of its window points,
+oriented away from the junction, and the bifurcation angle is
+\begin{equation}
+  \theta = \arccos\left(\mathbf{d}_1 \cdot \mathbf{d}_2\right),
+  \label{eq:method-angle}
+\end{equation}
+where $\mathbf{d}_1$ and $\mathbf{d}_2$ are the unit directions of the two daughters.
+
+The balance of a bifurcation was described by the daughter ratio
+\begin{equation}
+  \rho = \frac{\min(r_1, r_2)}{\max(r_1, r_2)},
+  \label{eq:method-rho}
+\end{equation}
+where $r_1$ and $r_2$ are the daughter radii.
+At the LM, the outcome models for the LAD and LCx domains instead use the signed log ratio
+$\lambda = \ln(r_\mathrm{LAD}/r_\mathrm{LCx})$, which keeps which daughter is larger.
+$\rho$ and $\lambda$ carry the same information at the LM, so they never enter the same model.
+Ratios of radii were preferred over radii, as they cancel any scale error common to both vessels
+\cite{finet2008fractal}.
+
+The relation between the parent radius $r_0$ and the daughter radii was compared with the scaling
+law of Huo and Kassab \cite{huo2012scaling} through the deviation
+\begin{equation}
+  \Delta_{HK} = \frac{1}{r_0}\left(\frac{r_1^{7/3} + r_2^{7/3}}{2}\right)^{3/7} - 2^{-3/7},
+  \label{eq:method-hk}
+\end{equation}
+which is zero for a bifurcation that follows the law.
+No coronary study has related $\Delta_{HK}$ to plaque, so its direction of effect was treated as
+unknown and tested two-sided.
+
+\subsection{Curvature}
+
+Curvature was measured along each named artery from its origin.
+The centerline was smoothed before differentiation, as curvature depends on the second derivative
+of the point positions and amplifies their noise.
+% TODO: smoothing method and its parameter, fixed on ImageCAS-X.
+For a centerline $\mathbf{c}(s)$ parametrized by arc length $s$, the curvature is
+$\kappa(s) = \lVert \mathbf{c}''(s) \rVert$, the inverse of the radius of the circle that best fits
+the vessel at $s$.
+Two descriptors were derived from it.
+The mean curvature over the first $L$\,mm of the artery is
+\begin{equation}
+  \bar\kappa = \frac{1}{L}\int_0^L \kappa(s)\,\mathrm{d}s,
+  \label{eq:method-kappa}
+\end{equation}
+and the curvature profile $\kappa(s)$ on $[0, L]$ keeps where along the artery each bend lies.
+Mean curvature was the geometric measure most closely related to low wall shear stress in 127
+patients without coronary artery disease \cite{kashyap2022tortuosity}, and plaque concentrates in
+the proximal segments of each artery \cite{araki2020plaques}, which motivates keeping the position
+of a bend as well as its size.
+The profile was summarized by functional principal component analysis fitted on ImageCAS-X, and the
+first $K$ component scores enter the model.
+% TODO: L, the rule for arteries shorter than L, and K, all fixed on ImageCAS-X.
+
+\subsection{Features Considered and Not Used}
+\label{sec:method-dropped}
+
+The tortuosity index, the ratio of a vessel's length to the distance between its ends, is the most
+reported coronary shape measure, but it showed no relation to low wall shear stress
+\cite{kashyap2022tortuosity}.
+Root-mean-square curvature measures the same bending as the mean with a noisier derivative.
+Torsion depends on the third derivative of the centerline and could not be separated from
+centerline noise on ImageCAS-X.
+The Finet ratio \cite{finet2008fractal} is an exact function of $\rho$ and $\Delta_{HK}$, so its
+weight in a model could not be interpreted alongside them.
+
+
+\section{Reliability on the Development Dataset}
+\label{sec:method-reliability}
+
+Every feature inherits the errors of the segmentation, the centerline and the labeling, so its
+sensitivity to each was measured on ImageCAS-X before the Herlev--{\O}sterbro outcomes were used.
+Segmentation error was simulated by dilating and eroding the reference segmentation by one voxel.
+The placement of the measurement window was varied between 0.5, 1 and 2 junction radii past the
+branch point, and its length between 2, 3 and 5\,mm.
+Features were also computed on trees extracted from predicted segmentations and compared with the
+same features on the delivered trees.
+A feature whose variation under these perturbations was large relative to its spread across
+participants was dropped or replaced before modeling.
+% TODO: the reliability measure (ICC?) and the threshold.
+
+The same dataset was used to fix the smoothing of the centerline, the length $L$, the number of
+principal components $K$, and the correlation structure of the features.
+Fixing these choices before the outcomes are used prevents them from being tuned to the result.
+
+
+\section{Statistical Analysis}
+\label{sec:method-statistics}
+
+Four models of increasing complexity were fitted for each artery domain, each adding one element to
+the one before.
+Model~0 is a logistic regression on age, sex, dominance and the classical risk factors, and is the
+baseline the geometry has to improve on.
+Model~1 adds the bifurcation features and the mean curvature $\bar\kappa$.
+Model~2 replaces $\bar\kappa$ with the principal component scores of the curvature profile, and its
+likelihood-ratio test against Model~1 tests whether the position of a bend adds information to
+its mean.
+Model~3 is a small one-dimensional convolutional network on the curvature profile combined with
+the scalar features, and is exploratory, since its number of parameters exceeds what the number of
+events can support.
+Age, sex and dominance enter every model, as the normal value of several features depends on
+them; a left-dominant tree has a larger LCx and therefore a lower normal $\lambda$.
+The RCA has no bifurcation feature in this set, and the LM is too short for a curvature profile,
+so these domains receive the subset of models their features allow.
+
+The required sample size was calculated per domain with the criteria of Riley et al.
+\cite{riley2020samplesize}.
+% TODO: result of the calculation once the number of events is known.
+Models were fitted with a ridge penalty \cite{hoerl1970ridge} chosen by nested cross-validation,
+which also stabilizes the weights of correlated features.
+The scan interval differs between participants and the time of plaque onset is unknown, so the
+interval entered every model as a covariate.
+Participants who died, had a myocardial infarction or were not rescanned were compared with the
+rescanned participants on their baseline features, to assess whether the rescanned population is
+selected.
+
+Performance was estimated by bootstrap resampling of whole participants, since one participant
+contributes an outcome to every domain.
+The optimism-corrected area under the receiver operating characteristic curve, the calibration
+slope and intercept, and the Brier score are reported, following TRIPOD+AI
+\cite{collins2024tripodai}.
+All validation is internal, as no second cohort with repeated CCTA in a general population was
+available.
+Correlations and generalized variance inflation factors \cite{fox1992gvif} between features were
+reported on ImageCAS-X and on Herlev--{\O}sterbro.
+The contribution of each feature family was assessed by a likelihood-ratio test, and for Model~3 by
+refitting without the family rather than by permuting it \cite{hooker2021permutation}.
+
+
+\section{Deviations and Implementation}
+\label{sec:method-deviations}
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \begin{tabular}{@{}llll@{}}
+    \toprule
+    Setting & Published & This work & Reason \\
+    \midrule
+    % TODO: one row per deviation from the published segmentation training settings,
+    % e.g. hardware, mixed precision, resumed training across job time limits.
+    \ldots & \ldots & \ldots & \ldots \\
+    \bottomrule
+  \end{tabular}
+  \caption{Deviations from the published training settings of the segmentation model.}
+  \label{tab:method-deviations}
+\end{table}
+
+% TODO: compute (cluster, GPU type, training time), software versions, and any problem found
+% during the work that changed a number, written as discovery, cause, consequence, fix and check
+% (style guide section 6).

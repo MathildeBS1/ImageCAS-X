@@ -12,7 +12,7 @@ the angles.
 
 Each branch's direction and caliber are read off the same stretch of vessel
 (``graph.outgoing_direction`` / ``graph.shaft_window``, via ``Vessel.shaft``), past a junction
-core scaled by the local radius, needing the per-point radius from ``topology.radius``.
+core scaled by the local radius, needing the per-point radius from ``bifurcation.radius``.
 
 Five named bifurcations, fixed by anatomical name so a value means the same place in every case,
 are flagged among the enumerated rows rather than replacing them:
@@ -102,7 +102,7 @@ def _branch(tree: graph.CoronaryTree, seg: graph.Segment, core_scale: float, win
     radius the parent has just before the junction, rather than a daughter's own outgoing shaft.
     """
     if seg.radii is None:
-        raise ValueError("centerline has no radius: run scripts/compute_centerline_radius.py first")
+        raise ValueError("centerline has no radius: run python -m bifurcation.radius --split <split> first")
     points, radii = tree.vessel_of(seg).shaft(seg, upstream=upstream)
     core = core_scale * float(radii[0])
     direction, reason = graph.outgoing_direction(points, core, window_mm)

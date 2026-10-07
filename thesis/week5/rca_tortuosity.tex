@@ -20,17 +20,17 @@ straight-line distance between the ends, explained none ($p = 0.865$) \cite{kash
 
 \noindent I therefore looked for studies that link a turning-angle measure to CAD, and Tello Ayala
 et al.\ are the most recent: they grouped patients by the extremes of such a score and related it
-to CAD \cite{tello2026tortuosity}.
+to CAD \cite{telloayala2026tortuosity}.
 They scored the right coronary artery (RCA) in 38,691 invasive coronary angiograms from 22,334
 patients referred for catheterization, using a centerline traced in a single 2D X-ray frame
-(Figure~\ref{fig:tello}a) \cite{tello2026tortuosity}.
+(Figure~\ref{fig:tello}a) \cite{telloayala2026tortuosity}.
 The centerline is a list of 2D points $p_i = (x_i, y_i)$, positions in the image, ordered from the
-start of the RCA to its distal end \cite{tello2026tortuosity}, so the direction of the vessel at each
+start of the RCA to its distal end \cite{telloayala2026tortuosity}, so the direction of the vessel at each
 point follows from its neighbors.
 The step arriving at $p_i$ is the vector $a_i = p_i - p_{i-1}$, and the step leaving it is
 $b_i = p_{i+1} - p_i$.
 The turning angle $\theta_i$ is the angle needed to rotate the arriving step onto the leaving one
-\cite{tello2026tortuosity}, and it follows from the dot product of the two steps,
+\cite{telloayala2026tortuosity}, and it follows from the dot product of the two steps,
 \begin{equation}
   \cos\theta_i = \frac{a_i \cdot b_i}{\lvert a_i\rvert\,\lvert b_i\rvert},
   \label{eq:turn}
@@ -43,7 +43,7 @@ The score is the mean turning angle over all $n$ points, divided by $\pi$,
 \end{equation}
 Dividing by $\pi$, the largest possible turn ($180^\circ$, the vessel doubling straight back on itself),
 bounds the score between 0 for a straight line and 1 for a line that doubles back at every point
-\cite{tello2026tortuosity}.
+\cite{telloayala2026tortuosity}.
 They split the scores into low (bottom decile), average (middle eight deciles) and high (top
 decile) tortuosity (Figure~\ref{fig:tello}b).
 
@@ -66,7 +66,7 @@ decile) tortuosity (Figure~\ref{fig:tello}b).
   \caption{Tello Ayala et al.\ score each right coronary artery by the mean turning angle along its
     2D skeleton and group the scores at the 10th and 90th percentiles; their axis is a mean angle per
     skeleton point over $\pi$, not comparable to Figure~\ref{fig:deciles}.
-    Reproduced unmodified from Tello Ayala et al.\ \cite{tello2026tortuosity}, JACC: Advances 2026,
+    Reproduced unmodified from Tello Ayala et al.\ \cite{telloayala2026tortuosity}, JACC: Advances 2026,
     CC BY-NC-ND 4.0.}
   \label{fig:tello}
 \end{figure}
@@ -155,7 +155,7 @@ Dividing by $\pi/\ell$ would just turn $T_\ell$ back into the mean angle over $\
 \noindent \textbf{The chord is 5\,mm instead of the skeleton step}
 
 \noindent Tello Ayala et al.\ measured the angle between neighboring skeleton points and do not
-report how far apart these are \cite{tello2026tortuosity}.
+report how far apart these are \cite{telloayala2026tortuosity}.
 The spacing matters, because with short steps small errors in where each point sits look like turns.
 If each point is off by a random amount $\sigma$, a straight vessel picks up about $3\sigma/\ell$
 radians of false turning per angle, or $3\sigma/\ell^2$ per millimeter, so halving the chord makes
@@ -197,7 +197,7 @@ group, or more.
     \includegraphics[width=\linewidth]{rca_tortuosity_deciles.pdf}
     \caption{Mean absolute curvature $T_5$ of all 800 ImageCAS-X RCAs, split at the 10th and
       90th percentiles into low, average and high groups as in Tello Ayala et al.\
-      \cite{tello2026tortuosity}; the top axis gives the same scale in degrees per millimeter.}
+      \cite{telloayala2026tortuosity}; the top axis gives the same scale in degrees per millimeter.}
     \label{fig:deciles}
   \end{minipage}\hfill
   \begin{minipage}[t]{0.47\textwidth}
@@ -229,7 +229,7 @@ whether the 3D score agrees with the eye better or worse than the 2D score did.
   \small
   \begin{tabular}{@{}p{2.3cm}p{6.3cm}p{6.3cm}@{}}
     \toprule
-    & Tello Ayala et al.\ \cite{tello2026tortuosity} & This work \\
+    & Tello Ayala et al.\ \cite{telloayala2026tortuosity} & This work \\
     \midrule
     Images & invasive angiography, LAO view & CCTA \\
     Centerline & U-Net outline of one 2D frame, skeletonized & delivered 3D centerline, labeled by artery \\
@@ -253,7 +253,7 @@ one every 5\,mm along the RCA, to a neural network that predicts future CAD.
 Tello Ayala et al.\ did this for CAD that was already present: a local-attention transformer given
 the ordered turning angles, age and sex reached an area under the receiver-operating characteristic
 curve (AUROC) of 0.67 (95\% CI 0.65 to 0.69), against 0.60 (0.58 to 0.63) for a logistic regression
-on the mean score, age and sex \cite{tello2026tortuosity}.
+on the mean score, age and sex \cite{telloayala2026tortuosity}.
 Where along the artery the bends sit therefore seems to carry information that the mean throws away,
 which fits where plaque forms: in optical coherence tomography of all three arteries in 131
 patients, vulnerable plaques clustered in the proximal segments rather than spreading evenly along
@@ -267,7 +267,7 @@ The outcome is new plaque in an artery at the second scan in a person whose tree
 I will compare two models, both given sex and age and validated internally by AUROC with a
 bootstrap 95\% CI over participants.
 The first is a logistic regression on $T_5$ per standard deviation, as in the association analysis
-of Tello Ayala et al.\ \cite{tello2026tortuosity}.
+of Tello Ayala et al.\ \cite{telloayala2026tortuosity}.
 The second is the neural network, given the ordered turning angles $\theta_j$ from the ostium
 outward on centerlines from the baseline scans; for a typical 105\,mm RCA that is about 20 angles,
 far fewer than one per skeleton point as in Tello Ayala et al.
@@ -276,7 +276,7 @@ its number of parameters.
 
 Tello Ayala et al.\ scored only the RCA and left the left system for future work, because its
 bifurcations, overlap and foreshortening are harder to handle on a 2D angiogram
-\cite{tello2026tortuosity}.
+\cite{telloayala2026tortuosity}.
 A 3D centerline has no overlap or foreshortening, and ours already separate the left anterior descending
 (LAD) and left circumflex (LCX) arteries, so I will score both in the same way and give each artery
 its own sequence of angles, so that the proximal LAD, where the vulnerable plaques clustered most

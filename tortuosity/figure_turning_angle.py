@@ -14,17 +14,18 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 
-OUT_DIR = os.path.join(os.path.dirname(__file__), "..", "figures")
+from . import paths
+
 INK, MUTED = "#1f2933", "#7b8794"
 LOW, HIGH = "#e8590c", "#2a78d6"
 
 
-def save(fig, name):
-    os.makedirs(OUT_DIR, exist_ok=True)
+def save(fig, path):
+    os.makedirs(paths.FIGURES, exist_ok=True)
     for ext in ("pdf", "png"):
-        fig.savefig(os.path.join(OUT_DIR, f"{name}.{ext}"), dpi=300)
+        fig.savefig(f"{path}.{ext}", dpi=300)
     plt.close(fig)
-    print(f"wrote figures/{name}.{{pdf,png}}")
+    print(f"wrote {path}.{{pdf,png}}")
 
 
 P = np.array([[0, 0, 0], [4, 3, 0], [8, 3, 3]], dtype=float)
@@ -89,7 +90,7 @@ def main():
         axis.set_pane_color((1, 1, 1, 0))
     ax.view_init(elev=22, azim=-62)
     fig.subplots_adjust(left=-0.05, right=0.9, top=1.08, bottom=0.0)
-    save(fig, "turning_angle_3d")
+    save(fig, paths.TURNING_ANGLE_FIG)
 
 
 if __name__ == "__main__":

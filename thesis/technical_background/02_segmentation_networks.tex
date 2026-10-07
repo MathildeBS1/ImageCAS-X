@@ -1,0 +1,33 @@
+% Technical Background, section 2. Pointed back to by: methodology/02_segmentation.tex (Coronary
+% Lumen: CAS-Net; Left-Ventricular Myocardium: TotalSegmentator).
+% Model: Aida 3.2 (U-Net, section body) and 3.2.1 (nnU-Net, the subsection one step deeper).
+% Architecture sequence (guide section 3.3): origin, structure, key characteristic, why it works,
+% standing, tool. Convolution and gradient-based training are assumed, as in Aida; the soft Dice
+% loss goes to the Methodology next to Dice.
+% Cite: ronneberger2015unet, isensee2021nnunet, dong2023casnet, wasserthal2023totalsegmentator.
+% CITE WANTED: an attention-gate source if CAS-Net's modules are traced to one (e.g. Oktay 2018).
+% REUSE LATER: thesis/pipeline/02_model_architecture.tex has U-Net and CAS-Net attention prose.
+%   Strip \textbf, the inserted gloss after U-Net, and the code references when moving it.
+% FIGURE WANTED: own 3D U-Net / CAS-Net schematic (academic-figures skill), or Ronneberger's with
+%   credit in figures/external/CREDITS.md. The chapter's only figure, as in Aida.
+
+\section{3D Segmentation: U-Net}
+\label{sec:tech-unet}
+% P1 definition opener and origin: U-Net is a convolutional network for biomedical segmentation,
+%    introduced by Ronneberger et al. in 2015, trained with few labelled images.
+% P2 structure: encoder (contracting path) reduces resolution and widens channels, in 3D for volumes.
+% P3 decoder (expanding path) restores resolution to a voxel-wise class map.
+% P4 key characteristic: skip connections carry encoder features to the matching decoder level.
+% P5 why it works, tied to the object: thin branching vessels need both context and voxel precision.
+
+\subsection{CAS-Net}
+\label{sec:tech-casnet}
+% P1 subsection-as-answer opener: a plain skip connection passes encoder features unweighted, while
+%    a thin vessel makes encoder and decoder features unequally reliable; CAS-Net adds attention
+%    (dong2023casnet).
+% P2 the attention modules: per-channel and per-location weighting (general mechanism, no settings).
+% P3 a full CCTA volume does not fit in GPU memory, so training uses random patches and inference a
+%    sliding window with overlap, weighted blending and mirror test-time augmentation; the recipe
+%    standardised by nnU-Net (isensee2021nnunet). Exact overlap and axes go to the Methodology.
+% P4 tool paragraph: TotalSegmentator (wasserthal2023totalsegmentator), built on nnU-Net, segments
+%    the aorta used to place the ostia and the left-ventricular myocardium used for V/M.

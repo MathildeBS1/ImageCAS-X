@@ -1,0 +1,19 @@
+% Technical Background, section 1. Pointed back to by: methodology/02_segmentation.tex (resampling
+% each scan to the training spacing and the prediction back to the original geometry).
+% Model: Aida 3.1, a single section without subsections. Ends on the hazard the Methodology resolves
+% (guide section 3.6); one of only two hazard closers in the chapter, with section 3.
+% CITE WANTED: a source for voxel-to-world affines and anatomical frames (Aida used one, [33]).
+% CITE WANTED: a source on interpolation of label masks.
+% FIGURE WANTED: none.
+
+\section{CT Image Geometry and Resampling}
+\label{sec:tech-image-geometry}
+% P1 definition opener: a CT volume is a voxel grid indexed (i, j, k); indices are not positions.
+% P2 the 4x4 affine maps voxel indices to physical coordinates; unnumbered equation, then read the
+%    blocks (3x3 = orientation and spacing, last column = origin).
+% P3 voxel spacing differs between scans and is often anisotropic (slice thickness vs in-plane), so
+%    volumes are resampled to a common isotropic grid before a network sees them.
+% P4 interpolation: continuous (linear, spline) for intensities, nearest-neighbour for label masks,
+%    since a mask holds discrete classes.
+% P5 HAZARD CLOSER: on a coarse or anisotropic grid a vessel a few voxels wide is thinned or broken
+%    by interpolation, which changes radius and connectivity downstream.

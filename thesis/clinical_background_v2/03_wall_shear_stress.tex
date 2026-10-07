@@ -1,0 +1,97 @@
+% Clinical Background v2, section 3. Source: clinical_background/04_hemodynamics.tex, WSS part only.
+% FFR is dropped: the thesis does not predict or use it, and "FFR-UNet" must never be described as
+% an FFR estimator (models/ffr_unet.py).
+% Tightened to Aida's clinical register (style_guide_clinical_aida.md): mechanism only, citations as
+% brackets, no per-study n. The studies themselves live in the literature review
+% (asakura1990flow, vandergiessen2009bifurcation, han2022plaque); samady2011wss and yamamoto2017ess
+% are n = 20 patients each and partly circular (the plaque deforms the lumen the shear is computed
+% from), so they back the mechanism here and nothing more.
+% Figure: the two WSS surface maps from Shen 2026 Fig. 6 panels a-b (figures/external/shen2026_fig6.png,
+% CC BY 4.0), cropped with trim (in bp = pixels, the PNG has no DPI); streamlines and the secondary-flow inset dropped. No color bar in the original.
+% 2026-10-05: bend/bifurcation paragraph rewritten per reports/Low WSS at bends and bifurcations.md.
+% chatzizisis2007ess (full text) names both sites but gives no mechanism, so it now backs only the
+% opening sentence. zarins1983carotid is carotid: mechanism only. iwami, nakazawa, qiu and zarins
+% read at abstract level; quote no numbers from them. Style pass (style_guide_clinical_aida.md): split
+% into a bend and a bifurcation paragraph (one structure per paragraph, "In contrast"), flow divider
+% and lateral wall named in their own sentence / trailing clause, plaque cites capped at four
+% (kimura1996atheroma dropped; its refs.bib entry is kept).
+% 2026-10-05: second pass against style_guide_clinical_aida.md (equation block with units, gloss as
+% trailing clause, relevance closure). Cut as already covered in 02_disease.tex: the fibrous cap,
+% fatty core and rupture mechanism; plaque, endothelium and lumen are used, not redefined.
+% Cut as unused later: the 1.5 Pa / 0.4 Pa thresholds (malek1999shear) and the units, since the thesis
+% never computes WSS in Pa. Kept: the R^3 dependence, used by the daughter-ratio and Huo-Kassab features.
+% 2026-10-05: added subsection sec:wss-mechanism (how low and oscillatory WSS makes the wall
+% plaque-prone) on request. Its endothelial claims come from chiu2011disturbed, full text read
+% (PMC3844671): cell shape and alignment, turnover and leaky junctions, LDL permeability at branch
+% points, eNOS/NO loss, ROS -> NF-kB -> adhesion molecules -> monocyte adhesion, near-wall residence
+% time. davies2009shear is abstract-level and backs only the mechanotransduction sentence. Molecule
+% names (NF-kB, VCAM-1, ICAM-1, KLF2) kept out as unused later. The oscillatory definition moved up
+% from the sites paragraph so the term is defined before its first use.
+% 2026-10-05: restructured for flow against style_guide_clinical_aida.md, claims and cite keys unchanged.
+% The velocity-gradient sentence moved up to the definition; "branches and bends" now explained only
+% in sec:wss-sites; the repeated "fastest blood toward the outer wall" sentence cut; undefined "skew"
+% replaced; fragment sentences merged; mechanism subsection cut from five paragraphs to three.
+% 2026-10-05: mechanism subsection condensed to two paragraphs on request; cut LDL, reactive
+% oxygen species, the monocyte name and the near-wall residence-time point (all still in chiu2011disturbed).
+% 2026-10-05: subsections sec:wss-mechanism and sec:wss-sites removed, section renamed "Wall shear
+% stress and plaque formation"; restatements of the opening and of 02_disease.tex cut. iwami1998curvature
+% and malek1999shear no longer cited.
+% 2026-10-05: on request, low-WSS threshold (0.4 Pa / 1.5 Pa, malek1999shear abstract; 0.4 Pa as used by
+% kashyap2022tortuosity) and units restored; bend paragraph now explains the circumferential split (symmetric
+% profile in a straight tube, inertia skews it in a bend, ku1997blood p.407 + dean1927curved). qiu2000compliant
+% number is from its abstract (model, no patients).
+% 2026-10-05: reordered for flow: definition, low/oscillatory, where (straight vs disturbed, bend,
+% bifurcation), why (endothelium), then the risk closure.
+
+\section{Wall shear stress and plaque formation}
+\label{sec:wss}
+
+Blood flowing along an artery exerts a frictional force on the vessel wall, referred to as the wall shear stress (WSS).
+The WSS is proportional to how steeply the blood velocity rises with distance from the wall, so slow flow next to the wall gives low WSS \cite{chatzizisis2007ess}.
+For steady flow through a straight tube, the WSS is given by:
+\begin{equation}
+  \tau = \frac{4 \mu Q}{\pi R^{3}},
+  \label{eq:wss}
+\end{equation}
+where $\tau$ is the WSS in pascals (Pa), $\mu$ is the viscosity of the blood in Pa\,s, $Q$ is the flow rate in m$^3$/s, and $R$ is the radius of the tube in m.
+As the WSS scales with the inverse cube of the radius, halving the radius at a fixed flow raises it eightfold \cite{rampidis2022geometry}.
+The same volume of blood passes through a quarter of the cross-sectional area and so moves four times as fast.
+Its velocity also rises from zero at the wall to its maximum over half the distance, which doubles the steepness again.
+
+Plaque forms and grows preferentially where the WSS is low or oscillatory \cite{chatzizisis2007ess,samady2011wss,yamamoto2017ess}.
+WSS below approximately 0.4~Pa is classified as low and is prevalent at plaque-prone sites, whereas WSS above 1.5~Pa keeps the endothelium in a protective state \cite{malek1999shear}.
+The same 0.4~Pa threshold is used to measure the area of low WSS in simulations of coronary trees \cite{kashyap2022tortuosity}.
+The WSS is referred to as oscillatory where it reverses direction over the cardiac cycle \cite{chatzizisis2007ess}.
+In contrast, high WSS is harmful only to plaque that already narrows the vessel, where it increases the risk of rupture \cite{bajraktari2021highwss,samady2011wss}.
+
+In a straight segment, the blood flows forward throughout the cardiac cycle and the velocity profile is symmetric about the center, so the WSS is high, unidirectional and the same all around the wall (Equation~\ref{eq:wss}) \cite{chiu2011disturbed}.
+In a bend, this symmetry is lost: the blood resists the change of direction through its inertia, so the fastest-moving blood is carried toward the outer wall \cite{ku1997blood,dean1927curved}.
+The velocity therefore rises steeply from the outer wall and gently from the inner wall, so the same cross-section has high WSS on its outer side and low WSS on its inner side (Figure~\ref{fig:wss-sites}) \cite{ku1997blood,qiu2000compliant}.
+In a model of a coronary bend, the mean WSS on the inner wall was about half that on the outer wall, and it oscillated more over the cardiac cycle \cite{qiu2000compliant}.
+This slow, reversing flow along the inner wall is referred to as disturbed flow, and it grows stronger the tighter the bend and the higher the flow rate \cite{chiu2011disturbed,ku1997blood}.
+
+At a bifurcation, the parent vessel splits at a ridge, referred to as the flow divider.
+The fastest-moving blood continues onto the flow divider, where the WSS is high \cite{zarins1983carotid,antoniadis2015bifurcation}.
+In contrast, the flow is disturbed along the lateral walls, the walls of the daughter branches that face away from the flow divider \cite{asakura1990flow,antoniadis2015bifurcation}.
+The extent of this region depends mainly on the share of the parent flow that enters the side branch \cite{antoniadis2015bifurcation}.
+The flow divider is largely spared from plaque \cite{asakura1990flow,vandergiessen2009bifurcation,nakazawa2010pathological}.
+
+The endothelial cells sense the WSS through mechanotransduction, in which the drag deforms the cell surface and thereby changes which genes are active \cite{davies2009shear}.
+Under unidirectional WSS, the cells produce nitric oxide and other molecules that protect the wall \cite{chiu2011disturbed}.
+Under disturbed flow, this production falls, a state referred to as endothelial dysfunction \cite{chiu2011disturbed}.
+The dysfunctional cells are also replaced more often, and the junctions between neighboring cells open briefly at each replacement, making the endothelium permeable (Section~\ref{sec:disease}) \cite{chiu2011disturbed}.
+At the same time, the oscillating WSS triggers an inflammatory response that places adhesion molecules on the cell surface, to which white blood cells attach before migrating into the wall \cite{chiu2011disturbed}.
+Consequently, a person whose tree contains more bends and bifurcations, or sharper ones, may carry risk that the classical risk factors do not capture.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[height=5cm,trim=469 932 1101 41,clip]{content/background/figures/shen2026_fig6.png}
+  \hspace{1cm}
+  \includegraphics[height=3cm,trim=1194 887 113 418,clip]{content/background/figures/shen2026_fig6.png}
+  \caption{Simulated WSS on the wall of a bifurcation (left) and a bend (right), from low (blue) to
+    high (red). The WSS is high at the flow divider and low along the lateral walls of the
+    bifurcation and through the bend. Cropped from a figure by Shen C, Zhang M, Keramati H, et al.,
+    Arch.\ Comput.\ Methods Eng.\ 2026, doi:10.1007/s11831-026-10530-w, CC BY 4.0
+    \cite{shen2026geometry}.}
+  \label{fig:wss-sites}
+\end{figure}

@@ -1,0 +1,33 @@
+% Technical Background, section 5. PARKED: pointed back to by nothing while the Methodology stops at
+% the features (statistics only in methodology/methodology_long_draft.tex). Reattach or cut when a
+% statistics section is written.
+% STALE: the FPCA subsection served the old curvature profile; curvature now enters as T_5 and the
+%   ordered turning-angle sequence (week5/rca_tortuosity.tex), so FPCA may no longer be used.
+% Model: Aida 3.2 / 3.2.1 shape: method in the section body, one subsection one step deeper.
+% Evaluation (AUC, calibration, Brier, bootstrap optimism, Riley sample size) stays in the
+%   Methodology, as Aida defines Dice there.
+% Cite: hoerl1970ridge.
+% CITE WANTED: a logistic regression / clinical prediction textbook (e.g. Steyerberg, Clinical
+%   Prediction Models).
+% CITE WANTED: functional data analysis, Ramsay and Silverman.
+% CITE WANTED: a 1D CNN on sequences source.
+% Tello Ayala et al. 2026 used logistic regression and a transformer on the tortuosity profile;
+%   that comparison goes in the literature review, not here.
+
+\section{Risk Prediction Models}
+\label{sec:tech-risk-models}
+% P1 definition opener: logistic regression models the probability of a binary outcome through the
+%    logit of a linear combination of features; equation + where.
+% P2 weights as log odds ratios per unit of a feature; fitted by maximum likelihood; the
+%    likelihood-ratio test compares nested models.
+% P3 ridge penalty (hoerl1970ridge): L2 term added to the likelihood; shrinks weights and stabilises
+%    correlated features; its strength chosen by cross-validation (the procedure, not our folds).
+
+\subsection{Functional Principal Component Analysis}
+\label{sec:tech-fpca}
+% P1 subsection-as-answer opener: a curvature profile has one value per position, too many to enter
+%    a logistic model directly; FPCA summarises it.
+% P2 mean function plus a few orthogonal component functions; each profile becomes K scores.
+% P3 why: the scores keep where along the artery the bend lies while keeping the model small.
+% P4 the alternative: a one-dimensional convolutional network (Section ref sec:tech-unet) reads the
+%    profile directly; it has far more weights than a few hundred events can estimate.

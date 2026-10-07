@@ -1,0 +1,174 @@
+% Methodology section: the diameter division between the two daughters of a coronary bifurcation,
+% for every bifurcation in the tree and for five named ones.
+% Style: thesis/style_guide_methodology_aida.md. Implementation: bifurcation/angles.py
+% (all_bifurcations, _lm, _takeoff, _crux, daughter_pair, takeoff_pair, _branch, _measure,
+% extract_trees) and bifurcation/graph.py (shaft_window, Vessel.shaft, _build_vessels).
+% Deliberately left out: the phantom flare numbers and the per-junction ICC values from the diameter
+% robustness study. Their scripts are still in a session scratchpad, not in the repo, so they cannot
+% enter the thesis until moved (knowledge/research_notes/Coronary bifurcation diameter descriptors/
+% robustness_math_tests.md, header).
+% TODO: link "lumen radius" in the second paragraph to the radius section once it has a label.
+
+\section{Diameter Division at Coronary Bifurcations}
+\label{sec:daughter-ratio}
+
+At a bifurcation a vessel divides into two daughters, and the way the lumen diameter is divided between them was quantified as one ratio per bifurcation.
+In 230 synthetic left coronary trees, the area of vessel wall exposed to low wall shear stress (WSS) followed a quadratic fit in the diameter ratio of the left anterior descending artery (LAD) to the left circumflex artery (LCx), with $R^2 = 0.91$ and $0.94$ in the two dominance groups, and formed in the narrower daughter \cite{garcha2025sensitivity}.
+That evidence concerns the left main bifurcation only, and the same ratio was measured at every other bifurcation as an extension, so that the risk model can test whether the effect carries beyond the left main.
+
+The input to this stage was the labeled centerline tree of each patient, one for the left and one for the right coronary artery, in which every point carries a segment label from the 14-label scheme and a lumen radius in millimeters.
+The procedure consisted of three steps.
+First, every bifurcation in both trees was enumerated, and five anatomically named bifurcations were identified among them.
+Subsequently, one radius was measured on each daughter of each bifurcation in a short window placed past the junction.
+Finally, the two radii of each bifurcation were combined into its daughter ratio.
+The procedure was implemented in this thesis in \texttt{bifurcation/angles.py}, which reads the bifurcation angle from the same windows, so that angle and ratio always describe the same stretch of vessel.
+
+\subsection{Enumerating Bifurcations}
+\label{sec:daughter-ratio-enumerate}
+
+Each tree was first rooted at its ostium, the point where the artery leaves the aorta, and its segments were ordered from proximal to distal by traversal from that root.
+A segment is the stretch of centerline between two nodes, a node being the ostium, a branch point or a vessel tip.
+Consecutive segments carrying the same label were joined into one named vessel, following the longer continuation where a vessel splits into two branches of its own label, so that for example the LAD forms a single path from its origin to its distal tip even where diagonal branches leave it.
+
+Every branch point of both trees was treated as a bifurcation, and each of its child segments as a daughter.
+A daughter was followed along its named vessel beyond the next branch point when needed, so that a daughter whose first segment is short still provides a full measurement window.
+Where three or more daughters leave one node, one row was recorded for every unordered pair of daughters, and each row carries the number of daughters at its node, so that trifurcations can be identified and analyzed separately.
+Each row also stores the generation of the bifurcation, counted in branch points from the ostium, and its path length from the ostium, so that bifurcations at different depths can be compared.
+The number of rows differs between patients, since it depends on how many branches the tree contains.
+
+\subsection{Named Bifurcations}
+\label{sec:daughter-ratio-named}
+
+A ratio from an enumerated row cannot be compared directly across patients, since the $n$th bifurcation of one tree is not the same anatomical place as the $n$th bifurcation of another.
+Five bifurcations were therefore identified by the labels of their daughters, so that each one denotes the same anatomical location in every patient (Table~\ref{tab:daughter-ratio-named}).
+A named bifurcation tags its enumerated row rather than adding a second one.
+
+\begin{table}[htbp]
+  \centering
+  \caption{The five named bifurcations and the daughter pair each is measured on. Labels follow the 14-label segment scheme.}
+  \label{tab:daughter-ratio-named}
+  \begin{tabular}{lll}
+    \toprule
+    Name & Daughters & Tree \\
+    \midrule
+    LM & LAD and LCx & left \\
+    LAD-D1 & first diagonal (D1) and the LAD continuing past it & left \\
+    LAD-D2 & second diagonal (D2) and the LAD continuing past it & left \\
+    LCX-OM1 & first obtuse marginal (OM1) and the LCx continuing past it & left \\
+    CRUX & posterior descending (PDA) and posterolateral (PLA) branches & right, else left \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The left main bifurcation (LM) was defined as the node at which the first LAD segment and the first LCx segment both begin.
+When more than one such node existed, the most proximal one was taken, and when two candidates lay at the same depth the case was recorded as missing rather than resolved arbitrarily.
+An intermediate artery (ramus intermedius, label IM) is a third LM daughter arising between the LAD and the LCx.
+Its presence was recorded as a binary flag, while the LM ratio was still computed from the LAD and LCx alone, so that it compares the same two vessels in every patient.
+
+However, the shared-node rule alone failed on trees in which the split had not been stored as a single node.
+Centerline extraction can represent a split as two branch points a fraction of a millimeter apart, so the two daughters then begin at different nodes although both leave the parent at the same place.
+Under the shared-node rule such a tree would have been recorded as having no LM bifurcation.
+To address this, two fallbacks were applied in order.
+If the label of one daughter began proximal to the origin of the other, so that the junction produced the second daughter and a continuing segment of the first, those two segments were paired.
+Otherwise, if the tree held exactly one vessel of each label, their two origins were paired and the distance between them was stored, so that every case resolved this way can be inspected.
+In one case this last fallback paired an LAD fragment lying 22\,mm from the LCx with no connection to the rest of the tree, and the fallback was therefore restricted to vessels that share an ancestor.
+A pair found by this fallback has no enumerated row, since its daughters do not share a node, and was added as a row of its own.
+
+The three side-branch bifurcations (LAD-D1, LAD-D2, LCX-OM1) pair the first segment of the side branch with the segment of the main vessel that continues past the side branch's origin.
+If the main vessel ends at that node, the one other daughter was used instead, and if the side branch itself splits at its origin, the longer of its two branches was kept; both cases were noted in the row.
+A side branch arising from the main vessel at more than one place was recorded as missing, as was one whose main vessel ends at its origin while more than one other daughter leaves that node, since the continuation is then ambiguous.
+
+The crux, where the posterior descending and posterolateral branches separate, lies on the right tree in right-dominant hearts and on the left tree in left-dominant ones.
+It was taken from the right tree when found there and from the left tree otherwise.
+When the tree it was found on disagreed with the dominance recorded in the dataset descriptors, the row was flagged, since the disagreement points to a labeling error in one of the two.
+
+\subsection{Daughter Radius}
+\label{sec:daughter-ratio-radius}
+
+Following enumeration, one radius was measured on each daughter, and the radius at the junction itself was not used.
+The centerline radius at a point is the radius of the largest sphere centered there that fits inside the lumen \cite{antiga2008vmtk}.
+Near a bifurcation that sphere keeps touching the far wall of the combined Y-shaped lumen, so the first points along each daughter read close to the parent radius whatever the daughter's own size.
+Points closer to the junction than the junction radius $r_J$ were therefore skipped, $r_J$ being the radius at the junction point, following the VMTK practice of measuring bifurcation geometry outside the largest sphere inscribed at the junction \cite{antiga2008vmtk}.
+Since $r_J$ is read at each junction, the skipped zone scales with the vessel, wide at the left main and narrow at a distal side branch.
+
+From the first point outside that sphere, a window was extended 3\,mm along the daughter, and the daughter radius was taken as the median of the point radii inside it:
+\begin{equation}
+  r_k = \operatorname{median}\{\, r_i : i \in W_k \,\}, \qquad
+  W_k = \{\, i : \lVert \mathbf{x}_i - \mathbf{x}_J \rVert \ge r_J,\ s_i - s_{k,0} \le 3\,\mathrm{mm} \,\},
+  \label{eq:daughter-ratio-window}
+\end{equation}
+where $k$ indexes the daughter, $\mathbf{x}_i$ and $r_i$ are the position and radius of point $i$ on that daughter, $\mathbf{x}_J$ is the junction point, $s_i$ is the arc length from the junction to point $i$, and $s_{k,0}$ is the arc length of the first point outside the junction sphere.
+The skip uses straight-line distance, since the artifact is confined to a sphere, while the window length uses arc length, since it is measured along the vessel.
+Centerline points lie approximately 0.5\,mm apart, so a 3\,mm window holds about six points.
+This is enough for the median to discard a single outlying radius, such as one read where a small branch leaves inside the window, while keeping the measurement on the proximal part of each daughter rather than on its distal taper.
+A daughter with fewer than three points in its window was recorded as not measurable.
+The settings, summarized in Table~\ref{tab:daughter-ratio-settings}, are the same at every bifurcation.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Settings of the daughter radius measurement, fixed before any ratio was computed and identical for every bifurcation, every case and every radius source.}
+  \label{tab:daughter-ratio-settings}
+  \begin{tabular}{lll}
+    \toprule
+    Setting & Value & Code argument \\
+    \midrule
+    Junction skip & $1 \cdot r_J$ (straight-line distance) & \texttt{core\_scale = 1.0} \\
+    Window length & 3\,mm (arc length) & \texttt{window\_mm = 3.0} \\
+    Summary statistic & median of point radii & \\
+    Minimum points in window & 3 & \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Daughter Ratio}
+\label{sec:daughter-ratio-definition}
+
+The two daughter radii of each bifurcation were combined into the daughter ratio, defined as the smaller radius over the larger:
+\begin{equation}
+  \rho = \frac{\min(r_1, r_2)}{\max(r_1, r_2)} \in (0, 1],
+  \label{eq:daughter-ratio}
+\end{equation}
+where $r_1$ and $r_2$ are the window radii of the two daughters from Equation~\ref{eq:daughter-ratio-window}.
+A value of 1 means the two daughters are equally wide, and a value near 0 means one daughter is much narrower than the other.
+A ratio of radii equals the ratio of diameters, so at the left main $\rho$ is the diameter division studied by Garcha and Grande Guti\'errez without conversion \cite{garcha2025sensitivity}.
+Taking the smaller over the larger gives the ratio the same meaning whichever daughter is wider, and lets one definition serve every bifurcation, including the enumerated ones whose daughters carry no fixed order.
+The label of the narrower daughter was stored with each ratio, since the low-WSS area forms in the narrower branch \cite{garcha2025sensitivity}.
+A ratio of radii was preferred over a ratio of cross-sectional areas, since area scales with the square of the radius and an area ratio therefore doubles the relative error of the radii it is built from.
+
+Although any error that scales all radii of a case by the same factor cancels in $\rho$, an error that depends on vessel size does not.
+Partial-volume loss at the lumen edge is of this kind: it removes a larger fraction of a narrow vessel than of a wide one, so it lowers the radius of the narrower daughter proportionally more and shifts $\rho$ for uneven splits.
+The effect grows toward the periphery of the tree, where both daughters are narrow, so ratios at distal bifurcations are less reliable than at the left main.
+The procedure was applied unchanged to every case, whichever source supplied the radii, and the agreement of $\rho$ between radii from reference masks and from predicted ones is reported per named bifurcation with the results.
+
+The named bifurcations give a fixed set of up to five ratios per patient, which enter the risk model as individual features.
+The enumerated rows give a variable number of ratios per patient, which a fixed-length model cannot take directly, and the summary used to reduce them to patient-level features is defined with the risk model.
+
+\subsection{Missing Values}
+\label{sec:daughter-ratio-missing}
+
+A named bifurcation for which $\rho$ could not be computed was kept in the cohort table with its reason, never dropped, and an enumerated row with an unmeasurable daughter was kept in the same way.
+The possible reasons are listed in Table~\ref{tab:daughter-ratio-missing}, and the number of cases per reason and per named bifurcation is reported with the results.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Reasons a bifurcation receives no daughter ratio. Each missing ratio carries exactly one of these reasons in the cohort table.}
+  \label{tab:daughter-ratio-missing}
+  \begin{tabular}{p{0.42\linewidth}p{0.48\linewidth}}
+    \toprule
+    Reason & Typical cause \\
+    \midrule
+    \multicolumn{2}{l}{\emph{Named bifurcations only}} \\
+    No LM in the tree & LAD and LCx arise from separate ostia \\
+    A daughter label is absent from the tree & branch not present in this patient, or missed by extraction or labeling \\
+    Two candidate pairs at the same depth & labeling error that duplicates a daughter \\
+    Daughters in disconnected parts of the tree & fragment labeled as a daughter \\
+    Side branch arising at several places & labeling error on the side branch \\
+    Ambiguous siblings at the side-branch origin & main vessel ends and no continuation is labeled \\
+    No crux on either tree & PDA or PLA not present or not labeled \\
+    \midrule
+    \multicolumn{2}{l}{\emph{All bifurcations}} \\
+    Daughter ends inside the junction sphere & very short or truncated daughter \\
+    Fewer than 3 points in the window & daughter shorter than the junction skip plus 3\,mm \\
+    \bottomrule
+  \end{tabular}
+\end{table}

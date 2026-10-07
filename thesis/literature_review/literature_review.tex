@@ -1,0 +1,212 @@
+% Literature Review. Rewritten 2026-10-04 from reports/Literature review quality assessment.md and
+% revised the same day from reports/Literature review quality assessment 2.md (plan:
+% ~/.claude/plans/virtual-herding-flute.md). Modelled on Jimenez Ordonez (2026) Sec. 1.1, see
+% thesis/style_guide_sota_aida.md. Re-voiced 2026-10-04 (user): the phrasing and paragraph wrap-ups
+% of the first version ("Using ... relies on", "Computational studies have also explored",
+% "Machine learning has also been used", "Despite these advancements", "Bridging this gap is
+% essential", "The integration of ...") with every correction and added study of the revision kept.
+% Table: four studies relating a measured geometry to disease in patients (as Aida's four-row table
+% covers one strand); columns make the gap visible (cohort, approach, timing).
+% Condensed 2026-10-04 to fit 3 pages (user): material already in the introduction dropped (Asakura
+% detail, Temov variation, SCORE2 description); Bekircavusoglu, Zebic Mihic, Givehchi and the
+% Chatzizisis mechanism no longer cited here (Zebic Mihic and Temov remain in the introduction).
+% Order: S1 history + Asakura (Korona pattern), van der Giessen, Stone 2012 | Kashyap, Zhang, Garcha (chronological) |
+% Griffo | S2 Cui (choice of angle; Givehchi dropped 2026-10-04, measurement error is not the point) | tortuosity (Groves, Li, Zebic Mihic 2024, Nannini, Tello Ayala;
+% reconciled by endpoint) | extraction (Bransby, Nannini), per-artery scope | S3 Temov variation,
+% Juan, Bekircavusoglu, Tommasino | Tello Ayala transformer + Glagov | Han | Sakellarios, Won |
+% SCORE2, Chan, Bergstrom | gap | search statement | table.
+% shen2026geometry deliberately NOT cited anywhere in the thesis (user, 2026-10-04).
+% Rules: author and year as subject, \cite after the year; no numbers in the prose (cohort sizes in
+% the table only); no concept explanations; no inserted clauses between two commas; no em dashes;
+% synthesis only when every element is cited.
+% Full text read: kashyap, li, griffo, telloayala, zhang2024curvature, won2022paradigm, chan2024orfan,
+% bergstrom2021scapis, han2022plaque, tommasino2024clap, cui2017bifurcation, zebicmihic2024index,
+% nannini2024characterization, juan2017bifurcation, garcha2025sensitivity; vandergiessen and
+% sakellarios via the publisher page (quotes to confirm by eye).
+% Mechanism (Chatzizisis) lives in clinical_background_v2/03_wall_shear_stress.tex; Murray in
+% methodology/07_daughter_ratio.tex; curvature and tortuosity index in technical_background/04_curvature.tex.
+% Abstract-level only: asakura1990flow, stone2012prediction, groves2009tortuosity,
+% bekircavusoglu2026ramus, temov2016bifurcation, glagov1987remodeling, score2_2021.
+% TODO (author): search statement needs the databases searched, the time window and search date, an
+% inclusion criterion, and one reason per exclusion (see report 2, Priority 4).
+% STILL OWED (user chose already-read sources only, 2026-10-04; read before adding):
+%   near misses for the gap: Chen 2024 EHJ-CVI (doi 10.1093/ehjci/jeae135, paywalled), Lee 2024 JCCT
+%   PARADIGM radiomics (doi 10.1016/j.jcct.2024.02.003), CArTI AHA 2025 abstract
+%   (doi 10.1161/circ.152.suppl_3.4365988), SCAPIS re-examination (Good 2026, doi 10.1111/joim.70068);
+%   WSS outcomes: Lee 2019 EMERALD, Stone 2018 PROSPECT ESS; calcium scoring: ESC 2021 or Detrano 2008;
+%   artery labelling: Wu 2019 TreeLab-Net, hampe2024gnn; radius ratios: taylor2024murray.
+% 2026-10-05: gap stated once (end of Sec. 3); closing gap sentences of Sec. 1 and 2, the Asakura
+% mechanism retelling and the Sec. 3 opener that duplicated the introduction removed. Zebic Mihic
+% no longer cited in the introduction either. No forward references (user).
+% CAD and CCTA are defined in the introduction. Packages: booktabs, array (table).
+
+\chapter{Literature Review}
+\label{ch:literature}
+
+\section{Coronary Geometry and Wall Shear Stress}
+\label{sec:lit-wss}
+
+Research on coronary geometry and plaque began with autopsy studies such as Asakura and Karino
+(1990) \cite{asakura1990flow}, which found plaque at bifurcations and bends.
+Van der Giessen et al.\ (2009) \cite{vandergiessen2009bifurcation} later located plaque on the outer
+walls of bifurcations in living patients, although the low wall shear stress (WSS) at these sites was
+inferred from their position rather than computed.
+
+Computational studies have explored which features of the geometry may influence the extent of low
+WSS.
+Kashyap et al.\ (2022) \cite{kashyap2022tortuosity} reconstructed the left main bifurcation from the
+CCTA of individuals without CAD and simulated the blood flow through each.
+They then compared every tortuosity measure used in earlier studies with the share of the vessel
+wall exposed to low WSS.
+Average curvature was the measure most closely related to low WSS, and the relationship was
+significant although weak.
+The tortuosity index showed no relationship with low WSS.
+
+Zhang et al.\ (2024) \cite{zhang2024curvature} extended such simulations from a single bifurcation to
+whole left coronary trees reconstructed from a public CCTA dataset, comparing stenosis-free trees
+with moderately and severely stenosed ones.
+They measured geometry and WSS for the whole tree and separately for the segments at and between
+bifurcations.
+Average curvature separated stenosed from stenosis-free trees at the whole-tree level and between
+bifurcations, but not at the bifurcations themselves.
+The area of low WSS separated only moderate from severe stenosis.
+
+Garcha and Grande Guti\'errez (2025) \cite{garcha2025sensitivity} instead generated a large set of
+artificial left coronary trees, which let them change one feature at a time and simulate the flow
+in each.
+Between trees they varied the branch angle, the bending of the vessels and the division of diameter
+between the left anterior descending (LAD) and left circumflex (LCX) arteries.
+The area of low WSS at the bifurcation grew as the diameters of the two branches became more unequal.
+An uneven division also strengthened the effect of the angle and the bending, so these features act
+together rather than independently.
+
+Griffo et al.\ (2026) \cite{griffo2026wss} moved away from simulations and trained a graph neural
+network to estimate WSS from the shape of the vessel alone.
+The network learned from single coronary arteries reconstructed from invasive angiograms, with
+simulated WSS as the reference, and its estimate agreed closely with the simulation, more so once
+each vessel's WSS was divided by its own average.
+In a test set of patients who later had a heart attack, the estimated and the simulated WSS
+identified the lesion that caused it equally well, although both did so only moderately.
+
+Collectively, these studies highlight that vessel shape decides where WSS is low and carries enough
+of the flow information to replace its simulation
+\cite{kashyap2022tortuosity,garcha2025sensitivity,zhang2024curvature,griffo2026wss}.
+
+\section{Quantifying Coronary Geometry}
+\label{sec:lit-measure}
+
+Using coronary geometry as a marker relies on a consistent quantification of vessel shape.
+However, clinical studies have quantified coronary geometry inconsistently over the years, and the
+chosen measure can determine whether a relationship is detected at all.
+
+Cui et al.\ (2017) \cite{cui2017bifurcation} measured three angles at the left main bifurcation on
+the CCTA of patients referred for invasive angiography.
+These were the angle between the LAD and LCX and the angles between the left main artery and each of
+its two daughters.
+Only the angle between the LAD and LCX was wider in patients with significant stenosis, while the two
+angles involving the left main artery did not differ.
+A study measuring only the angles involving the left main artery would therefore have found no
+relationship between the bifurcation angle and stenosis.
+
+For tortuosity, studies using different measures have disagreed even on the direction of the
+association.
+Groves et al.\ (2009) \cite{groves2009tortuosity} screened the invasive angiograms of consecutive
+patients and graded tortuosity visually as two consecutive turns that reversed the direction of a
+major artery.
+Patients with such severe tortuosity were less likely to have significant CAD than a randomly chosen
+group without it.
+Li et al.\ (2011) \cite{li2011tortuosity} instead counted sharp bends along the main arteries of
+consecutive patients with chest pain.
+Tortuous patients were again less likely to have CAD, although the association was borderline, and
+among patients with CAD the rate of adverse events at follow-up did not differ with tortuosity.
+Most recently, Tello Ayala et al.\ (2026) \cite{telloayala2026tortuosity} segmented the right
+coronary artery automatically in a large archive of angiograms from referred patients and computed
+the turning angle at each point along its centerline.
+Greater average tortuosity was associated with CAD, and a transformer that read the full profile of
+turning angles identified CAD better than the average alone.
+Depending on how tortuosity is measured, the same artery could therefore be read as a sign of less
+disease or of more.
+
+The geometric studies reviewed here examined only the right coronary artery or the left
+tree alone \cite{telloayala2026tortuosity,garcha2025sensitivity,zhang2024curvature}.
+To determine the full potential of the coronary tree as a risk marker, this must be extended.
+Collectively, these findings suggest that an inconsistent measure
+\cite{cui2017bifurcation,kashyap2022tortuosity} and a partial view of the tree may each hide where
+geometry relates to disease.
+
+Using geometry in routine risk assessment relies on automated segmentation of the coronary tree from
+CCTA.
+Bransby et al.\ (2026) \cite{bransby2026imagecasx} annotated a large public CCTA dataset anew and
+benchmarked several deep learning segmentation methods on it.
+They compared each method with the agreement between expert annotators of the same scans.
+The best method came close to this agreement but ultimately concluded that automated
+segmentation does not yet match human annotators.
+
+\section{Geometry and Risk of Coronary Disease}
+\label{sec:lit-risk}
+
+Estimating an individual's risk of developing plaque from geometry requires geometry measured before
+plaque appears and a later scan showing whether it does.
+Geometry measured once plaque is present cannot show which came first, as an artery remodels while
+plaque grows \cite{glagov1987remodeling}.
+
+Studies with follow-up have mostly concerned disease that was already present.
+Sakellarios et al.\ (2017) \cite{sakellarios2017bifurcation} followed bifurcations with repeated
+CCTA in a small group of patients with established disease, reporting that WSS predicted lumen
+reduction best when the daughter branch was included.
+Han et al.\ (2022) \cite{han2022plaque} compared a small sample of patients who later had an acute
+coronary syndrome with matched controls from a registry of patients referred for suspected disease.
+Their findings indicate that the lesions that caused the event lay nearer the ostium and more often
+at bifurcations than other lesions in the same patients.
+However, the typical event followed within weeks of the scan, so these lesions were already present
+at imaging.
+Tommasino et al.\ (2024) \cite{tommasino2024clap} followed patients referred for CCTA for one year,
+linking a wide left main bifurcation angle to progression of proximal LAD disease in a cohort in which
+many already had proximal LAD disease.
+Most of these events were progression on imaging requested by clinicians, and their reported
+intervals cannot be reproduced.
+In contrast, Won et al.\ (2022) \cite{won2022paradigm} followed registry patients without plaque on
+a first CCTA to a repeat scan some years later, observing new plaque in a substantial share of them
+and relating plaque progression to age, sex, hypertension, diabetes, hyperlipidemia, obesity,
+smoking and HbA1c but not to geometry.
+
+Despite these advancements, a significant gap remains in the current literature.
+Cohorts suited to this question have not measured geometry, since the plaque-free registry of Won
+et al.\ included none and the random population sample of Bergstr\"om et al.\
+\cite{bergstrom2021scapis} was scanned once and so had no follow-up.
+No study identified in this search has combined automated measurement of the whole coronary tree with
+follow-up to new plaque in a population selected at random rather than referred for suspected
+disease.
+An overview of the studies relating coronary geometry to disease is given in
+Table~\ref{tab:literature}.
+
+\begin{table}[htbp]
+  \centering
+  \footnotesize
+  \begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.16\linewidth}%
+                  >{\raggedright\arraybackslash}p{0.22\linewidth}%
+                  >{\raggedright\arraybackslash}p{0.25\linewidth}%
+                  >{\raggedright\arraybackslash}p{0.29\linewidth}@{}}
+    \toprule
+    Author \& Year & Cohort & Geometric Approach & Main Findings \\
+    \midrule
+    Zhang (2024) & 39 left coronary trees, stenosed and stenosis-free
+      & Whole-tree curvature on CCTA, cross-sectional
+      & Curvature separates stenosed from stenosis-free trees. \\
+    Li (2011) & 1010 consecutive angiography patients
+      & Bend count on invasive angiograms, cross-sectional
+      & Tortuosity inversely associated with CAD. \\
+    Tello Ayala (2026) & 22,334 referred patients
+      & Turning-angle profile along the RCA, cross-sectional
+      & Tortuosity higher with CAD; the full profile identifies CAD better than its mean. \\
+    Han (2022) & 116 referred patients with later ACS, 116 controls
+      & Lesion position and shape on CCTA, follow-up to ACS
+      & Event-causing lesions nearer the ostium and at bifurcations; events within weeks. \\
+    \bottomrule
+  \end{tabular}
+  \caption{Overview of studies relating coronary geometry to disease, highlighting the cohort, the
+    geometric approach and the main findings. None measured geometry in a randomly selected
+    population and followed it to new plaque. ACS: acute coronary syndrome; CAD: coronary artery
+    disease; CCTA: coronary computed tomography angiography; RCA: right coronary artery.}
+  \label{tab:literature}
+\end{table}

@@ -1,0 +1,74 @@
+% Clinical Background v2, section 1. Source: clinical_background/01_heart_anatomy.tex, cut.
+% Original phrasing kept; only what later sections or the methods use survives (2026-10-05).
+% Opening (coronary circulation) restored verbatim by the author; second paragraph shortened at their request (2026-10-05).
+% Cut as unused later: aortic sinuses, septum and septal perforators, acute marginal and nodal branches, the R-/L-PDA and R-/L-PLA prefixes, the 85% dominance figure
+% from wu2024dominance (uncertain per its own source), and the matching variables of
+% ihdayhid2021ethnic. Glosses rewritten with "referred to as", as in sections 2 to 5.
+% Kept for later use: diastole and systole (sections 2 and 5), ostium, proximal and distal, the
+% grooves (needed for the crux), PDA and PLA (dominance).
+% Side branches cut to one sentence 2026-10-05: the thesis works on the main vessels; D1/D2, OM1/OM2 numbering and the ramus dropped.
+% The two figures share one float to save space; each keeps its own caption and label.
+% Dominance cut 2026-10-05 (Aida pattern: one paragraph of structure, one ending on the consequence): ImageCAS-X counts
+% (729/41/30, 91.1/5.1/3.8%) dropped, they belong in the dataset section. Kept: ihdayhid (percentages only; CCTA now expanded in 04_ccta)
+% and dodge diameters (04_ccta cites sec:dominance for 3 to 4 mm).
+% FORWARD REFERENCE dropped: "(Section~\ref{sec:dataset-dominance})" after the stratification
+% sentence. Restore once the dataset chapter has that label.
+
+\section{The coronary circulation}
+\label{sec:circulation}
+
+The heart drives the circulation that delivers oxygen to every tissue and carries away metabolic
+waste \cite{shah2009heart}.
+It has four chambers, shown in Figure~\ref{fig:heart-chambers}: the right atrium (RA) and left atrium (LA) which receive
+blood arriving at the heart, and the right ventricle (RV) and left ventricle (LV),
+whose thicker muscular walls pump it back out \cite{weinhaus2024anatomy}. The right and left sides work as two pumps in series. Deoxygenated blood passes from the RA to the RV, which drives it
+through the lungs to take up oxygen, and returns through the LA to the LV, which ejects it into
+the aorta, the largest artery in the body \cite{weinhaus2024anatomy}.
+
+The blood passing through these chambers does not perfuse the heart muscle itself.
+The myocardium, the muscular layer responsible for contraction, is supplied by the coronary
+arteries, which arise from the aorta immediately
+above the aortic valve, run across the epicardium, the
+outer surface of the heart, and send small branches down into the muscle from there
+\cite{devos2024coronary}.
+The opening through which an artery leaves the aorta is its ostium, and each ostium roots a tree of its own
+\cite{devos2024coronary}.
+Position along a vessel is given relative to that root: proximal means near the ostium, distal far from it.
+
+
+\begin{figure}[h]
+  \centering
+  \begin{minipage}[t]{0.42\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{content/background/figures/heart_chambers.pdf}
+    \caption{The four chambers, four valves and the direction of flow; the coronary arteries are not drawn. Figure by Wapcaplet, CC BY-SA 3.0, via Wikimedia Commons.}
+    \label{fig:heart-chambers}
+  \end{minipage}\hfill
+  \begin{minipage}[t]{0.54\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{content/background/figures/coronary_arteries.pdf}
+    \caption{The named arteries of both systems, on the surface of the heart, viewed anteriorly.  Figure by Patrick J. Lynch, medical illustrator; derivative work: Fred the Oyster; Mikael H\"aggstr\"om, M.D, CC BY-SA 3.0, via Wikimedia Commons.}
+    \label{fig:coronary-arteries}
+  \end{minipage}
+\end{figure}
+
+\subsection{The coronary arterial tree}
+\label{sec:tree}
+
+The left tree begins with the left main artery (LM), leaving the aorta and quickly bifurcating into the left anterior descending artery (LAD) and the left circumflex artery (LCX) (Figure~\ref{fig:coronary-arteries}).
+The LAD runs down the front of the heart in the anterior interventricular groove, supplying the front wall of both ventricles \cite{devos2024coronary,obrien2007anatomy}.
+The LCX turns the other way along the left atrioventricular groove, supplying the side wall of the left ventricle \cite{obrien2007anatomy,allwork1987applied}.
+The LAD sends diagonal branches across the front wall, and the LCX sends obtuse marginal branches over the side wall \cite{devos2024coronary,obrien2007anatomy}.
+
+The right tree begins with the right coronary artery (RCA), which follows the right atrioventricular groove around the other side of the heart \cite{devos2024coronary,obrien2007anatomy}.
+On the underside of the heart the RCA usually divides into the posterior descending artery (PDA), which runs forward in the posterior interventricular groove, and the posterior lateral arteries (PLA), which supply the underside of the left ventricle \cite{devos2024coronary,obrien2007anatomy}.
+
+\subsection{Coronary dominance}
+\label{sec:dominance}
+
+The point on the underside of the heart where the atrioventricular and interventricular grooves meet is referred to as the crux \cite{allwork1987applied}.
+Dominance names the artery that reaches it: a heart is right-dominant when the PDA comes from the RCA, left-dominant when it comes from the LCX, and codominant when the PDA comes from the RCA but the PLA from the LCX \cite{devos2024coronary,allwork1987applied}.
+Right dominance is the usual pattern, at 87\% to 96\% across ancestry groups \cite{ihdayhid2021ethnic}.
+
+Dominance changes the size of the arteries as well as which branches they carry: the proximal RCA measures 3.9\,mm in right-dominant and 2.8\,mm in left-dominant hearts, and the LCX 3.4\,mm and 4.2\,mm \cite{dodge1992diameter}.
+Branch counts and vessel sizes are therefore comparable only within a dominance group, so every population statistic in this thesis is stratified by dominance.

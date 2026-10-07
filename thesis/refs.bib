@@ -14,14 +14,20 @@
 
 % ===================================================================== dataset
 @article{bransby2026imagecasx,
-  title   = {ImageCAS-X: A dataset and benchmark for validating coronary vessel
-             segmentation and centerline extraction in computed tomography angiography},
+  title   = {{ImageCAS-X}: a dataset and benchmark for coronary artery segmentation and
+             centerline extraction in coronary {CT} angiography},
   author  = {Bransby, Kit M. and {\O}ksnebjerg, Esther and Kj{\ae}r, Kristoffer and
              Kirkeby, Jacob and El Youssef, Yasmin and Jim{\'e}nez, A{\"i}da and
-             Pedersson, Philip R. and de Knegt, Martina and Kofoed, Klaus F. and
+             Pedersson, Philip R. and de Knegt, Martina C. and Kofoed, Klaus F. and
              Paulsen, Rasmus R.},
-  journal = {arXiv preprint},
-  year    = {2026}
+  journal = {arXiv preprint arXiv:2608.30404},
+  eprint  = {2608.30404},
+  archivePrefix = {arXiv},
+  year    = {2026},
+  note    = {[VERIFIED] arXiv:2608.30404v1 (31 Aug 2026), PDF in papers/; title and authors
+             corrected against it 2026-10-04. Main-branch accuracy (Table 1) is inter-observer
+             agreement, not the methods; automated methods ``do not yet match human-level
+             agreement''.}
 }
 
 @article{zeng2023imagecas,
@@ -137,6 +143,21 @@
 }
 
 % ===================================================================== disease burden
+@article{stark2025gbd,
+  title   = {Global, Regional, and National Burden of Cardiovascular Diseases and Risk Factors in
+             204 Countries and Territories, 1990--2023},
+  author  = {Stark, Benjamin A. and DeCleene, Nicole K. and Desai, Emily C. and
+             Hsu, Johnathan M. and Johnson, Catherine O. and others},
+  journal = {Journal of the American College of Cardiology},
+  volume  = {86},
+  number  = {22},
+  pages   = {2167--2243},
+  year    = {2025},
+  doi     = {10.1016/j.jacc.2025.08.015},
+  note    = {GBD 2023. 19.2 million CVD deaths in 2023 (95% UI 17.4-20.4), from abstract-level
+             sources; full text not read. Supersedes lindstrom2022global for the headline figure}
+}
+
 @article{lindstrom2022global,
   title   = {Global burden of cardiovascular diseases and risks collaboration, 1990--2021},
   author  = {Lindstrom, Margaret and DeCleene, Nicholas and Dorsey, Hannah and
@@ -166,6 +187,21 @@
   doi     = {10.1093/eurheartj/ehz425}
 }
 
+@article{score2_2021,
+  title   = {{SCORE2} risk prediction algorithms: new models to estimate 10-year risk of
+             cardiovascular disease in {Europe}},
+  author  = {{SCORE2 working group and ESC Cardiovascular risk collaboration}},
+  journal = {European Heart Journal},
+  volume  = {42},
+  number  = {25},
+  pages   = {2439--2454},
+  year    = {2021},
+  doi     = {10.1093/eurheartj/ehab309},
+  note    = {Metadata checked against Crossref 2026-10-04. Cited for the standard European
+             risk score built from age, sex, smoking, systolic blood pressure and cholesterol.
+             Full text not opened.}
+}
+
 @article{lawton2022revasc,
   title   = {2021 {ACC/AHA/SCAI} guideline for coronary artery revascularization: a report of
              the {American College of Cardiology/American Heart Association} Joint Committee
@@ -190,14 +226,24 @@
   title   = {Association of plaque location and vessel geometry determined by coronary
              computed tomographic angiography with future acute coronary
              syndrome--causing culprit lesions},
-  author  = {Han, Donghee and others},
+  author  = {Han, Donghee and Lin, Andrew and Kuronuma, Keiichiro and Tzolos, Evangelos and
+             Kwan, Alan C. and Klein, Eyal and Andreini, Daniele and Bax, Jeroen J. and
+             Cademartiri, Filippo and Chinnaiyan, Kavitha and others and Dey, Damini and
+             Berman, Daniel S.},
   journal = {JAMA Cardiology},
   volume  = {7},
   number  = {3},
   pages   = {309--319},
   year    = {2022},
   doi     = {10.1001/jamacardio.2021.5705},
-  note    = {[VERIFIED] ICONIC study. [PARTIAL] first author only; complete the list}
+  note    = {[VERIFIED] Full text read 2026-10-04 (PMC8792800), supplement not read; entry
+             docs_thesis/papers/han2022plaque.md. ICONIC nested case-control in CONFIRM (referred
+             for suspected CAD): 116 ACS cases + 116 matched controls, 548 lesions. Culprit
+             precursors nearer the ostium (HR 2.71), at bifurcations (73.3\% vs 38.9\%, HR 2.14),
+             tortuous (5 vs 6 lesions, HR 2.31, p = .04); AUC 0.766 vs 0.733 with geometry added.
+             CAREFUL: median CCTA-to-ACS 29 days (IQR 5--386), so not long-term prediction; ACS
+             from segments normal on CCTA (n = 21) excluded, so says nothing about plaque onset;
+             118 of 234 cases excluded; tortuosity underpowered and null vs controls.}
 }
 
 @article{juan2017bifurcation,
@@ -769,10 +815,13 @@
   pages   = {338},
   year    = {2024},
   doi     = {10.3390/jcdd11110338},
-  note    = {[BIBLIOGRAPHY VERIFIED] PMID 39590181, PMC11595042, open access. n = 499 of 650
-             consecutive CCTA patients; MACE 12.5\%; left main bifurcation angle above 80 deg was the
-             strongest MACE predictor, HR 4.47 (95\% CI 3.80-6.70). The published interval is not
-             centred on the point estimate -- check the full text before quoting it}
+  note    = {[VERIFIED] Full text read 2026-10-04 (PMC11595042), supplement not read; entry
+             docs_thesis/papers/tommasino2024clap.md. Single centre, 499 referred CCTA patients
+             (42\% proximal LAD disease); LMBA 106 vs 75 deg with vs without significant LAD stenosis;
+             1-y MACE 12.5\%, mostly PCI/TLR/progression (5 MI, 3 deaths). CAREFUL: Table 2 is
+             internally inconsistent -- from its own B and SE the LMBA$>$80 deg interval is 2.99--6.70,
+             not 3.80--6.70, and CKD is p $\approx$ 0.20, not 0.041; labelled logistic but reported as
+             HR. Soft, clinician-driven endpoint. Do not quote its effect sizes.}
 }
 
 @article{groves2009tortuosity,
@@ -800,7 +849,7 @@
   volume  = {14},
   number  = {1},
   pages   = {35},
-  year    = {2023},
+  year    = {2024},
   doi     = {10.3390/diagnostics14010035},
   note    = {[BIBLIOGRAPHY VERIFIED] PMID 38201343, PMC10795752, open access. n = 160; the
              continuous tortuosity index detected territory-matched ischemia associations
@@ -1027,11 +1076,13 @@
   pages   = {e0174352},
   year    = {2017},
   doi     = {10.1371/journal.pone.0174352},
-  note    = {[BIBLIOGRAPHY VERIFIED] PMID 28346530, PMC5367806, open access. n = 106 patients,
-             318 angles; LAD-LCx angle an independent predictor of significant left coronary
-             stenosis, OR 1.423 (p = 0.002), sensitivity 66.7\%, specificity 78.4\%, and wider in
-             non-calcified than calcified plaque. The inter-observer ICC quoted for this study in
-             secondary sources is not in its abstract -- verify in the full text}
+  note    = {[VERIFIED] Full text read 2026-10-04 (PMC5367806); entry
+             docs_thesis/papers/cui2017bifurcation.md. Single centre, 106 patients referred for
+             invasive angiography (CCTA within 3 months). LAD-LCx angle at diastole 68.3 deg ($<$50\%
+             stenosis) vs 91.3 (50--69\%) vs 80.0 (70--100\%); multivariable OR 1.423 per 10 deg
+             (1.140--1.777); wider in non-calcified plaque; inter-observer ICC 0.963. CAREFUL:
+             cross-sectional; not monotonic across stenosis grades; angle is about 5 deg wider in
+             diastole than systole (p $<$ 0.001), so the phase must match across studies.}
 }
 
 @article{glagov1987remodeling,
@@ -1643,7 +1694,18 @@
              risk the authors do not address. 2D single-plane projection (foreshortening/view-angle
              confounds not discussed), RCA only, segmentation succeeded in only 78.7% of eligible
              loops with untested tortuosity-dependent bias. Does not license claims about 3D
-             CTA-derived centerlines}
+             CTA-derived centerlines.
+             Merged 2026-10-04 from duplicate key tello2026tortuosity (methods read via
+             PMC13308244): 38,691 left anterior
+             oblique RCA angiograms from 22,334 patients referred for catheterization. U-Net
+             segmentation (trained on ARCADE), skeletonized centerline; score = mean over skeleton
+             points of |turning angle| / pi; point spacing not reported (one skeleton pixel).
+             Groups: bottom decile, middle 8 deciles, top decile (90th percentile 0.152). One
+             blinded interventional cardiologist labeled 100 per group (300) tortuous or not:
+             tortuous precision 75.3%, recall 58.0%; non-tortuous 85.6% / 83.5%; kappa 0.52
+             (0.41-0.63). Per SD of tortuosity, adjusted OR for CAD 1.05 (1.03-1.08), severe CAD
+             1.09 (1.06-1.13). Local-attention transformer on the ordered local tortuosity vector
+             plus age and sex: AUROC 0.67 (0.65-0.69) for CAD vs 0.60 for global tortuosity.}
 }
 
 @article{sangalli2009aneurisk,
@@ -2165,29 +2227,6 @@
              submission.}
 }
 
-@article{tello2026tortuosity,
-  title   = {A Machine Learning Driven Approach to Quantifying Coronary Artery Tortuosity},
-  author  = {Tello Ayala, Jose Roberto and Supriami, Kelvin and Swaroop, Siddharth and
-             Friedman, Samuel F. and Unlu, Ozan and Halford, Jennifer and Maddah, Mahnaz and
-             Abou-Karam, Roukoz and Pomerantsev, Eugene and Ellinor, Patrick T. and
-             Doshi-Velez, Finale and Fahed, Akl C.},
-  journal = {JACC: Advances},
-  volume  = {5},
-  number  = {6},
-  pages   = {102829},
-  year    = {2026},
-  doi     = {10.1016/j.jacadv.2026.102829},
-  note    = {[METHODS READ via PMC13308244; author list from Crossref, 2026-09-30] 38,691 left anterior
-             oblique RCA angiograms from 22,334 patients referred for catheterization. U-Net
-             segmentation (trained on ARCADE), skeletonized centerline; score = mean over skeleton
-             points of |turning angle| / pi; point spacing not reported (one skeleton pixel).
-             Groups: bottom decile, middle 8 deciles, top decile (90th percentile 0.152). One
-             blinded interventional cardiologist labeled 100 per group (300) tortuous or not:
-             tortuous precision 75.3%, recall 58.0%; non-tortuous 85.6% / 83.5%; kappa 0.52
-             (0.41-0.63). Per SD of tortuosity, adjusted OR for CAD 1.05 (1.03-1.08), severe CAD
-             1.09 (1.06-1.13). Local-attention transformer on the ordered local tortuosity vector
-             plus age and sex: AUROC 0.67 (0.65-0.69) for CAD vs 0.60 for global tortuosity.}
-}
 
 @article{vanzandwijk2019curvature,
   title   = {Assessment of Dynamic Change of Coronary Artery Geometry and Its Relationship to
@@ -2206,4 +2245,380 @@
              scale between points, which the authors call "an adequate and robust option".
              Artery curvature 0.090 (SE 0.002) mm^-1 at end-systole, 0.081 (SE 0.002) at
              end-diastole.}
+}
+
+% ===================================== coronary centerline extraction before deep segmentation
+% Added 2026-10-04 for state_of_the_art/01_segmentation.tex. Found through the reference list of
+% korona2025tracing (student work, not cited). Fields confirmed against Crossref; claims taken from
+% the abstracts (Crossref or Semantic Scholar), so none is [VERIFIED] (see header).
+
+@article{wink2002mcp,
+  title   = {{3D} {MRA} coronary axis determination using a minimum cost path approach},
+  author  = {Wink, Onno and Frangi, Alejandro F. and Verdonck, Bert and Viergever, Max A. and
+             Niessen, Wiro J.},
+  journal = {Magnetic Resonance in Medicine},
+  volume  = {47},
+  number  = {6},
+  pages   = {1169--1175},
+  year    = {2002},
+  doi     = {10.1002/mrm.10164},
+  note    = {[BIBLIOGRAPHY VERIFIED] Crossref, abstract read. Minimum cost path through a
+             vessel-enhanced image between two or more user-placed points; 32 MRA acquisitions
+             (14 RCA, 15 LAD, 8 LCX), average distance to the manual reference about 0.65 mm. MRA,
+             not CTA}
+}
+
+@article{krissian2008mcp,
+  title   = {Minimally Interactive Knowledge-based Coronary Tracking in {CTA} using a Minimal Cost
+             Path},
+  author  = {Krissian, Karl and Bogunovi{\'c}, Hrvoje and Pozo, Jose Maria and Villa-Uriol, Maria
+             Cruz and Frangi, Alejandro},
+  journal = {The MIDAS Journal},
+  year    = {2008},
+  doi     = {10.54294/b6ilok},
+  note    = {[BIBLIOGRAPHY VERIFIED] Crossref, abstract read. CAT08 entry: start point found
+             automatically, end point given by the user, centerline as the minimal cost path on a
+             vesselness cost; 16 CTA images}
+}
+
+@article{schaap2009cat08,
+  title   = {Standardized evaluation methodology and reference database for evaluating coronary
+             artery centerline extraction algorithms},
+  author  = {Schaap, Michiel and Metz, Coert T. and van Walsum, Theo and van der Giessen, Alina G.
+             and Weustink, Annick C. and Mollet, Nico R. and Bauer, Christian and Bogunovi{\'c},
+             Hrvoje and others},
+  journal = {Medical Image Analysis},
+  volume  = {13},
+  number  = {5},
+  pages   = {701--714},
+  year    = {2009},
+  doi     = {10.1016/j.media.2009.06.003},
+  note    = {[BIBLIOGRAPHY VERIFIED] [PARTIAL] author list truncated at 8 of 30. Abstract read. The
+             MICCAI 2008 Coronary Artery Tracking challenge (CAT08): 32 cardiac CTA datasets with
+             consensus reference centerlines, standard overlap and accuracy measures, 13 algorithms
+             compared}
+}
+
+@article{wolterink2019centerline,
+  title   = {Coronary artery centerline extraction in cardiac {CT} angiography using a {CNN}-based
+             orientation classifier},
+  author  = {Wolterink, Jelmer M. and van Hamersvelt, Robbert W. and Viergever, Max A. and Leiner,
+             Tim and I{\v{s}}gum, Ivana},
+  journal = {Medical Image Analysis},
+  volume  = {51},
+  pages   = {46--60},
+  year    = {2019},
+  doi     = {10.1016/j.media.2018.10.005},
+  note    = {[BIBLIOGRAPHY VERIFIED] Crossref, abstract read. 3D dilated CNN predicts direction and
+             radius from a local patch; tracker runs from one seed per artery. Trained on the 8
+             CAT08 training images; on the 24 CAT08 test images overlap 93.7%, average distance
+             0.21 mm, third of 25 methods. Fully automatic extraction of 92% of clinically relevant
+             segments on 36 orCaScore scans; about 20 s per tree}
+}
+
+@inproceedings{leccardi2023multipath,
+  title     = {Deep Learning Coronary Artery Centerlines Mapping from Contrast-Enhanced {CT} Images
+               of the Heart},
+  author    = {Leccardi, Matteo and Paracchini, Marco Brando Mario and Mainardi, Luca and Marcon,
+               Marco and Cerveri, Pietro},
+  booktitle = {2023 IEEE International Conference on Metrology for eXtended Reality, Artificial
+               Intelligence and Neural Engineering (MetroXRAINE)},
+  pages     = {22--27},
+  year      = {2023},
+  doi       = {10.1109/MetroXRAINE58569.2023.10405817},
+  note      = {[BIBLIOGRAPHY VERIFIED] Crossref, abstract read. Multi-path CNN for radius and two
+               opposing directions; whole tree from two seeds (left and right); evaluated
+               leave-one-patient-out on the 8 CAT08 training images only; AI 0.32 mm}
+}
+
+
+@article{wang2004occlusions,
+  title   = {Coronary artery spatial distribution of acute myocardial infarction occlusions},
+  author  = {Wang, Jeffrey C. and Normand, Sharon-Lise T. and Mauri, Laura and Kuntz, Richard E.},
+  journal = {Circulation},
+  volume  = {110},
+  number  = {3},
+  pages   = {278--284},
+  year    = {2004},
+  doi     = {10.1161/01.CIR.0000135468.67850.F4},
+  note    = {[VERIFIED] Europe PMC metadata and abstract (PMID 15249505), 2026-10-04; full text not
+             read. 208 consecutive STEMI patients, one centre (Brigham and Women's). Acute occlusions
+             clustered in the proximal third of the RCA, LAD and LCX (p = 0.001, 0.003, 0.001); risk
+             fell per 10 mm from the ostium by 13% (RCA), 30% (LAD), 26% (LCX). CAREFUL: this is
+             the location of culprit OCCLUSIONS in STEMI, not of all plaque. Cited for the claim
+             that the lesions that matter sit in the proximal main vessels, where segmentation is
+             most accurate (bransby2026imagecasx).}
+}
+
+
+% ============================== literature review rewrite, added 2026-10-04 (paper-review)
+
+@article{won2022paradigm,
+  title   = {Glycemic control is independently associated with rapid progression of coronary
+             atherosclerosis in the absence of a baseline coronary plaque burden: a retrospective
+             case-control study from the {PARADIGM} registry},
+  author  = {Won, Ki-Bum and Lee, Byoung Kwon and Lin, Fay Y. and Hadamitzky, Martin and
+             Kim, Yong-Jin and Sung, Ji Min and Conte, Edoardo and Andreini, Daniele and
+             Pontone, Gianluca and Budoff, Matthew J. and Gottlieb, Ilan and Chun, Eun Ju and
+             Cademartiri, Filippo and Maffei, Erica and Marques, Hugo and
+             de Ara{\'u}jo Gon{\c{c}}alves, Pedro and Leipsic, Jonathon A. and Lee, Sang-Eun and
+             Shin, Sanghoon and Choi, Jung Hyun and Virmani, Renu and Samady, Habib and
+             Chinnaiyan, Kavitha and Berman, Daniel S. and Narula, Jagat and Shaw, Leslee J. and
+             Bax, Jeroen J. and Min, James K. and Chang, Hyuk-Jae},
+  journal = {Cardiovascular Diabetology},
+  volume  = {21},
+  number  = {1},
+  pages   = {239},
+  year    = {2022},
+  doi     = {10.1186/s12933-022-01656-9},
+  note    = {[VERIFIED] Full text read 2026-10-04 (PMC9655903); entry
+             docs_thesis/papers/won2022paradigm.md. 402 PARADIGM registry patients (13 centres)
+             plaque-free on baseline CCTA, repeat CCTA after median 3.6 y: new plaque in 143
+             (35.6\%), rapid progression in 17 (4.2\%). No geometry measured. CAREFUL: new-plaque
+             onset is descriptive only, never modelled; "risk factors did not predict" refers to
+             rapid progression (17 events, underpowered); HbA1c was measured at follow-up. Scan
+             indications not stated; clinical registry, not general population.}
+}
+
+@article{chan2024orfan,
+  title   = {Inflammatory risk and cardiovascular events in patients without obstructive coronary
+             artery disease: the {ORFAN} multicentre, longitudinal cohort study},
+  author  = {Chan, Kenneth and Wahome, Elizabeth and Tsiachristas, Apostolos and
+             Antonopoulos, Alexios S. and Patel, Parijat and Lyasheva, Maria and others and
+             Neubauer, Stefan and Channon, Keith M. and Deanfield, John and
+             Antoniades, Charalambos},
+  journal = {The Lancet},
+  volume  = {403},
+  number  = {10444},
+  pages   = {2606--2618},
+  year    = {2024},
+  doi     = {10.1016/S0140-6736(24)00596-8},
+  note    = {[VERIFIED] Author manuscript read in full 2026-10-04 (PMC11664027), supplement not
+             read; entry docs_thesis/papers/chan2024orfan.md. 40,091 consecutive clinically
+             indicated CCTA patients, 8 UK hospitals; nested 3,393 with median 7.7 y follow-up.
+             Perivascular FAI Score predicted cardiac death and MACE independently of risk factors
+             and CAD-RADS; AI-Risk (FAI + plaque + clinical) raised 10-y cardiac mortality AUC from
+             0.838 (QRISK3 + CAD-RADS) to 0.854, NRI 0.38. CAREFUL: referred chest-pain cohort, not
+             general population; "no visible plaque" subgroup is CAD-RADS 0/1 pooled with
+             medication-only adjustment; CAD-RADS alone added nothing to QRISK3; founders of the
+             device company are authors.}
+}
+
+@article{bergstrom2021scapis,
+  title   = {Prevalence of subclinical coronary artery atherosclerosis in the general population},
+  author  = {Bergstr{\"o}m, G{\"o}ran and Persson, Margaretha and Adiels, Martin and
+             Bj{\"o}rnson, Elias and Bonander, Carl and Ahlstr{\"o}m, H{\aa}kan and
+             Alfredsson, Joakim and Anger{\aa}s, Oskar and others},
+  journal = {Circulation},
+  volume  = {144},
+  number  = {12},
+  pages   = {916--929},
+  year    = {2021},
+  doi     = {10.1161/CIRCULATIONAHA.121.055340},
+  note    = {[VERIFIED] Full text read 2026-10-04 (PMC8448414), supplement not read; entry
+             docs_thesis/papers/bergstrom2021scapis.md. SCAPIS: random census sample aged 50--64,
+             6 Swedish sites, 25,182 analysed without known CHD; any CCTA plaque 42.1\%, stenosis
+             $\geq$50\% 5.2\%; plaque most frequent in proximal/mid LAD. CAREFUL: cross-sectional,
+             no geometry; participation 50.3\% plus image-quality exclusions; the branching-site
+             explanation is the authors' speculation.}
+}
+
+@article{jebari2022atherosclerosis,
+  title   = {Pathophysiology of Atherosclerosis},
+  author  = {Jebari-Benslaiman, Shifa and Galicia-Garc{\'\i}a, Unai and Larrea-Sebal, Asier and
+             Olaetxea, Javier Rekondo and Alloza, Iraide and Vandenbroeck, Koen and
+             Benito-Vicente, Asier and Mart{\'\i}n, C{\'e}sar},
+  journal = {International Journal of Molecular Sciences},
+  volume  = {23},
+  number  = {6},
+  pages   = {3346},
+  year    = {2022},
+  doi     = {10.3390/ijms23063346},
+  note    = {[PARTIAL] Crossref metadata (PMC8954705), CC BY 4.0; full text not read. Narrative
+             review. Used for its Figure 3 (healthy artery to plaque rupture, five stages) in
+             clinical_background_v2/02_disease_and_risk.tex. The figure is cited, not the text.}
+}
+
+@article{malek1999shear,
+  title   = {Hemodynamic shear stress and its role in atherosclerosis},
+  author  = {Malek, Adel M. and Alper, Seth L. and Izumo, Seigo},
+  journal = {JAMA},
+  volume  = {282},
+  number  = {21},
+  pages   = {2035--2042},
+  year    = {1999},
+  doi     = {10.1001/jama.282.21.2035},
+  note    = {[VERIFIED] Europe PMC metadata and abstract (PMID 10591386); full text not read.
+             Review, no own cohort. Abstract: arterial-level shear stress > 15 dyn/cm2 (1.5 Pa) is
+             atheroprotective, low shear stress < 4 dyn/cm2 (0.4 Pa) is prevalent at
+             atherosclerosis-prone sites. Origin of the 0.4 Pa low-WSS threshold that
+             kashyap2022tortuosity uses (its ref 53). Used in clinical_background_v2/03.}
+}
+
+@article{ku1997blood,
+  title   = {Blood flow in arteries},
+  author  = {Ku, David N.},
+  journal = {Annual Review of Fluid Mechanics},
+  volume  = {29},
+  pages   = {399--434},
+  year    = {1997},
+  doi     = {10.1146/annurev.fluid.29.1.399},
+  note    = {[VERIFIED] Full text read. Review. p. 407: in fully developed flow through a
+             curved tube velocity skews toward the outer wall; secondary flow forms as
+             counter-rotating vortices; "With higher Dean numbers, flow can separate along the
+             inner curve." Licenses the bend mechanism in clinical_background_v2/03.}
+}
+
+@article{dean1927curved,
+  title   = {Note on the motion of fluid in a curved pipe},
+  author  = {Dean, W. R.},
+  journal = {The London, Edinburgh, and Dublin Philosophical Magazine and Journal of Science},
+  series  = {7},
+  volume  = {4},
+  number  = {20},
+  pages   = {208--223},
+  year    = {1927},
+  doi     = {10.1080/14786440708564324},
+  note    = {[METADATA ONLY] Not read. Origin of the counter-rotating secondary vortex pair in
+             curved pipes; cite only alongside ku1997blood, which describes it. The Dean number
+             as Ku uses it is from the 1928 second paper (Phil Mag 5(30):673--695,
+             doi 10.1080/14786440408564513).}
+}
+
+@article{qiu2000compliant,
+  title   = {Numerical simulation of pulsatile flow in a compliant curved tube model of a
+             coronary artery},
+  author  = {Qiu, Yuchen and Tarbell, John M.},
+  journal = {Journal of Biomechanical Engineering},
+  volume  = {122},
+  number  = {1},
+  pages   = {77--85},
+  year    = {2000},
+  doi     = {10.1115/1.429629},
+  note    = {[ABSTRACT ONLY] Model, no patients. Coronary curvature and flow (curvature ratio
+             10, mean Re 150, Womersley 3): mean WSS about 50 percent lower on the inside wall
+             than the outside wall, with stronger WSS oscillation on the inside wall.}
+}
+
+@article{zarins1983carotid,
+  title   = {Carotid bifurcation atherosclerosis. Quantitative correlation of plaque
+             localization with flow velocity profiles and wall shear stress},
+  author  = {Zarins, C. K. and Giddens, D. P. and Bharadvaj, B. K. and Sottiurai, V. S. and
+             Mabon, R. F. and Glagov, S.},
+  journal = {Circulation Research},
+  volume  = {53},
+  number  = {4},
+  pages   = {502--514},
+  year    = {1983},
+  doi     = {10.1161/01.res.53.4.502},
+  note    = {[ABSTRACT ONLY] Carotid, not coronary: cite for the general bifurcation
+             mechanism only. Velocity maxima shifted toward the flow divider apex; separation,
+             reversal and helical flow on the wall opposite the divider, where intima was
+             thickest.}
+}
+
+@article{antoniadis2015bifurcation,
+  title   = {Impact of local flow haemodynamics on atherosclerosis in coronary artery
+             bifurcations},
+  author  = {Antoniadis, Antonios P. and Giannopoulos, Andreas A. and Wentzel, Jolanda J. and
+             Joner, Michael and Giannoglou, George D. and Virmani, Renu and
+             Chatzizisis, Yiannis S.},
+  journal = {EuroIntervention},
+  volume  = {11},
+  number  = {Suppl V},
+  pages   = {V18--V22},
+  year    = {2015},
+  doi     = {10.4244/EIJV11SVA4},
+  note    = {[VERIFIED] Full text read (open access). Review. Bifurcation flow gives flow
+             separation, recirculation and secondary flow, with low and oscillatory ESS along
+             the lateral walls and high ESS at the flow divider (carina); side-branch flow
+             fraction is the primary determinant of the ESS pattern.}
+}
+
+@article{iwami1998curvature,
+  title   = {Importance of left anterior descending coronary artery curvature in determining
+             cross-sectional plaque distribution assessed by intravascular ultrasound},
+  author  = {Iwami, Takahiro and Fujii, Takashi and Miura, Toshiro and Otani, Nozomu and
+             Iida, Hiroshi and Kawamura, Atsushi and Yoshitake, Shinji and Kohno, Michihiro and
+             Hisamatsu, Yuji and Iwamoto, Hiroshi and Matsuzaki, Masunori},
+  journal = {The American Journal of Cardiology},
+  volume  = {82},
+  number  = {3},
+  pages   = {381--384},
+  year    = {1998},
+  doi     = {10.1016/S0002-9149(98)00340-3},
+  note    = {[ABSTRACT ONLY] IVUS in patients with CAD: atherosclerosis preferentially at the
+             inner arc of curved coronary segments, more so at greater curvature. Patient n not
+             recorded in the notes.}
+}
+
+@article{kimura1996atheroma,
+  title   = {Atheroma morphology and distribution in proximal left anterior descending
+             coronary artery: in vivo observations},
+  author  = {Kimura, Bruce J. and Russo, Robert J. and Bhargava, Valmik and
+             McDaniel, Martin B. and Peterson, Kirk L. and DeMaria, Anthony N.},
+  journal = {Journal of the American College of Cardiology},
+  volume  = {27},
+  number  = {4},
+  pages   = {825--831},
+  year    = {1996},
+  doi     = {10.1016/0735-1097(95)00551-x},
+  note    = {[ABSTRACT ONLY] IVUS, n = 42, proximal LAD just distal to the left main
+             bifurcation: maximal plaque thickness spared the flow divider in 100% of cases and
+             lay opposite the circumflex takeoff.}
+}
+
+@article{nakazawa2010pathological,
+  title   = {Pathological findings at bifurcation lesions: the impact of flow distribution on
+             atherosclerosis and arterial healing after stent implantation},
+  author  = {Nakazawa, Gaku and Yazdani, Saami K. and Finn, Aloke V. and Vorpahl, Marc and
+             Kolodgie, Frank D. and Virmani, Renu},
+  journal = {Journal of the American College of Cardiology},
+  volume  = {55},
+  number  = {16},
+  pages   = {1679--1687},
+  year    = {2010},
+  doi     = {10.1016/j.jacc.2010.01.021},
+  note    = {[ABSTRACT ONLY] Pathology registry, 26 non-stented coronary bifurcation lesions:
+             the lateral wall had significantly greater intima and necrotic core thickness than
+             the flow divider.}
+}
+
+@article{chiu2011disturbed,
+  title   = {Effects of disturbed flow on vascular endothelium: pathophysiological basis and
+             clinical perspectives},
+  author  = {Chiu, Jeng-Jiann and Chien, Shu},
+  journal = {Physiological Reviews},
+  volume  = {91},
+  number  = {1},
+  pages   = {327--387},
+  year    = {2011},
+  doi     = {10.1152/physrev.00047.2009},
+  note    = {[VERIFIED] Full text read (PMC3844671, via NCBI efetch), 2026-10-05. Review, no own
+             cohort; most mechanism evidence is in vitro (step-flow channel, parallel-plate and
+             cone-and-plate chambers) and animal aorta. Supports: straight segments have laminar,
+             high, directed WSS while branches and curvatures have disturbed flow with low,
+             reciprocating WSS; ECs elongate and align under laminar flow and stay round/polygonal
+             under disturbed flow; laminar flow induces eNOS and antioxidant genes, reciprocating
+             flow does not, and NO production is impaired; intact junctions pass lipoproteins only
+             during EC turnover, disturbed flow raises turnover and LDL permeability at branch
+             points (cell turnover-leaky junction hypothesis); oscillatory shear -> BMP-4 -> ROS ->
+             NF-kB -> ICAM-1 -> monocyte adhesion; longer near-wall residence time of monocytes in
+             disturbed flow. Used in clinical_background_v2/03.}
+}
+
+@article{davies2009shear,
+  title   = {Hemodynamic shear stress and the endothelium in cardiovascular pathophysiology},
+  author  = {Davies, Peter F.},
+  journal = {Nature Clinical Practice Cardiovascular Medicine},
+  volume  = {6},
+  number  = {1},
+  pages   = {16--26},
+  year    = {2009},
+  doi     = {10.1038/ncpcardio1397},
+  note    = {[VERIFIED] Europe PMC metadata and abstract (PMID 19029993); full text not read.
+             Review. Abstract: shear-induced deformation at the cell surface is transmitted as
+             cytoskeletal tension to mechanically coupled sites (decentralized mechanotransduction);
+             flow disturbance near branches, bifurcations and curvatures predicts atherosclerosis
+             susceptibility. Backs the mechanotransduction sentence in clinical_background_v2/03.}
 }

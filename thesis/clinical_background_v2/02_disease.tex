@@ -1,0 +1,40 @@
+% Clinical Background v2, section 2. Source: clinical_background/02_cad.tex, rewritten.
+% Tone follows the original clinical_background/ (short plain sentences, mechanism told in order),
+% as requested 2026-10-05. Cut: unsourced "far more dangerous" and "dies within minutes".
+% Headline number from stark2025gbd (supersedes lindstrom2022global).
+% 2026-10-05: shortened against Aida's Ch. 2 (style_guide_clinical_aida.md): foam cells, fibrous cap,
+% calcification and oxygen extraction cut as unused later; appositive glosses moved to own clauses.
+% CHECK: the remaining atherosclerosis sentences are cited to libby2019atherosclerosis, whose full text
+% is paywalled and was not opened (refs.bib marks it [PARTIAL]). Verify before submission.
+% CHECK: the endothelium-responds-to-flow sentence is now cited to chatzizisis2007ess; confirm it fits.
+% CITATION WANTED: the calcium score is recorded for Model 0 (risk_model_plan.tex) but no calcium
+% source is in refs.bib; add one before describing it in prose. Not mentioned here for that reason.
+% FIGURE: figures/external/atherosclerosis_nhlbi.png (NHLBI, public domain, via Wikimedia Commons), credit
+% copied from figures/external/CREDITS.md. Replaced jebari2022_fig3.jpg 2026-10-05 as too detailed. Original is
+% only 450x451, so it is printed at half width; rupture is no longer illustrated.
+
+\section{Coronary artery disease and individual risk}
+\label{sec:disease}
+
+
+Coronary artery disease (CAD) is caused by atherosclerosis, the gradual accumulation of fat and calcium within the walls of the arteries that supply the myocardium, and the resulting deposit is referred to as a plaque \cite{libby2019atherosclerosis}.
+
+The inner wall of every artery is lined by a single layer of cells, referred to as the endothelium.
+Plaque formation begins when this layer becomes permeable, so that cholesterol-carrying particles from the blood pass into the wall and accumulate there \cite{libby2019atherosclerosis}.
+As the plaque grows, it bulges into the vessel and narrows the open channel through which the blood flows, referred to as the lumen (Figure~\ref{fig:atherosclerosis}) \cite{libby2019atherosclerosis}.
+
+The coronary arteries are the only blood supply of the heart muscle (Section~\ref{sec:circulation}), so a plaque in them impairs cardiac function.
+It does so through the following two mechanisms.
+The first is gradual: a narrowed artery cannot increase its flow when the heart works harder, leaving the muscle beyond it short of oxygen, a state referred to as ischemia \cite{duncker2015regulation}.
+The second is abrupt: a mature plaque has a fatty core covered by a fibrous cap, and when this cap tears, a clot, referred to as a thrombus, forms at the tear and can block the vessel \cite{libby2019atherosclerosis,rampidis2022geometry}.
+The muscle beyond a blocked artery loses its oxygen supply, resulting in a myocardial infarction, commonly referred to as a heart attack.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.5\textwidth]{content/background/figures/atherosclerosis_nhlbi.png}
+  \caption{Plaque grows inside the artery wall and narrows the lumen. (A) A healthy artery and its
+    cross-section. (B) An artery whose wall holds plaque, with the narrowed lumen shown in
+    cross-section. Figure by NHLBI, public domain, via Wikimedia Commons.}
+  \label{fig:atherosclerosis}
+\end{figure}
+

@@ -1,0 +1,215 @@
+Kaggle download: /work3/s254124/kagglehub_cache/datasets/xiaoweixumedicalai/imagecas/versions/3
+
+7-Zip (a) 26.02 (x64) : Copyright (c) 1999-2026 Igor Pavlov : 2026-06-25
+ 64-bit locale=en_US.utf8 Threads:20 OPEN_MAX:32768
+
+Scanning the drive for archives:
+1 file, 807139732 bytes (770 MiB)
+
+Extracting archive: /work3/s254124/imagecas_unpack/parts/1-200.zip
+--
+Path = /work3/s254124/imagecas_unpack/parts/1-200.zip
+Type = zip
+Physical Size = 807139732
+Embedded Stub Size = 4
+64-bit = +
+Characteristics = Zip64
+Total Physical Size = 17982814612
+Multivolume = +
+Volume Index = 4
+Volumes = 5
+
+Everything is Ok
+
+Folders: 1
+Files: 400
+Size:       18447240480
+Compressed: 17982814612
+
+7-Zip (a) 26.02 (x64) : Copyright (c) 1999-2026 Igor Pavlov : 2026-06-25
+ 64-bit locale=en_US.utf8 Threads:20 OPEN_MAX:32768
+
+Scanning the drive for archives:
+1 file, 705922295 bytes (674 MiB)
+
+Extracting archive: /work3/s254124/imagecas_unpack/parts/201-400.zip
+--
+Path = /work3/s254124/imagecas_unpack/parts/201-400.zip
+Type = zip
+Physical Size = 705922295
+Embedded Stub Size = 4
+64-bit = +
+Characteristics = Zip64
+Total Physical Size = 17881597175
+Multivolume = +
+Volume Index = 4
+Volumes = 5
+
+Everything is Ok
+
+Folders: 1
+Files: 400
+Size:       18342797580
+Compressed: 17881597175
+
+7-Zip (a) 26.02 (x64) : Copyright (c) 1999-2026 Igor Pavlov : 2026-06-25
+ 64-bit locale=en_US.utf8 Threads:20 OPEN_MAX:32768
+
+Scanning the drive for archives:
+1 file, 738690684 bytes (705 MiB)
+
+Extracting archive: /work3/s254124/imagecas_unpack/parts/401-600.zip
+--
+Path = /work3/s254124/imagecas_unpack/parts/401-600.zip
+Type = zip
+Physical Size = 738690684
+Embedded Stub Size = 4
+64-bit = +
+Characteristics = Zip64
+Total Physical Size = 17914365564
+Multivolume = +
+Volume Index = 4
+Volumes = 5
+
+Everything is Ok
+
+Folders: 1
+Files: 400
+Size:       18377863719
+Compressed: 17914365564
+
+7-Zip (a) 26.02 (x64) : Copyright (c) 1999-2026 Igor Pavlov : 2026-06-25
+ 64-bit locale=en_US.utf8 Threads:20 OPEN_MAX:32768
+
+Scanning the drive for archives:
+1 file, 285553993 bytes (273 MiB)
+
+Extracting archive: /work3/s254124/imagecas_unpack/parts/601-800.zip
+--
+Path = /work3/s254124/imagecas_unpack/parts/601-800.zip
+Type = zip
+Physical Size = 285553993
+Embedded Stub Size = 4
+64-bit = +
+Characteristics = Zip64
+Total Physical Size = 17461228873
+Multivolume = +
+Volume Index = 4
+Volumes = 5
+
+Everything is Ok
+
+Folders: 1
+Files: 400
+Size:       17911840426
+Compressed: 17461228873
+
+7-Zip (a) 26.02 (x64) : Copyright (c) 1999-2026 Igor Pavlov : 2026-06-25
+ 64-bit locale=en_US.utf8 Threads:20 OPEN_MAX:32768
+
+Scanning the drive for archives:
+1 file, 669980273 bytes (639 MiB)
+
+Extracting archive: /work3/s254124/imagecas_unpack/parts/801-1000.zip
+--
+Path = /work3/s254124/imagecas_unpack/parts/801-1000.zip
+Type = zip
+Physical Size = 669980273
+Embedded Stub Size = 4
+64-bit = +
+Characteristics = Zip64
+Total Physical Size = 17845655153
+Multivolume = +
+Volume Index = 4
+Volumes = 5
+
+Everything is Ok
+
+Folders: 1
+Files: 400
+Size:       18308983366
+Compressed: 17845655153
+volumes: 1000  labels: 1000  (expect 1000 each)
+left in /work3/s254124/imagecas_unpack/extract:
+
+------------------------------------------------------------
+Sender: LSF System <lsfadmin@hpc.dtu.dk>
+Subject: Job 29580724: <download_imagecas> in cluster <dcc> Done
+
+Job <download_imagecas> was submitted from host <hpclogin1> by user <s254124> in cluster <dcc> at Sun Oct  4 11:15:36 2026
+Job was executed on host(s) <4*n-62-29-11>, in queue <hpc>, as user <s254124> in cluster <dcc> at Sun Oct  4 11:15:36 2026
+</zhome/e2/6/224426> was used as the home directory.
+</zhome/e2/6/224426/project/ImageCAS-X> was used as the working directory.
+Started at Sun Oct  4 11:15:36 2026
+Terminated at Sun Oct  4 12:09:52 2026
+Results reported at Sun Oct  4 12:09:52 2026
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+#!/bin/bash
+
+#BSUB -q hpc
+#BSUB -J download_imagecas
+#BSUB -n 4
+#BSUB -R "rusage[mem=4GB] span[hosts=1]"
+#BSUB -W 12:00
+#BSUB -o logs/download_imagecas_%J.out
+#BSUB -e logs/download_imagecas_%J.err
+
+# Fetch raw ImageCAS (Kaggle xiaoweixumedicalai/imagecas, ~89 GB of split zips) to work3, then
+# unpack it into $ImageCAS_X_data_path/{volumes,imagecas_orig_labels}/ (1000 + 1000 .nii.gz). CPU only.
+#   bsub < jobs/download_imagecas.sh
+# Auth: ~/.kaggle/access_token. The Kaggle copy stays under $KAGGLEHUB_CACHE as the untouched original.
+# Each block of 200 scans is a split zip whose last part is shipped renamed to .change2zip.
+
+set -euo pipefail
+source env.sh
+export KAGGLEHUB_CACHE=/work3/s254124/kagglehub_cache
+
+SRC=$(uv run --no-project --with kagglehub python -c \
+  'import kagglehub; print(kagglehub.dataset_download("xiaoweixumedicalai/imagecas"))' | tail -1)
+echo "Kaggle download: $SRC"
+
+STAGE=/work3/s254124/imagecas_unpack
+VOL=$ImageCAS_X_data_path/volumes
+LAB=$ImageCAS_X_data_path/imagecas_orig_labels
+mkdir -p "$STAGE/parts" "$STAGE/extract" "$VOL" "$LAB"
+
+for block in 1-200 201-400 401-600 601-800 801-1000; do
+  ln -sf "$SRC/$block.change2zip" "$STAGE/parts/$block.zip"
+  for p in "$SRC/$block".z0*; do ln -sf "$p" "$STAGE/parts/"; done
+  7za x -y -o"$STAGE/extract" "$STAGE/parts/$block.zip"
+done
+
+find "$STAGE/extract" -name '*.img.nii.gz' -exec mv -t "$VOL" {} +
+find "$STAGE/extract" -name '*.label.nii.gz' -exec mv -t "$LAB" {} +
+echo "volumes: $(ls "$VOL" | wc -l)  labels: $(ls "$LAB" | wc -l)  (expect 1000 each)"
+echo "left in $STAGE/extract:"; find "$STAGE/extract" -type f
+
+------------------------------------------------------------
+
+Successfully completed.
+
+Resource usage summary:
+
+    CPU time :                                   875.65 sec.
+    Max Memory :                                 113 MB
+    Average Memory :                             86.64 MB
+    Total Requested Memory :                     16384.00 MB
+    Delta Memory :                               16271.00 MB
+    Max Swap :                                   -
+    Max Processes :                              7
+    Max Threads :                                16
+    Run time :                                   3256 sec.
+    Turnaround time :                            3256 sec.
+
+The output (if any) is above this job summary.
+
+
+
+PS:
+
+Read file <logs/download_imagecas_29580724.err> for stderr output of this job.
+

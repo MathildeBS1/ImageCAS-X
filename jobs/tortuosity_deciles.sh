@@ -10,8 +10,8 @@
 
 # RCA scores T_l for all 800 scans (train, val, test), then the decile groups and figures. CPU only.
 #   bsub < jobs/tortuosity_deciles.sh
-# Scores: $ImageCAS_X_results_path/tortuosity_scores/{train,val,test}_vessels.csv
-# Groups: $ImageCAS_X_results_path/tortuosity_deciles/groups.csv, figures/rca_tortuosity_{deciles,examples}.pdf
+# Writes to the locations set in tortuosity/paths.py: tortuosity_scores/{train,val,test}_vessels.csv,
+# tortuosity_deciles/groups.csv and figures/rca_tortuosity_{deciles,examples}.pdf
 # The log prints the cut-offs and group sizes quoted in thesis/week5/rca_tortuosity.tex.
 
 source env.sh

@@ -23,9 +23,10 @@
 % "FFR-UNet" is Feature-Fusion-and-Rectification 3D-UNet, a lumen segmentation architecture named
 % for the group's downstream application. Never describe it as an FFR estimator.
 %
-% FIGURE: fig:wss-sites is ours, drawn by scripts/make_wss_schematic.py (no licence needed).
-% Upload figures/wss_schematic.pdf to content/background/figures/ in Overleaf. The profiles
-% are drawn by hand, not simulated -- the caption says so; keep it that way.
+% FIGURE WANTED: flow separating at a bifurcation, with the low-shear region on the
+% lateral wall marked, and the same for the inner wall of a bend. This one could be
+% ours rather than external -- a schematic drawn in matplotlib, no licence needed.
+% Do not add a \ref until the figure exists.
 
 \section{Coronary hemodynamics}
 \label{sec:hemodynamics}
@@ -76,30 +77,10 @@ flow through the lumen reconstructed from a CCTA scan.
 It identifies flow-limiting narrowings more accurately than judging how narrow the vessel looks on
 the same scan \cite{norgaard2014nxt}, and a low value carries roughly four times the risk of a
 cardiac event \cite{biswas2026ffrct}.
-Yet in a randomized trial of 1216 patients, a CT-FFR-guided pathway did not change the rate of
-cardiac events after one year \cite{yang2023target}: CT-FFR triages a narrowing that already
-exists, and says nothing about a tree that has none.
-
-\subsection{Topology as a risk factor}
-\label{sec:geometry}
-
-Where the drag is low is decided by the shape of the tree.
-Tracing the flow through five human coronary trees after death, Asakura and Karino found almost
-every plaque in one of two places: on the outer wall of the vessels leaving a bifurcation, and along
-the inner wall of bends --- exactly where the flow slowed or recirculated \cite{asakura1990flow}
-(Figure~\ref{fig:wss-sites}).
-In a bend, the faster blood at the center of the vessel is carried outward by its own momentum,
-leaving slow flow along the inner wall, and the effect depends on how sharp the bend is relative to
-the width of the vessel.
-Where the vessel also twists out of a single plane the flow spirals, and several simulation studies
-propose that this helical flow protects the wall rather than harms it \cite{shen2026geometry}.
-At a bifurcation, how much of the flow each branch carries is set largely by its diameter, as
-described by Murray's law \cite{taylor2024murray}, so by Equation~\ref{eq:wss} the diameters of
-the branches shape the drag on their walls as much as the angle between them does.
 
 \begin{figure}[h]
   \centering
-  \includegraphics[width=\textwidth]{content/background/figures/wss_schematic.pdf}
+  \includegraphics[width=\textwidth]{content/background/figures/wss_schematic.png}
   \caption{The shape of a vessel decides where its wall feels low shear. (a) In a bend, the
     fast-moving core of the flow is carried to the outer wall, which feels high WSS, while flow
     along the inner wall slows and can recirculate. (b) At a bifurcation, the fastest flow enters
@@ -109,29 +90,3 @@ the branches shape the drag on their walls as much as the angle between them doe
     simulated.}
   \label{fig:wss-sites}
 \end{figure}
-
-Measured topological features do track the shear.
-In 127 patients without coronary artery disease, the average curvature of the left main branches
-correlated with the area of low shear, whereas the widely used tortuosity index --- the ratio of a
-vessel's length to the straight-line distance between its ends --- showed no correlation ($p=0.86$)
-\cite{kashyap2022tortuosity}.
-In 39 left coronary trees, average curvature also differed between trees with and without stenosis
-\cite{zhang2024curvature}.
-More generally, CT-FFR shows that a hemodynamic quantity clinicians act on can be recovered from
-the shape of the lumen alone, and the same has been shown for the pattern of shear along a vessel,
-at least in vessels reconstructed from invasive angiography \cite{griffo2026wss}.
-
-Whether topology is a risk factor in its own right is, however, not established.
-The evidence comes from small or clinically selected cohorts, and it does not all point the same
-way: in
-1010 patients undergoing angiography, tortuous arteries were associated with less CAD, not more
-\cite{li2011tortuosity}.
-The field's own review names the limited size and selection of the populations studied among the
-reasons its findings have not reached clinical use \cite{shen2026geometry}, and the role of flow in
-the onset of plaque remains underexplored for lack of follow-up that starts from a healthy state
-\cite{zhang2024curvature}.
-This thesis investigates that question.
-Rather than simulating flow, it measures the topological features through which flow is shaped ---
-curvature, bifurcation angles and branch diameters, starting with the left main, LAD and LCX ---
-with the aim of relating them to risk in a general population, where the tree can be measured
-before disease has altered it.

@@ -1,0 +1,41 @@
+% Technical Background, section 3. Pointed back to by: methodology/03_centerline_tree.tex (section
+% body); 06_bifurcation_angle.tex and 07_daughter_ratio.tex (P4b, radius); 04_artery_labeling.tex
+% (subsection 3.1).
+% Model: Aida 3.3 (FEM, section body) and 3.3.1 (the subsection one step deeper).
+% Cite: antiga2008vmtk (minimal-path / Voronoi centerlines), hampe2024gnn (tool, coronary labelling
+%   with a GNN).
+% CITE WANTED: a skeletonisation (topological thinning) source, e.g. Lee et al. 1994.
+% CITE WANTED: the in-house tracer's publication, if one exists.
+% CITE WANTED: a GNN foundation, Gilmer et al. 2017 (message passing) or Kipf and Welling 2017.
+% Medis is NOT described here: it is a commercial product that delivered reference labels, so it
+%   belongs in the Data chapter and the Methodology (methodology.tex, Artery Labeling).
+% FIGURE WANTED: none; the Methodology may show a mask, its skeleton and the graph instead.
+
+\section{Centerline Extraction and the Coronary Tree}
+\label{sec:tech-centerline}
+% P1 definition opener: a centerline is the curve running through the middle of a vessel lumen.
+% P2 skeletonisation thins a binary segmentation to a one-voxel-wide skeleton; it inherits every
+%    error of the segmentation.
+% P3 tracking or minimal-path methods follow the vessel in the image or a distance map from seed
+%    points (antiga2008vmtk); they need seeds and can leave the vessel at low contrast.
+% P4 PLACEHOLDER, in-house tracer: which of the two families it belongs to, its input (image or
+%    segmentation) and what it adds (e.g. radius estimate, branch handling). Settings, version and
+%    "used without modification" go in the Methodology.
+% P4b radius: each centerline point carries the radius of the largest sphere inscribed in the lumen
+%    there (antiga2008vmtk), from a distance transform of the mask. Near a junction that sphere
+%    spans the merged lumen of parent and daughters, so radius and direction there describe the
+%    junction, not either vessel. Fact only; the skip and window that resolve it are Methodology.
+% P5 a centerline network as a graph: junctions and termini as nodes, segments as edges; rooting at
+%    the ostium and orienting away from it gives parent, children and generation.
+% P6 HAZARD CLOSER: a break in the lumen becomes a disconnected fragment and a false junction a
+%    loop, so every feature downstream depends on the extraction being topologically correct.
+
+\subsection{Graph Neural Networks}
+\label{sec:tech-gnn}
+% P1 subsection-as-answer opener: a convolution (Section ref sec:tech-unet) needs a regular grid,
+%    while a tree has none; a GNN learns on the graph itself.
+% P2 message passing: each node updates its features from its neighbours'; k layers reach k hops.
+%    One equation for the update, with a "where" sentence.
+% P3 why it suits artery labelling: an artery's name depends on its position in the tree, not only
+%    on its own shape; the output per segment is a class.
+% P4 tool: hampe2024gnn applied to coronary centerline trees.

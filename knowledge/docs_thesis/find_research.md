@@ -572,7 +572,7 @@ rather than tree topology.
 2. ~~**Shen 2026**~~ — **done 2026-09-07**, published full text, see `papers/shen2026geometry.md`. Follow-up worth doing: its Table 7 lists ~3 pages of coronary anatomy-and-flow studies; check whether any tree-scale outcome study there was missed by both passes.
 3. **Sun 2026 (AngioGraphCAD)** — the nearest competitor; the novelty claim must be written against it.
 4. **Bekirçavuşoğlu 2026** — the hypothesis most directly testable on our 800 cases.
-5. **Tommasino 2024** — the only tree-scale outcome study; verify the HR 4.47 interval (§1.1).
+5. ~~**Tommasino 2024**~~ — **done 2026-10-04**, see `papers/tommasino2024clap.md`. The interval is wrong (2.99 to 6.70 from its own SE).
 6. **Gebhard 2015** — the null that §6's dominance paragraph has to answer.
 7. **Zebić Mihić 2023b** — decides how objective 7 defines tortuosity.
 8. **Givehchi 2018** — sets the measurement-error floor for objective 6.
@@ -634,3 +634,47 @@ Stage 6.
   conference abstract, doi:10.1161/circ.152.suppl_3.4365988; the publisher returned HTTP 403 and its
   numbers were not retrieved. It is the only vessel-scale-to-events entry in the matrix and should be
   chased if a full paper appears.
+
+---
+
+## Pass 2026-10-04: papers added for the literature review rewrite
+
+Found by the deep-research review (`reports/Literature review quality assessment.md`). Each
+paper was read in full via `paper-review` before it was added to `refs.bib`. **This contradicts the
+earlier view that no longitudinal CCTA study starts plaque-free (state-of-the-art gap 2):** such
+cohorts exist, but none measured geometry or drew on the general population.
+
+- **`won2022paradigm` (PARADIGM), READ IN FULL 2026-10-04.** 402 patients plaque-free at baseline,
+  35.6% with new plaque after median 3.6 y. No geometry. New plaque is descriptive only; the
+  modelled outcome was rapid progression (17 events). See `papers/won2022paradigm.md`.
+- **`chan2024orfan` (ORFAN), READ IN FULL 2026-10-04** (author manuscript, supplement not read).
+  A CCTA inflammation marker adds to QRISK3 in referred patients. This is the precedent for a
+  non-plaque CCTA risk marker and corrects "risk scores use systemic factors only". Conflicts: the
+  device company's founders are authors. See `papers/chan2024orfan.md`.
+- **Chen 2024 (EHJ-CVI, doi:10.1093/ehjci/jeae135), BLOCKED.** Paywalled (OUP 403, no OA copy).
+  No entry written and not added to `refs.bib`. Needs manual access through DTU Findit.
+- **Lee 2019 EMERALD (JACC CVI, doi:10.1016/j.jcmg.2018.01.023), BLOCKED.** OpenAlex lists it as
+  bronze OA, but jacc.org and ScienceDirect return 403 to automated fetches and the repositories
+  have no PDF. No entry; not in `refs.bib`. Needs manual access.
+- **Stone 2018 PROSPECT ESS substudy (JACC CVI, doi:10.1016/j.jcmg.2017.01.031), BLOCKED.**
+  Bronze OA on ScienceDirect, which returns 403 to automated fetches; no repository copy. No entry;
+  not in `refs.bib`. Needs manual access.
+- **`bergstrom2021scapis` (SCAPIS), READ IN FULL 2026-10-04.** 25,182 adults from a random
+  general-population sample, cross-sectional; 42.1% had CCTA plaque. No geometry and no repeat scan
+  in this paper. See `papers/bergstrom2021scapis.md`.
+- **`han2022plaque` (ICONIC), READ IN FULL 2026-10-04.** **Qualifies the abstract:** "future" ACS
+  came a median of 29 days after CCTA, and culprits in segments normal on CCTA (n = 21) were
+  excluded. It relates geometry to imminent events in existing plaque, not to onset. The earlier
+  bib note was "[VERIFIED]" with a first-author-only list and no entry; both are now complete. See
+  `papers/han2022plaque.md`.
+- **`tommasino2024clap`, READ IN FULL 2026-10-04.** **Contradicts the §1.1 use of "HR 4.47":**
+  recomputing from Table 2's own B and SE gives a 95% CI of 2.99 to 6.70, and CKD has p ≈ 0.20, not
+  0.041. MACE is mostly revascularisation and progression in a diseased referred cohort. Cite only
+  with a caveat, never for effect sizes. Struck from the read-in-full queue (item 5). See
+  `papers/tommasino2024clap.md`.
+- **`cui2017bifurcation`, READ IN FULL 2026-10-04.** Confirms the abstract (OR 1.423 is per 10°).
+  Adds two points: the angle-stenosis relation is not monotonic, and the angle depends on cardiac
+  phase (about 5°). The ICC flagged as unverified is in the paper: 0.963. See
+  `papers/cui2017bifurcation.md`.
+- **Groves 2009 (W V Med J) and Givehchi 2018 (Phys Med), BLOCKED:** not open access. They stay
+  abstract-level (`[BIBLIOGRAPHY VERIFIED]`) and are flagged as such in the literature-review header.

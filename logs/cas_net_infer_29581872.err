@@ -1,0 +1,58 @@
+/work3/s254124/venvs/imagecasx/lib/python3.11/site-packages/torch/utils/data/dataloader.py:431: UserWarning: This DataLoader will create 14 worker processes in total. Our suggested max number of worker in current system is 8, which is smaller than what this DataLoader is going to create. Please be aware that excessive worker creation might get DataLoader running slow or even freeze, lower the worker number to avoid potential slowness/freeze if necessary.
+  self.check_worker_number_rationality()
+  0%|          | 0/160 [00:00<?, ?it/s]/work3/s254124/venvs/imagecasx/lib/python3.11/site-packages/torch/utils/data/dataloader.py:437: UserWarning: This DataLoader will create 14 worker processes in total. Our suggested max number of worker in current system is 8, which is smaller than what this DataLoader is going to create. Please be aware that excessive worker creation might get DataLoader running slow or even freeze, lower the worker number to avoid potential slowness/freeze if necessary.
+  self.check_worker_number_rationality()
+/work3/s254124/venvs/imagecasx/lib/python3.11/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but no accelerator is found, then device pinned memory won't be used.
+  super().__init__(loader)
+  0%|          | 0/160 [00:00<?, ?it/s]
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/zhome/e2/6/224426/project/ImageCAS-X/inference.py", line 620, in <module>
+    predict(args.config, args.results_dir, save_probs=args.save_probs, split=args.split,
+  File "/zhome/e2/6/224426/project/ImageCAS-X/inference.py", line 453, in predict
+    for batch in tqdm(test_loader):
+  File "/work3/s254124/venvs/imagecasx/lib/python3.11/site-packages/tqdm/std.py", line 1187, in __iter__
+    for obj in iterable:
+  File "/work3/s254124/venvs/imagecasx/lib/python3.11/site-packages/torch/utils/data/dataloader.py", line 725, in __next__
+    data = self._next_data()
+           ^^^^^^^^^^^^^^^^^
+  File "/work3/s254124/venvs/imagecasx/lib/python3.11/site-packages/torch/utils/data/dataloader.py", line 1531, in _next_data
+    return self._process_data(data, worker_id)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/work3/s254124/venvs/imagecasx/lib/python3.11/site-packages/torch/utils/data/dataloader.py", line 1569, in _process_data
+    data.reraise()
+  File "/work3/s254124/venvs/imagecasx/lib/python3.11/site-packages/torch/_utils.py", line 803, in reraise
+    raise exception
+FileNotFoundError: Caught FileNotFoundError in DataLoader worker process 0.
+Original Traceback (most recent call last):
+  File "/work3/s254124/venvs/imagecasx/lib/python3.11/site-packages/torch/utils/data/_utils/worker.py", line 375, in _worker_loop
+    data = fetcher.fetch(index)  # type: ignore[possibly-undefined]
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/work3/s254124/venvs/imagecasx/lib/python3.11/site-packages/torch/utils/data/_utils/fetch.py", line 54, in fetch
+    data = [self.dataset[idx] for idx in possibly_batched_index]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/work3/s254124/venvs/imagecasx/lib/python3.11/site-packages/torch/utils/data/_utils/fetch.py", line 54, in <listcomp>
+    data = [self.dataset[idx] for idx in possibly_batched_index]
+            ~~~~~~~~~~~~^^^^^
+  File "/zhome/e2/6/224426/project/ImageCAS-X/dataloading/volume_dataset.py", line 19, in __getitem__
+    volume, sitk_img = self._load_volume(scan_id)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/zhome/e2/6/224426/project/ImageCAS-X/dataloading/base_dataset.py", line 75, in _load_volume
+    return np.load(path, mmap_mode="r"), None
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/work3/s254124/venvs/imagecasx/lib/python3.11/site-packages/numpy/lib/_npyio_impl.py", line 454, in load
+    fid = stack.enter_context(open(os.fspath(file), "rb"))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/work3/s254124/ImageCAS-X_dataset/volumes_resampled/878.npy'
+
+  0%|          | 0/160 [00:00<?, ?it/s] 48%|████▊     | 76/160 [00:00<00:00, 759.52it/s]100%|██████████| 160/160 [00:00<00:00, 815.11it/s]
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/zhome/e2/6/224426/project/ImageCAS-X/evaluate.py", line 762, in <module>
+    evaluate(args.config, args.results_dir, num_workers=args.workers)
+  File "/zhome/e2/6/224426/project/ImageCAS-X/evaluate.py", line 207, in evaluate
+    raise FileNotFoundError(
+FileNotFoundError: No predictions found in /work3/s254124/imagecasx_results/cas_net_pretrained/predictions for any of the 160 test scans.
+Run `python -m inference -c configs/cas_net.json -r /work3/s254124/imagecasx_results/cas_net_pretrained` first to generate predictions (or place/symlink externally-generated predictions there) before evaluating.

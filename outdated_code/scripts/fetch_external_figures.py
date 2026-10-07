@@ -30,7 +30,7 @@ import urllib.parse
 import urllib.request
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parent.parent
+REPO = Path(__file__).resolve().parents[2]
 OUT_DIR = REPO / "figures" / "external"
 CREDITS = OUT_DIR / "CREDITS.md"
 UA = "ImageCAS-X-thesis/1.0 (DTU Compute; figure attribution fetcher)"
@@ -116,6 +116,43 @@ FIGURES: list[dict] = [
         "article_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13308244/",
         "illustrates": "Low, average and high RCA tortuosity deciles with example angiograms",
         "bibkey": "tello2026tortuosity",
+    },
+    {
+        "filename": "jebari2022_fig3.jpg",
+        "source": "pmc",
+        "download_url": "https://cdn.ncbi.nlm.nih.gov/pmc/blobs/50b6/8954705/9e659bb8536b/ijms-23-03346-g003.jpg",
+        "doi": "10.3390/ijms23063346",
+        "journal": "Int. J. Mol. Sci.",
+        "year": 2022,
+        # Transcribed from the article's licence statement (MDPI, CC BY 4.0); verified 2026-10-05.
+        "author": "Jebari-Benslaiman S, Galicia-Garc\u00eda U, Larrea-Sebal A, et al.",
+        "licence_short": "CC BY 4.0",
+        "licence_long": "Creative Commons Attribution 4.0 International",
+        "article_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8954705/",
+        "illustrates": "Plaque formation from a healthy artery to plaque rupture, in five stages",
+        "bibkey": "jebari2022atherosclerosis",
+    },
+    {
+        "filename": "shen2026_fig6.png",
+        # Not on PMC, but the "pmc" resolver is just "URL and licence from the manifest".
+        "source": "pmc",
+        "download_url": "https://media.springernature.com/full/springer-static/image/art%3A10.1007%2Fs11831-026-10530-w/MediaObjects/11831_2026_10530_Fig6_HTML.png",
+        "doi": "10.1007/s11831-026-10530-w",
+        "journal": "Arch. Comput. Methods Eng.",
+        "year": 2026,
+        # Transcribed from the article's licence statement (Springer, CC BY 4.0); verified 2026-10-05.
+        "author": "Shen C, Zhang M, Keramati H, et al.",
+        "licence_short": "CC BY 4.0",
+        "licence_long": "Creative Commons Attribution 4.0 International",
+        "article_url": "https://doi.org/10.1007/s11831-026-10530-w",
+        "illustrates": "Simulated flow and wall shear stress at a bifurcation and a bend (panels a, b used)",
+        "bibkey": "shen2026geometry",
+    },
+    {
+        "filename": "atherosclerosis_nhlbi.png",
+        "source": "wikimedia",
+        "commons_file": "File:Atherosclerosis diagram.png",
+        "illustrates": "A normal artery beside one narrowed by plaque, with cross-sections",
     },
 ]
 
@@ -244,7 +281,7 @@ def main() -> int:
         # Only fetch what we can write directly. The two PDFs in this manifest were
         # converted from SVG by hand after an earlier download; re-fetching would
         # overwrite a PDF with an SVG, so they are resolved for credit only.
-        fetchable = dest.suffix.lower() == Path(meta["download_url"]).suffix.lower() or (
+        fetchable = dest.suffix.lower() == Path(urllib.parse.urlparse(meta["download_url"]).path).suffix.lower() or (
             entry["source"] == "plos"
         )
         if fetchable and (args.force or not dest.exists()):

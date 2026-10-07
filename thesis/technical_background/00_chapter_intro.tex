@@ -1,0 +1,26 @@
+% Technical Background -- chapter opening. Section files are meant to be included in numeric order.
+% Written to thesis/style_guide_technical_aida.md (after Aida's Chapter 3).
+% Rule for what belongs here: a sentence that would be true if this thesis had never been written is
+% background; what was done, with which settings, on which data, is Methodology. Every section is
+% pointed back to by a Methodology section (thesis/methodology/0*.tex); if none does, cut it.
+% Order follows the order the Methodology uses the methods: image geometry, segmentation network,
+% centerline extraction with radius and the GNN labeller, curvature, risk models (parked).
+% Map, Methodology file -> background it relies on:
+%   01_population_outcome   none (Data / Clinical Background)
+%   02_segmentation         sec 1 image geometry; sec 2 U-Net, CAS-Net, TotalSegmentator
+%   03_centerline_tree      sec 3 body
+%   04_artery_labeling      sec 3.1 GNN
+%   05_curvature            sec 4
+%   06_bifurcation_angle    sec 3 (centerline radius); principal-axis direction stays in Methodology
+%   07_daughter_ratio       sec 3 (centerline radius); scaling laws stay in Clinical Background
+%   08_volume_to_mass       none (supply-demand rationale is Clinical Background; mass = volume x
+%                           density is a Methodology sentence)
+% Each definition lives once: here if it is general, in the Methodology if it carries a setting.
+% No opening paragraph and no roadmap: Aida's chapter starts directly at its first section.
+% Present tense; past only for history (introduced in ...). No settings, no cohort, no results.
+% LEFT OUT on purpose: Medis (Data chapter and Methodology), transformers (no transformer in the
+% Methodology), CFD/FEM (no flow simulation), WSS and bifurcation scaling laws (Clinical Background),
+% segmentation metrics (Methodology), Tello Ayala et al. 2026 (literature review: a study, not a method).
+
+\chapter{Technical Background}
+\label{ch:technical}
