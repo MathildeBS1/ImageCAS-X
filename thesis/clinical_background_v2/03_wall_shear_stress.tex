@@ -43,29 +43,28 @@
 % 2026-10-05: reordered for flow: definition, low/oscillatory, where (straight vs disturbed, bend,
 % bifurcation), why (endothelium), then the risk closure.
 
+% 2026-10-07: on request, cut the Poiseuille equation and the velocity-gradient lines; the methodology
+% (07_daughter_ratio.tex) no longer leans on the R^3 law. New order: definition, low WSS -> plaque, why
+% (endothelium), where (bend, bifurcation), geometry predicts low WSS (kashyap2022tortuosity: CAD-free
+% CTCA; garcha2025sensitivity: synthetic), geometry-derived WSS predicts as well as CFD (griffo2026wss).
+% 2026-10-07: endothelium paragraph cut from five sentences to four; "mechanotransduction" and
+% "endothelial dysfunction" dropped as used nowhere else, cell turnover/junction detail dropped.
+% CAREFUL on griffo: endpoint is future-culprit vs non-culprit lesions within MI patients, AUC 0.63 for
+% both arms, angiography not CCTA. Do not upgrade it to "predicts plaque" or "predicts risk".
 \section{Wall shear stress and plaque formation}
 \label{sec:wss}
 
 Blood flowing along an artery exerts a frictional force on the vessel wall, referred to as the wall shear stress (WSS).
-The WSS is proportional to how steeply the blood velocity rises with distance from the wall, so slow flow next to the wall gives low WSS \cite{chatzizisis2007ess}.
-For steady flow through a straight tube, the WSS is given by:
-\begin{equation}
-  \tau = \frac{4 \mu Q}{\pi R^{3}},
-  \label{eq:wss}
-\end{equation}
-where $\tau$ is the WSS in pascals (Pa), $\mu$ is the viscosity of the blood in Pa\,s, $Q$ is the flow rate in m$^3$/s, and $R$ is the radius of the tube in m.
-As the WSS scales with the inverse cube of the radius, halving the radius at a fixed flow raises it eightfold \cite{rampidis2022geometry}.
-The same volume of blood passes through a quarter of the cross-sectional area and so moves four times as fast.
-Its velocity also rises from zero at the wall to its maximum over half the distance, which doubles the steepness again.
+Plaque forms and grows preferentially where the WSS is low or oscillatory, meaning that it reverses direction over the cardiac cycle \cite{chatzizisis2007ess,samady2011wss,yamamoto2017ess}.
+High WSS, in contrast, is harmful only to plaque that already narrows the vessel, where it increases the risk of rupture \cite{bajraktari2021highwss,samady2011wss}.
 
-Plaque forms and grows preferentially where the WSS is low or oscillatory \cite{chatzizisis2007ess,samady2011wss,yamamoto2017ess}.
-WSS below approximately 0.4~Pa is classified as low and is prevalent at plaque-prone sites, whereas WSS above 1.5~Pa keeps the endothelium in a protective state \cite{malek1999shear}.
-The same 0.4~Pa threshold is used to measure the area of low WSS in simulations of coronary trees \cite{kashyap2022tortuosity}.
-The WSS is referred to as oscillatory where it reverses direction over the cardiac cycle \cite{chatzizisis2007ess}.
-In contrast, high WSS is harmful only to plaque that already narrows the vessel, where it increases the risk of rupture \cite{bajraktari2021highwss,samady2011wss}.
+The link between WSS and plaque runs through the endothelial cells that line the vessel, which sense the WSS and respond to it \cite{davies2009shear}.
+Where the WSS is high and unidirectional, these cells release nitric oxide, which protects the wall \cite{chiu2011disturbed}.
+Where it is low or oscillatory, they release less, so the endothelium becomes leaky and inflamed \cite{chiu2011disturbed}.
+Cholesterol-carrying particles and white blood cells then pass into the wall, and plaque begins to form (Section~\ref{sec:disease}) \cite{chiu2011disturbed}.
 
-In a straight segment, the blood flows forward throughout the cardiac cycle and the velocity profile is symmetric about the center, so the WSS is high, unidirectional and the same all around the wall (Equation~\ref{eq:wss}) \cite{chiu2011disturbed}.
-In a bend, this symmetry is lost: the blood resists the change of direction through its inertia, so the fastest-moving blood is carried toward the outer wall \cite{ku1997blood,dean1927curved}.
+In a straight segment, the blood flows forward throughout the cardiac cycle and the velocity profile is symmetric about the center, so the WSS is high, unidirectional and the same all around the wall \cite{chiu2011disturbed}.
+In a bend, this symmetry is lost: the blood tends to keep moving in a straight line, so the fastest-moving blood is carried toward the outer wall \cite{ku1997blood,dean1927curved}.
 The velocity therefore rises steeply from the outer wall and gently from the inner wall, so the same cross-section has high WSS on its outer side and low WSS on its inner side (Figure~\ref{fig:wss-sites}) \cite{ku1997blood,qiu2000compliant}.
 In a model of a coronary bend, the mean WSS on the inner wall was about half that on the outer wall, and it oscillated more over the cardiac cycle \cite{qiu2000compliant}.
 This slow, reversing flow along the inner wall is referred to as disturbed flow, and it grows stronger the tighter the bend and the higher the flow rate \cite{chiu2011disturbed,ku1997blood}.
@@ -75,13 +74,6 @@ The fastest-moving blood continues onto the flow divider, where the WSS is high 
 In contrast, the flow is disturbed along the lateral walls, the walls of the daughter branches that face away from the flow divider \cite{asakura1990flow,antoniadis2015bifurcation}.
 The extent of this region depends mainly on the share of the parent flow that enters the side branch \cite{antoniadis2015bifurcation}.
 The flow divider is largely spared from plaque \cite{asakura1990flow,vandergiessen2009bifurcation,nakazawa2010pathological}.
-
-The endothelial cells sense the WSS through mechanotransduction, in which the drag deforms the cell surface and thereby changes which genes are active \cite{davies2009shear}.
-Under unidirectional WSS, the cells produce nitric oxide and other molecules that protect the wall \cite{chiu2011disturbed}.
-Under disturbed flow, this production falls, a state referred to as endothelial dysfunction \cite{chiu2011disturbed}.
-The dysfunctional cells are also replaced more often, and the junctions between neighboring cells open briefly at each replacement, making the endothelium permeable (Section~\ref{sec:disease}) \cite{chiu2011disturbed}.
-At the same time, the oscillating WSS triggers an inflammatory response that places adhesion molecules on the cell surface, to which white blood cells attach before migrating into the wall \cite{chiu2011disturbed}.
-Consequently, a person whose tree contains more bends and bifurcations, or sharper ones, may carry risk that the classical risk factors do not capture.
 
 \begin{figure}[h]
   \centering

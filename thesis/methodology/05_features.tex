@@ -1,0 +1,34 @@
+% Umbrella for the features; each feature is a \subsection in 06_ to 09_.
+% Shared rules live here: unit of measurement (written), missing values (TODO).
+% TODO statistics section: combine the per-artery predictions into one risk per participant, e.g.
+%   arteries of one participant modelled as correlated, then P(any artery) = 1 - prod(1 - p_artery).
+\section{Geometric Feature Extraction}
+\label{sec:method-features}
+
+Four geometric features were computed as candidate predictors of plaque development (Table~\ref{tab:method-features}).
+Each was chosen for a published link between the geometry it measures and low wall shear stress, and all were computed from the geometry alone, since simulating flow through every tree of a population cohort is not feasible.
+
+Three of the features were read from the labeled centerline tree of Section~\ref{sec:method-labeling}, in which every point carries a position in millimeters, a lumen radius and an artery label.
+The first point of each tree is the ostium, where the artery leaves the aorta.
+Every artery was traversed from it, so that distance along an artery and the generation of a bifurcation are both counted from the ostium and refer to the same anatomical starting point in every participant.
+The fourth feature, lumen volume to myocardial mass, was computed from the segmentations of Section~\ref{sec:method-segmentation} rather than from the tree.
+
+Each feature was computed per artery or per bifurcation rather than per participant, since wall shear stress acts locally and a single value per participant would average a harmful geometry in one artery with normal geometry in the others.
+Curvature was computed for each of the LAD, the LCx and the RCA, and the bifurcation angle and daughter ratio for each bifurcation.
+Lumen volume to myocardial mass is the exception, as it relates the lumen of the whole tree to the myocardium it supplies and therefore takes one value per participant.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Three of the four features are read from the labeled centerline tree; only lumen volume to myocardial mass needs the myocardium segmentation.}
+  \label{tab:method-features}
+  \begin{tabular}{llll}
+    \toprule
+    Feature & Measured on & Input & Section \\
+    \midrule
+    Turning-angle curvature & each named artery & centerline points & \ref{sec:method-curvature} \\
+    Bifurcation angle & each bifurcation & daughter directions & \ref{sec:method-angle} \\
+    Daughter ratio & each bifurcation & daughter radii & \ref{sec:method-ratio} \\
+    Lumen volume to myocardial mass & whole tree & lumen and myocardium masks & \ref{sec:method-vm} \\
+    \bottomrule
+  \end{tabular}
+\end{table}

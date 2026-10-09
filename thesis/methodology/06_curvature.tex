@@ -1,3 +1,50 @@
-% Background: technical_background sec 4 (kappa, turning angle defined there)
-\section{Turning-Angle Curvature}
+% Background: technical_background sec 4 (kappa(s) and the noise problem). The turning angle and its
+% atan2 form are defined HERE, not in the background (user, 2026-10-07).
+% TODO: sec:method-statistics is referenced before the split statistics file exists.
+\subsection{Turning-Angle Curvature}
 \label{sec:method-curvature}
+
+Curvature was measured separately along the LAD, the LCx and the RCA, since averaging over the whole tree would mix the bends of different arteries.
+Each artery was taken as the path from its ostium to the farthest centerline point carrying its label (Section~\ref{sec:method-labeling}), and only the points of that artery were kept, so that the LM is not part of the LAD or the LCx.
+The points of each path are positions in millimeters ordered from the ostium outward.
+
+The centerline points are not evenly spaced, so each path was first respaced into chords of equal length.
+Starting at the ostium, each new vertex $\mathbf{v}_j$ was placed on the centerline at a straight-line distance of exactly $\ell = 5$\,mm from the previous vertex, and a remainder shorter than $\ell$ at the distal end was dropped.
+Every angle measured afterwards therefore spans the same distance along the vessel.
+The chord length $\ell$ also sets the scale of the measurement, so bends shorter than 5\,mm are not resolved, and the false turning per millimeter caused by noise in the point positions falls as $1/\ell^2$ (Section~\ref{sec:tech-curvature}).
+No smoothing was applied beyond this respacing.
+
+At each interior vertex the step arriving at the vertex, $\mathbf{a}_j = \mathbf{v}_j - \mathbf{v}_{j-1}$, and the step leaving it, $\mathbf{b}_j = \mathbf{v}_{j+1} - \mathbf{v}_j$, define the turning angle
+\begin{equation}
+  \theta_j = \operatorname{atan2}\bigl(\lVert \mathbf{a}_j \times \mathbf{b}_j \rVert,\; \mathbf{a}_j \cdot \mathbf{b}_j\bigr),
+  \label{eq:method-turn}
+\end{equation}
+the angle by which the vessel changes direction at $\mathbf{v}_j$.
+The dot product measures how far the second step continues in the direction of the first and the cross product how far it departs from that line.
+The two-argument arctangent of the two gives the same angle as the arccosine of the normalized dot product, but remains accurate for nearly straight steps, where the cosine is close to 1 and changes little with the angle.
+Each bend of a 3D vessel lies in its own plane, so a turn has no left or right, and $\theta_j$ lies between $0$ and $\pi$ without a sign.
+
+Two curvature descriptors were derived from the turning angles of each artery.
+The curvature sequence
+\begin{equation}
+  \kappa_j = \frac{\theta_j}{\ell}
+  \label{eq:method-profile}
+\end{equation}
+is the turning per millimeter at each vertex, in rad/mm, ordered from the ostium outward.
+It keeps where along the artery each bend lies, which matters because plaque is not spread evenly along an artery: in optical coherence tomography of all three arteries in 131 patients, vulnerable plaques clustered in the proximal segments \cite{araki2020plaques}.
+A typical RCA of 105\,mm gives about 20 values.
+The mean curvature is the average of the sequence,
+\begin{equation}
+  T_\ell = \frac{1}{n\ell}\sum_{j=1}^{n} \theta_j ,
+  \label{eq:method-tl}
+\end{equation}
+where $n$ is the number of turning angles, so that $n\ell$ is the length of vessel they cover.
+$T_\ell$ is the mean absolute curvature of the artery measured at scale $\ell$, in rad/mm.
+Mean curvature, rather than the tortuosity index, was chosen as the summary because it was the measure most closely related to low wall shear stress in 127 patients without coronary artery disease, whereas the tortuosity index showed no correlation \cite{kashyap2022tortuosity}.
+An artery with fewer than two turning angles at $\ell = 5$\,mm was recorded as missing.
+$T_5$ enters the regression models and the sequence enters the neural network (Section~\ref{sec:method-statistics}).
+
+The descriptors follow the turning-angle score of Tello Ayala et al.\ \cite{telloayala2026tortuosity}, with three departures.
+Their score was computed on 2D skeletons of invasive angiograms, whereas here the centerline is 3D.
+They measured angles between consecutive skeleton points, whereas here every angle spans a fixed 5\,mm chord.
+They averaged the angles over the points and divided by $\pi$, whereas here the total turning is divided by the length covered, so that $T_\ell$ keeps its unit of rad/mm.

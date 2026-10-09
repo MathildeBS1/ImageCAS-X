@@ -24,7 +24,9 @@
 % nannini2024characterization, juan2017bifurcation, garcha2025sensitivity; vandergiessen and
 % sakellarios via the publisher page (quotes to confirm by eye).
 % Mechanism (Chatzizisis) lives in clinical_background_v2/03_wall_shear_stress.tex; Murray in
-% methodology/07_daughter_ratio.tex; curvature and tortuosity index in technical_background/04_curvature.tex.
+% methodology/08_daughter_ratio.tex; curvature and tortuosity index in technical_background/04_curvature.tex.
+% 2026-10-07: Sec. 1 opened on an uncited Aida-style frame (depends on) plus field topic sentence; Stone 2012 restored as the prospective step after van der
+% Giessen; Kashyap paragraph opened on a claim; synthesis no longer opens with "Collectively ... highlight".
 % Abstract-level only: asakura1990flow, stone2012prediction, groves2009tortuosity,
 % bekircavusoglu2026ramus, temov2016bifurcation, glagov1987remodeling, score2_2021.
 % TODO (author): search statement needs the databases searched, the time window and search date, an
@@ -46,14 +48,20 @@
 \section{Coronary Geometry and Wall Shear Stress}
 \label{sec:lit-wss}
 
-Research on coronary geometry and plaque began with autopsy studies such as Asakura and Karino
-(1990) \cite{asakura1990flow}, which found plaque at bifurcations and bends.
-Van der Giessen et al.\ (2009) \cite{vandergiessen2009bifurcation} later located plaque on the outer
-walls of bifurcations in living patients, although the low wall shear stress (WSS) at these sites was
-inferred from their position rather than computed.
+Establishing coronary geometry as a risk factor for CAD fundamentally depends on understanding how
+the shape of a vessel affects plaque formation in its wall.
+Research on this link has largely focused on wall shear stress (WSS) as the pathway from vessel
+geometry to plaque.
+Early foundational work by Asakura and Karino (1990) \cite{asakura1990flow} demonstrated that
+plaque concentrates at bifurcations and bends in autopsy hearts.
+Van der Giessen et al.\ (2009) \cite{vandergiessen2009bifurcation} confirmed this pattern in living
+patients by locating plaque on the outer walls of bifurcations, although they inferred low WSS from
+the position of the plaque rather than computing it.
+Stone et al.\ (2012) \cite{stone2012prediction} computed WSS in patients after an acute coronary
+syndrome and showed that low WSS at the first scan predicted where plaque progressed and the lumen
+narrowed at follow-up.
 
-Computational studies have explored which features of the geometry may influence the extent of low
-WSS.
+Simulations have since identified which features of the geometry produce low WSS.
 Kashyap et al.\ (2022) \cite{kashyap2022tortuosity} reconstructed the left main bifurcation from the
 CCTA of individuals without CAD and simulated the blood flow through each.
 They then compared every tortuosity measure used in earlier studies with the share of the vessel
@@ -80,16 +88,16 @@ The area of low WSS at the bifurcation grew as the diameters of the two branches
 An uneven division also strengthened the effect of the angle and the bending, so these features act
 together rather than independently.
 
-Griffo et al.\ (2026) \cite{griffo2026wss} moved away from simulations and trained a graph neural
-network to estimate WSS from the shape of the vessel alone.
+Griffo et al.\ (2026) \cite{griffo2026wss} showed that the shape of the vessel alone is enough to
+estimate WSS, by training a graph neural network to do so without simulating the flow.
 The network learned from single coronary arteries reconstructed from invasive angiograms, with
 simulated WSS as the reference, and its estimate agreed closely with the simulation, more so once
 each vessel's WSS was divided by its own average.
 In a test set of patients who later had a heart attack, the estimated and the simulated WSS
 identified the lesion that caused it equally well, although both did so only moderately.
 
-Collectively, these studies highlight that vessel shape decides where WSS is low and carries enough
-of the flow information to replace its simulation
+Vessel shape therefore decides where WSS is low, and it carries enough of the flow information for
+WSS to be estimated without simulating it
 \cite{kashyap2022tortuosity,garcha2025sensitivity,zhang2024curvature,griffo2026wss}.
 
 \section{Quantifying Coronary Geometry}

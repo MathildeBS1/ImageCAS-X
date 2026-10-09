@@ -301,9 +301,39 @@ them; a left-dominant tree has a larger LCx and therefore a lower normal $\lambd
 The RCA has no bifurcation feature in this set, and the LM is too short for a curvature profile,
 so these domains receive the subset of models their features allow.
 
-The required sample size was calculated per domain with the criteria of Riley et al.
-\cite{riley2020samplesize}.
-% TODO: result of the calculation once the number of events is known.
+The sample size was calculated once, at the participant level, with the criteria of Riley et al.
+\cite{riley2020samplesize}, since segments of the same participant share risk factors and do not
+carry independent information.
+The binding criterion limits the expected shrinkage, the factor by which coefficients fitted on the
+cohort must be reduced to predict well in new participants, to no less than 0.9.
+No anticipated explained variance has been published for incident plaque, so the Cox--Snell $R^2$
+was set to 15\% of its maximum, the conservative default of the same authors.
+At an event proportion of 0.3 to 0.5 this gives an $R^2$ of about 0.11 and requires 76 to 80
+participants per candidate parameter.
+The roughly 2000 rescanned participants therefore support about 25 parameters, and the subset with
+no plaque at baseline about 13.
+% TODO: rerun with pmsampsize once the event proportion is known; check the 15% default against
+% the BMJ full text.
+
+The parameters were allocated before the outcomes were used: about 15 to the risk factors and 8 to
+10 to the geometry.
+A thin risk-factor block would let geometry take credit for age, sex and body size, with which it
+is correlated, so the risk factors follow an established score rather than a minimal set.
+They are the factors of SCORE2 \cite{score2_2021}, namely age, sex, smoking, systolic blood
+pressure and cholesterol, entered as LDL, plus diabetes.
+Four terms are specific to this design.
+Baseline plaque burden is required, since participants with plaque at baseline are included.
+Body mass index is included, since lumen radius and volume scale with body size.
+Lipid-lowering therapy is included, since it slows plaque progression, and dominance, since the
+normal value of several features depends on it.
+Age, LDL and baseline plaque burden enter as restricted cubic splines with three knots, which cost
+two parameters each, and smoking enters in three levels, giving 14 parameters in total.
+The geometry enters linearly, with the curvature slope shared across the LAD, LCx and RCA, so that
+the geometry block stays within 8 to 10 parameters.
+In the subset with no plaque at baseline, the plaque term drops out and age and LDL enter linearly,
+leaving 10 parameters for the risk factors.
+% TODO: geometry block for the plaque-free subset; 3 parameters remain under the conservative
+% bound.
 Models were fitted with a ridge penalty \cite{hoerl1970ridge} chosen by nested cross-validation,
 which also stabilizes the weights of correlated features.
 The scan interval differs between participants and the time of plaque onset is unknown, so the
