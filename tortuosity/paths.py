@@ -10,6 +10,7 @@ FIGURES = "figures"                           # relative, so run from the reposi
 # inputs
 CENTERLINE = DATA + "/centerlines/{case}.coronary_{side}_centerline.vtk"  # side: left, right
 FILELIST = DATA + "/filelist/{split}.txt"                                 # split: train, val, test
+SEGMENTATION = DATA + "/segmentations/{case}.coronary.nii.gz"            # multi-label lumen mask, for taper
 
 # Scan-level covariates, .xlsx or .csv, one row per scan, keyed by a column named "Scan ID".
 # Add a file per source; they are merged left to right, so the first one defines the cohort.
@@ -17,6 +18,7 @@ DESCRIPTORS = [DATA + "/Descriptors.xlsx"]
 
 # outputs
 SCORES = RESULTS + "/tortuosity_scores"      # score.py: <split>_vessels.csv
+TAPER_PROFILES = RESULTS + "/taper_profiles"  # score.py: <case>_<vessel>.npz, the r(s) profile behind T_taper
 DECILES = RESULTS + "/tortuosity_deciles"    # deciles.py: RCA here, LAD and LCX in subfolders
 REGRESSION = RESULTS + "/tortuosity_{name}"  # regression_model.py: name is outcome[_covariates]
 TRANSFORMER = RESULTS + "/tortuosity_transformer_{name}"  # transformer_model.py: name is outcome[_chord<l>][_covariates]

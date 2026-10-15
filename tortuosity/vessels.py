@@ -64,19 +64,30 @@ def longest_path(pts, edges, a, targets):
     return path[::-1]
 
 
-def load_vessels(case_id):
+def load_vessels(case_id, with_junctions=False):
     """{name: (n, 3) array in mm, ostium end first} for LAD, LCX and RCA.
 
     A name is absent when it has no ostium flag or no labelled point connected to it.
+    With with_junctions, each value is (P, junction_s) instead: the arc positions (mm from P[0])
+    of every point on the ostium path where three or more line cells meet. They are taken on the
+    path before LM is cut, so the LM split shows up at or just before 0 (taper.branch_keep).
     """
     out = {}
     for side in ("left", "right"):
         pts, label, edges, start = read(paths.CENTERLINE.format(case=case_id, side=side))
+        degree = np.bincount(edges.ravel(), minlength=len(pts))
         for name, (lab, s) in ARTERIES.items():
             a = start[np.isin(label[start], (1, lab))]  # this artery's ostium flag: on LM or on the artery itself
             if s != side or not len(a):
                 continue
             path = longest_path(pts, edges, a[0], np.flatnonzero(label == lab))  # ostium -> farthest point with this label
-            if path is not None:
-                out[name] = pts[[i for i in path if label[i] == lab]]  # keep only the artery's own points: LM is cut off
+            if path is None:
+                continue
+            own = [i for i in path if label[i] == lab]  # keep only the artery's own points: LM is cut off
+            if not with_junctions:
+                out[name] = pts[own]
+                continue
+            arc = np.concatenate([[0.0], np.cumsum(np.linalg.norm(np.diff(pts[path], axis=0), axis=1))])
+            arc -= arc[path.index(own[0])]  # 0 at the trunk's first point
+            out[name] = (pts[own], arc[degree[path] >= 3])
     return out
