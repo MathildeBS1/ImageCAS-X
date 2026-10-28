@@ -193,86 +193,382 @@ def confusion(y, p, thr):
 
 
 # ---------------------------------------------------------------- figures
-COLORS = ["#8a8984", "#2a6fdb", "#eb6834", "#1baf7a", "#6250d6", "#eda100", "#e87ba4"]
+# Validated categorical palette (dataviz skill); one fixed colour per model in every figure.
+SURF, INK, INK2, MUTED, GRID = "#fcfcfb", "#0b0b0b", "#52514e", "#8a8984", "#e4e3df"
+MODEL_COLOR = {"base": "#8a8984", "mean T5": "#2a78d6", "90th pct T5": "#eb6834", "fraction above p75": "#1baf7a",
+               "mean T2.5": "#eda100", "mean T10": "#e87ba4", "upstream 20 mm T5": "#008300"}
+VERDICT_COLOR = {"correct": "#1baf7a", "wrong": "#e34948", "neutral": "#c8c7c2"}
+FLAGGED, MISSED = "#86b6ef", "#eb6834"
+
+
+def _plt():
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    plt.rcParams.update({
+        "font.family": "DejaVu Sans", "font.size": 9, "figure.facecolor": SURF, "axes.facecolor": SURF,
+        "savefig.facecolor": SURF, "axes.edgecolor": MUTED, "axes.labelcolor": INK2, "xtick.color": INK2,
+        "ytick.color": INK2, "axes.titlesize": 11, "axes.titleweight": "bold", "axes.titlelocation": "left",
+        "axes.titlecolor": INK, "axes.spines.top": False, "axes.spines.right": False, "legend.frameon": False})
+    return plt
+
+
+def _grid(ax, axis="y"):
+    ax.grid(axis=axis, color=GRID, lw=0.8)
+    ax.set_axisbelow(True)
+
+
+def _save(fig, path, rect=None):
+    fig.tight_layout(rect=rect)
+    fig.savefig(path, dpi=170)
+    import matplotlib.pyplot as plt
+    plt.close(fig)
 
 
 def plots(y, preds, conf, out_dir):
-    import matplotlib
-    matplotlib.use("Agg")
-    import matplotlib.pyplot as plt
+    plt = _plt()
     grid = np.linspace(0, 1, 21)  # binned so no single segment is a visible step
-    fig, ax = plt.subplots(figsize=(5.2, 4.8))
-    for (name, p), col in zip(preds.items(), COLORS):
+    fig, ax = plt.subplots(figsize=(6.4, 5.2))
+    _grid(ax, "both")
+    ax.plot([0, 1], [0, 1], lw=1, ls=":", color=MUTED)
+    ax.text(0.62, 0.55, "chance", color=MUTED, fontsize=8, rotation=38)
+    for name, p in preds.items():
         a, fpr, tpr = auc(y, p)
-        ax.plot(grid, [tpr[fpr <= g].max() for g in grid], lw=2 if name == "base" else 1.5, color=col,
-                label=f"{name} (AUC {a:.2f})")
-    ax.plot([0, 1], [0, 1], lw=1, ls="--", color="#c8c7c2")
-    ax.set(xlabel="False positive rate (1 - specificity)", ylabel="True positive rate (sensitivity)")
-    ax.set_title("Segment progression, out-of-fold, between people", fontsize=10)
-    ax.spines[["top", "right"]].set_visible(False)
-    ax.legend(fontsize=7, frameon=False, loc="lower right")
-    fig.tight_layout(); fig.savefig(out_dir / "progression_roc.png", dpi=150); plt.close(fig)
+        ax.plot(grid, [tpr[fpr <= g].max() for g in grid], lw=2.6 if name == "base" else 1.8,
+                color=MODEL_COLOR.get(name, INK), label=f"{name}  (AUC {a:.2f})", zorder=3 if name == "base" else 2)
+    ax.set(xlabel="False positive rate (1 - specificity)", ylabel="True positive rate (sensitivity)", xlim=(0, 1), ylim=(0, 1.02))
+    ax.set_title("ROC: which segments progress? (out-of-fold)")
+    ax.legend(fontsize=8, loc="lower right", title="model", title_fontsize=8)
+    _save(fig, out_dir / "progression_roc.png")
 
-    fig, axes = plt.subplots(2, 4, figsize=(11, 5.6))
+    fig, axes = plt.subplots(2, 4, figsize=(12, 6.2))
+    cell_col = np.array([["#1baf7a", MISSED], ["#e34948", "#1baf7a"]])  # TP, FN / FP, TN
     for ax, (name, (tp, fn, fp, tn)) in zip(axes.ravel(), conf.items()):
         m = np.array([[tp, fn], [fp, tn]])
+        share = m / np.maximum(m.sum(axis=1, keepdims=True), 1)
         shown = suppress(m)
-        ax.imshow(m / m.sum(axis=1, keepdims=True), cmap="Blues", vmin=0, vmax=1)
         for (i, j), v in np.ndenumerate(shown):
-            ax.text(j, i, v, ha="center", va="center", fontsize=10,
-                    color="white" if m[i, j] / m[i].sum() > 0.6 else "#0b0b0b")
-        ax.set_xticks([0, 1], ["called progress", "called stable"], fontsize=7)
-        ax.set_yticks([0, 1], ["progressed", "stable"], fontsize=7)
-        ax.set_title(name, fontsize=9)
-    for ax in axes.ravel()[len(conf):]:
+            ax.add_patch(plt.Rectangle((j - 0.48, i - 0.48), 0.96, 0.96, color=cell_col[i, j], alpha=0.18 + 0.75 * share[i, j]))
+            ax.text(j, i - 0.08, v, ha="center", va="center", fontsize=13, fontweight="bold", color=INK)
+            if not isinstance(v, str):
+                ax.text(j, i + 0.22, f"{100 * share[i, j]:.0f}% of row", ha="center", va="center", fontsize=7.5, color=INK2)
+        ax.set_xlim(-0.5, 1.5); ax.set_ylim(1.5, -0.5)
+        ax.set_xticks([0, 1], ["called\nprogress", "called\nstable"], fontsize=8)
+        ax.set_yticks([0, 1], ["progressed", "stable"], fontsize=8)
+        ax.tick_params(length=0)
+        for sp in ax.spines.values():
+            sp.set_visible(False)
+        ax.set_title(name, color=MODEL_COLOR.get(name, INK), fontsize=10)
+    legend_ax = axes.ravel()[-1]
+    legend_ax.axis("off")
+    for k, (lab, col) in enumerate((("correct (TP, TN)", "#1baf7a"), ("missed progression (FN)", MISSED),
+                                    ("false alarm (FP)", "#e34948"))):
+        legend_ax.add_patch(plt.Rectangle((0.05, 0.75 - 0.18 * k), 0.12, 0.12, color=col, alpha=0.8, transform=legend_ax.transAxes))
+        legend_ax.text(0.22, 0.81 - 0.18 * k, lab, transform=legend_ax.transAxes, va="center", fontsize=9, color=INK)
+    legend_ax.text(0.05, 0.12, "Darker = larger share of its row.\nCut-off: training-fold progression rate.",
+                   transform=legend_ax.transAxes, fontsize=8, color=INK2)
+    for ax in axes.ravel()[len(conf):-1]:
         ax.axis("off")
-    fig.suptitle("Confusion matrices (out-of-fold; shade = row share)", fontsize=10)
-    fig.tight_layout(); fig.savefig(out_dir / "progression_confusion.png", dpi=150); plt.close(fig)
+    fig.suptitle("Confusion matrices per model (out-of-fold)", x=0.01, ha="left", fontsize=12, fontweight="bold", color=INK)
+    _save(fig, out_dir / "progression_confusion.png")
+
+
+VESSEL = {"plad": "LAD", "mlad": "LAD", "dlad": "LAD", "pcx": "LCx", "mcx": "LCx", "dcx": "LCx",
+          "prca": "RCA", "mrca": "RCA", "drca": "RCA"}
+
+
+def swaps(d, eta0, eta1, label, sec, out_dir):
+    """Within each person: which segments changed rank when the turning variant was added, and was the swap right?"""
+    pairs, changed, total = [], 0, 0
+    for _, g in d.assign(e0=eta0, e1=eta1).groupby("id"):
+        if len(g) < 2:
+            continue
+        r0, r1 = g["e0"].rank(ascending=False), g["e1"].rank(ascending=False)
+        changed += int((r0 != r1).sum()); total += len(g)
+        segs, e0, e1, yy = g["segment"].to_numpy(), g["e0"].to_numpy(), g["e1"].to_numpy(), g["y"].to_numpy()
+        for i in range(len(g)):
+            for j in range(i + 1, len(g)):
+                if np.sign(e0[i] - e0[j]) * np.sign(e1[i] - e1[j]) < 0:  # order flipped
+                    up = i if e1[i] > e1[j] else j  # the segment geometry moved above the other
+                    dn = j if up == i else i
+                    verdict = "neutral" if yy[up] == yy[dn] else "correct" if yy[up] == 1 else "wrong"
+                    a, b = sorted((segs[i], segs[j]))
+                    pairs.append({"segments": f"{a} <-> {b}", "vessels": " <-> ".join(sorted((VESSEL[a], VESSEL[b]))),
+                                  "verdict": verdict})
+    P = pd.DataFrame(pairs, columns=["segments", "vessels", "verdict"])
+    fname = f"progression_swaps_{label.split()[-1]}.png"
+    rep = [f"## {sec}. Which segments swapped places in a person's ranking when geometry was added ({label})?\n",
+           "Each person's segments are ranked from highest to lowest within-person score (section 2), once without and "
+           f"once with {label}. A swap is a pair of the person's segments whose order flipped. It is *correct* when the "
+           "segment moved up progressed and the one moved down did not, *wrong* the other way round, and *neutral* "
+           "when both progressed or both stayed stable.\n",
+           f"Segments whose rank changed: {count(changed)} of {count(total)}. Swapped pairs: {count(len(P))}. "
+           f"Figure: {fname}.\n"]
+    tables = {}
+    for by, title in (("vessels", "By vessel pair"), ("segments", "By segment pair (most frequent 12)")):
+        t = pd.crosstab(P[by], P["verdict"]).reindex(columns=["correct", "wrong", "neutral"], fill_value=0) if len(P) else pd.DataFrame()
+        if not len(t):
+            continue
+        t = t.assign(_n=t.sum(axis=1)).sort_values("_n", ascending=False).drop(columns="_n").head(12)
+        tables[by] = t
+        shown = suppress(t.to_numpy())
+        rep += [f"{title}:\n", "| pair | swaps | correct | wrong | neutral |", "|---|---|---|---|---|",
+                *[f"| {k} | {count(sum(r))} | " + " | ".join(map(str, sr)) + " |"
+                  for k, r, sr in zip(t.index, t.to_numpy(), shown)], ""]
+    if tables:
+        plt = _plt()
+        fig, axes = plt.subplots(1, len(tables), figsize=(12, 4.6), gridspec_kw={"width_ratios": [1, 1.4][:len(tables)]})
+        for ax, (by, t) in zip(np.atleast_1d(axes), tables.items()):
+            t = t.iloc[::-1]
+            yy = np.arange(len(t))
+            ok = ~np.array([any(0 < v < 5 for v in r) for r in t.to_numpy()])  # rows with a 1-4 cell: total only
+            left = np.zeros(len(t))
+            for v in ("correct", "wrong", "neutral"):
+                ax.barh(yy[ok], t[v].to_numpy()[ok], left=left[ok], color=VERDICT_COLOR[v], height=0.62, label=v)
+                left += t[v].to_numpy()
+            tot = t.sum(axis=1).to_numpy()
+            big = ~ok & (tot >= 5)  # split hidden but the total itself may be shown
+            if big.any():
+                ax.barh(yy[big], tot[big], color="#ecebe7", hatch="//", edgecolor=MUTED,
+                        height=0.62, label="split hidden (a part is under 5)")
+            for y_, n in zip(yy, tot):  # a total under 5 gets no bar at all, only the label
+                ax.text(n if n >= 5 else 0, y_, f" {count(n)}", va="center", fontsize=8, color=INK)
+            ax.set_yticks(yy, t.index)
+            ax.set_xlabel("swapped pairs")
+            _grid(ax, "x")
+            ax.set_title("by vessel pair" if by == "vessels" else "by segment pair")
+        handles = [plt.Rectangle((0, 0), 1, 1, color=VERDICT_COLOR[v]) for v in VERDICT_COLOR]
+        handles.append(plt.Rectangle((0, 0), 1, 1, facecolor="#ecebe7", hatch="//", edgecolor=MUTED))
+        fig.legend(handles, ["correct: moved-up segment progressed", "wrong: moved-up segment stayed stable",
+                             "neutral: both progressed or both stable", "split hidden (a part is under 5)"],
+                   loc="lower center", ncol=4, fontsize=8, frameon=False)
+        fig.suptitle(f"Ranking swaps within a person when {label} is added: correct, wrong or neutral?",
+                     x=0.01, ha="left", fontsize=12, fontweight="bold", color=INK)
+        _save(fig, out_dir / fname, rect=(0, 0.08, 1, 1))
+    return rep
+
+
+def top_levels(d, y, p_pt, p_ptg, thr, out_dir, label, sec, levels=(5, 10, 15, 20, 25, 30)):
+    """Segments whose risk geometry raised most: at each top-k% level, how many progressed, and how many of
+    those the position + time model had missed (false negatives)."""
+    delta = p_ptg - p_pt
+    base_neg = p_pt <= thr
+    rows = []
+    for k in levels:
+        m = delta >= np.percentile(delta, 100 - k)
+        prog = m & (y == 1)
+        rows.append({"level": k, "n": int(m.sum()), "trees": d.loc[m, "id"].nunique(), "prog": int(prog.sum()),
+                     "rescued": int((prog & base_neg).sum()), "base_tp": int((prog & ~base_neg).sum()),
+                     "expected": p_pt[m].sum(), "overall": y.mean() * m.sum()})
+    T = pd.DataFrame(rows)
+    fname = f"progression_toplevels_{label.split()[-1]}.png"
+    rep = [f"## {sec}. Segments whose risk {label} raised most: how many progressed?\n",
+           f"Segments are sorted by how much adding {label} raised their risk (position + time vs + {label}, out-of-fold). "
+           "At each level the top k% is taken. *Missed by position + time* = progressed although the position + time "
+           "model called them stable (risk at or below the training progression rate): these are the base model's false "
+           "negatives that geometry flagged. *Expected* = how many position + time alone predicted would progress.\n",
+           "| top | segments | trees | progressed | of which missed by position + time | expected by position + time | at the overall rate |",
+           "|---|---|---|---|---|---|---|"]
+    for r in T.itertuples():
+        rep.append(f"| {r.level}% | {count(r.n)} | {count(r.trees)} | {count(r.prog)} ({100 * r.prog / max(r.n, 1):.0f}%) | "
+                   f"{count(r.rescued)} | {r.expected:.0f} | {r.overall:.0f} |")
+    rep.append("\nIf geometry helps, 'progressed' stays above 'expected by position + time' at every level. "
+               f"Figure: {fname}.\n")
+
+    plt = _plt()
+    fig, ax = plt.subplots(figsize=(8.6, 4.8))
+    _grid(ax)
+    x = np.arange(len(T))
+    small = lambda v: 0 < v < 5
+    split_ok = ~(T["rescued"].map(small) | T["base_tp"].map(small))  # never show a count of 1-4 as a bar height
+    ax.bar(x[split_ok], T["base_tp"][split_ok], width=0.62, color=FLAGGED, label="progressed - position + time already flagged it")
+    ax.bar(x[split_ok], T["rescued"][split_ok], width=0.62, bottom=T["base_tp"][split_ok], color=MISSED,
+           label="progressed - position + time missed it, geometry caught it")
+    if (~split_ok).any():
+        ax.bar(x[~split_ok], T["prog"][~split_ok], width=0.62, color="#ecebe7", hatch="//", edgecolor=MUTED,
+               label="progressed (split hidden: a part is under 5)")
+    ax.plot(x, T["expected"], "o-", color=INK, lw=1.8, ms=6, label="expected by position + time", zorder=4)
+    ax.plot(x, T["overall"], "s--", color=MUTED, lw=1.2, ms=4, label="expected at the overall progression rate", zorder=4)
+    for xi, r in zip(x, T.itertuples()):
+        ax.text(xi, r.prog + 0.3, f"{count(r.prog)} of {count(r.n)}\n({100 * r.prog / max(r.n, 1):.0f}%)",
+                ha="center", va="bottom", fontsize=8, color=INK)
+    ax.set_xticks(x, [f"top {k}%" for k in T["level"]])
+    ax.set_ylabel("segments that progressed")
+    ax.set_ylim(0, max(T["prog"].max(), T["expected"].max()) * 1.35 + 1)
+    ax.set_title(f"Segments whose risk {label} raised most: how many progressed?",
+                 color=MODEL_COLOR.get(label, INK))
+    ax.legend(fontsize=8, loc="upper left")
+    _save(fig, out_dir / fname)
+    return rep
 
 
 def extra_plots(W, R, n_inf, out_dir):
-    import matplotlib
-    matplotlib.use("Agg")
-    import matplotlib.pyplot as plt
-    ink, base_col, geo_col = "#0b0b0b", "#8a8984", "#2a6fdb"
-    fig, axes = plt.subplots(1, 2, figsize=(12, 4.2), sharey=True, gridspec_kw={"width_ratios": [1, 1.5]})
+    plt = _plt()
+    fig, axes = plt.subplots(1, 2, figsize=(12.5, 4.6), sharey=True, gridspec_kw={"width_ratios": [1, 1.5]})
     yy = np.arange(len(W))[::-1]
-    cols = [base_col] + [geo_col] * (len(W) - 1)
-    for ax, key, title, ref in ((axes[0], "C", "Within-person C (0.5 = coin flip)", 0.5),
-                                (axes[1], "hit", "Top-ranked segment progressed", None)):
+    cols = [MODEL_COLOR.get(m, INK) for m in W["model"]]
+    for ax, key, title, ref in ((axes[0], "C", "Within-person C", 0.5), (axes[1], "hit", "Top-ranked segment progressed", None)):
+        _grid(ax, "x")
         vals = W[key].to_numpy() * (100 if key == "hit" else 1)
-        ax.barh(yy, vals, color=cols, height=0.6)
-        ax.axvline(vals[0], color=base_col, lw=1, ls="--")
+        ax.barh(yy, vals, color=cols, height=0.62)
+        ax.axvline(vals[0], color=MODEL_COLOR["base"], lw=1.2, ls="--")
         if ref is not None:
-            ax.axvline(ref, color="#c8c7c2", lw=1)
+            ax.axvline(ref, color=MUTED, lw=1, ls=":")
+            ax.text(ref, len(W) - 0.45, " coin flip", color=MUTED, fontsize=8, va="bottom")
         notes = [""] + [f"   top changed in {count(r.changed)}: new {count(r.new_ok)} vs old {count(r.old_ok)} progressed"
                         for r in W.iloc[1:].itertuples()]
         for y_, v, note in zip(yy, vals, notes):
-            ax.text(v, y_, (f" {v:.2f}" if key == "C" else f" {v:.0f}%" + note), va="center", fontsize=8, color=ink)
+            ax.text(v, y_, (f" {v:.2f}" if key == "C" else f" {v:.0f}%" + note), va="center", fontsize=8, color=INK)
         if key == "hit":
             ax.set_xlim(0, 175)
             ax.set_xticks([0, 25, 50, 75, 100])
-        ax.set_title(title, fontsize=10)
-        ax.spines[["top", "right"]].set_visible(False)
+            ax.set_xlabel(f"% of {count(n_inf)} people with some but not all segments progressed")
+        ax.set_title(title)
     axes[0].set_yticks(yy, W["model"])
-    axes[1].set_xlabel(f"% of {count(n_inf)} people with some but not all segments progressed")
-    fig.suptitle("Within one person: does geometry rank the progressing segments first? (grey = base, dashed = base level)",
-                 fontsize=10)
-    fig.tight_layout(); fig.savefig(out_dir / "progression_within.png", dpi=150); plt.close(fig)
+    for lab, col in zip(axes[0].get_yticklabels(), cols):  # tick labels follow W's row order
+        lab.set_color(col)
+        lab.set_fontweight("bold")
+    fig.suptitle("Within one person: does geometry rank the progressing segments first?  (dashed = base level)",
+                 x=0.01, ha="left", fontsize=12, fontweight="bold", color=INK)
+    _save(fig, out_dir / "progression_within.png")
 
-    fig, ax = plt.subplots(figsize=(8, 4.2))
+    fig, ax = plt.subplots(figsize=(9, 4.8))
+    _grid(ax)
     x = np.arange(len(R))
-    for off, key, col, lab in ((-0.27, "pt", base_col, "expected: position + time"),
-                               (0, "ptg", geo_col, "expected: + mean T5"), (0.27, "obs", ink, "observed")):
-        ax.bar(x + off, 100 * R[key], width=0.25, color=col, label=lab)
+    for off, key, col, lab in ((-0.28, "pt", MODEL_COLOR["base"], "expected: position + time"),
+                               (0, "ptg", MODEL_COLOR["mean T5"], "expected: + mean T5"), (0.28, "obs", MISSED, "observed")):
+        ax.bar(x + off, 100 * R[key], width=0.26, color=col, label=lab)
         for xi, v in zip(x + off, 100 * R[key]):
-            ax.text(xi, v, f"{v:.0f}%", ha="center", va="bottom", fontsize=8)
-    ax.set_xticks(x, [f"{g}\n(n = {count(n)})" for g, n in zip(R["group"], R["n"])], fontsize=8)
+            ax.text(xi, v + 0.4, f"{v:.0f}%", ha="center", va="bottom", fontsize=8, color=INK)
+    ax.set_xticks(x, [f"{g}\n(n = {count(n)})" for g, n in zip(R["group"], R["n"])], fontsize=8.5)
     ax.set_ylabel("segments that progressed (%)")
-    ax.set_title("When geometry changes a segment's risk, does the segment do what geometry says?", fontsize=10)
-    ax.spines[["top", "right"]].set_visible(False)
-    ax.legend(fontsize=8, frameon=False)
-    fig.tight_layout(); fig.savefig(out_dir / "progression_reclass.png", dpi=150); plt.close(fig)
+    ax.set_ylim(0, 100 * R[["pt", "ptg", "obs"]].to_numpy().max() * 1.25)
+    ax.set_title("When geometry changes a segment's risk, does the segment do what geometry says?")
+    ax.legend(fontsize=8, loc="upper center", ncol=3)
+    _save(fig, out_dir / "progression_reclass.png")
+
+
+SEG_ORDER = [sg for segs in NAMES.values() for sg in segs]
+
+
+def per_segment(d, y, fold, folds, B, rng, out_dir, cols=(("mean_T5", "mean T5"), ("mean_T2.5", "mean T2.5"))):
+    """Does turning predict progression better in some segments? One model per variant with a separate
+    turning effect for each segment (turning x segment), adjusted for the same base as section 1."""
+    segs = [sg for sg in SEG_ORDER if sg in set(d["segment"])]
+    seg = d["segment"].to_numpy()
+    X0 = design(d)
+
+    def oof(col):
+        p = np.zeros(len(d))
+        for k in range(folds):
+            tr, te = fold != k, fold == k
+            if col is None:
+                Xtr, Xte = design(d[tr]), design(d[te])
+            else:
+                z = zscore(d, col, tr)
+                inter = lambda m: np.column_stack([z[m] * (seg[m] == sg) for sg in segs])
+                Xtr, Xte = np.column_stack([design(d[tr]), inter(tr)]), np.column_stack([design(d[te]), inter(te)])
+            p[te] = predict(Xte, fit(Xtr, y[tr])[0])
+        return p
+
+    p_base = oof(None)
+    res, het = {}, {}
+    for col, label in cols:
+        z = zscore(d, col, np.ones(len(d), bool))
+        X = np.column_stack([X0, *[z * (seg == sg) for sg in segs]])
+        w, p_fit, ll1, H = fit(X, y)
+        ll_shared = fit(design(d, z), y)[2]
+        het[label] = chi2.sf(2 * (ll1 - ll_shared), len(segs) - 1)
+        U = pd.DataFrame(X * (y - p_fit)[:, None]).groupby(d["id"].to_numpy()).sum().to_numpy()
+        V = np.linalg.inv(H) @ (U.T @ U) @ np.linalg.inv(H)
+        p_int = oof(col)
+        for i, sg in enumerate(segs):
+            m = seg == sg
+            k, n = int(y[m].sum()), int(m.sum())
+            j = X0.shape[1] + i
+            r = {"n": n, "k": k, "ok": min(k, n - k) >= 5 and np.std(z[m]) > 1e-9,
+                 "why": "too few events or non-events" if min(k, n - k) < 5 else "turning does not vary here"}
+            if r["ok"]:
+                b, se = w[j], np.sqrt(V[j, j])
+                c0, c1 = auc(y[m], p_base[m])[0], auc(y[m], p_int[m])[0]
+                idx = np.where(m)[0]  # one row per person within a segment: resample rows
+                bd = []
+                for _ in range(B):
+                    bi = rng.choice(idx, len(idx))
+                    if 0 < y[bi].sum() < len(bi):
+                        bd.append(auc(y[bi], p_int[bi])[0] - auc(y[bi], p_base[bi])[0])
+                r.update(OR=np.exp(b), lo=np.exp(b - 1.96 * se), hi=np.exp(b + 1.96 * se), p=2 * norm.sf(abs(b / se)),
+                         c0=c0, c1=c1, dlo=np.percentile(bd, 2.5), dhi=np.percentile(bd, 97.5))
+            res[(label, sg)] = r
+
+    rep = ["## 8. Is geometry better at predicting some segments than others?\n",
+           "One model per turning scale gives every segment its own turning effect (turning x segment), adjusted for "
+           "SCORE2, follow-up time, position and BL grade as in section 1. T5 and T2.5 are per-segment values: the "
+           "turning angles inside that segment's own stretch of the trunk, averaged.\n",
+           "- *OR per SD*: odds of progressing per SD more turning than usual for that segment.",
+           "- *AUC within segment*: comparing people at that segment only; base vs + turning (out-of-fold), "
+           "with the change and a bootstrap interval.",
+           "- *Different between segments?*: one test of whether the turning effect varies across the 9 segments "
+           "(8 df). Read single segments with care: 18 estimates means some will look strong by chance.\n"]
+    for label in het:
+        rep.append(f"{label}: different between segments? p = {het[label]:.3g}")
+    rep += ["", "| segment | events / segments | scale | OR per SD (95% CI) | p | AUC base | AUC + turning | ΔAUC (95% bootstrap) |",
+            "|---|---|---|---|---|---|---|---|"]
+    for sg in segs:
+        for col, label in cols:
+            r = res[(label, sg)]
+            ev = f"{count(r['k'])} / {count(r['n'])}"
+            if not r["ok"]:
+                rep.append(f"| {sg} | {ev} | {label} | {r['why']} | | | | |")
+                continue
+            rep.append(f"| {sg} | {ev} | {label} | {r['OR']:.2f} ({r['lo']:.2f}–{r['hi']:.2f}) | {r['p']:.3g} | "
+                       f"{r['c0']:.3f} | {r['c1']:.3f} | {r['c1'] - r['c0']:+.3f} ({r['dlo']:+.3f} to {r['dhi']:+.3f}) |")
+    rep.append("\nFigure: progression_per_segment.png.\n")
+
+    plt = _plt()
+    fig, axes = plt.subplots(1, 2, figsize=(12.5, 6.2), sharey=True)
+    yy = np.arange(len(segs))[::-1].astype(float)
+    for k, (col, label) in enumerate(cols):
+        off = (k - 0.5) * 0.28
+        colr = MODEL_COLOR[label]
+        for y_, sg in zip(yy, segs):
+            r = res[(label, sg)]
+            if not r["ok"]:
+                continue
+            axes[0].plot([r["lo"], r["hi"]], [y_ + off] * 2, color=colr, lw=2)
+            axes[0].plot(r["OR"], y_ + off, "o", color=colr, ms=7, mec="white", mew=1, label=label if sg == segs[0] else None)
+            axes[1].plot([r["dlo"], r["dhi"]], [y_ + off] * 2, color=colr, lw=2)
+            axes[1].plot(r["c1"] - r["c0"], y_ + off, "D", color=colr, ms=6, mec="white", mew=1)
+    axes[0].axvline(1, color=MUTED, lw=1, ls=":")
+    axes[1].axvline(0, color=MUTED, lw=1, ls=":")
+    axes[0].set_xscale("log")
+    from matplotlib.ticker import FixedLocator, NullLocator
+    axes[0].xaxis.set_major_locator(FixedLocator([0.25, 0.5, 1, 2, 4, 8]))
+    axes[0].xaxis.set_minor_locator(NullLocator())
+    axes[0].set_xticklabels(["0.25", "0.5", "1", "2", "4", "8"])
+    vess = [VESSEL[sg] for sg in segs]
+    for ax in axes:
+        _grid(ax, "x")
+        for i in range(1, len(segs)):  # a line between LAD / LCx / RCA groups
+            if vess[i] != vess[i - 1]:
+                ax.axhline((yy[i] + yy[i - 1]) / 2, color=MUTED, lw=0.8, alpha=0.6)
+    labels = [f"{sg}  ({count(res[(cols[0][1], sg)]['k'])}/{count(res[(cols[0][1], sg)]['n'])})" for sg in segs]
+    axes[0].set_yticks(yy, labels)
+    for lab, sg in zip(axes[0].get_yticklabels(), segs):
+        lab.set_color({"LAD": "#2a78d6", "LCx": "#1baf7a", "RCA": "#e34948"}[VESSEL[sg]])
+        lab.set_fontweight("bold")
+    axes[0].set_xlabel("odds ratio per SD more turning (log scale)")
+    axes[0].set_title("Effect of turning, per segment")
+    axes[1].set_xlabel("change in AUC within the segment (+ turning vs base)")
+    axes[1].set_title("Gain in discrimination, per segment")
+    axes[0].legend(fontsize=8, loc="lower right", title="scale", title_fontsize=8)
+    het_txt = ", ".join(f"{l}: p = {v:.2g}" for l, v in het.items())
+    fig.suptitle(f"Is turning a better predictor in some segments?  Different between segments: {het_txt}",
+                 x=0.01, ha="left", fontsize=12, fontweight="bold", color=INK)
+    fig.text(0.01, 0.01, "Segment label colour = vessel (LAD blue, LCx aqua, RCA red); (events/segments). "
+             "Segments with fewer than 5 events or non-events, or no variation in turning, are left out.", fontsize=8, color=INK2)
+    _save(fig, out_dir / "progression_per_segment.png", rect=(0, 0.03, 1, 1))
+    return rep
 
 
 # ---------------------------------------------------------------- main
@@ -364,6 +660,7 @@ def main():
         return top.loc[top.groupby("id")["eta"].idxmax()].set_index("id")
 
     eta0 = cv_within(None)
+    etas = {}
     t0 = top1(eta0)
     c0w = strat_c(d, eta0, "id")
     _, ll_w0 = clogit(within_design(d), y, grp)
@@ -372,6 +669,7 @@ def main():
     for col, name in VARIANTS.items():
         _, ll_w1 = clogit(within_design(d, zscore(d, col, np.ones(len(d), bool))), y, grp)
         eta1 = cv_within(col)
+        etas[col] = eta1
         t1 = top1(eta1)
         changed = t1.index[t1["segment"] != t0.loc[t1.index, "segment"]]
         within.append({"model": name, "C": strat_c(d, eta1, "id"), "hit": t1["y"].mean(), "hits": int(t1["y"].sum()), "p": chi2.sf(2 * (ll_w1 - ll_w0), 1),
@@ -404,7 +702,7 @@ def main():
                f"({best['model']}) gives C {best['C']:.2f} ({best['C'] - c0w:+.2f}). Figure: progression_within.png.\n")
 
     # 3. reclassification: position + time vs + mean T5
-    p_pt, _ = cv(None, person=False, grade=False)
+    p_pt, thr_pt = cv(None, person=False, grade=False)
     p_ptg, _ = cv("mean_T5", person=False, grade=False)
     delta = p_ptg - p_pt
     q10, q90 = np.percentile(delta, [10, 90])
@@ -429,7 +727,12 @@ def main():
                f"{100 * up.pt:.0f}%); where it lowered the risk, {100 * down.obs:.0f}% progressed (expected "
                f"{100 * down.pt:.0f}%): {verdict}. Figure: progression_reclass.png.\n")
     extra_plots(W, R, n_inf, out_dir)
+    for k, (col, label) in enumerate((("mean_T5", "mean T5"), ("mean_T2.5", "mean T2.5"))):
+        rep += swaps(d, eta0, etas[col], label, 4 + 2 * k, out_dir)
+        p_g = p_ptg if col == "mean_T5" else cv(col, person=False, grade=False)[0]
+        rep += top_levels(d, y, p_pt, p_g, thr_pt, out_dir, label, 5 + 2 * k)
 
+    rep += per_segment(d, y, fold, args.folds, min(args.boot, 300), rng, out_dir)
     Path(args.out).write_text("\n".join(rep), encoding="utf-8")
     print("\n".join(rep))
     print(f"wrote {args.out} and progression_*.png in {out_dir}")
