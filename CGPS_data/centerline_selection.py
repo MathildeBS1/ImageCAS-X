@@ -55,7 +55,7 @@ import centerline_qc as qc  # noqa: E402  (reader, label names and graph setting
 
 # ---- edit these before running (or override with --src / --out) ----
 ZIP_PATH = qc.ZIP_PATH                                    # the zip, or a folder with the files
-OUT_DIR = str(Path.home() / "centerline_selection")      # results folder (created if missing)
+OUT_DIR = "/home/s254124/thesis/data_exploration/results/centerline_selection"  # results folder (created if missing)
 SECURE_SUBDIR = "secure_only"                             # row-level CSV goes here; never copy it out
 
 # disclosure control (same rules as cgps_stats.py)

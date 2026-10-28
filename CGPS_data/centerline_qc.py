@@ -61,7 +61,7 @@ import pandas as pd
 
 # ---- edit these before running (or override with --src / --out) ----
 ZIP_PATH = "/data/kimbr/centerlines_hø_10Y.zip"   # the zip, or a folder with the extracted files
-OUT_DIR = str(Path.home() / "centerline_qc")       # results folder (created if missing)
+OUT_DIR = "/home/s254124/thesis/data_exploration/results/centerline_qc"  # results folder (created if missing)
 
 EXPECTED_CASES = 744
 DEDUP_TOL = 0.01      # mm: points closer than this are the same graph node

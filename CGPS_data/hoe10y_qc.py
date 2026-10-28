@@ -32,7 +32,7 @@ Checks (Kit's questions in brackets)
    contours but visually normal], visual grade vs Medis stenosis/plaque burden, visual plaque type
    vs calcified wall fraction, *_medis_finished/*_medis_egnet vs contours.
 
-Outputs (OUT_DIR = /data/s254124/hoe10y_qc, or --out):
+Outputs (OUT_DIR = /home/s254124/thesis/data_exploration/results/hoe10y_qc, or --out):
 - inventory.md     folder layout, file kinds, example of every file kind (header/arrays), log head.
 - report.md        all checks as aggregate tables. No study_id and no row-level values, but it still
                    describes clinical data: check it against the data agreement before copying it
@@ -67,7 +67,7 @@ import centerline_qc as cq  # noqa: E402 - tree parsing and topology metrics
 
 # ---- edit these before running (or override with --root / --out) ----
 ROOT = "/data/kimbr/HØ_10Y"
-OUT_DIR = "/data/s254124/hoe10y_qc"  # personal folder on dtu-gpu-7 (next to /data/kimbr)
+OUT_DIR = "/home/s254124/thesis/data_exploration/results/hoe10y_qc"  # own subfolder: report.md would clash with cgps_stats.py
 HEADER_DIR = Path(__file__).resolve().parent  # header_BL.xlsx / header_FU.xlsx for the column check
 
 # ---- file naming (check against inventory.md) ----

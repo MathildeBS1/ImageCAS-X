@@ -41,7 +41,7 @@ import pandas as pd
 # ---- edit these three paths before running ----
 BL_PATH = "/data/kimbr/HØ_10Y/Visual_Analysis_and_Patient_Characteristics/BL_anonymised.xlsx"  # baseline (first sheet)
 FU_PATH = "/data/kimbr/HØ_10Y/Visual_Analysis_and_Patient_Characteristics/FU_anonymised.xlsx"  # follow-up (first sheet)
-OUT_DIR = "/data/s254124/cgps_results"  # folder for the aggregate results (created if missing)
+OUT_DIR = "/home/s254124/thesis/data_exploration/results"  # folder for the aggregate results (created if missing)
 
 MIN_CELL = 5
 QUARTILE_MIN = 10  # values needed before median/quartiles are shown
