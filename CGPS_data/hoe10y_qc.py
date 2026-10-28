@@ -207,7 +207,7 @@ def discover(root):
         elif medis in p.parents and n.endswith(TREE_EXT):
             v = visit_from_path(rel)
             trees.append({"visit": "BL" if v == "?" else v, "id": id_from_name(p.name), "path": p})
-        elif n.endswith(LOG_EXT) and p.stat().st_size < 500e6:
+        elif (n.endswith(".log") or ("log" in n and n.endswith(LOG_EXT))) and p.stat().st_size < 500e6:
             logs.append(p)
         else:
             other.append(p)
@@ -291,7 +291,7 @@ def load_sheets(root):
         if p.exists():
             df = pd.read_excel(p)
             df.columns = [str(c).strip() for c in df.columns]
-            out[v] = df.replace(r"^\s*$", np.nan, regex=True)
+            out[v] = df.replace(r"^\s*$", np.nan, regex=True).copy()
     return out
 
 
@@ -546,8 +546,9 @@ def calibrate(task):
         for conv in CONVENTIONS:
             out[conv] = conv_score(vol, inv, P, conv)
         return out
-    except Exception:  # noqa: BLE001
-        return None
+    except Exception as ex:  # noqa: BLE001 - shown by main() if no patient calibrates
+        return {"error": f"{task['visit']} {task['id']}: {type(ex).__name__}: {ex}"[:400],
+                "trace": traceback.format_exc()[-1500:]}
 
 
 def conv_score(vol, inv, P, conv):
@@ -1057,7 +1058,17 @@ def main():
         calib = [t for t in tasks if t["nifti"] and (t["tree"] or t["contours"])][:CALIB_N]
         if calib and not args.no_voxels:
             with Pool(args.workers) as pool:
-                scores = [s for s in pool.map(calibrate, calib) if s]
+                results = [s for s in pool.map(calibrate, calib) if s]
+            scores = [s for s in results if "error" not in s]
+            failed = [s for s in results if "error" in s]
+            if failed:
+                print(f"calibration failed for {len(failed)} of {len(calib)} patients, e.g.:")
+                for f in failed[:3]:
+                    print("  " + f["error"])
+                print(failed[0]["trace"])
+            if not scores:
+                sys.exit("no patient could be calibrated - fix the error above, or pass --convention "
+                         "(ras, lps, ...) if you know the coordinate convention")
             votes = Counter(best_conv(s) for s in scores)
             conv = votes.most_common(1)[0][0] if votes else "ras"
             calib_tab = pd.DataFrame({c: [f"{np.median([s[c][0] for s in scores]):.2f} / {np.median([s[c][1] for s in scores]):.2f} / "
