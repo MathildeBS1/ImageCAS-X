@@ -303,6 +303,27 @@ def summary(df, n_files, failed):
             [(k, count(v)) for k, v in pd.Series(status).value_counts().items()],
         ),
     ]
+    # BL -> FU change of the visual grade in each split trunk segment, then per tree
+    rank = {g: i for i, g in enumerate(hq.GRADES)}
+    bg, fg = df["grade_bl"].map(rank), df["grade_fu"].map(rank)
+    change = pd.Series(np.select([bg.isna() | fg.isna(), fg > bg, fg < bg], ["unknown", "progressed", "regressed"], "same"),
+                       index=df.index)
+    cols = ["same", "progressed", "regressed", "unknown"]
+    t = pd.crosstab(df["segment"], change).reindex(columns=cols, fill_value=0)
+    t = t.reindex([sg for segs in NAMES.values() for sg in segs if sg in t.index])
+    per = change.groupby(df["id"]).agg(lambda c: "progressed" if (c == "progressed").any() else
+                                       "regressed only" if (c == "regressed").any() else
+                                       "stayed the same" if (c == "same").any() else "unknown")
+    t2 = pd.crosstab(pd.Series(status, index=pat.index).reindex(per.index), per)
+    t2 = t2.reindex(columns=[c for c in ("stayed the same", "progressed", "regressed only", "unknown") if c in t2.columns])
+    L += ["## Progression BL -> FU in the 9 split trunk segments (all trees)\n",
+          "Progressed = higher visual stenosis grade at FU (none -> minimal counts); unknown = not graded or "
+          "unevaluable at either visit. Unread BL scans have segments filled 'none', so read their row with care.\n",
+          table(["segment", *cols], [(sg, *r) for sg, r in zip(t.index, suppress(t.to_numpy()))]),
+          "Per tree (progressed = at least one segment worse; regressed only = some better, none worse):\n",
+          table(["status at BL", *t2.columns, "trees"],
+                [(st, *r, count(n)) for st, r, n in zip(t2.index, suppress(t2.to_numpy()), t2.sum(axis=1))]),
+          f"All trees: {', '.join(f'{k} {count(v)}' for k, v in per.value_counts().items())}.\n"]
     clean = df[df["id"].isin(pat.index[status == "clean at BL, read"])]
     if len(clean):
         cat = clean["grade_fu"].map(
