@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CGPS Outcome Overview</title>
+<style>
+:root {
+  color-scheme: light;
+  --page: #f9f9f7; --surface: #fcfcfb; --ink: #0b0b0b; --ink-2: #52514e; --muted: #898781;
+  --grid: #e1e0d9; --axis: #c3c2b7; --ring: rgba(11,11,11,0.10);
+  --g-nn: #1baf7a; --g-np: #eda100; --g-same: #6250d6; --g-more: #e34948; --g-less: #2a78d6;
+  --accent: #2a78d6; --accent-2: #eb6834; --rest: #c3c2b7;
+}
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface: #1a1a19; --ink: #f0efec; --ink-2: #c3c2b7; --muted: #898781;
+    --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,0.10);
+    --g-nn: #199e70; --g-np: #c98500; --g-same: #9085e9; --g-more: #e66767; --g-less: #3987e5;
+    --accent: #3987e5; --accent-2: #d95926; --rest: #4a4a46;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #0d0d0d; --surface: #1a1a19; --ink: #f0efec; --ink-2: #c3c2b7; --muted: #898781;
+  --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,0.10);
+  --g-nn: #199e70; --g-np: #c98500; --g-same: #9085e9; --g-more: #e66767; --g-less: #3987e5;
+  --accent: #3987e5; --accent-2: #d95926; --rest: #4a4a46;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--page); color: var(--ink);
+  font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+main { max-width: 1040px; margin: 0 auto; padding: 32px 16px 64px; }
+h1 { font-size: 26px; line-height: 1.2; margin: 0 0 6px; font-weight: 650; }
+h2 { font-size: 17px; margin: 0 0 4px; font-weight: 620; }
+p { margin: 0 0 10px; }
+.lede { color: var(--ink-2); max-width: 760px; margin-bottom: 24px; }
+.card { background: var(--surface); border: 1px solid var(--ring); border-radius: 12px; padding: 20px; margin: 0 0 20px; }
+.takeaway { color: var(--ink-2); margin-bottom: 16px; max-width: 800px; }
+.note { color: var(--muted); font-size: 13px; margin-top: 12px; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-bottom: 20px; }
+.tile { background: var(--surface); border: 1px solid var(--ring); border-radius: 12px; padding: 14px 16px; }
+.tile .v { font-size: 28px; font-weight: 650; line-height: 1.1; }
+.tile .l { color: var(--ink-2); font-size: 13px; margin-top: 4px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 0 0 14px; font-size: 13px; color: var(--ink-2); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.sw { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+/* 100% stacked rows */
+.srow { margin-bottom: 14px; }
+.srow .lab { font-size: 13px; color: var(--ink); margin-bottom: 4px; display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.srow .lab .n { color: var(--muted); font-variant-numeric: tabular-nums; }
+.stack { display: flex; gap: 2px; height: 22px; border-radius: 4px; overflow: hidden; }
+.stack div { height: 100%; min-width: 0; cursor: default; }
+.stack div:hover { filter: brightness(1.08); }
+.caution { font-size: 12px; color: var(--muted); margin-top: 3px; }
+/* horizontal bar panels */
+.panels { display: grid; grid-template-columns: minmax(180px, 1.3fr) repeat(3, minmax(0, 1fr)); gap: 0 18px; align-items: center; }
+.panels .hd { font-size: 12px; color: var(--muted); padding-bottom: 6px; border-bottom: 1px solid var(--axis); margin-bottom: 6px; }
+.panels .rl { font-size: 13px; padding: 5px 0; }
+.panels .rl small { color: var(--muted); }
+.cell { position: relative; height: 26px; }
+.cell .track { position: absolute; inset: 0; background-image: linear-gradient(to right, var(--grid) 1px, transparent 1px); background-size: 25% 100%; }
+.cell .bar { position: absolute; left: 0; top: 7px; height: 12px; border-radius: 0 4px 4px 0; }
+.cell .val { position: absolute; top: 4px; font-size: 12px; color: var(--ink-2); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.cell .ref { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--ink-2); opacity: .5; }
+.axisrow { font-size: 11px; color: var(--muted); position: relative; height: 16px; }
+.axisrow span { position: absolute; transform: translateX(-50%); font-variant-numeric: tabular-nums; }
+@media (max-width: 720px) {
+  .panels { grid-template-columns: 1fr; }
+  .panels .hd:first-child { display: none; }
+  .panels .rl { padding-top: 12px; font-weight: 600; }
+  .panels .hd { display: none; }
+  .cell::before { content: attr(data-h); position: absolute; left: 0; top: -2px; font-size: 11px; color: var(--muted); }
+  .cell { height: 30px; } .cell .bar { top: 14px; } .cell .val { top: 10px; } .cell .track { top: 12px; }
+  .axisrow { display: none; }
+}
+/* small multiples: vertical bars */
+.multiples { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 16px; }
+.mult h3 { font-size: 13px; font-weight: 600; margin: 0 0 8px; }
+.vbars { display: flex; align-items: flex-end; gap: 10px; height: 150px; border-bottom: 1px solid var(--axis); padding: 0 4px;
+  background-image: linear-gradient(to top, var(--grid) 1px, transparent 1px); background-size: 100% 25%; }
+.vbars .col { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; }
+.vbars .b { width: 100%; max-width: 34px; border-radius: 4px 4px 0 0; background: var(--accent); }
+.vbars .v { font-size: 12px; color: var(--ink-2); margin-bottom: 3px; font-variant-numeric: tabular-nums; }
+.xl { display: flex; gap: 10px; padding: 4px 4px 0; font-size: 11px; color: var(--muted); }
+.xl span { flex: 1; text-align: center; }
+/* simple ranked bars */
+.rank { display: grid; grid-template-columns: minmax(120px, 210px) 1fr; gap: 2px 12px; align-items: center; }
+.rank .rl { font-size: 13px; padding: 3px 0; }
+.rank .grp { grid-column: 1 / -1; font-size: 12px; color: var(--muted); margin-top: 10px; padding-bottom: 2px; border-bottom: 1px solid var(--grid); }
+details { margin-top: 14px; font-size: 13px; }
+summary { cursor: pointer; color: var(--ink-2); }
+table { border-collapse: collapse; margin-top: 8px; font-variant-numeric: tabular-nums; width: 100%; }
+.tablewrap { overflow-x: auto; }
+th, td { text-align: right; padding: 4px 8px; border-bottom: 1px solid var(--grid); white-space: nowrap; }
+th:first-child, td:first-child { text-align: left; }
+th { color: var(--ink-2); font-weight: 600; }
+#tip { position: fixed; pointer-events: none; z-index: 10; background: var(--surface); color: var(--ink); border: 1px solid var(--ring);
+  box-shadow: 0 4px 16px rgba(0,0,0,.12); border-radius: 8px; padding: 8px 10px; font-size: 12.5px; line-height: 1.45; max-width: 280px; display: none; }
+#tip b { font-weight: 600; }
+.pill { display: inline-block; font-size: 11px; padding: 0 6px; border-radius: 999px; border: 1px solid var(--ring); color: var(--ink-2); margin-left: 4px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Choosing the outcome: what the CGPS data supports</h1>
+  <p class="lede">Aggregate results from <code>cgps_stats.py</code> on 2,116 patients with a baseline and a follow-up CT.
+    Counts below 5 are suppressed in the source report. Hover any bar for exact counts; every chart has a table view.</p>
+
+  <div class="tiles" id="tiles"></div>
+
+  <section class="card">
+    <h2>The five plaque trajectories depend on which patients you count</h2>
+    <p class="takeaway">Among patients whose baseline segments were read, most plaque grows (54–57% "plaque → more").
+      The 1,094 without baseline reads have SIS = 0, so they can only land in the two "no plaque" groups. Mixing them in (bottom bar)
+      halves "plaque → more" and inflates "no plaque → plaque".</p>
+    <div class="legend" id="legend-a"></div>
+    <div id="chart-a"></div>
+    <p class="note">The "not read" bar is derived from the worst follow-up stenosis of those patients (no plaque vs any plaque); 8 have no follow-up grade.
+      Extent = number of segments with plaque; burden = summed stenosis grades.</p>
+    <details><summary>Table view</summary><div class="tablewrap" id="table-a"></div></details>
+  </section>
+
+  <section class="card">
+    <h2>Five trajectories at each anatomical level</h2>
+    <p class="takeaway">The finer the unit, the more of it stays plaque-free. A whole tree almost always changes; a single segment rarely does.
+      Read patients only, burden-defined (more / less = summed stenosis grade change).</p>
+    <div class="legend" id="legend-b"></div>
+    <div id="chart-b"></div>
+    <p class="note">Units: segments (17 per patient), positions (proximal / mid / distal / side branches), vessels (LM, LAD, CX, RCA), whole tree (1 per patient).
+      At segment level, units in the same patient are correlated (ICC 0.1–0.3), so the effective sample is roughly a third of the unit count.</p>
+    <details><summary>Table view</summary><div class="tablewrap" id="table-b"></div></details>
+  </section>
+
+  <section class="card">
+    <h2>Candidate outcomes compared (whole-tree level)</h2>
+    <p class="takeaway">A usable outcome needs enough patients, balanced events and far more increases than decreases.
+      Calcium progression (Hokanson) is the clearest signal; summed stenosis +2 is the best plaque outcome. High-risk features are mostly reader noise.</p>
+    <div class="legend"><span><i class="sw" style="background:var(--accent)"></i>Recommended</span><span><i class="sw" style="background:var(--rest)"></i>Other candidates</span></div>
+    <div id="chart-c"></div>
+    <p class="note">Increase : decrease = events divided by the opposite change (e.g. plaque or stenosis going down), which is mostly reader variation.
+      Log scale; the line at 1 means as many decreases as increases. Clinical events (heart attack, revascularisation, stent, bypass) are left out: only 10 in 11 years.</p>
+    <details><summary>Table view</summary><div class="tablewrap" id="table-c"></div></details>
+  </section>
+
+  <section class="card">
+    <h2>The signal gets cleaner going up the tree</h2>
+    <p class="takeaway">Increase : decrease ratio for four plaque outcomes, from single segments to the whole tree. Most outcomes are least noisy at whole-tree level;
+      "new plaque in a plaque-free segment" is the exception and is noisy everywhere.</p>
+    <div class="multiples" id="chart-d"></div>
+    <details><summary>Table view</summary><div class="tablewrap" id="table-d"></div></details>
+  </section>
+
+  <section class="card">
+    <h2>Where stenosis burden increases</h2>
+    <p class="takeaway">Share of segments whose stenosis grade rose, read patients only. Progression concentrates in the proximal and mid LAD,
+      the mid and proximal RCA, and the proximal CX; distal segments and side branches change least.</p>
+    <div id="chart-e"></div>
+    <details><summary>Table view</summary><div class="tablewrap" id="table-e"></div></details>
+  </section>
+
+  <section class="card">
+    <h2>Missing baseline data</h2>
+    <p class="takeaway">About half the cohort lacks baseline segment reads, history, BMI and HbA1c, possibly the same patients.
+      Everything else is nearly complete: 1,974 patients have all predictors below the 20% line.</p>
+    <div class="legend"><span><i class="sw" style="background:var(--accent-2)"></i>≥ 20% missing</span><span><i class="sw" style="background:var(--rest)"></i>&lt; 20% missing</span></div>
+    <div id="chart-f"></div>
+    <details><summary>Table view</summary><div class="tablewrap" id="table-f"></div></details>
+  </section>
+
+  <p class="note">Source: CGPS_data/report.md (aggregates only; small counts suppressed by the script). Randomisation group 2 (older, more often on
+    lipid-lowering at baseline) progresses more than groups 0 and 1, e.g. Hokanson 65% vs 43–44%; adjust or stratify for it in any model.</p>
+</main>
+<div id="tip" role="tooltip"></div>
+
+<script>
+const GROUPS = [
+  { key: "nn", label: "No plaque → no plaque", color: "var(--g-nn)" },
+  { key: "np", label: "No plaque → plaque", color: "var(--g-np)" },
+  { key: "same", label: "Plaque → same", color: "var(--g-same)" },
+  { key: "more", label: "Plaque → more", color: "var(--g-more)" },
+  { key: "less", label: "Plaque → less", color: "var(--g-less)" },
+];
+
+const TILES = [
+  { v: "2,116", l: "patients with both scans" },
+  { v: "1,020", l: "with baseline segment reads (48%)" },
+  { v: "2,109", l: "with calcium score at both scans" },
+  { v: "10 y", l: "median follow-up (9.5–15)" },
+  { v: "10", l: "hard clinical events: too few as outcome" },
+];
+
+const A = [
+  { label: "Read at baseline · whole tree · extent", n: "1,020 patients", v: [140, 124, 114, 552, 90] },
+  { label: "Read at baseline · whole tree · burden", n: "1,020 patients", v: [140, 124, 66, 583, 107] },
+  { label: "Not read at baseline (SIS recorded as 0)", n: "1,086 patients", v: [542, 544, 0, 0, 0] },
+  { label: "All patients · recorded SIS", n: "2,116 patients", v: [684, 668, 105, 552, 107], caution: "Mixes both groups above" },
+];
+
+const B = [
+  { label: "Segment", n: "15,655 segments", v: [10689, 2479, 806, 908, 773] },
+  { label: "Position (proximal / mid / distal / side)", n: "4,062 units", v: [1467, 919, 332, 960, 384] },
+  { label: "Vessel (LM / LAD / CX / RCA)", n: "4,033 vessels", v: [1698, 893, 299, 861, 282] },
+  { label: "Whole tree", n: "1,020 patients", v: [140, 124, 66, 583, 107] },
+];
+
+const C = [
+  { label: "Calcium progression (Hokanson)", rec: true, n: 2109, pct: 49.9, ratio: 105 },
+  { label: "Any calcium increase", n: 2109, pct: 60.4, ratio: 26 },
+  { label: "New calcium (score 0 at baseline)", n: 1261, pct: 37.9, ratio: 23.9 },
+  { label: "Summed stenosis +2 (SSS)", rec: true, n: 1020, pct: 59.2, ratio: 10.6 },
+  { label: "Newly obstructive (≥ moderate)", n: 881, pct: 32.0, ratio: 10.8 },
+  { label: "Extent +1 segment (SIS)", n: 1020, pct: 66.3, ratio: 7.51 },
+  { label: "Max stenosis +1 grade", n: 1020, pct: 51.8, ratio: 4.03 },
+  { label: "New plaque in a plaque-free segment", n: 1020, pct: 76.2, ratio: 2.2 },
+  { label: "Any plaque progression", n: 1020, pct: 79.1, ratio: 2.03 },
+  { label: "New high-risk feature", n: 515, pct: 27.6, ratio: 0.27 },
+];
+
+const LEVELS = ["Segment", "Position", "Vessel", "Tree"];
+const D = [
+  { label: "Summed stenosis +2", ratio: [5.28, 8.36, 8.91, 10.6], pct: [8.1, 29.4, 26.3, 59.2] },
+  { label: "Newly obstructive", ratio: [7.89, 9.44, 9.85, 10.8], pct: [5.6, 16.6, 13.3, 32.0] },
+  { label: "Extent +1 segment", ratio: [4.92, 5.48, 6.19, 7.51], pct: [15.8, 39.9, 36.8, 66.3] },
+  { label: "New plaque in a plaque-free segment", ratio: [4.92, 3.86, 3.93, 2.2], pct: [18.8, 44.3, 43.0, 76.2] },
+];
+
+const E = [
+  { grp: "Left main", rows: [["LM", 248, 1004]] },
+  { grp: "LAD", rows: [["Proximal LAD", 429, 1003], ["Mid LAD", 396, 993], ["Distal LAD", 247, 999], ["Diagonal 1", 194, 993], ["Diagonal 2", 80, 938]] },
+  { grp: "CX", rows: [["Proximal CX", 321, 997], ["Mid CX", 149, 983], ["Distal CX", 63, 938], ["Obtuse marginal 1", 152, 992], ["Obtuse marginal 2", 41, 904]] },
+  { grp: "RCA", rows: [["Proximal RCA", 282, 937], ["Mid RCA", 318, 847], ["Distal RCA", 230, 925], ["PDA", 88, 984], ["PLA", 94, 883]] },
+  { grp: "Ramus intermedius", rows: [["IM", 55, 335]] },
+];
+
+const F = [
+  ["Heart rate during scan", 1881], ["HbA1c", 1125], ["Baseline segment reads", 1094], ["History (heart attack / stroke)", 1088],
+  ["BMI", 1085], ["Smoking years", 1009], ["Blood-pressure medication", 51], ["Lipid-lowering medication", 50],
+  ["Creatinine / eGFR", 39], ["Cholesterol, LDL, HDL, triglycerides", 38], ["Blood pressure", 32], ["Calcium score", 7],
+  ["Age, sex, smoking status", 0],
+];
+const TOTAL = 2116;
+
+const fmt = (x) => x.toLocaleString("en-US");
+const pc = (k, n) => (100 * k / n).toFixed(1) + "%";
+const tip = document.getElementById("tip");
+function bindTip(node, html) {
+  node.addEventListener("mousemove", (e) => {
+    tip.innerHTML = html; tip.style.display = "block";
+    const w = tip.offsetWidth, h = tip.offsetHeight;
+    let x = e.clientX + 14, y = e.clientY + 14;
+    if (x + w > innerWidth - 8) x = e.clientX - w - 14;
+    if (y + h > innerHeight - 8) y = e.clientY - h - 14;
+    tip.style.left = x + "px"; tip.style.top = y + "px";
+  });
+  node.addEventListener("mouseleave", () => { tip.style.display = "none"; });
+}
+function h(tag, attrs = {}, kids = []) {
+  const n = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (k === "style") n.style.cssText = v; else if (k === "text") n.textContent = v; else if (k === "html") n.innerHTML = v; else n.setAttribute(k, v);
+  }
+  for (const c of [].concat(kids)) if (c) n.append(c);
+  return n;
+}
+function table(head, rows) {
+  const t = h("table");
+  t.append(h("tr", {}, head.map((c) => h("th", { text: c }))));
+  rows.forEach((r) => t.append(h("tr", {}, r.map((c) => h("td", { text: c })))));
+  return t;
+}
+
+// tiles
+document.getElementById("tiles").append(...TILES.map((t) => h("div", { class: "tile" }, [h("div", { class: "v", text: t.v }), h("div", { class: "l", text: t.l })])));
+
+// legends for the five groups
+for (const id of ["legend-a", "legend-b"]) {
+  document.getElementById(id).append(...GROUPS.map((g) => h("span", {}, [h("i", { class: "sw", style: `background:${g.color}` }), g.label])));
+}
+
+function stacked(id, rows) {
+  const root = document.getElementById(id);
+  rows.forEach((r) => {
+    const tot = r.v.reduce((a, b) => a + b, 0);
+    const bar = h("div", { class: "stack", role: "img", "aria-label": r.label + ": " + GROUPS.map((g, i) => `${g.label} ${pc(r.v[i], tot)}`).join(", ") });
+    r.v.forEach((x, i) => {
+      if (!x) return;
+      const seg = h("div", { style: `flex:${x} 1 0; background:${GROUPS[i].color}` });
+      bindTip(seg, `<b>${GROUPS[i].label}</b><br>${r.label}<br>${fmt(x)} of ${fmt(tot)} (${pc(x, tot)})`);
+      bar.append(seg);
+    });
+    const more = r.v[3] ? ` · plaque → more ${pc(r.v[3], tot)}` : "";
+    root.append(h("div", { class: "srow" }, [
+      h("div", { class: "lab" }, [h("span", { text: r.label }), h("span", { class: "n", text: r.n + more })]),
+      bar, r.caution ? h("div", { class: "caution", text: r.caution }) : null,
+    ]));
+  });
+  const tid = id.replace("chart", "table");
+  document.getElementById(tid).append(table(["", ...GROUPS.map((g) => g.label), "Total"],
+    rows.map((r) => { const tot = r.v.reduce((a, b) => a + b, 0); return [r.label, ...r.v.map((x) => `${fmt(x)} (${pc(x, tot)})`), fmt(tot)]; })));
+}
+stacked("chart-a", A);
+stacked("chart-b", B);
+
+// candidate outcomes: three panels sharing rows
+(function () {
+  const root = document.getElementById("chart-c");
+  const g = h("div", { class: "panels" });
+  const logMin = Math.log10(0.1), logMax = Math.log10(200);
+  const K = 0.8;  // bars use 80% of the track, so every value label fits to the right of its bar
+  const lx = (v) => K * 100 * (Math.log10(v) - logMin) / (logMax - logMin);
+  const P = [
+    { h: "Patients available", f: (r) => K * 100 * r.n / TOTAL, t: (r) => fmt(r.n), tip: (r) => `${fmt(r.n)} of ${fmt(TOTAL)} patients` },
+    { h: "Events (%)", f: (r) => K * r.pct, t: (r) => r.pct.toFixed(1) + "%", tip: (r) => `${r.pct}% have the event` },
+    { h: "Increase : decrease (log)", f: (r) => lx(r.ratio), t: (r) => (r.ratio >= 10 ? Math.round(r.ratio) : r.ratio.toFixed(1)) + " : 1",
+      tip: (r) => `${r.ratio} increases per decrease`, ref: lx(1) },
+  ];
+  g.append(h("div", { class: "hd", text: "Outcome" }), ...P.map((p) => h("div", { class: "hd", text: p.h })));
+  C.forEach((r) => {
+    g.append(h("div", { class: "rl", html: r.label + (r.rec ? '<span class="pill">recommended</span>' : "") }));
+    P.forEach((p) => {
+      const w = Math.max(0.5, p.f(r));
+      const cell = h("div", { class: "cell", "data-h": p.h }, [
+        h("div", { class: "track" }),
+        p.ref != null ? h("div", { class: "ref", style: `left:${p.ref}%` }) : null,
+        h("div", { class: "bar", style: `width:${w}%; background:${r.rec ? "var(--accent)" : "var(--rest)"}` }),
+        h("div", { class: "val", style: `left:calc(${w}% + 6px)`, text: p.t(r) }),
+      ]);
+      bindTip(cell, `<b>${r.label}</b><br>${p.tip(r)}<br>${fmt(r.n)} patients · ${r.pct}% events · ${r.ratio} : 1`);
+      g.append(cell);
+    });
+  });
+  const ax = (labels) => h("div", { class: "axisrow" }, labels.map(([v, t]) => h("span", { style: `left:${v}%`, text: t })));
+  g.append(h("div"), ax([[0, "0"], [40, "1,058"], [80, "2,116"]]), ax([[0, "0"], [40, "50%"], [80, "100%"]]),
+    ax([[lx(0.25), "0.25"], [lx(1), "1"], [lx(10), "10"], [lx(100), "100"]]));
+  root.append(g);
+  document.getElementById("table-c").append(table(["Outcome", "Patients", "Events %", "Increase : decrease"],
+    C.map((r) => [r.label + (r.rec ? " (recommended)" : ""), fmt(r.n), r.pct.toFixed(1), r.ratio + " : 1"])));
+})();
+
+// small multiples by level
+(function () {
+  const root = document.getElementById("chart-d");
+  const max = 12;
+  D.forEach((o) => {
+    const bars = h("div", { class: "vbars" }, o.ratio.map((v, i) => {
+      const col = h("div", { class: "col" }, [h("div", { class: "v", text: v.toFixed(1) }), h("div", { class: "b", style: `height:${100 * v / max}%` })]);
+      bindTip(col, `<b>${o.label}</b><br>${LEVELS[i]} level<br>${v} increases per decrease<br>${o.pct[i]}% of units have the event`);
+      return col;
+    }));
+    root.append(h("div", { class: "mult" }, [h("h3", { text: o.label }), bars,
+      h("div", { class: "xl" }, LEVELS.map((l) => h("span", { text: l })))]));
+  });
+  document.getElementById("table-d").append(table(["Outcome", ...LEVELS.map((l) => l + " ratio"), ...LEVELS.map((l) => l + " events %")],
+    D.map((o) => [o.label, ...o.ratio.map((v) => v + " : 1"), ...o.pct.map((v) => v.toFixed(1))])));
+})();
+
+// ranked segments
+(function () {
+  const root = document.getElementById("chart-e");
+  const g = h("div", { class: "rank" });
+  const max = 50;
+  E.forEach((grp) => {
+    g.append(h("div", { class: "grp", text: grp.grp }));
+    grp.rows.forEach(([lab, k, n]) => {
+      const p = 100 * k / n;
+      const cell = h("div", { class: "cell" }, [h("div", { class: "track", style: "background-size:20% 100%" }),
+        h("div", { class: "bar", style: `width:${100 * p / max}%; background:var(--accent)` }),
+        h("div", { class: "val", style: `left:calc(${100 * p / max}% + 6px)`, text: p.toFixed(0) + "%" })]);
+      bindTip(cell, `<b>${lab}</b><br>${fmt(k)} of ${fmt(n)} segments (${p.toFixed(1)}%) had a higher stenosis grade at follow-up`);
+      g.append(h("div", { class: "rl", text: lab }), cell);
+    });
+  });
+  g.append(h("div"), h("div", { class: "axisrow" }, [[0, "0%"], [20, "10%"], [40, "20%"], [60, "30%"], [80, "40%"], [100, "50%"]].map(([v, t]) => h("span", { style: `left:${v}%`, text: t }))));
+  root.append(g);
+  document.getElementById("table-e").append(table(["Segment", "Increased", "Segments", "%"],
+    E.flatMap((grp) => grp.rows.map(([lab, k, n]) => [lab, fmt(k), fmt(n), pc(k, n)]))));
+})();
+
+// missingness
+(function () {
+  const root = document.getElementById("chart-f");
+  const g = h("div", { class: "rank" });
+  F.forEach(([lab, k]) => {
+    const p = 100 * k / TOTAL, hi = p >= 20;
+    const cell = h("div", { class: "cell" }, [h("div", { class: "track", style: "background-size:25% 100%" }),
+      h("div", { class: "ref", style: "left:20%" }),
+      h("div", { class: "bar", style: `width:${Math.max(p, 0.4)}%; background:${hi ? "var(--accent-2)" : "var(--rest)"}` }),
+      h("div", { class: "val", style: `left:calc(${p}% + 6px)`, text: p.toFixed(p < 10 && p > 0 ? 1 : 0) + "%" })]);
+    bindTip(cell, `<b>${lab}</b><br>${fmt(k)} of ${fmt(TOTAL)} missing (${p.toFixed(1)}%)`);
+    g.append(h("div", { class: "rl", text: lab }), cell);
+  });
+  g.append(h("div"), h("div", { class: "axisrow" }, [[0, "0%"], [20, "20%"], [50, "50%"], [100, "100%"]].map(([v, t]) => h("span", { style: `left:${v}%`, text: t }))));
+  root.append(g);
+  document.getElementById("table-f").append(table(["Variable", "Missing", "%"], F.map(([lab, k]) => [lab, fmt(k), pc(k, TOTAL)])));
+})();
+</script>
+</body>
+</html>

@@ -67,45 +67,7 @@ risk factors available in the study.
 % TODO: list the risk factors and the calcium score definition available in CGPS.
 
 
-\section{Lumen Segmentation}
-\label{sec:method-segmentation}
-
-The coronary lumen was segmented automatically in each baseline scan, since manual segmentation of
-a population cohort is not feasible.
-A deep-learning segmentation model was trained on ImageCAS-X \cite{bransby2026imagecasx}, a
-curated release of the public ImageCAS dataset \cite{zeng2023imagecas} with corrected coronary
-segmentations.
-The model was chosen from the methods benchmarked on that dataset, and its published training
-settings were followed.
-% TODO: name the model and cite it. Candidates: CAS-Net \cite{dong2023casnet}, nnU-Net \cite{isensee2021nnunet}.
-Every deviation from the published settings is listed in Table~\ref{tab:method-deviations} with
-its reason.
-
-ImageCAS-X was split into training, validation and test sets as provided with the dataset, and the
-test set was used only to report segmentation performance.
-Performance was measured with the Dice similarity coefficient between the predicted segmentation
-$P$ and the reference $G$,
-\begin{equation}
-  \mathrm{Dice}(P, G) = \frac{2\,|P \cap G|}{|P| + |G|},
-  \label{eq:method-dice}
-\end{equation}
-where $|\cdot|$ denotes the number of voxels in a region.
-Dice measures overlap and is dominated by the large proximal vessels, so connectivity was also
-measured with the centerline Dice (clDice) \cite{shit2021cldice}, which scores how much of each
-centerline lies inside the other segmentation.
-A break in a vessel changes Dice little but changes every feature measured downstream of it, which
-makes clDice the more relevant of the two for this work.
-
-The trained model was then applied to the Herlev--{\O}sterbro baseline scans without further
-training, since no reference segmentations exist for this cohort.
-Each scan was resampled to the voxel spacing used in training, and the prediction was resampled
-back to the original geometry.
-Connected components smaller than a fixed volume were removed, as they are not attached to the
-coronary tree.
-A random sample of [n] predictions was inspected visually in three orthogonal views and in 3D,
-and the failure modes found were counted.
-% TODO: automatic quality flags (number of components, total tree length, missing major artery)
-% and the count of scans excluded on them.
+% Lumen Segmentation (CAS-Net) dropped, user 2026-10-21: see 01a_inhouse_tracer.tex.
 
 
 \section{Centerline Extraction and Tree Construction}

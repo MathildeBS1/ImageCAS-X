@@ -1,0 +1,232 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=2.2cm,landscape]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{amssymb}
+\usepackage[hidelinks]{hyperref}
+
+% variable names may contain underscores; \var prints them verbatim in typewriter and may break at underscores
+\usepackage{url}
+\makeatletter\g@addto@macro\UrlBreaks{\do\_}\makeatother
+\DeclareUrlCommand\var{\urlstyle{tt}}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcommand{\yes}{\checkmark}
+\newcommand{\no}{--}
+
+\title{CGPS variables potentially used to define the outcome}
+\author{}
+\date{Compiled from \texttt{header\_BL.xlsx}, \texttt{header\_FU.xlsx} and the aggregate report of \texttt{cgps\_stats.py}}
+
+\begin{document}
+\maketitle
+
+\noindent This document lists every variable in the CGPS tables that could be used to define the outcome
+of the risk prediction model, or eligibility for it. The CT volumes are not listed. BL and FU denote the
+baseline and follow-up tables; a tick means that the variable exists in that table. The role column refers
+to the chosen design (Section~\ref{sec:design}): \emph{outcome}, \emph{eligibility}, \emph{check}
+(sensitivity or noise check), \emph{covariate}, or \emph{not used}. Counts are aggregates from the report
+on 2\,116 patients with both scans.
+
+\section{Segments}
+\label{sec:segments}
+
+Segment-level variables are named \var{ct_cag_<segment>_<item>}. The 17 segments are listed below.
+Only the trunk segments of the LAD, CX and RCA enter the chosen design; the LM enters as an eligibility
+criterion for the LAD and CX.
+
+\begin{longtable}{L{2.2cm} L{4.6cm} L{2.0cm} L{2.4cm} L{9.5cm}}
+\toprule
+Code & Segment & Vessel & Design role & Note \\
+\midrule
+\endhead
+\var{lm}   & Left main                     & LM  & eligibility & Must be plaque-free for LAD and CX units \\
+\var{plad} & Proximal LAD                  & LAD & outcome     & Trunk; 446 of 1\,003 plaque-free at BL \\
+\var{mlad} & Mid LAD                       & LAD & outcome     & Trunk \\
+\var{dlad} & Distal LAD                    & LAD & outcome     & Trunk \\
+\var{d1}   & First diagonal                & LAD & not used    & Side branch \\
+\var{d2}   & Second diagonal               & LAD & not used    & Side branch \\
+\var{pcx}  & Proximal circumflex           & CX  & outcome     & Trunk \\
+\var{mcx}  & Mid circumflex                & CX  & outcome     & Trunk \\
+\var{dcx}  & Distal circumflex             & CX  & outcome     & Trunk \\
+\var{om1}  & First obtuse marginal         & CX  & not used    & Side branch \\
+\var{om2}  & Second obtuse marginal        & CX  & not used    & Side branch \\
+\var{prca} & Proximal RCA                  & RCA & outcome     & Trunk \\
+\var{mrca} & Mid RCA                       & RCA & outcome     & Trunk; most often unevaluable (motion) \\
+\var{drca} & Distal RCA                    & RCA & outcome     & Trunk; ends at the PDA origin \\
+\var{pda}  & Posterior descending artery   & RCA/CX & not used & Side branch; origin depends on dominance \\
+\var{pla}  & Posterolateral branch         & RCA/CX & not used & Side branch; origin depends on dominance \\
+\var{im}   & Ramus intermedius             & --  & not used    & Present in a minority; often coded unevaluable when absent \\
+\bottomrule
+\end{longtable}
+
+\subsection{Per-segment items}
+
+\begin{longtable}{L{4.3cm} c c L{6.2cm} L{2.2cm} L{7.0cm}}
+\toprule
+Variable & BL & FU & Values & Role & Note \\
+\midrule
+\endhead
+\var{ct_cag_<s>_stenosis} & \yes & \yes &
+  Text: none, minimal, mild, moderate, severe, occlusion, \var{uneval_*} &
+  outcome, eligibility &
+  Decoded to grades 0--5; \var{uneval_*} treated as missing. Empty at BL for 1\,094 patients (not read). \\
+\var{ct_cag_<s>_plaque_type} & \yes & \yes &
+  Text: calcified, mostly\_calcified, mostly\_noncalcified, noncalcified; empty when no plaque &
+  check &
+  Composition of the new plaque; plaque presence is taken from the stenosis grade. \\
+\var{ct_cag_<s>_feat_spotcalc} & \yes & \yes & 0/1 & not used &
+  High-risk feature; recorded only with plaque; mostly noise (opposite changes exceed new findings). \\
+\var{ct_cag_<s>_feat_napring} & \yes & \yes & 0/1 & not used & High-risk feature; rare. \\
+\var{ct_cag_<s>_feat_lap} & \no & \yes & 0/1 & not used & Low-attenuation plaque; 0 for every patient at FU. \\
+\var{ct_cag_<s>_feat_posrem} & \no & \yes & 0/1 & not used & Positive remodelling; FU only, so no change can be computed. \\
+\var{ct_cag_<s>_eval} & \yes & \no & Numeric code (0, 1, 5, 12--14) & check &
+  Evaluability; meaning of the codes unknown, to be confirmed with the data manager. \\
+\var{ct_cag_<s>_medis_egnet} & \yes & \no & Numeric & not used & Suitability for Medis plaque analysis. \\
+\var{ct_cag_<s>_medis_finished} & \yes & \no & Numeric & check &
+  Medis analysis done ($\approx$200 patients); exports may contain plaque positions along the centreline. \\
+\bottomrule
+\end{longtable}
+
+\subsection{Stenosis grading}
+
+The grade labels match the SCCT categories \cite{leipsic2014,cury2016}. The percentage ranges below are those
+of the SCCT guideline and are assumed, not confirmed, for the CGPS reads.
+
+\begin{center}
+\begin{tabular}{l c l l}
+\toprule
+Label & Grade & Diameter stenosis (SCCT) & Category \\
+\midrule
+none      & 0 & 0\,\%        & no plaque \\
+minimal   & 1 & 1--24\,\%    & non-obstructive \\
+mild      & 2 & 25--49\,\%   & non-obstructive \\
+moderate  & 3 & 50--69\,\%   & obstructive \\
+severe    & 4 & 70--99\,\%   & obstructive \\
+occlusion & 5 & 100\,\%      & obstructive \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Vessel-level summaries}
+
+Computed by the CGPS readers from the segment reads, for \var{<v>} $\in$ \{\var{lad}, \var{cx}, \var{rca}\}.
+
+\begin{longtable}{L{4.3cm} c c L{6.2cm} L{2.2cm} L{7.0cm}}
+\toprule
+Variable & BL & FU & Values & Role & Note \\
+\midrule
+\endhead
+\var{ct_cag_<v>_sis} & \yes & \yes & Count of segments with plaque & check &
+  Agrees with the segment reads in 95--97\,\% for CX and RCA but only 64--79\,\% for LAD; the recorded LAD
+  score may include LM or IM. \\
+\var{ct_cag_<v>_sss} & \yes & \yes & Sum of stenosis grades & check & As above. \\
+\var{ct_cag_<v>_plaque_type_score} & \yes & \yes & Sum of plaque-type scores & not used & \\
+\var{ct_cag_<v>_uneval} & \yes & \yes & Count of unevaluable segments & check & \\
+\var{ct_cag_<v>_uneval_contrast}, \var{_scanfield}, \var{_pm}, \var{_noise} & \no & \yes & Count & check &
+  Reasons for unevaluable segments at FU. \\
+\var{ct_cacs_<v>} (\var{lm}, \var{lad}, \var{cx}, \var{rca}) & \yes & \yes & Agatston score & check, covariate &
+  Calcium per vessel; secondary outcome (0 $\rightarrow$ $>$0) and combined eligibility (trunk none and vessel calcium 0). \\
+\bottomrule
+\end{longtable}
+
+\section{Patient-level summaries}
+
+\begin{longtable}{L{4.3cm} c c L{6.2cm} L{2.2cm} L{7.0cm}}
+\toprule
+Variable & BL & FU & Values & Role & Note \\
+\midrule
+\endhead
+\var{ct_cag_sis} & \yes & \yes & Segment involvement score & covariate &
+  Recorded as 0, not missing, for the 1\,094 patients without BL segment reads. \\
+\var{ct_cag_sss} & \yes & \yes & Segment stenosis score & covariate & As above. \\
+\var{ct_cag_plaque_type_score} & \yes & \yes & Sum of plaque-type scores & not used & \\
+\var{ct_cag_none} \dots\ \var{ct_cag_occlusion} & \yes & \yes & Flags or counts per stenosis category & not used &
+  Six variables (none, minimal, mild, moderate, severe, occlusion); all 0 for patients without BL reads. \\
+\var{ct_cag_dominance} & \yes & \yes & Text & covariate & Needed to assign PDA and PLA. \\
+\var{ct_cag_stent}, \var{ct_cag_cabg} & \yes & \yes & 0/1 & eligibility & Prior revascularisation; stent missing for $\approx$66\,\% at BL. \\
+\var{ct_cag_incomplete} & \yes & \yes & Count & check & 0 for the 1\,022 read patients and 16--17 for the others at BL. \\
+\var{ct_cag_uneval} & \yes & \yes & Count of unevaluable segments & check & \\
+\var{ct_cag_uneval_motion}, \var{_noise}, \var{_scanfield}, \var{_contrastdefect}, \var{_pm}, \var{_other} & \no & \yes & Count & check &
+  Reasons at FU; motion dominates. \\
+\var{ct_cag_eval_n} & \yes & \no & Number of evaluable segments & check & Median 16. \\
+\var{ct_cacs_sum} & \yes & \yes & Total Agatston score & covariate, check &
+  Available for 2\,109 patients at both visits; calcium progression (Hokanson) is the most reliable outcome in the data. \\
+\var{ct_cacs_groups} & \yes & \yes & Category 1--3 & not used & \\
+\var{ct_cacs_<v>_eval}, \var{ct_cacs_eval_all} & \no & \yes & 0/1 & check & Calcium evaluability at FU. \\
+\bottomrule
+\end{longtable}
+
+\section{Clinical events and timing}
+
+\begin{longtable}{L{4.3cm} c c L{6.2cm} L{2.2cm} L{7.0cm}}
+\toprule
+Variable & BL & FU & Values & Role & Note \\
+\midrule
+\endhead
+\var{scandate} & \yes & \yes & Date & covariate &
+  Gives the follow-up time (median 10.0 years, 5th--95th percentile 9.5--15.3), used as log offset. \\
+\var{demo_hist_myocardial_infarction} & \yes & \yes & 0/1 & not used & 6 new events; missing for $\approx$51\,\% at BL. \\
+\var{demo_hist_coronary_revasc} & \yes & \yes & 0/1 & not used & 6 new events. \\
+\var{demo_hist_stroke_tia} & \yes & \yes & 0/1 & not used & 31 new; 119 report it at BL but not at FU. \\
+\var{hist_angina} & \yes & \yes & 0/1 & not used & 96 new. \\
+\var{demo_hist_afib}, \var{_heart_failure}, \var{_pad}, \var{_icd_pm}, \var{_cag} & \no & \yes & 0/1 & not used &
+  FU only; new cannot be separated from pre-existing. \\
+\var{ae_*} & \no & \yes & Trial adverse events & not used & Related to the trial, not to coronary disease. \\
+\bottomrule
+\end{longtable}
+
+\noindent Hard clinical events (myocardial infarction, revascularisation, stent, bypass) total 10 over follow-up
+and cannot serve as an outcome.
+
+\section{Image quality}
+
+\begin{longtable}{L{4.3cm} c c L{6.2cm} L{2.2cm} L{7.0cm}}
+\toprule
+Variable & BL & FU & Values & Role & Note \\
+\midrule
+\endhead
+\var{scan_qualitative_quality} & \yes & \no & 0/1 & check & Missing for 246. \\
+\var{bad_quality} & \yes & \no & True/False & not used & False for every patient. \\
+\var{Image_Quality_reason_1}, \var{_2} & \yes & \no & Free text & not used & Not reported by the script (text). \\
+\var{ct_angio_heart_done}, \var{ct_noncontrast_heart_done} & \no & \yes & 0/1 & check &
+  1 for every patient at FU; no BL counterpart, so BL contrast CT availability must be checked from the volumes. \\
+\bottomrule
+\end{longtable}
+
+\section{Chosen design and derived outcomes}
+\label{sec:design}
+
+\begin{longtable}{L{4.3cm} L{19cm}}
+\toprule
+Element & Definition \\
+\midrule
+\endhead
+Unit & LAD (\var{plad}, \var{mlad}, \var{dlad}), CX (\var{pcx}, \var{mcx}, \var{dcx}) and RCA (\var{prca}, \var{mrca}, \var{drca}) trunks; side branches excluded. \\
+Eligibility & All trunk segments evaluable and graded none at BL; for LAD and CX the LM is also graded none. \\
+Primary outcome & Any trunk segment graded minimal or worse at FU (binary). Unknown if no plaque is seen and a trunk segment is unevaluable at FU. \\
+Secondary outcome & Worst FU grade in the trunk, ordinal: none, minimal, mild or worse. \\
+Calcium check & Vessel calcium 0 at BL $\rightarrow$ $>$0 at FU (\var{ct_cacs_lad}, \var{ct_cacs_cx}, \var{ct_cacs_rca}). \\
+Sensitivity & Eligibility additionally requiring vessel calcium 0 at BL; RCA additionally requiring LM none. \\
+Follow-up time & $\log$(years between \var{scandate} values) as offset with a complementary log-log link. \\
+\bottomrule
+\end{longtable}
+
+\subsection*{Open issues}
+\begin{itemize}
+  \item Whether the 1\,094 patients without BL segment reads had a normal BL scan or no contrast CT;
+        decides whether they can enter the design.
+  \item The CGPS stenosis grading thresholds and segment boundary definitions (reading protocol).
+  \item The meaning of the \var{ct_cag_<s>_eval} codes and of \var{ct_cag_incomplete}.
+\end{itemize}
+
+\begin{thebibliography}{9}
+\bibitem{leipsic2014} J.~Leipsic et al. SCCT guidelines for the interpretation and reporting of coronary CT angiography.
+  \emph{Journal of Cardiovascular Computed Tomography}, 8(5):342--358, 2014.
+\bibitem{cury2016} R.~C.~Cury et al. CAD-RADS: Coronary Artery Disease -- Reporting and Data System.
+  \emph{Journal of Cardiovascular Computed Tomography}, 10(4):269--281, 2016.
+\end{thebibliography}
+
+\end{document}

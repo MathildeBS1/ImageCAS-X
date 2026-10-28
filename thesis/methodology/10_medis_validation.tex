@@ -1,0 +1,115 @@
+% Validation of the in-house segmentation and centerlines against the Medis output on the same scans.
+% Results go in the Results chapter, before the prediction results; limitations in the Discussion.
+% Every metric is tied to a feature: length_mm and T_5 (tortuosity/score.py), the curvature
+% profile (transformer input), and taper T (tortuosity/taper.py).
+% Medis segment codes and counts: CGPS_data/report_qc.md (744 cases, complete-trunk lists).
+% [..] and \clarify{} mark information that is not yet available; nothing there is to be guessed.
+% Red clarification notes; needs \usepackage{xcolor} in the preamble. Remove before submission.
+\providecommand{\clarify}[1]{\textcolor{red}{\textbf{Clarification needed:} #1}}
+\section{Validation Against Medis}
+\label{sec:method-medis}
+\clarify{citations for Bland and Altman (1986); Koo and Li (2016) or McGraw and Wong (1996) for ICC(A,1).}
+
+No manual reference segmentation exists for the Herlev--{\O}sterbro scans, so the centerlines and lumen contours of Section~\ref{sec:method-tracer} were compared with the output of the commercial software Medis on the same scans.
+\clarify{Medis product name and version; whether its output was corrected by a reader or is fully automatic.}
+\clarify{which visit (baseline or follow-up) the Medis scans belong to, and confirmation that they are the scans the segmentation was run on.}
+Two Medis data sets were available, drawn from different selections of scans.
+Labeled centerline trees were available for 744 scans, and cross-sectional contours of the lumen and of the plaque for the main vessels with plaque in [n] scans.
+\clarify{how each selection was made, and how many scans the two sets share.}
+\clarify{what the plaque contour is (outer vessel wall, or plaque only) and in which coordinates the contours are stored.}
+The centerlines were used to validate the centerline features (Sections~\ref{sec:method-medis-trunks} and~\ref{sec:method-medis-match}), and the contours to validate the lumen segmentation and taper (Section~\ref{sec:method-medis-metrics}).
+The Medis output was treated as a reference rather than as ground truth.
+Agreement was measured on the features themselves and on the quantities they are computed from, rather than on overlap measures alone, since a segmentation can overlap well and still change a feature.
+
+\subsection{Reference Trunks}
+\label{sec:method-medis-trunks}
+
+The Medis centerlines are labeled with coronary segments, whereas the features of Section~\ref{sec:method-features} are computed on whole trunks.
+The segments of each trunk were therefore merged: the proximal, mid and distal LAD (Medis codes 6, 7 and 8) into the LAD, the proximal and distal LCx (codes 11 and 13) into the LCx, and the proximal, mid and distal RCA (codes 1, 2 and 3) into the RCA.
+The left main (code 5) was excluded, since the in-house trunks start at the LM bifurcation (Section~\ref{sec:method-trunk}).
+Side branches were excluded for the same reason.
+Each merged trunk was traced with the rule of Section~\ref{sec:method-trunk}, as the path through the Medis tree from its most proximal point to the farthest point carrying one of the trunk's codes.
+\clarify{confirm that none of the unnamed Medis codes (18 to 22, 28) lie inside a trunk.}
+
+A trunk was used only if all of its segments were present and each was joined to the one before it, directly or through unlabeled points, with no gap larger than 1.0\,mm.
+This held for 576 LADs, 581 LCxs and 553 RCAs of the 744 Medis cases, and each artery was analyzed on its own complete trunks, so that a participant could contribute one artery but not another.
+\clarify{whether the cases flagged in report\_qc.md (disconnected segments, segments $<$ 2 mm, ...) are excluded, and how many.}
+\clarify{how the 744 centerline scans were selected (all participants, or e.g. only those with disease); this decides how close they are to the study population.}
+
+\subsection{Correspondence Between Centerlines}
+\label{sec:method-medis-match}
+
+The two centerlines of a trunk need not start or end at the same point, as the LM bifurcation and the distal tip are placed independently by the two methods.
+Both centerlines were respaced as in Section~\ref{sec:method-curvature}, and each in-house vertex was projected onto the nearest point of the Medis polyline.
+The common stretch of a trunk was defined as the arc range in which the projection distance was below [x]\,mm.
+\clarify{the tolerance [x] mm; to be fixed before the comparison is run, not tuned on its result.}
+Comparing the features on the common stretch separates disagreement in the shape of the vessel from disagreement in where the vessel ends.
+
+The same projection was used to check the artery labels of the tracer.
+A tracer trunk was counted as correctly labeled when its common stretch lay on the Medis trunk of the same name, and the share of correctly labeled trunks was reported for each artery.
+\clarify{the minimum share of the tracer trunk that must lie on the Medis trunk ([x] \%), fixed in advance.}
+Only correctly labeled trunks were used for the agreement measures below, as a feature computed on the wrong artery says nothing about the accuracy of the centerline.
+
+The position of the centerline was summarized per trunk by the mean projection distance
+\begin{equation}
+  \bar{d} = \frac{1}{m} \sum_{i=1}^{m} \min_{\mathbf{q} \in C_\mathrm{M}} \lVert \mathbf{p}_i - \mathbf{q} \rVert ,
+  \label{eq:method-medis-dist}
+\end{equation}
+where $\mathbf{p}_1, \dots, \mathbf{p}_m$ are the in-house vertices on the common stretch and $C_\mathrm{M}$ is the Medis centerline, in millimeters.
+The reach of the centerline was summarized by the length difference $\Delta L = L - L_\mathrm{M}$, where $L$ and $L_\mathrm{M}$ are the arc lengths of the in-house and Medis trunks, so that $\Delta L < 0$ means the in-house trunk stops short.
+
+\subsection{Agreement Measures}
+\label{sec:method-medis-metrics}
+
+The quantities compared, and the feature each one bears on, are listed in Table~\ref{tab:method-medis-metrics}.
+Curvature was computed on both centerlines with $\ell = 5$\,mm, once on the common stretch and once on the whole trunk, since only the second is the value entered into the models.
+The curvature profiles $\kappa_j$ (Equation~\ref{eq:method-profile}) were compared vertex by vertex on the common stretch, and summarized per trunk by the mean absolute difference $\overline{|\Delta\kappa|}$ in rad/mm, which is read against the size of $T_5$ itself.
+
+The contours were used to test the lumen segmentation directly, on their own selection of scans, so this comparison does not depend on the Medis centerline trees above.
+At each Medis cross-section, the in-house lumen mask was cut with the plane of that cross-section, and the connected component containing the center of the Medis lumen contour was kept.
+\clarify{the tracer outputs contours, not a mask (Section~\ref{sec:method-tracer}), so this paragraph is to be rewritten as a contour-to-contour comparison: how each tracer contour is paired with a Medis contour (nearest centerline point? same plane?).}
+\clarify{whether each contour comes with its plane and center point, or these must be derived from the contour points.}
+Both lumens were expressed as an area-equivalent radius
+\begin{equation}
+  r = \sqrt{A/\pi} ,
+  \label{eq:method-medis-radius}
+\end{equation}
+where $A$ is the cross-sectional lumen area in mm$^2$, which is the radius from which taper is computed.
+Cutting the in-house mask with the Medis plane rather than its own measures the segmentation error alone, without the error of the in-house centerline.
+Taper was then computed from both radius profiles over the same stretch, with the exclusion rules of the taper feature applied to both.
+\clarify{reference to the taper section once it exists (fourth feature; tortuosity/taper.py).}
+Cross-sections were reported separately with and without plaque, as only those without plaque resemble the plaque-free trunks of the study population.
+\clarify{the rule for calling a cross-section plaque-free (from the plaque contour, or a Medis per-section flag).}
+
+\begin{table}[htbp]
+  \centering
+  \caption{Each agreement measure is tied to the feature it bears on. Centerline measures use the complete trunks of the 744 centerline scans; contour measures use the main vessels with plaque in the separate contour scans.}
+  \label{tab:method-medis-metrics}
+  \begin{tabular}{llll}
+    \toprule
+    Measure & Unit & Reference & Feature it bears on \\
+    \midrule
+    Length difference $\Delta L$ & mm & centerline & trunk length \\
+    Mean distance $\bar{d}$ & mm & centerline & all centerline features \\
+    $T_5$, common stretch and whole trunk & rad/mm & centerline & mean curvature \\
+    Profile difference $\overline{|\Delta\kappa|}$ & rad/mm & centerline & curvature profile \\
+    Radius $r$ per cross-section & mm & lumen contour & taper (input) \\
+    Taper $T$ & -- & lumen contour & taper \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+For every scalar in Table~\ref{tab:method-medis-metrics} except $\bar{d}$, agreement was reported as the bias and 95\% limits of agreement of Bland and Altman,
+\begin{equation}
+  \bar{\delta} \pm 1.96\, s_\delta ,
+  \label{eq:method-medis-ba}
+\end{equation}
+where $\delta$ is the in-house value minus the Medis value for one trunk, or one cross-section for $r$, $\bar{\delta}$ its mean and $s_\delta$ its standard deviation.
+For the features entered into the models ($L$, $T_5$ and $T$), the two-way intraclass correlation for absolute agreement of single measures, ICC(A,1), was also reported.
+The ICC relates the disagreement to the spread of the feature across participants, which decides whether the feature can rank participants.
+\clarify{the ICC threshold below which a feature is flagged (same rule as the reliability analysis, still open there).}
+All measures were computed separately for the LAD, the LCx and the RCA.
+
+The bifurcation angle and the daughter ratio were not validated against Medis.
+The daughter ratio needs the radii of the side branches, and the Medis contours cover only the main vessels.
+\clarify{decide whether to validate the bifurcation angle on the Medis side-branch centerlines (D1, OM1 are labeled).}

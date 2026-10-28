@@ -1,0 +1,8 @@
+% Cross-validation instead of a fixed train/validation/test split. Moved from the Data chapter (2026-10-21).
+\section{Cross-Validation}
+\label{sec:method-cv}
+
+The risk models were evaluated with $k$-fold cross-validation on the clean-baseline cohort instead of a fixed split into training, validation and test sets, so every participant contributed to both fitting and evaluation and no events were set aside in an unused test set.
+The folds were formed per participant and, for each artery, stratified by new plaque in that trunk, so the proportion of events was the same in every fold.
+By design, no independent test set was held out, and the reported performance is the mean over the held-out folds.
+\clarify{number of folds and repeats (for example 5 folds repeated 10 times), and whether any tuning used nested cross-validation.}

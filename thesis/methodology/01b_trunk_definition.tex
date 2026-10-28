@@ -1,0 +1,16 @@
+% PLACEHOLDER: the author's own step. Turns the tracer's 17 labeled segments (sec:method-tracer) into
+% the trunk every feature is measured on. The same rule is applied to the Medis trees
+% (sec:method-medis-trunks), so both are compared on the same stretch of vessel.
+% Implementation reference: tortuosity/vessels.py (geodesic path from the ostium; written for the
+%   ImageCAS-X files, so check it against the tracer output before describing it as used here).
+% Target length: two to three paragraphs, no subsections.
+% Red clarification notes; needs \usepackage{xcolor} in the preamble. Remove before submission.
+\providecommand{\clarify}[1]{\textcolor{red}{\textbf{Clarification needed:} #1}}
+\section{Trunk Definition}
+\label{sec:method-trunk}
+
+\clarify{P1 (the rule): each trunk is the union of its proximal, mid and distal segments (LAD, RCA) or proximal and distal segments (LCx, if the scheme splits it in two as Medis does), traced as the path from the ostium to the farthest point carrying one of them; the LM is excluded and side branches (D1, D2, OM, PDA, PLB) are not part of the trunk. Same merge as for Medis (Section~\ref{sec:method-medis-trunks}); the p/m/d boundaries themselves are not used. One sentence on why a whole trunk: the outcome is new plaque anywhere in the trunk (Section~\ref{sec:method-population}).}
+
+\clarify{P2 (missing and incomplete trunks): minimum length (currently 15 mm in tortuosity/score.py), gaps in the path, trunks not connected to the ostium; each rule with its value and reason, and where the counts are reported.}
+
+\clarify{P3 (anatomical variants): ramus intermedius flagged and analyses repeated without it; left- or right-dominant hearts and the RCA (with/without dRCA).}

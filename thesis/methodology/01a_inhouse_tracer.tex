@@ -1,0 +1,30 @@
+% TotalSegmentator -> start points -> in-house tracer (Kit Mills Bransby). Not the author's
+% contribution, so only outputs and how it was run on CGPS; the author's check is sec:method-medis.
+% Each red [Qn] blank is answered by Qn in the list below; fill the blanks, then delete the list.
+% Red notes need \usepackage{xcolor}. Remove before submission.
+\providecommand{\clarify}[1]{\textcolor{red}{\textbf{Clarification needed:} #1}}
+\providecommand{\ask}[1]{\textcolor{red}{[#1]}}
+\section{Coronary Centerline and Lumen Extraction}
+\label{sec:method-tracer}
+
+The coronary centerlines and lumen were extracted in three stages: segmentation of the scan, prediction of the start points of the coronary trees, and tracing of the trees from these start points.
+The \ask{Q1: structure} was segmented with TotalSegmentator \cite{wasserthal2023totalsegmentator} (\ask{Q1: version, task}), and a start point was placed at each \ask{Q2: e.g.\ coronary ostium} by \ask{Q2: method}.
+
+The trees were traced with an in-house tracer developed by Kit Mills Bransby (Technical University of Denmark; \ask{Q8: unpublished or citation}) and trained on \ask{Q7: training data}.
+In steps of \ask{Q3: step length}, the tracer predicts the next centerline point and the lumen contour, given as \ask{Q4: contour representation}, and labels every point with one of 17 coronary segments \ask{Q5: scheme, citation}.
+The centerline and the lumen therefore come from the same steps and are consistent by construction.
+
+The pipeline (\ask{Q8: version}) was applied to the baseline scans of the participants in Section~\ref{sec:method-population}.
+Scans in which \ask{Q6: failure criterion} were recorded as failed; the remaining trees were passed to Section~\ref{sec:method-trunk}, and their accuracy was assessed against Medis in Section~\ref{sec:method-medis}.
+
+\clarify{Questions for Kit:
+\begin{enumerate}
+  \item[Q1.] TotalSegmentator: version, task, and the structure used to find the start points (aorta?).
+  \item[Q2.] Start points: one per left and right ostium? Found by a rule or a network, and whose?
+  \item[Q3.] Step length: fixed (mm) or predicted?
+  \item[Q4.] Contour: number of points or rays; in the plane orthogonal to the centerline?
+  \item[Q5.] Segment scheme: the CGPS read segments (\texttt{prca} \ldots\ \texttt{dcx}) or modified AHA? Label per point or per branch?
+  \item[Q6.] Which traces are flagged as failed or incomplete?
+  \item[Q7.] Training scans (source, number, annotations); any CGPS scans with Medis data among them?
+  \item[Q8.] Version to report, and how to credit or cite the tracer.
+\end{enumerate}}

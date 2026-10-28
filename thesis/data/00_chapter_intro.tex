@@ -1,0 +1,28 @@
+% Data chapter, 2 to 3 pages: the three complementary data sets. Section files in numeric order:
+% 01 baseline CT volumes, 02 visual analysis (baseline and follow-up), 03 Medis centerlines and contours.
+% Numbers from CGPS_data/report.md, CGPS_data/plaque_location.md and CGPS_data/report_qc.md.
+% Red notes need \usepackage{xcolor}. Remove before submission.
+\providecommand{\clarify}[1]{\textcolor{red}{\textbf{Clarification needed:} #1}}
+
+\chapter{Data}
+\label{ch:data}
+
+Three data sets from the Herlev--{\O}sterbro cohort were used in this thesis, each serving a complementary role.
+The baseline coronary computed tomography angiography (CCTA) volumes were the input to the in-house tracer, whose centerlines and lumen were used to compute the geometric features; the visual analysis at baseline and follow-up defined the study cohort and the outcome; and the Medis centerlines and contours served as the reference for the tracer.
+A summary of the three data sets is provided in Table~\ref{tab:data-overview}.
+
+\begin{table}[htbp]
+  \centering
+  \caption{The three data sets, each linked to the others by the participant's study identifier.}
+  \label{tab:data-overview}
+  \small
+  \begin{tabular}{p{0.16\linewidth}p{0.3\linewidth}p{0.12\linewidth}rp{0.18\linewidth}}
+    \toprule
+    Data set & Content & Visit & Scans & Used for \\
+    \midrule
+    CT volumes & non-contrast and CCTA volumes & baseline & [n] & in-house tracer and geometric features \\
+    Visual analysis & stenosis grade and plaque type per segment; SIS and SSS & baseline and follow-up & 2,116 & cohort and outcome \\
+    Medis centerlines and contours & centerline trees labelled by segment; lumen and plaque contours of the main vessels with plaque & [visit] & 744 / [n] & reference for tracer centerlines and lumen \\
+    \bottomrule
+  \end{tabular}
+\end{table}

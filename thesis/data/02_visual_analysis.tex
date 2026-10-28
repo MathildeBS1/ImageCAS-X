@@ -1,0 +1,79 @@
+% Visual analysis at baseline and follow-up: defines the clean-baseline cohort and the outcome, and
+% shows where plaque developed (CGPS_data/plaque_location.md, clean_baseline_plaque_location.py).
+\section{Visual Analysis at Baseline and Follow-Up}
+\label{sec:data-plaque-location}
+
+Every baseline and follow-up CCTA was analysed visually in Medis.
+For each of the 17 coronary segments, the reader recorded the stenosis grade (none, minimal, mild, moderate, severe, or occlusion), the plaque type (calcified, mostly calcified, mostly non-calcified, or non-calcified), high-risk plaque features, and evaluability.
+The reads were summarised per participant in the segment involvement score (SIS) and the segment stenosis score (SSS), counting the segments with plaque and summing the stenosis grades, respectively.
+
+All SCORE2 risk factors \cite{score2_2021} were also recorded at both visits: age, sex, current smoking, systolic blood pressure, and total and high-density lipoprotein (HDL) cholesterol, from which non-HDL cholesterol is derived.
+
+A participant had a clean baseline when both SIS and SSS were zero at baseline, that is, when no plaque or stenosis was recorded in any segment.
+This held for 1,352 participants, 1,057 with a grade per segment and 295 with the summary scores only.
+Of these, [n] were excluded due to insufficient image quality, [criterion], leaving [n] participants.
+\clarify{image-quality criterion (both from not a good enough scan at baseline or follow up. I will compute these numbers again after the further restriction)}
+The restrictions are summarised in Figure~\ref{fig:data-flowchart}.
+
+% Cohort flow chart. Needs \usepackage{tikz} and \usetikzlibrary{positioning, arrows.meta, calc} in the preamble.
+% [n] are filled in once the image-quality restriction is computed; per-artery events change after it.
+\begin{figure}[htbp]
+  \centering
+  \small
+  \begin{tikzpicture}[
+      node distance=6mm and 8mm,
+      base/.style={rounded corners=3pt, align=center, inner sep=5pt, minimum height=12mm, very thick},
+      box/.style={base, draw=blue!60!black, fill=blue!10, text width=30mm},
+      excl/.style={base, draw=red!65!black, fill=red!8, text width=30mm, minimum height=9mm},
+      art/.style={base, text width=20mm, minimum height=9mm},
+      arr/.style={-{Stealth[length=2.2mm]}, thick, gray!70!black},
+    ]
+    \node[box] (all) {BL and FU CCTA\\\mbox{$n = 2{,}116$}};
+    \node[box, right=of all] (clean) {Clean baseline\\\mbox{$n = 1{,}352$}};
+    \node[box, right=of clean] (iq) {Good image quality\\\mbox{$n = $ [n]}};
+
+    \node[art, draw=teal!70!black, fill=teal!12, right=12mm of iq] (lcx) {LCx\\\mbox{[n] / [n]}};
+    \node[art, draw=orange!80!black, fill=orange!15, above=4mm of lcx] (lad) {LAD\\\mbox{[n] / [n]}};
+    \node[art, draw=violet!70!black, fill=violet!12, below=4mm of lcx] (rca) {RCA\\\mbox{[n] / [n]}};
+
+    \node[excl, below=9mm of $(all)!0.5!(clean)$] (x1) {Plaque at BL\\\mbox{$n = 764$}};
+    \node[excl, below=9mm of $(clean)!0.5!(iq)$] (x2) {Poor image quality\\\mbox{$n = $ [n]}};
+
+    \draw[arr] (all) -- (clean);
+    \draw[arr] (clean) -- (iq);
+    \draw[arr, red!65!black] ($(all.east)!0.5!(clean.west)$) -- (x1);
+    \draw[arr, red!65!black] ($(clean.east)!0.5!(iq.west)$) -- (x2);
+
+    \coordinate[right=6mm of iq] (split);
+    \draw[thick, gray!70!black] (iq) -- (split);
+    \draw[arr] (split) |- (lad);
+    \draw[arr] (split) -- (lcx);
+    \draw[arr] (split) |- (rca);
+  \end{tikzpicture}
+  \caption{Restriction of the Herlev--{\O}sterbro data to the study cohort. A clean baseline means that no plaque or stenosis was recorded in any coronary segment at baseline. The same cohort entered all three artery models, shown as participants / participants with new plaque (minimal stenosis or worse) anywhere in the artery's proximal, mid, or distal segment at follow-up. BL, baseline; FU, follow-up.}
+  \label{fig:data-flowchart}
+\end{figure}
+
+At follow-up, 668 of the 1,352 participants (49.4\%) had developed plaque in at least one segment, with plaque defined as minimal stenosis or worse.
+Of these, 626 (93.7\%) had plaque in at least one of the three main vessels (LAD, LCx, and RCA), whereas only 42 (6.3\%) developed it solely in the LM or the side branches.
+Table~\ref{tab:data-plaque-location} gives the distribution over vessels, with the 17 segments grouped into 11 vessels and a vessel counted once per participant regardless of how many of its segments (proximal, mid, or distal) had plaque.
+
+\begin{table}[htbp]
+  \centering
+  \caption{New plaque at follow-up per vessel among the 1,352 participants with a clean baseline. The 17 segments are grouped into 11 vessels, each counted once per participant, and 1,552 vessels had plaque at follow-up. Participant percentages are relative to the 1,352 participants and vessel percentages to the 1,552 vessels with plaque. Other comprises the LM and the side branches. A participant can count in several vessels, and percentages may not sum to 100 due to rounding.}
+  \label{tab:data-plaque-location}
+  \small
+  \begin{tabular}{llrr}
+    \toprule
+    Vessel & Segments & Participants, $n$ (\%) & Vessels with plaque, $n$ (\%) \\
+    \midrule
+    LAD & pLAD, mLAD, dLAD & 544 (40.2) & 544 (35.1) \\
+    LCx & pLCx, mLCx, dLCx & 208 (15.4) & 208 (13.4) \\
+    RCA & pRCA, mRCA, dRCA & 279 (20.6) & 279 (18.0) \\
+    Other & LM, side branches & [n] ([\%]) & 521 (33.6) \\
+    \midrule
+    Total & & 668 (49.4) & 1,552 (100) \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\clarify{participants with plaque in the LM or any side branch (union, not 167 + 239, since a participant can have both); not in \texttt{plaque\_location.md}.}
