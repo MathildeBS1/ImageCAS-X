@@ -1,10 +1,11 @@
 """How many scans are left in the clean-baseline cohort (BL ct_cag_sis == 0 and ct_cag_sss == 0).
 
-    python CGPS_data/clean_baseline_count.py [--bl BL_FILE] [--fu FU_FILE]
+    python CGPS_data/clean_baseline_count.py [--bl BL_FILE] [--fu FU_FILE] [--out FILE]
 
 Uses BL_PATH / FU_PATH from cgps_stats.py (Kit's BL_anonymised.xlsx / FU_anonymised.xlsx) unless
-overridden. Prints aggregate counts only (small counts suppressed as in cgps_stats.py); nothing is
-written to disk.
+overridden. Aggregate counts only (small counts suppressed as in cgps_stats.py), printed and written
+as a markdown table to OUT_FILE (copy it to CGPS_data/clean_baseline.md, like report.md and
+plaque_location.md).
 
 SSS is the current ct_cag_sss of the new spreadsheets (not ct_cag_sss_old); the old one is only
 compared. In the new BL file unread segments are filled with "none" (ct_cag_na_to_none_n), so a
@@ -14,8 +15,11 @@ recorded" for the old tables without that column. The cohort is split by it.
 from __future__ import annotations
 
 import argparse
+from pathlib import Path
 
-from cgps_stats import BL_PATH, FU_PATH, SEGMENTS, count, load, num, yes
+from cgps_stats import BL_PATH, FU_PATH, OUT_DIR, SEGMENTS, count, load, num, yes
+
+OUT_FILE = str(Path(OUT_DIR) / "clean_baseline.md")
 
 
 def read_at_bl(bl):
@@ -30,6 +34,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--bl", default=BL_PATH)
     ap.add_argument("--fu", default=FU_PATH)
+    ap.add_argument("--out", default=OUT_FILE, help="markdown file for the counts")
     args = ap.parse_args()
 
     bl = load(args.bl)
@@ -67,9 +72,17 @@ def main():
             ("  read at BL and a FU scan", (clean & read & in_fu).sum()),
         ]
 
-    width = max(len(name) for name, _ in rows)
-    for name, n in rows:
-        print(f"{name:<{width}}  {count(n)}")
+    lines = ["# Clean-baseline cohort (BL ct_cag_sis == 0 and ct_cag_sss == 0)", "",
+             "Aggregates only; small counts suppressed as in cgps_stats.py. SSS is the new ct_cag_sss; "
+             "read at BL = ct_cag_visual_read.", "", "|  | patients |", "|---|---|"]
+    lines += [f"| {name.strip() if not name.startswith('  ') else '&nbsp;&nbsp;' + name.strip()} | {count(n)} |"
+              for name, n in rows]
+    text = "\n".join(lines) + "\n"
+    print(text)
+    out = Path(args.out).expanduser()
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(text)
+    print(f"wrote {out}")
 
 
 if __name__ == "__main__":
