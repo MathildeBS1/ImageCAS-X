@@ -7,7 +7,9 @@ LCx: LM bifurcation -> OM1 (p) -> OM2 (m) -> end (d).
 RCA: ostium -> half way to the acute margin (p) -> acute margin (m) -> PDA origin (d); the acute margin
 is the RCA point farthest from the ostium-to-crux chord. A missing landmark falls back to the first
 side branch >= 15 mm long, and without one to a fixed fraction of the trunk.
-Writes one row per tree, artery and segment: start and end in mm along the trunk (contains IDs).
+Writes one row per tree, artery and segment: start and end in mm along the trunk, the rule used and
+the visual grade at BL and FU (contains IDs, stays on the server), plus split_trunks.md next to it
+with aggregates only (counts 1-4 hidden), to share.
 """
 import argparse
 import re
@@ -19,7 +21,7 @@ from scipy.sparse import coo_matrix
 from scipy.sparse.csgraph import dijkstra
 
 import hoe10y_qc as hq
-from cgps_stats import OUT_DIR
+from cgps_stats import OUT_DIR, count, describe, suppress, yes
 
 TRUNK = {"LAD": {"plad", "mlad", "dlad", "lad"}, "CX": {"pcx", "mcx", "dcx", "cx"}, "RCA": {"prca", "mrca", "drca", "rca"}}
 NAMES = {"LAD": ("plad", "mlad", "dlad"), "CX": ("pcx", "mcx", "dcx"), "RCA": ("prca", "mrca", "drca")}
@@ -96,14 +98,15 @@ def split(X, lab, G):
             continue
         br, s = branches(p, G, lab)
         L = s[-1]
-        marks = [b[0] for b in br if re.match(BRANCH[a], b[2])] or [b[0] for b in br if b[1] >= MIN_BRANCH]
-        marks = sorted(m for m in marks if m > 1.0)
+        labelled = sorted(b[0] for b in br if re.match(BRANCH[a], b[2]) and b[0] > 1.0)
+        marks = labelled or sorted(b[0] for b in br if b[1] >= MIN_BRANCH and b[0] > 1.0)
+        rule = "labelled branch" if labelled else "long branch" if marks else "fraction of length"
         if a == "LAD":
             pm = marks[0] if marks else 0.25 * L
-            out[a] = (pm, (pm + L) / 2, L)
+            out[a] = (pm, (pm + L) / 2, L, rule)
         elif a == "CX":
             pm = marks[0] if marks else L / 3
-            out[a] = (pm, next((m for m in marks if m > pm + 1.0), (pm + L) / 2), L)
+            out[a] = (pm, next((m for m in marks if m > pm + 1.0), (pm + L) / 2), L, rule)
         else:
             crux = next((m for m in marks if m > 0.3 * L), L)
             Y = X[p]
@@ -111,7 +114,8 @@ def split(X, lab, G):
             dist = np.linalg.norm(np.cross(Y - Y[0], chord), axis=1)
             mid = (s > 0.2 * crux) & (s < 0.9 * crux)
             acute = s[mid][dist[mid].argmax()] if mid.any() else 2 / 3 * crux
-            out[a] = (acute / 2, acute, crux)
+            found = any(m > 0.3 * L for m in marks)
+            out[a] = (acute / 2, acute, crux, f"acute margin; crux at {rule}" if found else "acute margin; crux at trunk end")
     return out
 
 
@@ -124,10 +128,10 @@ def main():
     files = sorted(Path(args.src).rglob("*.vtk"))
     for f in files:
         try:
-            for a, (pm, md, end) in split(*graph(hq.tree_points(f))).items():
+            for a, (pm, md, end, rule) in split(*graph(hq.tree_points(f))).items():
                 for seg, lo, hi in zip(NAMES[a], (0, pm, md), (pm, md, end)):
                     rows.append({"id": hq.id_from_name(f.name) or f.stem, "artery": a, "segment": seg,
-                                 "start_mm": round(lo, 1), "end_mm": round(hi, 1)})
+                                 "start_mm": round(lo, 1), "end_mm": round(hi, 1), "rule": rule})
         except Exception:  # noqa: BLE001 - counted
             failed += 1
     df = pd.DataFrame(rows)
@@ -143,7 +147,58 @@ def main():
                                   else "no read" for i, s in zip(df["id"], df["segment"])]
     Path(args.out).parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(args.out, index=False)
-    print(f"{len(files)} trees, {failed} failed -> {args.out}")
+    md = Path(args.out).with_suffix(".md")
+    md.write_text(summary(df, len(files), failed), encoding="utf-8")
+    print(f"{len(files)} trees, {failed} failed -> {args.out} and {md}")
+
+
+def table(header, rows):
+    return "\n".join(["| " + " | ".join(map(str, header)) + " |", "|" + "---|" * len(header),
+                      *["| " + " | ".join(map(str, r)) + " |" for r in rows]]) + "\n"
+
+
+def summary(df, n_files, failed):
+    """Aggregates only (cgps_stats rules): no IDs, counts 1-4 hidden, no min/max."""
+    L = ["# Trunk split of the Medis trees (split_trunks.py)\n",
+         "Aggregates only; counts 1-4 shown as <5. Best-guess SCCT split, no ground truth exists.\n",
+         f"Trees: {count(n_files)}, failed: {count(failed)}.\n"]
+    if not len(df):
+        return "\n".join(L)
+    trees = df.drop_duplicates(["id", "artery"])
+    L += ["## Rule used\n", table(["artery", "rule", "trees"],
+                                    [(a, r, count(n)) for (a, r), n in trees.groupby(["artery", "rule"]).size().items()])]
+    q = lambda d, k: "" if d.get(k) is None else f"{d[k]:.1f}"
+    rows = []
+    for a, segs in NAMES.items():
+        for sg in segs:
+            d = describe((df.end_mm - df.start_mm)[(df.artery == a) & (df.segment == sg)])
+            rows.append((sg, d["n"], q(d, "p25"), q(d, "median"), q(d, "p75")))
+    L += ["## Segment length (mm)\n", table(["segment", "trees", "p25", "median", "p75"], rows)]
+    if "clean_bl" not in df:
+        return "\n".join(L + ["_No spreadsheet found: no plaque status._\n"])
+    pat = df.drop_duplicates("id").set_index("id")
+    read = yes(pat["read_bl"]) == 1 if "read_bl" in pat else pd.Series(False, index=pat.index)
+    status = np.select([pat["clean_bl"].isna(), (pat["clean_bl"] == True) & read, pat["clean_bl"] == True],  # noqa: E712
+                       ["not in BL sheet", "clean at BL, read", "clean at BL, not read"], "plaque at BL")
+    L += ["## Trees by baseline status\n", "Clean = BL SIS 0 and new SSS 0; read = ct_cag_visual_read.\n",
+          table(["status", "patients"], [(k, count(v)) for k, v in pd.Series(status).value_counts().items()])]
+    clean = df[df["id"].isin(pat.index[status == "clean at BL, read"])]
+    if len(clean):
+        cat = clean["grade_fu"].map(lambda g: "plaque" if g in ("minimal", "mild", "moderate", "severe", "occlusion")
+                                    else g if g in ("none", "unevaluable") else "no FU read")
+        cols = ["none", "plaque", "unevaluable", "no FU read"]
+        t = pd.crosstab(clean["segment"], cat).reindex(columns=cols, fill_value=0)
+        t = t.reindex([s for segs in NAMES.values() for s in segs if s in t.index])
+        shown = suppress(t.to_numpy())
+        L += ["## Clean-baseline trees: each split segment at follow-up\n",
+              table(["segment", "no plaque", "new plaque", "unevaluable", "no FU read"],
+                    [(sg, *r) for sg, r in zip(t.index, shown)])]
+        per = clean.assign(p=cat == "plaque", r=cat.isin(["none", "plaque"])).groupby("id")
+        any_p, any_r = per["p"].any(), per["r"].any()
+        L.append(f"Clean-baseline trees with a FU read of the split trunks: {count(any_r.sum())}; stayed clean in "
+                 f"every split trunk segment: {count((any_r & ~any_p).sum())}; new plaque in at least one: "
+                 f"{count(any_p.sum())}.\n")
+    return "\n".join(L)
 
 
 if __name__ == "__main__":
