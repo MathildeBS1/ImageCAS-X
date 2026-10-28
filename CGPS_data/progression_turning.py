@@ -230,6 +230,51 @@ def plots(y, preds, conf, out_dir):
     fig.tight_layout(); fig.savefig(out_dir / "progression_confusion.png", dpi=150); plt.close(fig)
 
 
+def extra_plots(W, R, n_inf, out_dir):
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    ink, base_col, geo_col = "#0b0b0b", "#8a8984", "#2a6fdb"
+    fig, axes = plt.subplots(1, 2, figsize=(12, 4.2), sharey=True, gridspec_kw={"width_ratios": [1, 1.5]})
+    yy = np.arange(len(W))[::-1]
+    cols = [base_col] + [geo_col] * (len(W) - 1)
+    for ax, key, title, ref in ((axes[0], "C", "Within-person C (0.5 = coin flip)", 0.5),
+                                (axes[1], "hit", "Top-ranked segment progressed", None)):
+        vals = W[key].to_numpy() * (100 if key == "hit" else 1)
+        ax.barh(yy, vals, color=cols, height=0.6)
+        ax.axvline(vals[0], color=base_col, lw=1, ls="--")
+        if ref is not None:
+            ax.axvline(ref, color="#c8c7c2", lw=1)
+        notes = [""] + [f"   top changed in {count(r.changed)}: new {count(r.new_ok)} vs old {count(r.old_ok)} progressed"
+                        for r in W.iloc[1:].itertuples()]
+        for y_, v, note in zip(yy, vals, notes):
+            ax.text(v, y_, (f" {v:.2f}" if key == "C" else f" {v:.0f}%" + note), va="center", fontsize=8, color=ink)
+        if key == "hit":
+            ax.set_xlim(0, 175)
+            ax.set_xticks([0, 25, 50, 75, 100])
+        ax.set_title(title, fontsize=10)
+        ax.spines[["top", "right"]].set_visible(False)
+    axes[0].set_yticks(yy, W["model"])
+    axes[1].set_xlabel(f"% of {count(n_inf)} people with some but not all segments progressed")
+    fig.suptitle("Within one person: does geometry rank the progressing segments first? (grey = base, dashed = base level)",
+                 fontsize=10)
+    fig.tight_layout(); fig.savefig(out_dir / "progression_within.png", dpi=150); plt.close(fig)
+
+    fig, ax = plt.subplots(figsize=(8, 4.2))
+    x = np.arange(len(R))
+    for off, key, col, lab in ((-0.27, "pt", base_col, "expected: position + time"),
+                               (0, "ptg", geo_col, "expected: + mean T5"), (0.27, "obs", ink, "observed")):
+        ax.bar(x + off, 100 * R[key], width=0.25, color=col, label=lab)
+        for xi, v in zip(x + off, 100 * R[key]):
+            ax.text(xi, v, f"{v:.0f}%", ha="center", va="bottom", fontsize=8)
+    ax.set_xticks(x, [f"{g}\n(n = {count(n)})" for g, n in zip(R["group"], R["n"])], fontsize=8)
+    ax.set_ylabel("segments that progressed (%)")
+    ax.set_title("When geometry changes a segment's risk, does the segment do what geometry says?", fontsize=10)
+    ax.spines[["top", "right"]].set_visible(False)
+    ax.legend(fontsize=8, frameon=False)
+    fig.tight_layout(); fig.savefig(out_dir / "progression_reclass.png", dpi=150); plt.close(fig)
+
+
 # ---------------------------------------------------------------- main
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -303,9 +348,7 @@ def main():
     # 2. within person
     grp = d["id"].to_numpy()
     informative = d.groupby("id")["y"].agg(lambda v: 0 < v.sum() < len(v))
-    rep += ["## 2. Within person: does geometry re-rank a person's segments?\n",
-            f"Conditional logistic regression stratified on person (SCORE2 and time cancel). Informative people "
-            f"(some but not all segments progressed): {count(int(informative.sum()))}.\n"]
+    n_inf = int(informative.sum())
 
     def cv_within(z_col):
         eta = np.zeros(len(d))
@@ -318,48 +361,78 @@ def main():
 
     def top1(eta):
         top = d.assign(eta=eta).loc[lambda x: x["id"].isin(informative[informative].index)]
-        return top.loc[top.groupby("id")["eta"].idxmax()]
+        return top.loc[top.groupby("id")["eta"].idxmax()].set_index("id")
 
     eta0 = cv_within(None)
     t0 = top1(eta0)
+    c0w = strat_c(d, eta0, "id")
     _, ll_w0 = clogit(within_design(d), y, grp)
-    rows = [f"| base (position + BL grade + log length) | | {strat_c(d, eta0, 'id'):.3f} | | "
-            f"{count(int(t0['y'].sum()))} of {count(len(t0))} | | |"]
+    within = [{"model": "base", "C": c0w, "hit": t0["y"].mean(), "hits": int(t0["y"].sum()), "p": np.nan,
+               "changed": 0, "new_ok": 0, "old_ok": 0}]
     for col, name in VARIANTS.items():
-        z = zscore(d, col, np.ones(len(d), bool))
-        _, ll_w1 = clogit(within_design(d, z), y, grp)
+        _, ll_w1 = clogit(within_design(d, zscore(d, col, np.ones(len(d), bool))), y, grp)
         eta1 = cv_within(col)
-        t1 = top1(eta1).set_index("id")
-        changed = t1.index[t1["segment"] != t0.set_index("id").loc[t1.index, "segment"]]
-        better = int(t1.loc[changed, "y"].sum() - t0.set_index("id").loc[changed, "y"].sum())
-        c1 = strat_c(d, eta1, "id")
-        rows.append(f"| {name} | {chi2.sf(2 * (ll_w1 - ll_w0), 1):.3g} | {c1:.3f} | {c1 - strat_c(d, eta0, 'id'):+.3f} | "
-                    f"{count(int(t1['y'].sum()))} of {count(len(t1))} | {count(len(changed))} | {better:+d} |")
-    rep += ["| model | LR p (within) | within-person C | ΔC | top-ranked segment progressed | people whose top segment changed | net gain in correct tops |",
-            "|---|---|---|---|---|---|---|", *rows, "",
-            "Net gain = (changed tops that progressed) - (old tops that progressed), among people whose top changed. "
-            "The LR test assumes segments are independent given the person.\n"]
+        t1 = top1(eta1)
+        changed = t1.index[t1["segment"] != t0.loc[t1.index, "segment"]]
+        within.append({"model": name, "C": strat_c(d, eta1, "id"), "hit": t1["y"].mean(), "hits": int(t1["y"].sum()), "p": chi2.sf(2 * (ll_w1 - ll_w0), 1),
+                       "changed": len(changed), "new_ok": int(t1.loc[changed, "y"].sum()),
+                       "old_ok": int(t0.loc[changed, "y"].sum())})
+    W = pd.DataFrame(within)
+    rep += ["## 2. Within one person: does geometry pick the right segment?\n",
+            "**Question.** Take one person. Their segments differ in position, baseline grade and length, and in "
+            "geometry. Does knowing the geometry help rank *that person's* segments, so the ones that progressed come "
+            "first? SCORE2 and follow-up time are the same for all of a person's segments, so they play no role here.\n",
+            f"**Who counts.** Only people with some but not all segments progressed can be ranked: {count(n_inf)} people.\n",
+            "**How to read the columns.**",
+            "- *within-person C*: pick one progressed and one stable segment from the same person; the share of such pairs "
+            "where the model ranks the progressed one higher. 0.5 = coin flip, 1 = always right.",
+            "- *top segment progressed*: share of people whose highest-ranked segment really progressed.",
+            "- *top changed / new top progressed / old top progressed*: for how many people adding geometry moved a "
+            "different segment to the top, and in how many of those the new top vs the old top had progressed. "
+            "Geometry helps if 'new' is larger than 'old'.",
+            "- *p*: does geometry improve the within-person fit (likelihood-ratio test)?\n",
+            "| model | within-person C | vs base | top segment progressed | top changed | new top progressed | old top progressed | p |",
+            "|---|---|---|---|---|---|---|---|"]
+    for r in W.itertuples():
+        base = r.model == "base"
+        rep.append(f"| {r.model} | {r.C:.3f} | {'' if base else f'{r.C - c0w:+.3f}'} | {100 * r.hit:.0f}% "
+                   f"({count(r.hits)} of {count(n_inf)}) | {'' if base else count(r.changed)} | "
+                   f"{'' if base else count(r.new_ok)} | {'' if base else count(r.old_ok)} | {'' if base else f'{r.p:.3g}'} |")
+    best = W.iloc[1:].loc[W.iloc[1:]["C"].idxmax()]
+    rep.append(f"\n**In short:** position, baseline grade and length rank the right segment first for "
+               f"{100 * W['hit'][0]:.0f}% of people (within-person C {c0w:.2f}). The best geometry variant "
+               f"({best['model']}) gives C {best['C']:.2f} ({best['C'] - c0w:+.2f}). Figure: progression_within.png.\n")
 
     # 3. reclassification: position + time vs + mean T5
     p_pt, _ = cv(None, person=False, grade=False)
     p_ptg, _ = cv("mean_T5", person=False, grade=False)
     delta = p_ptg - p_pt
     q10, q90 = np.percentile(delta, [10, 90])
-    groups = {"risk raised most by geometry (top 10%)": delta >= q90, "middle 80%": (delta > q10) & (delta < q90),
-              "risk lowered most by geometry (bottom 10%)": delta <= q10}
-    rep += ["## 3. Where geometry moved the risk most (position + follow-up vs + mean T5, out-of-fold)\n",
-            "| segments | n | progressed | observed rate | mean risk, position + time | mean risk, + geometry |",
+    groups = {"geometry raised the risk most (top 10%)": delta >= q90, "little change (middle 80%)": (delta > q10) & (delta < q90),
+              "geometry lowered the risk most (bottom 10%)": delta <= q10}
+    R = pd.DataFrame([{"group": g, "n": int(m.sum()), "k": int(y[m].sum()), "obs": y[m].mean(),
+                       "pt": p_pt[m].mean(), "ptg": p_ptg[m].mean()} for g, m in groups.items()])
+    rep += ["## 3. When geometry changes a segment's risk, is it right?\n",
+            "**Question.** Predict each segment's risk twice, out-of-fold: with position + follow-up time only, and with "
+            "mean T5 added. For most segments geometry barely changes the risk. Look at the 10% it pushed up most and the "
+            "10% it pushed down most, and check what actually happened.\n",
+            "**How to read it.** If geometry is right, segments it pushed *up* progress more often than the position + time "
+            "model expected (observed above the grey bar), and segments it pushed *down* progress less often.\n",
+            "| segments | n | progressed | observed | expected, position + time | expected, + geometry |",
             "|---|---|---|---|---|---|"]
-    for name, m in groups.items():
-        k, n = int(y[m].sum()), int(m.sum())
-        rep.append(f"| {name} | {count(n)} | {count(k)} | {100 * k / max(n, 1):.0f}% | "
-                   f"{100 * p_pt[m].mean():.0f}% | {100 * p_ptg[m].mean():.0f}% |")
-    rep.append("\nIf geometry carries signal, the top-10% group progresses more than its position + time risk "
-               "predicted, and the bottom-10% group less.\n")
+    for r in R.itertuples():
+        rep.append(f"| {r.group} | {count(r.n)} | {count(r.k)} | {100 * r.obs:.0f}% | {100 * r.pt:.0f}% | {100 * r.ptg:.0f}% |")
+    up, down = R.iloc[0], R.iloc[2]
+    verdict = ("geometry moved the risk in the right direction in both groups" if up.obs > up.pt and down.obs < down.pt
+               else "geometry did not consistently move the risk in the right direction")
+    rep.append(f"\n**In short:** where geometry raised the risk, {100 * up.obs:.0f}% progressed (position + time expected "
+               f"{100 * up.pt:.0f}%); where it lowered the risk, {100 * down.obs:.0f}% progressed (expected "
+               f"{100 * down.pt:.0f}%): {verdict}. Figure: progression_reclass.png.\n")
+    extra_plots(W, R, n_inf, out_dir)
 
     Path(args.out).write_text("\n".join(rep), encoding="utf-8")
     print("\n".join(rep))
-    print(f"wrote {args.out}, progression_roc.png and progression_confusion.png in {out_dir}")
+    print(f"wrote {args.out} and progression_*.png in {out_dir}")
 
 
 if __name__ == "__main__":
