@@ -196,7 +196,8 @@ def confusion(y, p, thr):
 # Validated categorical palette (dataviz skill); one fixed colour per model in every figure.
 SURF, INK, INK2, MUTED, GRID = "#fcfcfb", "#0b0b0b", "#52514e", "#8a8984", "#e4e3df"
 MODEL_COLOR = {"base": "#8a8984", "mean T5": "#2a78d6", "90th pct T5": "#eb6834", "fraction above p75": "#1baf7a",
-               "mean T2.5": "#eda100", "mean T10": "#e87ba4", "upstream 20 mm T5": "#008300"}
+               "mean T2.5": "#eda100", "mean T10": "#e87ba4", "upstream 20 mm T5": "#008300",
+               "turning": "#2a78d6", "angle": "#eb6834", "turning + angle": "#1baf7a", "turning × angle": "#e87ba4"}
 VERDICT_COLOR = {"correct": "#1baf7a", "wrong": "#e34948", "neutral": "#c8c7c2"}
 FLAGGED, MISSED = "#86b6ef", "#eb6834"
 
@@ -225,7 +226,7 @@ def _save(fig, path, rect=None):
     plt.close(fig)
 
 
-def plots(y, preds, conf, out_dir):
+def plots(y, preds, conf, out_dir, prefix="progression"):
     plt = _plt()
     grid = np.linspace(0, 1, 21)  # binned so no single segment is a visible step
     fig, ax = plt.subplots(figsize=(6.4, 5.2))
@@ -239,7 +240,7 @@ def plots(y, preds, conf, out_dir):
     ax.set(xlabel="False positive rate (1 - specificity)", ylabel="True positive rate (sensitivity)", xlim=(0, 1), ylim=(0, 1.02))
     ax.set_title("ROC: which segments progress? (out-of-fold)")
     ax.legend(fontsize=8, loc="lower right", title="model", title_fontsize=8)
-    _save(fig, out_dir / "progression_roc.png")
+    _save(fig, out_dir / f"{prefix}_roc.png")
 
     fig, axes = plt.subplots(2, 4, figsize=(12, 6.2))
     cell_col = np.array([["#1baf7a", MISSED], ["#e34948", "#1baf7a"]])  # TP, FN / FP, TN
@@ -270,14 +271,14 @@ def plots(y, preds, conf, out_dir):
     for ax in axes.ravel()[len(conf):-1]:
         ax.axis("off")
     fig.suptitle("Confusion matrices per model (out-of-fold)", x=0.01, ha="left", fontsize=12, fontweight="bold", color=INK)
-    _save(fig, out_dir / "progression_confusion.png")
+    _save(fig, out_dir / f"{prefix}_confusion.png")
 
 
 VESSEL = {"plad": "LAD", "mlad": "LAD", "dlad": "LAD", "pcx": "LCx", "mcx": "LCx", "dcx": "LCx",
           "prca": "RCA", "mrca": "RCA", "drca": "RCA"}
 
 
-def swaps(d, eta0, eta1, label, sec, out_dir):
+def swaps(d, eta0, eta1, label, sec, out_dir, prefix="progression", tag=None):
     """Within each person: which segments changed rank when the turning variant was added, and was the swap right?"""
     pairs, changed, total = [], 0, 0
     for _, g in d.assign(e0=eta0, e1=eta1).groupby("id"):
@@ -296,7 +297,7 @@ def swaps(d, eta0, eta1, label, sec, out_dir):
                     pairs.append({"segments": f"{a} <-> {b}", "vessels": " <-> ".join(sorted((VESSEL[a], VESSEL[b]))),
                                   "verdict": verdict})
     P = pd.DataFrame(pairs, columns=["segments", "vessels", "verdict"])
-    fname = f"progression_swaps_{label.split()[-1]}.png"
+    fname = f"{prefix}_swaps_{tag or label.split()[-1]}.png"
     rep = [f"## {sec}. Which segments swapped places in a person's ranking when geometry was added ({label})?\n",
            "Each person's segments are ranked from highest to lowest within-person score (section 2), once without and "
            f"once with {label}. A swap is a pair of the person's segments whose order flipped. It is *correct* when the "
@@ -348,7 +349,7 @@ def swaps(d, eta0, eta1, label, sec, out_dir):
     return rep
 
 
-def top_levels(d, y, p_pt, p_ptg, thr, out_dir, label, sec, levels=(5, 10, 15, 20, 25, 30)):
+def top_levels(d, y, p_pt, p_ptg, thr, out_dir, label, sec, levels=(5, 10, 15, 20, 25, 30), prefix="progression", tag=None):
     """Segments whose risk geometry raised most: at each top-k% level, how many progressed (geometry was right
     to raise them) and how many did not (geometry was wrong)."""
     delta = p_ptg - p_pt
@@ -358,7 +359,7 @@ def top_levels(d, y, p_pt, p_ptg, thr, out_dir, label, sec, levels=(5, 10, 15, 2
         rows.append({"level": k, "n": int(m.sum()), "trees": d.loc[m, "id"].nunique(), "prog": int((m & (y == 1)).sum())})
     T = pd.DataFrame(rows)
     T["stable"] = T["n"] - T["prog"]
-    fname = f"progression_toplevels_{label.split()[-1]}.png"
+    fname = f"{prefix}_toplevels_{tag or label.split()[-1]}.png"
     rep = [f"## {sec}. Segments whose risk {label} raised most: was geometry right to raise them?\n",
            f"Segments are sorted by how much adding {label} raised their risk (position + time vs + {label}, out-of-fold). "
            "At each level the top k% is taken. *Progressed* = geometry was right to raise the risk; *did not progress* = "
@@ -391,7 +392,7 @@ def top_levels(d, y, p_pt, p_ptg, thr, out_dir, label, sec, levels=(5, 10, 15, 2
     m10 = delta >= np.percentile(delta, 90)
     yt = y[m10]
     cms = {"position + time": confusion(yt, p_pt[m10], thr[m10]), f"+ {label}": confusion(yt, p_ptg[m10], thr[m10])}
-    cname = f"progression_top10_confusion_{label.split()[-1]}.png"
+    cname = f"{prefix}_top10_confusion_{tag or label.split()[-1]}.png"
     rep += [f"**Only the top 10% ({count(int(m10.sum()))} segments, {count(int(yt.sum()))} progressed):** "
             "how the two models classify them (call \"progresses\" above the training-fold progression rate).\n",
             "| model | TP | FN | FP | TN | sensitivity | specificity |", "|---|---|---|---|---|---|---|"]
@@ -436,7 +437,7 @@ def confusion_pair(cms, path, title, label):
     _save(fig, path)
 
 
-def extra_plots(W, R, n_inf, out_dir):
+def extra_plots(W, R, n_inf, out_dir, prefix="progression", label="mean T5"):
     plt = _plt()
     fig, axes = plt.subplots(1, 2, figsize=(12.5, 4.6), sharey=True, gridspec_kw={"width_ratios": [1, 1.5]})
     yy = np.arange(len(W))[::-1]
@@ -464,13 +465,13 @@ def extra_plots(W, R, n_inf, out_dir):
         lab.set_fontweight("bold")
     fig.suptitle("Within one person: does geometry rank the progressing segments first?  (dashed = base level)",
                  x=0.01, ha="left", fontsize=12, fontweight="bold", color=INK)
-    _save(fig, out_dir / "progression_within.png")
+    _save(fig, out_dir / f"{prefix}_within.png")
 
     fig, ax = plt.subplots(figsize=(9, 4.8))
     _grid(ax)
     x = np.arange(len(R))
     for off, key, col, lab in ((-0.28, "pt", MODEL_COLOR["base"], "expected: position + time"),
-                               (0, "ptg", MODEL_COLOR["mean T5"], "expected: + mean T5"), (0.28, "obs", MISSED, "observed")):
+                               (0, "ptg", MODEL_COLOR.get(label, INK), f"expected: + {label}"), (0.28, "obs", MISSED, "observed")):
         ax.bar(x + off, 100 * R[key], width=0.26, color=col, label=lab)
         for xi, v in zip(x + off, 100 * R[key]):
             ax.text(xi, v + 0.4, f"{v:.0f}%", ha="center", va="bottom", fontsize=8, color=INK)
@@ -479,15 +480,20 @@ def extra_plots(W, R, n_inf, out_dir):
     ax.set_ylim(0, 100 * R[["pt", "ptg", "obs"]].to_numpy().max() * 1.25)
     ax.set_title("When geometry changes a segment's risk, does the segment do what geometry says?")
     ax.legend(fontsize=8, loc="upper center", ncol=3)
-    _save(fig, out_dir / "progression_reclass.png")
+    _save(fig, out_dir / f"{prefix}_reclass.png")
 
 
 SEG_ORDER = [sg for segs in NAMES.values() for sg in segs]
 
 
-def per_segment(d, y, fold, folds, B, rng, out_dir, cols=(("mean_T5", "mean T5"), ("mean_T2.5", "mean T2.5"))):
-    """Does turning predict progression better in some segments? One model per variant with a separate
-    turning effect for each segment (turning x segment), adjusted for the same base as section 1."""
+PER_SEGMENT_NOTE = ("T5 and T2.5 are per-segment values: the turning angles inside that segment's own stretch of the "
+                    "trunk, averaged.")
+
+
+def per_segment(d, y, fold, folds, B, rng, out_dir, cols=(("mean_T5", "mean T5"), ("mean_T2.5", "mean T2.5")),
+                prefix="progression", sec=8, what="turning", unit="scale", note=PER_SEGMENT_NOTE):
+    """Does a feature predict progression better in some segments? One model per feature with a separate
+    effect for each segment (feature x segment), adjusted for the same base as section 1."""
     segs = [sg for sg in SEG_ORDER if sg in set(d["segment"])]
     seg = d["segment"].to_numpy()
     X0 = design(d)
@@ -521,7 +527,7 @@ def per_segment(d, y, fold, folds, B, rng, out_dir, cols=(("mean_T5", "mean T5")
             k, n = int(y[m].sum()), int(m.sum())
             j = X0.shape[1] + i
             r = {"n": n, "k": k, "ok": min(k, n - k) >= 5 and np.std(z[m]) > 1e-9,
-                 "why": "too few events or non-events" if min(k, n - k) < 5 else "turning does not vary here"}
+                 "why": "too few events or non-events" if min(k, n - k) < 5 else f"{what} does not vary here"}
             if r["ok"]:
                 b, se = w[j], np.sqrt(V[j, j])
                 c0, c1 = auc(y[m], p_base[m])[0], auc(y[m], p_int[m])[0]
@@ -535,18 +541,18 @@ def per_segment(d, y, fold, folds, B, rng, out_dir, cols=(("mean_T5", "mean T5")
                          c0=c0, c1=c1, dlo=np.percentile(bd, 2.5), dhi=np.percentile(bd, 97.5))
             res[(label, sg)] = r
 
-    rep = ["## 8. Is geometry better at predicting some segments than others?\n",
-           "One model per turning scale gives every segment its own turning effect (turning x segment), adjusted for "
-           "SCORE2, follow-up time, position and BL grade as in section 1. T5 and T2.5 are per-segment values: the "
-           "turning angles inside that segment's own stretch of the trunk, averaged.\n",
-           "- *OR per SD*: odds of progressing per SD more turning than usual for that segment.",
-           "- *AUC within segment*: comparing people at that segment only; base vs + turning (out-of-fold), "
+    rep = [f"## {sec}. Is geometry better at predicting some segments than others?\n",
+           f"One model per {what} {unit} gives every segment its own {what} effect ({what} x segment), adjusted for "
+           f"SCORE2, follow-up time, position and BL grade as in section 1. {note}\n",
+           f"- *OR per SD*: odds of progressing per SD more {what} than usual for that segment.",
+           f"- *AUC within segment*: comparing people at that segment only; base vs + {what} (out-of-fold), "
            "with the change and a bootstrap interval.",
-           "- *Different between segments?*: one test of whether the turning effect varies across the 9 segments "
-           "(8 df). Read single segments with care: 18 estimates means some will look strong by chance.\n"]
+           f"- *Different between segments?*: one test of whether the {what} effect varies across the {len(segs)} segments "
+           f"({len(segs) - 1} df). Read single segments with care: {len(segs) * len(cols)} estimates means some will "
+           "look strong by chance.\n"]
     for label in het:
         rep.append(f"{label}: different between segments? p = {het[label]:.3g}")
-    rep += ["", "| segment | events / segments | scale | OR per SD (95% CI) | p | AUC base | AUC + turning | ΔAUC (95% bootstrap) |",
+    rep += ["", f"| segment | events / segments | {unit} | OR per SD (95% CI) | p | AUC base | AUC + {what} | ΔAUC (95% bootstrap) |",
             "|---|---|---|---|---|---|---|---|"]
     for sg in segs:
         for col, label in cols:
@@ -557,7 +563,7 @@ def per_segment(d, y, fold, folds, B, rng, out_dir, cols=(("mean_T5", "mean T5")
                 continue
             rep.append(f"| {sg} | {ev} | {label} | {r['OR']:.2f} ({r['lo']:.2f}–{r['hi']:.2f}) | {r['p']:.3g} | "
                        f"{r['c0']:.3f} | {r['c1']:.3f} | {r['c1'] - r['c0']:+.3f} ({r['dlo']:+.3f} to {r['dhi']:+.3f}) |")
-    rep.append("\nFigure: progression_per_segment.png.\n")
+    rep.append(f"\nFigure: {prefix}_per_segment.png.\n")
 
     plt = _plt()
     fig, axes = plt.subplots(1, 2, figsize=(12.5, 6.2), sharey=True)
@@ -591,17 +597,17 @@ def per_segment(d, y, fold, folds, B, rng, out_dir, cols=(("mean_T5", "mean T5")
     for lab, sg in zip(axes[0].get_yticklabels(), segs):
         lab.set_color({"LAD": "#2a78d6", "LCx": "#1baf7a", "RCA": "#e34948"}[VESSEL[sg]])
         lab.set_fontweight("bold")
-    axes[0].set_xlabel("odds ratio per SD more turning (log scale)")
-    axes[0].set_title("Effect of turning, per segment")
-    axes[1].set_xlabel("change in AUC within the segment (+ turning vs base)")
+    axes[0].set_xlabel(f"odds ratio per SD more {what} (log scale)")
+    axes[0].set_title(f"Effect of {what}, per segment")
+    axes[1].set_xlabel(f"change in AUC within the segment (+ {what} vs base)")
     axes[1].set_title("Gain in discrimination, per segment")
-    axes[0].legend(fontsize=8, loc="lower right", title="scale", title_fontsize=8)
+    axes[0].legend(fontsize=8, loc="lower right", title=unit, title_fontsize=8)
     het_txt = ", ".join(f"{l}: p = {v:.2g}" for l, v in het.items())
-    fig.suptitle(f"Is turning a better predictor in some segments?  Different between segments: {het_txt}",
+    fig.suptitle(f"Is {what} a better predictor in some segments?  Different between segments: {het_txt}",
                  x=0.01, ha="left", fontsize=12, fontweight="bold", color=INK)
     fig.text(0.01, 0.01, "Segment label colour = vessel (LAD blue, LCx aqua, RCA red); (events/segments). "
-             "Segments with fewer than 5 events or non-events, or no variation in turning, are left out.", fontsize=8, color=INK2)
-    _save(fig, out_dir / "progression_per_segment.png", rect=(0, 0.03, 1, 1))
+             f"Segments with fewer than 5 events or non-events, or no variation in {what}, are left out.", fontsize=8, color=INK2)
+    _save(fig, out_dir / f"{prefix}_per_segment.png", rect=(0, 0.03, 1, 1))
     return rep
 
 
