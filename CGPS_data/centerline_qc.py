@@ -426,14 +426,16 @@ class _VtkCursor:
         return a if code[0] == "f" else a.astype(np.int64)
 
 
-def parse_vtk_legacy(data):
-    """Legacy .vtk POLYDATA, ASCII or BINARY, old (4.x) or new (5.1, OFFSETS/CONNECTIVITY) layout."""
+def read_vtk_legacy(data):
+    """Legacy .vtk POLYDATA, ASCII or BINARY, old (4.x) or new (5.1, OFFSETS/CONNECTIVITY) layout.
+    Returns {points, cells: {LINES/POLYGONS/...: [index lists]}, point_data, cell_data, field_data,
+    header, keywords}."""
     r = _VtkCursor(data)
     head = [r.raw_line() for _ in range(3)]  # version, title (may be empty), ASCII/BINARY
     if not head[0].lower().startswith("# vtk"):
         raise ValueError(f"not a legacy VTK file (first line {head[0][:40]!r})")
     binary = head[2].upper().startswith("BINARY")
-    points, lines, pa, ca, fd = None, [], {}, {}, {}
+    points, cells_by_type, pa, ca, fd = None, defaultdict(list), {}, {}, {}
     target, n_mode, keywords = fd, 0, Counter()
     while (s := r.line()) is not None:
         w = s.split()
@@ -457,8 +459,7 @@ def parse_vtk_legacy(data):
                 while j < len(flat):
                     cells.append(list(flat[j + 1:j + 1 + flat[j]]))
                     j += flat[j] + 1
-            if t == "LINES":
-                lines += cells
+            cells_by_type[t] += cells
         elif t in ("POINT_DATA", "CELL_DATA"):
             target, n_mode = (pa if t == "POINT_DATA" else ca), int(w[1])
         elif t == "SCALARS":
@@ -492,7 +493,15 @@ def parse_vtk_legacy(data):
             raise ValueError(f"unexpected line in VTK file: {s[:60]!r}")
     if points is None:
         raise ValueError("no POINTS in VTK file")
-    polys, meta = polys_from_mesh(points, lines, pa, ca, ".vtk", lookup_from_field(fd))
+    return {"points": points, "cells": dict(cells_by_type), "point_data": pa, "cell_data": ca,
+            "field_data": fd, "header": head, "keywords": dict(keywords)}
+
+
+def parse_vtk_legacy(data):
+    v = read_vtk_legacy(data)
+    fd, head, keywords = v["field_data"], v["header"], v["keywords"]
+    polys, meta = polys_from_mesh(v["points"], v["cells"].get("LINES", []), v["point_data"],
+                                  v["cell_data"], ".vtk", lookup_from_field(fd))
     meta["field_data"] = {k: (list(v)[:30] if np.asarray(v).dtype == object else list(np.shape(v)))
                           for k, v in fd.items()}
     meta.update({"vtk_header": head, "vtk_keywords": dict(keywords)})

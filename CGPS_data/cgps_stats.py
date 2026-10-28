@@ -39,8 +39,8 @@ import numpy as np
 import pandas as pd
 
 # ---- edit these three paths before running ----
-BL_PATH = "/path/to/baseline.xlsx"    # baseline Excel file (data on the first sheet)
-FU_PATH = "/path/to/followup.xlsx"    # follow-up Excel file (data on the first sheet)
+BL_PATH = "/data/kimbr/HØ_10Y/Visual_Analysis_and_Patient_Characteristics/BL_anonymised.xlsx"  # baseline (first sheet)
+FU_PATH = "/data/kimbr/HØ_10Y/Visual_Analysis_and_Patient_Characteristics/FU_anonymised.xlsx"  # follow-up (first sheet)
 OUT_DIR = "/path/to/cgps_results"     # folder for the aggregate results (created if missing)
 
 MIN_CELL = 5

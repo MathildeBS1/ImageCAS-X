@@ -20,8 +20,8 @@ branches. Tables:
 5. FU grade of the new plaque in the three trunks only (LM and side branches left out): per patient
    with plaque in at least one trunk (worst grade over the trunk segments) and per trunk plaque
    segment, as n and %.
-Everything is shown for the whole clean cohort and for the part with BL segment reads (about half of
-the BL patients have no segment reads but SIS/SSS recorded as 0, see clean_baseline_count.py).
+Everything is shown for the whole clean cohort and for the part read at BL (ct_cag_visual_read; unread
+BL segments are filled with "none", see clean_baseline_count.py). SSS is the new ct_cag_sss.
 """
 from __future__ import annotations
 
@@ -30,6 +30,7 @@ import argparse
 import pandas as pd
 
 from cgps_stats import BL_PATH, FU_PATH, SEGMENTS, count, decode_segments, load, num, pct, suppress
+from clean_baseline_count import read_at_bl
 
 TRUNKS = {"LAD": ("plad", "mlad", "dlad"), "CX": ("pcx", "mcx", "dcx"), "RCA": ("prca", "mrca", "drca")}
 SIDE_BRANCHES = ("d1", "d2", "im", "om1", "om2", "pda", "pla")
@@ -154,7 +155,7 @@ def main():
     fu, _ = decode_segments(fu)
 
     clean = (num(bl["ct_cag_sis"]) == 0) & (num(bl["ct_cag_sss"]) == 0)
-    read = bl[[f"ct_cag_{s}_stenosis" for s in SEGMENTS if f"ct_cag_{s}_stenosis" in bl]].notna().any(axis=1)
+    read = read_at_bl(bl)
     ids = clean[clean].index.intersection(fu.index)
     fu_sis = num(fu.loc[ids, "ct_cag_sis"])
     developed = fu_sis[fu_sis > 0].index
@@ -166,12 +167,12 @@ def main():
            ("FU ct_cag_sis recorded", count(fu_sis.notna().sum()), count(fu_sis.notna()[read.loc[ids]].sum())),
            ("developed plaque (FU ct_cag_sis > 0)", count(n_dev), count(n_dev_read)),
            ("% developed plaque", pct(n_dev, n_clean), pct(n_dev_read, n_clean_read))],
-          ["", "all clean", "with BL segment reads"])
+          ["", "all clean", "read at BL"])
 
     report("all clean-baseline patients who developed plaque", fu.loc[developed])
-    report("only those with BL segment reads", fu.loc[developed[read.loc[developed].to_numpy()]])
+    report("only those read at BL", fu.loc[developed[read.loc[developed].to_numpy()]])
     worst_grades("all clean-baseline patients", fu.loc[ids])
-    worst_grades("only those with BL segment reads", fu.loc[ids[read.loc[ids].to_numpy()]])
+    worst_grades("only those read at BL", fu.loc[ids[read.loc[ids].to_numpy()]])
 
 
 if __name__ == "__main__":
