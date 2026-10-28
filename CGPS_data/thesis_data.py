@@ -16,6 +16,7 @@ Writes OUT_DIR/thesis_data.md. Aggregates only (cgps_stats.py suppression), no s
 from __future__ import annotations
 
 import argparse
+import time
 from multiprocessing import Pool
 from pathlib import Path
 
@@ -121,7 +122,9 @@ def reference_section(found, bl, cohort, args):
             cont.setdefault(i, {})[s] = files
     nifti = {x["id"]: x["path"] for x in found["niftis"] if x["visit"] == "BL" and x["id"]}
     sis = num(bl["ct_cag_sis"])
-    ids = sorted(set(tree_of) | set(cont), key=int)
+    ids = sorted(set(tree_of) | set(cont), key=int)[: args.limit]
+    tree_of = {i: tree_of[i] for i in ids if i in tree_of}
+    cont = {i: cont[i] for i in ids if i in cont}
     rep = ["## B. Medis reference (centerlines and lumen)\n", table([
         ("patients with a Medis tree", count(len(tree_of)), count(len(set(tree_of) & set(cohort)))),
         ("... of which plaque at BL (SIS > 0)", count((sis.reindex(list(tree_of)) > 0).sum()), ""),
@@ -131,11 +134,19 @@ def reference_section(found, bl, cohort, args):
         ["", "all", "in the analysis cohort"]),
         "Contours exist only for diseased segments, so they cannot reach the clean cohort; trees can.\n"]
 
+    t0 = time.time()
+    print(f"tree checks on {len(tree_of)} trees (one process)...", flush=True)
     topo, seg_len, _, terr = hq.tree_topology([{"visit": "BL", "id": i, "path": p} for i, p in tree_of.items()])
+    print(f"  done in {time.time() - t0:.0f} s", flush=True)
     tasks = [{"id": i, "visit": "BL", "nifti": nifti.get(i), "voxels": not args.no_voxels, "tree": tree_of.get(i),
               "contours": cont.get(i, {}), "out": args.out, "figs": False} for i in ids]
     with Pool(args.workers, hq.init_worker, (cq._numbering, dict(cq._code_names), "lps", args.out)) as pool:
-        res = pool.map(hq.process, tasks, chunksize=1)
+        res, t0 = [], time.time()
+        print(f"centerline/contour checks on {len(tasks)} patients ({args.workers} workers)...", flush=True)
+        for k, r in enumerate(pool.imap_unordered(hq.process, tasks), 1):
+            res.append(r)
+            if k % 25 == 0 or k == len(tasks):
+                print(f"  {k}/{len(tasks)} after {time.time() - t0:.0f} s", flush=True)
     T = pd.DataFrame([r["tree"] for r in res if r["tree"]])
     S = pd.DataFrame([s for r in res for s in r["segments"]])
     if len(T) and len(topo):
@@ -182,8 +193,10 @@ def main():
     ap.add_argument("--out", default=OUT_DIR)
     ap.add_argument("--workers", type=int, default=4)
     ap.add_argument("--no-voxels", action="store_true")
+    ap.add_argument("--limit", type=int, help="only the first N Medis patients (for a timing test)")
     args = ap.parse_args()
 
+    print("listing files and reading spreadsheets...", flush=True)
     found = hq.discover(args.root)
     sheets = hq.load_sheets(args.root)
     bl, fu = (sheets[v].assign(id=sheets[v]["study_id"].map(hq.norm_id)).drop_duplicates("id").set_index("id")

@@ -180,6 +180,11 @@ def dist_table(df, cols, nd=1):
     return pd.DataFrame({c: dist(df[c], nd) for c in cols if c in df}).T.reset_index(names="metric")
 
 
+def nanmedian(x):
+    x = np.asarray(x, float)
+    return float(np.median(x[np.isfinite(x)])) if np.isfinite(x).any() else np.nan
+
+
 def pct(k, n):
     return f"{k} ({100 * k / n:.1f}%)" if n else f"{k}"
 
@@ -752,8 +757,10 @@ def fig_tree(task, vol, inv, conv, tree):
     out = Path(task["out"]) / "cases" / "overlays"
     out.mkdir(parents=True, exist_ok=True)
     pts = np.concatenate([to_voxel(p, inv, conv) for p, _ in tree])
-    labs = [TERR.get(l, "none") for _, ls in tree for l in ls]
-    colors = {"LM": "#6b6b6b", "LAD": "#2a6fdb", "CX": "#d9822b", "RCA": "#1f9e74", "none": "#c0392b"}
+    labs = [TERR.get(l, "none" if l is None else "other") for _, ls in tree for l in ls]
+    colors = {"LM": "#6b6b6b", "LAD": "#2a6fdb", "CX": "#d9822b", "RCA": "#1f9e74", "other": "#8e44ad",
+              "none": "#c0392b"}
+    names = {"none": "unlabelled", "other": "side branch / unnamed code"}
     lo, hi = np.floor(pts.min(0)).astype(int), np.ceil(pts.max(0)).astype(int)
     lo, hi = np.maximum(lo - 10, 0), np.minimum(hi + 10, np.array(vol.shape) - 1)
     fig, ax = plt.subplots(1, 2, figsize=(12, 6))
@@ -765,7 +772,7 @@ def fig_tree(task, vol, inv, conv, tree):
         for t, c in colors.items():
             m = np.array([l == t for l in labs])
             if m.any():
-                a.scatter(pts[m, u], pts[m, v], s=1, c=c, label="unlabelled" if t == "none" else t)
+                a.scatter(pts[m, u], pts[m, v], s=1, c=c, label=names.get(t, t))
         a.set_title(f"MIP over axis {axis}")
         a.axis("off")
     ax[0].legend(markerscale=6, loc="upper right", fontsize=8)
@@ -1072,7 +1079,7 @@ def main():
             votes = Counter(best_conv(s) for s in scores)
             conv = votes.most_common(1)[0][0] if votes else "ras"
             calib_tab = pd.DataFrame({c: [f"{np.median([s[c][0] for s in scores]):.2f} / {np.median([s[c][1] for s in scores]):.2f} / "
-                                          f"{np.nanmedian([s[c][2] for s in scores]):.0f}"] for c in CONVENTIONS},
+                                          f"{nanmedian([s[c][2] for s in scores]):.0f}"] for c in CONVENTIONS},
                                      index=[f"median: inside fraction / fraction >= {DARK_HU} HU / HU"]) if scores else None
             print(f"coordinate convention: {conv} (votes {dict(votes)})")
         else:

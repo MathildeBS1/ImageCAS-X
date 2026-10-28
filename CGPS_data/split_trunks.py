@@ -168,6 +168,7 @@ def split(X, lab, G):
                 if found
                 else "acute margin; crux at trunk end",
             )
+        out[a] = (*out[a], X[p], s)  # trunk points and arc length, for per-segment features
     return out
 
 
@@ -185,7 +186,7 @@ def main():
     files = sorted(Path(args.src).rglob("*.vtk"))
     for f in files:
         try:
-            for a, (pm, md, end, rule) in split(*graph(hq.tree_points(f))).items():
+            for a, (pm, md, end, rule, *_) in split(*graph(hq.tree_points(f))).items():
                 for seg, lo, hi in zip(NAMES[a], (0, pm, md), (pm, md, end)):
                     rows.append(
                         {
