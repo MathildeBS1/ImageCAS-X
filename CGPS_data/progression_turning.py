@@ -349,57 +349,91 @@ def swaps(d, eta0, eta1, label, sec, out_dir):
 
 
 def top_levels(d, y, p_pt, p_ptg, thr, out_dir, label, sec, levels=(5, 10, 15, 20, 25, 30)):
-    """Segments whose risk geometry raised most: at each top-k% level, how many progressed, and how many of
-    those the position + time model had missed (false negatives)."""
+    """Segments whose risk geometry raised most: at each top-k% level, how many progressed (geometry was right
+    to raise them) and how many did not (geometry was wrong)."""
     delta = p_ptg - p_pt
-    base_neg = p_pt <= thr
     rows = []
     for k in levels:
         m = delta >= np.percentile(delta, 100 - k)
-        prog = m & (y == 1)
-        rows.append({"level": k, "n": int(m.sum()), "trees": d.loc[m, "id"].nunique(), "prog": int(prog.sum()),
-                     "rescued": int((prog & base_neg).sum()), "base_tp": int((prog & ~base_neg).sum()),
-                     "expected": p_pt[m].sum(), "overall": y.mean() * m.sum()})
+        rows.append({"level": k, "n": int(m.sum()), "trees": d.loc[m, "id"].nunique(), "prog": int((m & (y == 1)).sum())})
     T = pd.DataFrame(rows)
+    T["stable"] = T["n"] - T["prog"]
     fname = f"progression_toplevels_{label.split()[-1]}.png"
-    rep = [f"## {sec}. Segments whose risk {label} raised most: how many progressed?\n",
+    rep = [f"## {sec}. Segments whose risk {label} raised most: was geometry right to raise them?\n",
            f"Segments are sorted by how much adding {label} raised their risk (position + time vs + {label}, out-of-fold). "
-           "At each level the top k% is taken. *Missed by position + time* = progressed although the position + time "
-           "model called them stable (risk at or below the training progression rate): these are the base model's false "
-           "negatives that geometry flagged. *Expected* = how many position + time alone predicted would progress.\n",
-           "| top | segments | trees | progressed | of which missed by position + time | expected by position + time | at the overall rate |",
-           "|---|---|---|---|---|---|---|"]
+           "At each level the top k% is taken. *Progressed* = geometry was right to raise the risk; *did not progress* = "
+           "geometry raised the risk of a segment that stayed stable.\n",
+           "| top | segments | trees | progressed (right) | did not progress (wrong) |", "|---|---|---|---|---|"]
     for r in T.itertuples():
         rep.append(f"| {r.level}% | {count(r.n)} | {count(r.trees)} | {count(r.prog)} ({100 * r.prog / max(r.n, 1):.0f}%) | "
-                   f"{count(r.rescued)} | {r.expected:.0f} | {r.overall:.0f} |")
-    rep.append("\nIf geometry helps, 'progressed' stays above 'expected by position + time' at every level. "
-               f"Figure: {fname}.\n")
+                   f"{count(r.stable)} ({100 * r.stable / max(r.n, 1):.0f}%) |")
+    rep.append(f"\nFigure: {fname}.\n")
 
     plt = _plt()
     fig, ax = plt.subplots(figsize=(8.6, 4.8))
     _grid(ax)
     x = np.arange(len(T))
-    small = lambda v: 0 < v < 5
-    split_ok = ~(T["rescued"].map(small) | T["base_tp"].map(small))  # never show a count of 1-4 as a bar height
-    ax.bar(x[split_ok], T["base_tp"][split_ok], width=0.62, color=FLAGGED, label="progressed - position + time already flagged it")
-    ax.bar(x[split_ok], T["rescued"][split_ok], width=0.62, bottom=T["base_tp"][split_ok], color=MISSED,
-           label="progressed - position + time missed it, geometry caught it")
-    if (~split_ok).any():
-        ax.bar(x[~split_ok], T["prog"][~split_ok], width=0.62, color="#ecebe7", hatch="//", edgecolor=MUTED,
-               label="progressed (split hidden: a part is under 5)")
-    ax.plot(x, T["expected"], "o-", color=INK, lw=1.8, ms=6, label="expected by position + time", zorder=4)
-    ax.plot(x, T["overall"], "s--", color=MUTED, lw=1.2, ms=4, label="expected at the overall progression rate", zorder=4)
+    ax.bar(x, T["prog"], width=0.62, color="#1baf7a", label="progressed: geometry was right to raise the risk")
+    ax.bar(x, T["stable"], width=0.62, bottom=T["prog"], color="#e34948", label="did not progress: geometry was wrong")
     for xi, r in zip(x, T.itertuples()):
-        ax.text(xi, r.prog + 0.3, f"{count(r.prog)} of {count(r.n)}\n({100 * r.prog / max(r.n, 1):.0f}%)",
-                ha="center", va="bottom", fontsize=8, color=INK)
+        ax.text(xi, r.prog / 2, f"{count(r.prog)}", ha="center", va="center", fontsize=9, color=INK, fontweight="bold")
+        ax.text(xi, r.prog + r.stable / 2, f"{count(r.stable)}", ha="center", va="center", fontsize=9, color="white",
+                fontweight="bold")
+        ax.text(xi, r.n + 0.5, f"{100 * r.prog / max(r.n, 1):.0f}% right", ha="center", va="bottom", fontsize=8, color=INK)
     ax.set_xticks(x, [f"top {k}%" for k in T["level"]])
-    ax.set_ylabel("segments that progressed")
-    ax.set_ylim(0, max(T["prog"].max(), T["expected"].max()) * 1.35 + 1)
-    ax.set_title(f"Segments whose risk {label} raised most: how many progressed?",
-                 color=MODEL_COLOR.get(label, INK))
+    ax.set_ylabel("segments whose risk geometry raised")
+    ax.set_ylim(0, T["n"].max() * 1.25 + 1)
+    ax.set_title(f"Segments whose risk {label} raised most: did they progress?", color=MODEL_COLOR.get(label, INK))
     ax.legend(fontsize=8, loc="upper left")
     _save(fig, out_dir / fname)
+
+    # the top 10%: confusion matrix of position + time vs + geometry on exactly these segments
+    m10 = delta >= np.percentile(delta, 90)
+    yt = y[m10]
+    cms = {"position + time": confusion(yt, p_pt[m10], thr[m10]), f"+ {label}": confusion(yt, p_ptg[m10], thr[m10])}
+    cname = f"progression_top10_confusion_{label.split()[-1]}.png"
+    rep += [f"**Only the top 10% ({count(int(m10.sum()))} segments, {count(int(yt.sum()))} progressed):** "
+            "how the two models classify them (call \"progresses\" above the training-fold progression rate).\n",
+            "| model | TP | FN | FP | TN | sensitivity | specificity |", "|---|---|---|---|---|---|---|"]
+    for name, (tp, fn, fp, tn) in cms.items():
+        sh = [count(v) for v in (tp, fn, fp, tn)]  # only counts 1-4 hidden
+        sens = f"{100 * tp / (tp + fn):.0f}%" if tp + fn else ""
+        spec = f"{100 * tn / (tn + fp):.0f}%" if tn + fp else ""
+        rep.append(f"| {name} | " + " | ".join(map(str, sh)) + f" | {sens} | {spec} |")
+    rep.append(f"\nFigure: {cname}.\n")
+    confusion_pair(cms, out_dir / cname, f"Top 10% of segments whose risk {label} raised most", label)
     return rep
+
+
+def confusion_pair(cms, path, title, label):
+    plt = _plt()
+    fig, axes = plt.subplots(1, 3, figsize=(10.5, 4.0), gridspec_kw={"width_ratios": [1, 1, 0.8]})
+    cell_col = np.array([["#1baf7a", MISSED], ["#e34948", "#1baf7a"]])
+    for ax, (name, (tp, fn, fp, tn)), col in zip(axes, cms.items(), (MODEL_COLOR["base"], MODEL_COLOR.get(label, INK))):
+        m = np.array([[tp, fn], [fp, tn]])
+        share = m / np.maximum(m.sum(axis=1, keepdims=True), 1)
+        for (i, j), n_ in np.ndenumerate(m):
+            v = count(n_)  # only counts 1-4 hidden
+            ax.add_patch(plt.Rectangle((j - 0.48, i - 0.48), 0.96, 0.96, color=cell_col[i, j], alpha=0.18 + 0.75 * share[i, j]))
+            ax.text(j, i - 0.08, v, ha="center", va="center", fontsize=14, fontweight="bold", color=INK)
+            if m[i].sum():
+                ax.text(j, i + 0.22, f"{100 * share[i, j]:.0f}% of row", ha="center", va="center", fontsize=7.5, color=INK2)
+        ax.set_xlim(-0.5, 1.5); ax.set_ylim(1.5, -0.5)
+        ax.set_xticks([0, 1], ["called\nprogress", "called\nstable"], fontsize=8)
+        ax.set_yticks([0, 1], ["progressed", "stable"], fontsize=8)
+        ax.tick_params(length=0)
+        for sp in ax.spines.values():
+            sp.set_visible(False)
+        ax.set_title(name, color=col, fontsize=10)
+    axes[2].axis("off")
+    for k, (lab, c) in enumerate((("correct (TP, TN)", "#1baf7a"), ("missed progression (FN)", MISSED),
+                                  ("false alarm (FP)", "#e34948"))):
+        axes[2].add_patch(plt.Rectangle((0.02, 0.72 - 0.17 * k), 0.12, 0.11, color=c, alpha=0.8, transform=axes[2].transAxes))
+        axes[2].text(0.2, 0.775 - 0.17 * k, lab, transform=axes[2].transAxes, va="center", fontsize=9, color=INK)
+    axes[2].text(0.02, 0.15, "Same segments in both panels.\nDarker = larger share of its row.", transform=axes[2].transAxes,
+                 fontsize=8, color=INK2)
+    fig.suptitle(title, x=0.01, ha="left", fontsize=12, fontweight="bold", color=INK)
+    _save(fig, path)
 
 
 def extra_plots(W, R, n_inf, out_dir):
