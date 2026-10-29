@@ -5,7 +5,8 @@
 Medis has a contour set (centerline, lumen, outer wall) for each diseased BL segment, named by
 segment (BL_996_pLAD_lumen.vtk). Each contour is projected onto the split trunk of its artery
 (nearest trunk point; off the trunk if the median distance is > 2 mm), giving its extent in mm along
-the trunk (5th to 95th percentile of the projected points).
+the trunk (5th to 95th percentile of the projected lumen-ring centres; the contour's centerline file
+covers the whole vessel and is not used for the extent).
 
 1. Contour vs split: which split segment holds most of each contour, the share of the contour inside
    the segment of the same name, and how far the contour ends lie from the split boundaries, by
@@ -46,10 +47,13 @@ def contour_files(medis):
 
 
 def contour_points(files):
-    if "centerline" in files:
-        return cq.read_vtk_legacy(files["centerline"].read_bytes())["points"]
-    kind = "lumen" if "lumen" in files else "outer"
-    rings, _ = hq.read_rings(files[kind])
+    """Centres of the lumen (else outer-wall) rings: the stretch Medis contoured. The contour's own
+    centerline file runs along the whole vessel, so it is used only to group points into rings."""
+    cl = cq.read_vtk_legacy(files["centerline"].read_bytes())["points"] if "centerline" in files else None
+    kind = "lumen" if "lumen" in files else "outer" if "outer" in files else None
+    if kind is None:
+        raise ValueError("no ring file")
+    rings, _ = hq.read_rings(files[kind], cl)
     return np.array([r.mean(0) for r in rings if len(r) >= 3])
 
 
@@ -163,13 +167,14 @@ def report(cons, seg, n_trees, n_contours):
         for (name, src), g in on.groupby(["name", "source"]):
             d, a, b = describe(g["frac_named"] * 100), describe(g.get("start_off", pd.Series(dtype=float))), \
                 describe(g.get("end_off", pd.Series(dtype=float)))
-            rows.append((name, src, d["n"], q(d, "median"), q(a, "median"), iqr(a), q(b, "median"), iqr(b)))
+            ln = describe(g["length"])
+            rows.append((name, src, d["n"], q(ln, "median"), q(d, "median"), q(a, "median"), iqr(a), q(b, "median"), iqr(b)))
         rows.sort(key=lambda r: ((ORDER + ["lad", "cx", "rca"]).index(r[0]) if r[0] in ORDER + ["lad", "cx", "rca"] else 99, r[1]))
         L += ["Share of each contour inside the split segment(s) of its name, and the contour ends minus the "
               "split boundaries (mm; negative = contour starts / ends before the split boundary). Medis "
               "contours may cover only the diseased part of a segment, so the ends need not reach the "
               "boundaries; a consistent shift in one direction points at the split.\n",
-              table(["contour", "split from", "contours", "median % inside", "start offset median", "p25 to p75",
+              table(["contour", "split from", "contours", "median length (mm)", "median % inside", "start offset median", "p25 to p75",
                      "end offset median", "p25 to p75"], rows)]
         t = crosstab(on["visual_named"], on["visual_assigned"], ["plaque", "none", "unevaluable", "no read"],
                      ["plaque", "none", "unevaluable", "no read"])
