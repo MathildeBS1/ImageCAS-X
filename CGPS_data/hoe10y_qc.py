@@ -809,21 +809,29 @@ def fig_ring(pid, seg, lum, out_rings, R, vol, inv, conv):
 
 
 # ============================================================ tree topology (main process)
-def tree_topology(trees):
+def read_label_codes(items):
+    """Parse each (key, path) tree once and pool the label-code names over all files, so a code a file
+    uses without naming it (e.g. a bare 8) gets the name other files give it (dLAD). Call before
+    tree_points, or unnamed codes stay '#n'."""
     raw, code_use, parsed, errors = Counter(), defaultdict(lambda: {"names": Counter(), "files": 0, "unnamed": 0, "points": 0}), {}, {}
-    for t in trees:
+    for key, path in items:
         try:
-            polys, meta = cq.parse_member(t["path"].name, t["path"].read_bytes())
+            polys, meta = cq.parse_member(path.name, path.read_bytes())
             cq.count_codes(polys, meta, code_use)
             raw.update(str(l) for p in polys for l in p.labels)
-            parsed[t["id"]] = polys
+            parsed[key] = polys
         except Exception as ex:  # noqa: BLE001
-            errors[t["id"]] = f"{type(ex).__name__}: {ex}"[:300]
+            errors[key] = f"{type(ex).__name__}: {ex}"[:300]
     cq.decide_numbering(raw)
     for c, u in code_use.items():
         if u["names"]:
             cq._code_names[c] = u["names"].most_common(1)[0][0]
     cq._code_names.update(cq.CODE_NAMES)
+    return parsed, errors, raw
+
+
+def tree_topology(trees):
+    parsed, errors, raw = read_label_codes((t["id"], t["path"]) for t in trees)
     rows, seg_rows = [], []
     for pid, polys in parsed.items():
         try:

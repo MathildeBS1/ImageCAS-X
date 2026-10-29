@@ -5,7 +5,8 @@
 The number in a tree's file name is the study_id. Matched patients are split by baseline status:
 - plaque-free at BL (ct_cag_sis == 0 and ct_cag_sss == 0): new plaque at FU (any grade, SIS or SSS > 0)
   or never plaque;
-- plaque at BL: progressed (any segment a higher grade at FU than at BL) or stayed / regressed.
+- plaque at BL: progressed (any segment a higher grade at FU than at BL) or stayed / regressed, and
+  for the progressed patients each trunk segment's share of all worsened segments.
 Patients without FU values are counted separately. Aggregates only (counts 1-4 shown as <5).
 """
 
@@ -21,15 +22,19 @@ from cgps_stats import OUT_DIR, SEGMENTS, count, num, yes
 RANK = {g: i for i, g in enumerate(hq.GRADES)}
 
 
-def progressed(b, f):
-    """Any segment read at both visits with a higher grade at FU."""
+TRUNKS = ("plad", "mlad", "dlad", "pcx", "mcx", "dcx", "prca", "mrca", "drca")
+
+
+def worse_segments(b, f):
+    """Segments read at both visits with a higher grade at FU."""
+    out = set()
     for s in SEGMENTS:
         c = f"ct_cag_{s}_stenosis"
         if c in b and c in f:
             gb, gf = hq.grade_of(b[c]), hq.grade_of(f[c])
             if gb in RANK and gf in RANK and RANK[gf] > RANK[gb]:
-                return True
-    return False
+                out.add(s)
+    return out
 
 
 def main():
@@ -47,7 +52,7 @@ def main():
               for v in ("BL", "FU"))
     matched = [i for i in per_id if i in bl.index]
 
-    groups = Counter()
+    groups, where = Counter(), []
     for i in matched:
         b = bl.loc[i]
         read = "read" if yes(pd.Series([b.get("ct_cag_visual_read")])).iloc[0] == 1 else "not read"
@@ -65,7 +70,10 @@ def main():
             if f is None:
                 g = ("plaque at BL", "no FU values")
             else:
-                g = ("plaque at BL", "progressed" if progressed(b, f) else "stayed / regressed")
+                worse = worse_segments(b, f)
+                g = ("plaque at BL", "progressed" if worse else "stayed / regressed")
+                if worse:
+                    where.append(worse)
         groups[(*g, read)] += 1
 
     rep = ["# Medis centerline trees matched to the visual reads", "",
@@ -86,6 +94,15 @@ def main():
         rep.append(f"| {bs} | {oc} | {count(r)} | {count(nr)} | {count(r + nr)} |")
     for bs in sorted({k[0] for k in groups}):
         rep.append(f"| **{bs}** | all | | | **{count(sum(n for k, n in groups.items() if k[0] == bs))}** |")
+
+    n, total = len(where), sum(len(w) for w in where)
+    rep += ["", f"## Where the {count(n)} progressed patients progressed", "",
+            f"All {count(total)} segments (of the 17) with a higher grade at FU than at BL in these patients, "
+            "split by segment: the 9 trunk segments one by one, the LM and side branches together.", "",
+            "| segment | worsened segments | % of all worsened segments |", "|---|---|---|"]
+    for name, k in [(s, sum(s in w for w in where)) for s in TRUNKS] + [
+            ("LM and side branches", sum(len(w - set(TRUNKS)) for w in where)), ("total", total)]:
+        rep.append(f"| {name} | {count(k)} | {100 * k / total:.1f} |" if total else f"| {name} | 0 | |")
 
     Path(args.out).parent.mkdir(parents=True, exist_ok=True)
     Path(args.out).write_text("\n".join(rep) + "\n", encoding="utf-8")

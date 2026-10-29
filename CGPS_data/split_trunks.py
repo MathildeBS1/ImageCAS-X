@@ -1,12 +1,20 @@
-"""Split the LAD, LCx and RCA of each centerline tree into proximal / mid / distal (best guess, SCCT).
+"""Split the LAD, LCx and RCA of each centerline tree into proximal / mid / distal (SCCT).
 
-    python CGPS_data/split_trunks.py [--src TREE_FOLDER] [--out CSV] a
+    python CGPS_data/split_trunks.py [--src TREE_FOLDER] [--out CSV]
 
+Medis labels first: the boundaries are where the reader's segment labels change along the trunk
+(pLAD/mLAD/dLAD, pRCA/mRCA/dRCA, pCx). Medis has one label (13, LCx) for the CX after pCx; it is split
+into mcx/dcx at the first side branch labelled OM2 or >= 15 mm long, else half way. An unlabelled gap
+between two labelled runs is split at its middle. A segment with no label gets no length (present = 0).
+
+Landmark rule, for trunks without p/m/d labels (and the in-house tracer trees):
 LAD: LM bifurcation -> first diagonal (p) -> half the remaining distance to the LAD end (m) -> end (d).
 LCx: LM bifurcation -> OM1 (p) -> OM2 (m) -> end (d).
 RCA: ostium -> half way to the acute margin (p) -> acute margin (m) -> PDA origin (d); the acute margin
 is the RCA point farthest from the ostium-to-crux chord. A missing landmark falls back to the first
-side branch >= 15 mm long, and without one to a fixed fraction of the trunk.
+side branch >= 15 mm long, and without one to a fixed fraction of the trunk. Where the Medis labels
+exist the landmark rule is also run, with and without branch labels, to measure its boundary error.
+
 Writes one row per tree, artery and segment: start and end in mm along the trunk, the rule used and
 the visual grade at BL and FU (contains IDs, stays on the server), plus split_trunks.md next to it
 with aggregates only (counts 1-4 hidden), to share.
@@ -19,7 +27,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from scipy.sparse import coo_matrix
-from scipy.sparse.csgraph import dijkstra
+from scipy.sparse.csgraph import connected_components, dijkstra
 
 import hoe10y_qc as hq
 from cgps_stats import OUT_DIR, count, describe, suppress, yes
@@ -36,14 +44,24 @@ NAMES = {
 }
 BRANCH = {"LAD": r"^d\d", "CX": r"^om\d", "RCA": r"^pda$"}
 MIN_BRANCH = 15.0
+BRIDGE = 3.0  # mm: a polyline end this close to another piece of the tree is joined to it
 ARTERY_OF = {k: a.lower() for a, ks in TRUNK.items() for k in ks}
+PART = {s: i for segs in NAMES.values() for i, s in enumerate(segs)}  # p = 0, m = 1, d = 2
+DISTAL = {"LAD": ("dlad",), "CX": ("dcx", "cx"), "RCA": ("drca",)}  # far end of the trunk path
+
+
+def adjacency(X, E):
+    w = np.linalg.norm(X[E[:, 0]] - X[E[:, 1]], axis=1)
+    return coo_matrix(
+        (np.r_[w, w], (np.r_[E[:, 0], E[:, 1]], np.r_[E[:, 1], E[:, 0]])),
+        shape=(len(X),) * 2,
+    ).tocsr()
 
 
 def graph(tree):
+    """Nodes (LPS mm), the segment label of each node (plad, cx, d1, ... or None) and the edge graph."""
     P = np.concatenate([p for p, _ in tree])
-    labels = [
-        ARTERY_OF.get(l, l) for _, ls in tree for l in ls
-    ]  # trunk labels collapsed to the artery
+    labels = [l for _, ls in tree for l in ls]
     _, node = np.unique(np.round(P, 2), axis=0, return_inverse=True)
     node = node.ravel()
     X, lab = np.zeros((node.max() + 1, 3)), [None] * (node.max() + 1)
@@ -63,30 +81,41 @@ def graph(tree):
             d[a:b] = np.inf
             if d.min() <= 1.0 and node[e] != node[d.argmin()]:
                 E.add(tuple(sorted((node[e], node[d.argmin()]))))
-    E = np.array(sorted(E))
-    w = np.linalg.norm(X[E[:, 0]] - X[E[:, 1]], axis=1)
-    G = coo_matrix(
-        (np.r_[w, w], (np.r_[E[:, 0], E[:, 1]], np.r_[E[:, 1], E[:, 0]])),
-        shape=(len(X),) * 2,
-    ).tocsr()
-    return X, lab, G
+    for e in starts[:-1].tolist() + (starts[1:] - 1).tolist():  # bridge gaps up to BRIDGE mm between pieces
+        _, comp = connected_components(adjacency(X, np.array(sorted(E))), directed=False)
+        d = np.linalg.norm(X - X[node[e]], axis=1)
+        d[comp == comp[node[e]]] = np.inf
+        if d.min() <= BRIDGE:
+            E.add(tuple(sorted((node[e], int(d.argmin())))))
+    return X, lab, adjacency(X, np.array(sorted(E)))
 
 
 def trunk_path(X, lab, G, artery):
-    nodes = [i for i, l in enumerate(lab) if l == artery.lower()]
+    """Node path from the ostium (LM bifurcation for LAD/CX after split()) to the trunk's far end,
+    inside the piece of the tree that holds most of the artery's labelled points."""
+    nodes = [i for i, l in enumerate(lab) if ARTERY_OF.get(l) == artery.lower()]
     if not nodes:
         return None
-    reach = np.isfinite(dijkstra(G, indices=nodes[0]))
-    ends = list(np.where(reach & (np.diff(G.indptr) == 1))[0])
+    _, comp = connected_components(G, directed=False)
+    main = np.bincount(comp[nodes]).argmax()
+    nodes = [i for i in nodes if comp[i] == main]
+    deg = np.diff(G.indptr)
+    ends = [i for i in np.where((comp == main) & (deg == 1))[0]]
+    proximal = NAMES[artery][0]
     ok = {"rca"} if artery == "RCA" else {"lad", "cx"}
     root = max(
         [e for e in ends if lab[e] == "lm"]
-        or [e for e in ends if lab[e] in ok or lab[e] is None]
-        or ends,
+        or [e for e in ends if lab[e] == proximal]
+        or [e for e in ends if ARTERY_OF.get(lab[e]) in ok or lab[e] is None]
+        or ends
+        or nodes,
         key=lambda e: X[e, 2],
-    )  # ostium: LM end, else the most superior trunk end (LPS +z)
+    )  # ostium: LM end, else the most superior proximal / trunk end (LPS +z)
     D, pred = dijkstra(G, indices=root, return_predecessors=True)
-    p = [max(nodes, key=lambda i: D[i])]
+    far = [i for i in nodes if lab[i] in DISTAL[artery] and np.isfinite(D[i])] or [
+        i for i in nodes if np.isfinite(D[i])
+    ]
+    p = [max(far, key=lambda i: D[i])]
     while p[-1] != root:
         p.append(pred[p[-1]])
     return p[::-1]
@@ -116,59 +145,106 @@ def branches(p, G, lab):
     return out, s
 
 
-def split(X, lab, G):
-    paths = {a: trunk_path(X, lab, G, a) for a in TRUNK}
-    if paths["LAD"] and paths["CX"]:  # LAD and LCx start at the LM bifurcation
-        common = sum(1 for a, b in zip(paths["LAD"], paths["CX"]) if a == b)
+def landmark_cuts(a, p, X, br, s, use_labels=True):
+    """(pm, md, end, rule) from side branches and trunk shape (no trunk labels needed)."""
+    L = s[-1]
+    labelled = sorted(b[0] for b in br if use_labels and re.match(BRANCH[a], b[2]) and b[0] > 1.0)
+    marks = labelled or sorted(b[0] for b in br if b[1] >= MIN_BRANCH and b[0] > 1.0)
+    rule = "labelled branch" if labelled else "long branch" if marks else "fraction of length"
+    if a == "LAD":
+        pm = marks[0] if marks else 0.25 * L
+        return pm, (pm + L) / 2, L, rule
+    if a == "CX":
+        pm = marks[0] if marks else L / 3
+        return pm, next((m for m in marks if m > pm + 1.0), (pm + L) / 2), L, rule
+    crux = next((m for m in marks if m > 0.3 * L), L)
+    Y = X[p]
+    chord = Y[max(np.searchsorted(s, crux) - 1, 1)] - Y[0]
+    dist = np.linalg.norm(np.cross(Y - Y[0], chord), axis=1)
+    mid = (s > 0.2 * crux) & (s < 0.9 * crux)
+    acute = s[mid][dist[mid].argmax()] if mid.any() else 2 / 3 * crux
+    found = any(m > 0.3 * L for m in marks)
+    return acute / 2, acute, crux, f"acute margin; crux at {rule}" if found else "acute margin; crux at trunk end"
+
+
+def cut(s, part, k):
+    """Arc length that best separates labelled nodes with part < k from those with part >= k
+    (fewest nodes on the wrong side; the middle of an unlabelled gap). One side missing: the edge
+    of the other side's run."""
+    keep = ~np.isnan(part)
+    s, after = s[keep], part[keep] >= k
+    if not after.any():
+        return s.max()
+    if after.all():
+        return s.min()
+    cand = np.r_[s[0], (s[1:] + s[:-1]) / 2, s[-1]]
+    wrong = np.r_[0, np.cumsum(after)] + np.r_[np.cumsum((~after)[::-1])[::-1], 0]
+    best = np.flatnonzero(wrong == wrong.min())
+    return cand[best[len(best) // 2]]
+
+
+def label_cuts(a, p, lab, br, s):
+    """(pm, md, end, rule) from the Medis segment labels along the path, or None without p/m/d labels."""
+    L = [lab[v] for v in p]
+    part = np.array([PART.get(l, np.nan) for l in L], dtype=float)
+    lcx = np.array([l == "cx" for l in L]) if a == "CX" else np.zeros(len(L), bool)
+    if np.isnan(part).all():
+        return None  # only artery-level labels: use the landmark rule
+    end = s[max(i for i, l in enumerate(L) if ARTERY_OF.get(l) == a.lower())]
+    if a == "CX" and lcx.any() and not (part >= 1).any():  # Medis 13 = LCx: one label for mcx + dcx
+        part[lcx] = 1
+        pm = cut(s, part, 1)
+        om = sorted(b[0] for b in br if pm + 1.0 < b[0] < end and (b[2] == "om2" or (b[1] >= MIN_BRANCH and b[2] != "om1")))
+        md, how = (om[0], "OM2 / long branch") if om else ((pm + end) / 2, "half")
+        return pm, md, end, f"medis label; mcx/dcx at {how}"
+    pm = cut(s, part, 1)
+    md = max(cut(s, part, 2), pm)
+    return pm, md, max(end, md), "medis label"
+
+
+def split(X, lab, G, info=None):
+    """{artery: (pm, md, end, rule, trunk points, arc length)}. Pass a dict as info to get, per artery,
+    the reason code, the rule source and the landmark boundaries (with / without branch labels)."""
+    info = {} if info is None else info
+    paths = {}
+    for a in TRUNK:
+        try:
+            paths[a] = trunk_path(X, lab, G, a)
+        except Exception as ex:  # noqa: BLE001 - recorded per artery
+            paths[a], info[a] = None, {"reason": f"error:{type(ex).__name__}"}
+    common = sum(1 for a, b in zip(paths["LAD"] or [], paths["CX"] or []) if a == b)
+    if common:  # LAD and LCx start at the LM bifurcation
         paths["LAD"], paths["CX"] = (
             paths["LAD"][common - 1 :],
             paths["CX"][common - 1 :],
         )
+    for a in ("LAD", "CX"):  # without the other trunk: start after the labelled LM
+        p = paths[a]
+        if p and lab[p[0]] == "lm":
+            k = next((i for i, v in enumerate(p) if lab[v] != "lm"), len(p))
+            paths[a] = p[max(k - 1, 0) :]
     out = {}
     for a, p in paths.items():
-        if not p or len(p) < 3:
+        if a in info:
             continue
-        br, s = branches(p, G, lab)
-        L = s[-1]
-        labelled = sorted(b[0] for b in br if re.match(BRANCH[a], b[2]) and b[0] > 1.0)
-        marks = labelled or sorted(
-            b[0] for b in br if b[1] >= MIN_BRANCH and b[0] > 1.0
-        )
-        rule = (
-            "labelled branch"
-            if labelled
-            else "long branch"
-            if marks
-            else "fraction of length"
-        )
-        if a == "LAD":
-            pm = marks[0] if marks else 0.25 * L
-            out[a] = (pm, (pm + L) / 2, L, rule)
-        elif a == "CX":
-            pm = marks[0] if marks else L / 3
-            out[a] = (
-                pm,
-                next((m for m in marks if m > pm + 1.0), (pm + L) / 2),
-                L,
-                rule,
-            )
-        else:
-            crux = next((m for m in marks if m > 0.3 * L), L)
-            Y = X[p]
-            chord = Y[max(np.searchsorted(s, crux) - 1, 1)] - Y[0]
-            dist = np.linalg.norm(np.cross(Y - Y[0], chord), axis=1)
-            mid = (s > 0.2 * crux) & (s < 0.9 * crux)
-            acute = s[mid][dist[mid].argmax()] if mid.any() else 2 / 3 * crux
-            found = any(m > 0.3 * L for m in marks)
-            out[a] = (
-                acute / 2,
-                acute,
-                crux,
-                f"acute margin; crux at {rule}"
-                if found
-                else "acute margin; crux at trunk end",
-            )
-        out[a] = (*out[a], X[p], s)  # trunk points and arc length, for per-segment features
+        if p is None:
+            info[a] = {"reason": "no_label"}
+            continue
+        if len(p) < 3:
+            info[a] = {"reason": "too_short"}
+            continue
+        try:
+            br, s = branches(p, G, lab)
+            lc = label_cuts(a, p, lab, br, s)
+            lm = landmark_cuts(a, p, X, br, s)
+            pm, md, end, rule = lc or lm
+            source = "medis_label" if lc else "fraction" if lm[3].startswith("fraction") else "landmark"
+            info[a] = {"reason": "ok_label" if lc else "ok_landmark", "source": source,
+                       "landmark": lm[:3] if lc else None,
+                       "label_free": landmark_cuts(a, p, X, br, s, use_labels=False)[:3] if lc else None}
+            out[a] = (pm, md, end, rule, X[p], s)  # trunk points and arc length, for per-segment features
+        except Exception as ex:  # noqa: BLE001 - recorded per artery
+            info[a] = {"reason": f"error:{type(ex).__name__}"}
     return out
 
 
@@ -182,24 +258,35 @@ def main():
     )
     ap.add_argument("--out", default=str(Path(OUT_DIR) / "split_trunks.csv"))
     args = ap.parse_args()
-    rows, failed = [], 0
     files = sorted(Path(args.src).rglob("*.vtk"))
+    _, unreadable, _ = hq.read_label_codes((f, f) for f in files)  # names for codes a file leaves unnamed
+    rows, arteries, failed = [], [], 0
     for f in files:
+        pid = hq.id_from_name(f.name) or f.stem
+        info = {}
         try:
-            for a, (pm, md, end, rule, *_) in split(*graph(hq.tree_points(f))).items():
-                for seg, lo, hi in zip(NAMES[a], (0, pm, md), (pm, md, end)):
-                    rows.append(
-                        {
-                            "id": hq.id_from_name(f.name) or f.stem,
-                            "artery": a,
-                            "segment": seg,
-                            "start_mm": round(lo, 1),
-                            "end_mm": round(hi, 1),
-                            "rule": rule,
-                        }
-                    )
-        except Exception:  # noqa: BLE001 - counted
+            res = split(*graph(hq.tree_points(f)), info=info)
+        except Exception as ex:  # noqa: BLE001 - counted
             failed += 1
+            info = {a: {"reason": f"tree error:{type(ex).__name__}"} for a in TRUNK}
+            res = {}
+        for a, (pm, md, end, rule, *_) in res.items():
+            for seg, lo, hi in zip(NAMES[a], (0, pm, md), (pm, md, end)):
+                rows.append(
+                    {
+                        "id": pid,
+                        "artery": a,
+                        "segment": seg,
+                        "start_mm": round(lo, 1),
+                        "end_mm": round(hi, 1),
+                        "present": int(hi - lo >= 1.0),
+                        "rule": rule,
+                        "rule_source": info[a]["source"],
+                    }
+                )
+        for a, d in info.items():
+            arteries.append({"id": pid, "artery": a, "reason": d["reason"], "cuts": res[a][:3] if a in res else None,
+                             "landmark": d.get("landmark"), "label_free": d.get("label_free")})
     df = pd.DataFrame(rows)
     sheets = hq.load_sheets(
         hq.ROOT
@@ -230,7 +317,7 @@ def main():
     Path(args.out).parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(args.out, index=False)
     md = Path(args.out).with_suffix(".md")
-    md.write_text(summary(df, len(files), failed), encoding="utf-8")
+    md.write_text(summary(df, pd.DataFrame(arteries), len(files), len(unreadable), failed), encoding="utf-8")
     print(f"{len(files)} trees, {failed} failed -> {args.out} and {md}")
 
 
@@ -247,12 +334,63 @@ def table(header, rows):
     )
 
 
-def summary(df, n_files, failed):
+def flow(df, art, n_files, unreadable, failed):
+    """Tree flow, reason code per artery and the landmark rule's error against the Medis labels."""
+    q = lambda d, k: "" if d.get(k) is None else f"{d[k]:.1f}"
+    split_ok = df.drop_duplicates(["id", "artery"]).groupby("id").size() if len(df) else pd.Series(dtype=int)
+    L = [
+        "## Tree flow\n",
+        table(
+            ["step", "trees"],
+            [
+                ("tree files", count(n_files)),
+                ("unreadable", count(unreadable)),
+                ("whole tree failed", count(failed)),
+                ("at least one artery split", count(len(split_ok))),
+                ("all three arteries split", count((split_ok == 3).sum())),
+            ],
+        ),
+    ]
+    if len(art):
+        t = pd.crosstab(art["reason"], art["artery"]).reindex(columns=list(TRUNK), fill_value=0)
+        L += [
+            "## Reason per artery\n",
+            "ok_label = Medis p/m/d labels; ok_landmark = artery-level labels only, landmark rule; "
+            "no_label = no point labelled with the artery; too_short = trunk path under 3 nodes.\n",
+            table(["reason", *t.columns], [(r, *v) for r, v in zip(t.index, suppress(t.to_numpy()))]),
+        ]
+    if len(df):
+        src = df.drop_duplicates(["id", "artery"])
+        t = pd.crosstab(src["rule_source"], src["artery"]).reindex(columns=list(TRUNK), fill_value=0)
+        L += ["## Boundary source\n",
+              table(["source", *t.columns], [(r, *v) for r, v in zip(t.index, suppress(t.to_numpy()))])]
+    val = art[art["landmark"].notna()] if len(art) else art
+    if len(val):
+        rows = []
+        for a, g in val.groupby("artery"):
+            names = ("p/m", "m/d", "crux") if a == "RCA" else ("p/m", "m/d")
+            for k, name in enumerate(names):
+                for how in ("landmark", "label_free"):
+                    err = pd.Series([v[k] - c[k] for v, c in zip(g[how], g["cuts"])])
+                    d, da = describe(err), describe(err.abs())
+                    rows.append((a, name, "with branch labels" if how == "landmark" else "label-free",
+                                 d["n"], q(d, "median"), f"{q(d, 'p25')} to {q(d, 'p75')}", q(da, "median")))
+        L += [
+            "## Landmark rule vs Medis labels (mm along the trunk)\n",
+            "Arteries split by the Medis labels, also split by the landmark rule. Error = landmark - Medis; "
+            "label-free uses side-branch length only (as for the in-house tracer). For CX the Medis m/d "
+            "boundary is itself a branch rule.\n",
+            table(["artery", "boundary", "rule", "arteries", "median error", "p25 to p75", "median abs error"], rows),
+        ]
+    return L
+
+
+def summary(df, art, n_files, unreadable, failed):
     """Aggregates only (cgps_stats rules): no IDs, counts 1-4 hidden, no min/max."""
     L = [
         "# Trunk split of the Medis trees (split_trunks.py)\n",
-        "Aggregates only; counts 1-4 shown as <5. Best-guess SCCT split, no ground truth exists.\n",
-        f"Trees: {count(n_files)}, failed: {count(failed)}.\n",
+        "Aggregates only; counts 1-4 shown as <5. Medis labels where present, else best-guess SCCT landmarks.\n",
+        *flow(df, art, n_files, unreadable, failed),
     ]
     if not len(df):
         return "\n".join(L)
@@ -271,14 +409,15 @@ def summary(df, n_files, failed):
     rows = []
     for a, segs in NAMES.items():
         for sg in segs:
-            d = describe(
-                (df.end_mm - df.start_mm)[(df.artery == a) & (df.segment == sg)]
-            )
-            rows.append((sg, d["n"], q(d, "p25"), q(d, "median"), q(d, "p75")))
+            sel = (df.artery == a) & (df.segment == sg)
+            d = describe((df.end_mm - df.start_mm)[sel & (df.present == 1)])
+            rows.append((sg, count((sel & (df.present == 0)).sum()), d["n"], q(d, "p25"), q(d, "median"), q(d, "p75")))
     L += [
         "## Segment length (mm)\n",
-        table(["segment", "trees", "p25", "median", "p75"], rows),
+        "Absent = the trunk was split but this segment has no label (shorter than 1 mm); left out below.\n",
+        table(["segment", "absent", "trees", "p25", "median", "p75"], rows),
     ]
+    df = df[df.present == 1]
     if "clean_bl" not in df:
         return "\n".join(L + ["_No spreadsheet found: no plaque status._\n"])
     pat = df.drop_duplicates("id").set_index("id")

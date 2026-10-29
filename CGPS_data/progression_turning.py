@@ -78,15 +78,20 @@ def build(src):
     score2 = num(bl["score2"]).fillna(num(bl["score2_op"])) if "score2_op" in bl else num(bl["score2"])
     years = (pd.to_datetime(fu["scandate"], errors="coerce").reindex(bl.index)
              - pd.to_datetime(bl["scandate"], errors="coerce")).dt.days / 365.25
-    rows = []
-    for f in sorted(Path(src).rglob("*.vtk")):
+    files = sorted(Path(src).rglob("*.vtk"))
+    hq.read_label_codes((f, f) for f in files)  # names for codes a file leaves unnamed
+    rows, skipped = [], 0
+    for f in files:
         pid = hq.id_from_name(f.name)
         try:
             res = split(*graph(hq.tree_points(f)))
-        except Exception:  # noqa: BLE001 - tree skipped
+        except Exception:  # noqa: BLE001 - tree skipped, counted
+            skipped += 1
             continue
         for a, (pm, md, end, _, Y, s) in res.items():
             for seg, feat in zip(NAMES[a], segment_features(Y, s, (pm, md, end))):
+                if feat["length"] < 1.0:  # segment with no Medis label (split_trunks: present = 0)
+                    continue
                 g = [hq.grade_of(d.at[pid, f"ct_cag_{seg}_stenosis"]) if pid in d.index else "missing" for d in (bl, fu)]
                 rows.append({"id": pid, "segment": seg, "bl": g[0], "fu": g[1], **feat,
                              "score2": score2.get(pid, np.nan), "years": years.get(pid, np.nan)})
@@ -95,7 +100,7 @@ def build(src):
     d["frac_T5"] = [np.mean(v > thr) if len(v) >= 2 else np.nan for v in d["t5_values"]]
     rank = {g: i for i, g in enumerate(hq.GRADES)}
     d["y"] = (d["fu"].map(rank) > d["bl"].map(rank)).astype(float)
-    return d.drop(columns="t5_values"), d["bl"].isin(GRADE) & d["fu"].isin(rank)
+    return d.drop(columns="t5_values"), d["bl"].isin(GRADE) & d["fu"].isin(rank), skipped
 
 
 # ---------------------------------------------------------------- models
@@ -622,7 +627,7 @@ def main():
     out_dir = Path(args.out).parent
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    d0, graded = build(args.src)
+    d0, graded, skipped = build(args.src)
     keep = graded & d0["mean_T5"].notna() & (d0["score2"] > 0) & (d0["years"] > 0)
     d = d0[keep].assign(grade=lambda x: x["bl"].map(GRADE)).reset_index(drop=True)
     y = d["y"].to_numpy()
@@ -634,7 +639,8 @@ def main():
            "patients with plaque at baseline: this is progression, not new plaque in a clean cohort.\n",
            f"Segments: {count(len(d))} from {count(d['id'].nunique())} people; progressed: {count(int(y.sum()))}. "
            f"Left out: {count(int((~graded).sum()))} without a usable grade or occluded at BL, "
-           f"{count(int((graded & ~keep).sum()))} too short for two T5 angles or without SCORE2 / follow-up.\n"]
+           f"{count(int((graded & ~keep).sum()))} too short for two T5 angles or without SCORE2 / follow-up. "
+           f"Trees that could not be split: {count(skipped)}.\n"]
 
     # 1. between people
     def cv(z_col, person=True, grade=True):
