@@ -169,7 +169,7 @@ def main():
     out_dir.mkdir(parents=True, exist_ok=True)
 
     # the same rows, person folds and seed as progression_turning.py, then only pLAD + pCX
-    d0, graded = pt.build(args.src)
+    d0, graded, _ = pt.build(args.src)
     keep = graded & d0["mean_T5"].notna() & (d0["score2"] > 0) & (d0["years"] > 0)
     d = d0[keep].assign(grade=lambda x: x["bl"].map(pt.GRADE)).reset_index(drop=True)
     rng = np.random.default_rng(0)
