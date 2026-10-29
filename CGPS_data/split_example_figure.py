@@ -27,6 +27,22 @@ from split_trunks import ARTERY_OF, NAMES, graph, split
 
 SURF, INK, INK2, MUTED, GRID = "#fcfcfb", "#0b0b0b", "#52514e", "#8a8984", "#e4e3df"
 COLORS = ("#2a78d6", "#eb6834", "#1baf7a")  # p / m / d, same order as the schematic
+BURDEN = 40.0  # % plaque burden (1 - lumen / outer-wall area) from which a Medis ring is drawn as plaque
+
+
+def plaque_rings(files):
+    """Centre and plaque burden (%) of each lumen ring, from its nearest outer-wall ring."""
+    cl = cq.read_vtk_legacy(files["centerline"].read_bytes())["points"] if "centerline" in files else None
+    if not {"lumen", "outer"} <= set(files):
+        return np.zeros((0, 3)), np.zeros(0)
+    lum, out = ([hq.ring_geom(r) for r in hq.read_rings(files[k], cl)[0] if len(r) >= 3] for k in ("lumen", "outer"))
+    if not lum or not out:
+        return np.zeros((0, 3)), np.zeros(0)
+    C, O = np.array([g["c"] for g in lum]), np.array([g["c"] for g in out])
+    k = np.ravel(cq.nearest(C, O)[1])
+    burden = np.array([100 * (1 - g["area"] / out[j]["area"]) if out[j]["area"] > 0 else np.nan
+                       for g, j in zip(lum, k)])
+    return C, burden
 
 
 def candidate(f, artery, contours_of):
@@ -53,7 +69,7 @@ def candidate(f, artery, contours_of):
     return ((X, lab, G), res[artery], on) if len(on) >= 2 else None
 
 
-def draw(tree, cut, contours, grades, artery, out):
+def draw(tree, cut, contours, grades, artery, out, burden=BURDEN):
     X, lab, G = tree
     pm, md, end, rule, Y, s = cut
     bounds = dict(zip(NAMES[artery], zip((0, pm, md), (pm, md, end))))
@@ -81,18 +97,17 @@ def draw(tree, cut, contours, grades, artery, out):
     for b in (pm, md):
         k = np.argmin(abs(s - b))
         ax.plot(*T[k], marker="|", ms=18, mew=1.8, color=INK, zorder=3)
-    extents = {}
+    extents, plaque_at = {}, {}
     for name, files in contours.items():
-        cl = cq.read_vtk_legacy(files["centerline"].read_bytes())["points"] if "centerline" in files else None
-        rings, _ = hq.read_rings(files["lumen" if "lumen" in files else "outer"], cl)
-        seg = COVERS[name][0] if name in COVERS else NAMES[artery][1]
-        for r in rings:
-            if len(r) >= 3:
-                R = to2d(np.vstack([r, r[:1]]))
-                ax.plot(R[:, 0], R[:, 1], color=color.get(seg, MUTED), lw=0.7, alpha=0.8, zorder=4)
         P = contour_points(files)
         extents[name] = np.percentile(s[np.ravel(cq.nearest(P, Y)[1])], [5, 95])
-    ax.set_title(f"A  Real Medis tree: {artery} split where its labels change; contour rings on top",
+        C, b = plaque_rings(files)
+        j = np.ravel(cq.nearest(C, Y)[1])[b >= burden] if len(C) else np.zeros(0, int)
+        plaque_at[name] = s[j]
+        ax.plot(T[j, 0], T[j, 1], "o", ms=7, mfc="none", mec=INK, mew=1, zorder=4)  # snapped onto the trunk
+    ax.plot([], [], "o", ms=7, mfc="none", mec=INK, label=f"Medis ring with plaque burden $\\geq$ {burden:.0f} %")
+    ax.legend(loc="upper right", frameon=False, fontsize=8)
+    ax.set_title(f"A  Real Medis tree: {artery} split where its labels change; plaque from the Medis contours",
                  loc="left", fontsize=10, fontweight="bold", color=INK)
     ax.set_aspect("equal"); ax.axis("off")
 
@@ -116,6 +131,7 @@ def draw(tree, cut, contours, grades, artery, out):
         ax.plot([lo, hi], [yy, yy], color=color.get(seg, MUTED), lw=6, solid_capstyle="butt")
         ax.text((lo + hi) / 2, yy + 0.18, f"{name.replace('lad', 'LAD').replace('rca', 'RCA').replace('cx', 'CX')} contour",
                 ha="center", va="bottom", color=INK, fontsize=8)
+        ax.plot(plaque_at[name], np.full(len(plaque_at[name]), yy), "o", ms=5, mfc=SURF, mec=INK, mew=0.8, zorder=3)
     for b in (pm, md):
         ax.axvline(b, color=GRID, lw=1, zorder=0)
     ax.set_xlim(-0.35 * end, 1.05 * end); ax.set_ylim(0.4, 3.6)
@@ -133,6 +149,7 @@ def main():
     ap.add_argument("--artery", default="LAD", choices=list(NAMES))
     ap.add_argument("--id", help="study_id of the tree to draw (default: random qualifying tree)")
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--burden", type=float, default=BURDEN, help="plaque burden (%%) from which a ring counts as plaque")
     ap.add_argument("--medis", default=str(Path(hq.ROOT) / hq.MEDIS_DIR))
     ap.add_argument("--out", default=str(Path(OUT_DIR) / "split_example"))
     args = ap.parse_args()
@@ -158,7 +175,7 @@ def main():
     grades = {seg: visual(bl, pid, seg) for seg in NAMES[args.artery]}
     Path(args.out).mkdir(parents=True, exist_ok=True)
     out = Path(args.out) / f"split_example_{args.artery}_seed{args.seed}.png"
-    draw(*got, grades, args.artery, out)
+    draw(*got, grades, args.artery, out, args.burden)
     print(f"tree {pid} (keep on the server) -> {out}")
 
 
