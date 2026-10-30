@@ -2,6 +2,7 @@
 
     python progression_who_pooled_t25.py [--src TREE_FOLDER] [--person score2|factors] [--folds 10] [--repeats 20]
                                          [--boot 200] [--nodes 100]
+    python progression_who_pooled_t25.py --fast-boot            # quick run: bootstrap without refitting
     python progression_who_pooled_t25.py --synthetic      # fitter and pooling self-test, no data needed
 
 The fixed version of progression_who_pooled.py (issues: reports/Pooled who progression code issues.md); mean T2.5
@@ -380,6 +381,28 @@ def bootstrap(d, fold_of, folds, segs, person, nodes, seg_rows, B, rng):
     return out
 
 
+def fast_bootstrap(d, reps, seg_rows, B, rng):
+    """Person bootstrap of the out-of-fold predictions, no refitting: per replicate, the metrics of the resampled
+    people, averaged over the CV repeats. Covers test-set sampling, not the variability of the fitted models."""
+    y, ids = d["y"].to_numpy(), d["id"].to_numpy()
+    st = starts_of(ids)
+    rows_of = np.split(np.arange(len(d)), st[1:])
+    Y = np.maximum.reduceat(y, st)
+    segs = seg_rows(d)
+    out = []
+    for _ in range(B):
+        pick = rng.integers(0, len(st), len(st))
+        rows = np.concatenate([rows_of[i] for i in pick])
+        res = {}
+        for m in MODELS:
+            per = [{**metrics(Y[pick], r[m]["P"][pick]),
+                    **{f"seg {s}": auc(y[rows][S[rows]], r[m]["seg"][rows][S[rows]]) for s, S in segs.items()}}
+                   for r in reps]
+            res[m] = {k: np.nanmean([p[k] for p in per]) for k in per[0]}
+        out.append(res)
+    return out
+
+
 # ---------------------------------------------------------------- figures
 def fig_auc(rows, out_dir):
     """AUC per level (person, then segments): mean over CV repeats; bars = person-bootstrap 95% CI."""
@@ -584,6 +607,8 @@ def main():
     ap.add_argument("--boot", type=int, default=200)
     ap.add_argument("--nodes", type=int, default=100, help=f"Gauss-Hermite nodes for fitting (< {MAX_NODES})")
     ap.add_argument("--bins", type=int, default=5)
+    ap.add_argument("--fast-boot", action="store_true",
+                    help="bootstrap the out-of-fold predictions without refitting (seconds, not minutes; narrower CIs)")
     ap.add_argument("--person", choices=("score2", "factors"), default="score2")
     ap.add_argument("--no-bl-eval", action="store_true", help="do not apply BL ct_cag_<seg>_eval == 0 as unevaluable")
     ap.add_argument("--synthetic", action="store_true")
@@ -672,8 +697,15 @@ def main():
     fold0, _ = load_folds(Y, args.folds, 0, out_dir / "folds")
     thr0 = inner_cutoffs(d, d["id"].map(fold0).to_numpy(), args.folds, segs, args.person, args.nodes, seg_rows,
                          np.random.default_rng(10_000))
-    boot = bootstrap(d, fold0, args.folds, segs, args.person, args.nodes, seg_rows, args.boot,
-                     np.random.default_rng(20_000)) if args.boot else []
+    if not args.boot:
+        boot = []
+    elif args.fast_boot:
+        boot = fast_bootstrap(d, reps, seg_rows, args.boot, np.random.default_rng(20_000))
+    else:
+        boot = bootstrap(d, fold0, args.folds, segs, args.person, args.nodes, seg_rows, args.boot,
+                         np.random.default_rng(20_000))
+    boot_kind = ("fast: out-of-fold predictions resampled, models not refitted, so it misses model variability"
+                 if args.fast_boot else "full: the whole CV rerun per replicate")
     fold_hash = hashlib.sha256(b"".join(p.read_bytes() for p in fold_paths)).hexdigest()[:12]
 
     # ---- report: cohort
@@ -761,8 +793,8 @@ def main():
     keys = list(reps[0]["B2"]["metrics"])
     est = {m: {k: np.mean([r[m]["metrics"][k] for r in reps]) for k in keys} for m in MODELS}
     rep += ["\n## Cross-validated person metrics\n",
-            f"Estimate: mean over {args.repeats} fold splits. 95% CI: person bootstrap, {args.boot} replicates (paired, "
-            "the whole CV rerun). Split variability: 2.5-97.5 percentile over the fold splits; it is not a CI. "
+            f"Estimate: mean over {args.repeats} fold splits. 95% CI: paired person bootstrap, {args.boot} replicates "
+            f"({boot_kind}). Split variability: 2.5-97.5 percentile over the fold splits; it is not a CI. "
             "Δ = G03 − B2; estimates, not tests. Δ log loss is the primary comparison.\n"]
     trows = []
     for k in keys:
