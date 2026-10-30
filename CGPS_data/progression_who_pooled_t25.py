@@ -82,7 +82,7 @@ def dominance_label(s):
     t = s.astype(str).str.strip().str.lower().where(s.notna())
     out = pd.Series("missing", index=s.index)
     for lab, prefixes in DOMINANCE[::-1]:  # codominant last, so "co..." wins over nothing else
-        out[t.str.startswith(prefixes).fillna(False)] = lab
+        out[t.str.startswith(prefixes).fillna(False).astype(bool)] = lab
     out[t.notna() & (out == "missing")] = "other"
     return out
 
@@ -418,7 +418,8 @@ def fig_auc(rows, out_dir):
             if ci is not None:
                 ax.plot(ci[m], [y_ + off] * 2, color=pt.INK2, lw=1)
                 lo_all.append(ci[m][0])
-            ax.text(max(est[m], ci[m][1] if ci is not None else est[m]) + 0.005, y_ + off, f"{est[m]:.2f}",
+            right = np.nanmax([est[m], ci[m][1] if ci is not None else np.nan])
+            ax.text(right + 0.005, y_ + off, f"{est[m]:.2f}",
                     va="center", fontsize=7.5, color=pt.INK2)
     ax.axvline(0.5, color=pt.MUTED, lw=1, ls=":")
     ax.axhline(yy[0] - 0.5, color=pt.MUTED, lw=0.8)
@@ -426,7 +427,7 @@ def fig_auc(rows, out_dir):
     for t, (lab, _, _, _) in zip(ax.get_yticklabels(), rows):
         t.set_color({"LAD": "#2a78d6", "LCx": "#1baf7a", "RCA": "#e34948"}.get(pt.VESSEL.get(lab), pt.INK))
         t.set_fontweight("bold")
-    lo = min([0.4] + lo_all + [min(r[2][m] for r in rows for m in MODELS)]) - 0.03
+    lo = np.nanmin([0.4, *lo_all, *(r[2][m] for r in rows for m in MODELS)]) - 0.03
     ax.set_xlim(max(lo, 0.0), 1.0)
     ax.set_xlabel("AUC on the test folds (0.5 = chance); bars: person-bootstrap 95% CI")
     ax.set_title("AUC per person and per segment: B2 vs G03 (mean T2.5)")
@@ -736,7 +737,10 @@ def main():
             "set to the training mean like the not-split rows.\n",
             "Rows per segment, split by the trunk split or not:\n"]
     sp = np.array([[int(((d["segment"] == s) & (d["not_split"] == v)).sum()) for v in (0, 1)] for s in segs])
-    rep += table(["segment", "split", "not split"], [(s, *r) for s, r in zip(segs, suppress(sp))])
+    sp_shown = [r if all(isinstance(v, (int, np.integer)) for v in r)  # the segment total is printed below
+                else [cgps_stats.SMALL if 0 < v < MIN_CELL else cgps_stats.HIDDEN for v in raw]
+                for r, raw in zip(suppress(sp), sp)]
+    rep += table(["segment", "split", "not split"], [(s, *r) for s, r in zip(segs, sp_shown)])
     pp = d.groupby("id").size().value_counts().reindex(range(1, 10), fill_value=0)
     rep += ["\nGraded trunk segments per person:\n"] + table(list(map(str, pp.index)), [suppress([pp.to_numpy()])[0]])
     dom = P.loc[Y.index, "dominance"].value_counts().reindex(["right", "left", "codominant", "other", "missing"], fill_value=0)
