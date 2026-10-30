@@ -1,7 +1,7 @@
 """Who, pooled engine (who-progression B2 and G02): does geometry add to the SCORE2 factors in predicting who progresses?
 
     python progression_who_pooled.py [--src TREE_FOLDER] [--person score2|factors] [--folds 10] [--repeats 50]
-                                     [--nodes 30] [--check]
+                                     [--variant-repeats 10] [--nodes 30] [--check]
     python progression_who_pooled.py --synthetic      # fitter and pooling self-test, no data needed
 
 Rows: the 9 split trunk segments of each Medis tree (progression_turning.build) with a visual grade at BL and FU;
@@ -17,6 +17,16 @@ intercept b ~ N(0, s^2), fitted by Gauss-Hermite quadrature with an analytic gra
         cholesterol, HDL (continuous ones z-scored).
   G02 = B2 + mean T5 (z within segment type) + LM bifurcation angle (z, on the pLAD and pCX rows only).
 Everything learned (z-score constants, coefficients, s) is fitted on the training persons.
+
+Turning variants (curvature only, no LM angle): B2 + one way of summarising the segment's turning angles, each
+z-scored within segment type. The six of progression_turning.py (mean T5, 90th pct T5, fraction above p75, mean
+T2.5, mean T10, upstream 20 mm T5) and four more:
+  max T5        the sharpest single bend (low WSS sits on the inner wall of the sharpest bend);
+  total T5      all the turning in the segment, rad (more bends, more low-WSS wall for "any plaque" to start on);
+  bends         number of separate runs of T5 above the cohort p75 (counts bends, not their sharpness);
+  log mean T5   mean T5 on the log scale (right-skewed; damps the few very tortuous segments).
+Per variant: HR per SD and an LR test (1 df) vs B2 on the full data, and ΔC / Δ log loss vs B2 on the folds of
+the first --variant-repeats repeats. Ten variants: these are exploratory, the prespecified test stays G02.
 
 Validation: 10 person folds stratified on the person outcome, repeated with seeds 0..R-1; the same folds for B2 and
 G02. Per repeat, from the pooled out-of-fold person risks: C, Brier, log loss, calibration slope and intercept.
@@ -50,7 +60,10 @@ CONTINUOUS = ("age", "sbp", "tc", "hdl")  # z-scored on the training persons
 ANGLE_SEGS = ("plad", "pcx")  # the rows the LM bifurcation angle can act on
 REF_SEG = "plad"
 MODELS = ("B2", "G02")
-GEOMETRY = {"B2": (), "G02": ("mean T5", "LM angle")}
+GEOMETRY = {"B2": (), "G02": ("mean_T5", "LM angle")}
+TURNING = {**pt.VARIANTS, "max_T5": "max T5", "total_T5": "total T5", "bends_T5": "bends",
+           "log_mean_T5": "log mean T5"}  # column -> label; the first six are progression_turning's
+NEW_TURNING = ("max_T5", "total_T5", "bends_T5", "log_mean_T5")
 COLOR = {"B2": pt.MODEL_COLOR["base"], "G02": pt.MODEL_COLOR["turning + angle"]}
 LOG_SIGMA_BOUNDS = (-8.0, 3.0)  # s from 3e-4 (no clustering) to 20
 NODE_TOL = {"beta": 1e-3, "sigma": 1e-3, "ll": 0.05}  # set before running; optimiser noise alone moves ll ~0.02
@@ -106,9 +119,10 @@ def design(d, train, terms, segs, grades, person):
     names.append("log length")
     X += pt.dummies(d, "grade", grades[1:])
     names += [f"BL {g}" for g in grades[1:]]
-    if "mean T5" in terms:
-        X.append(pt.zscore(d, "mean_T5", train))
-        names.append("mean T5 (per SD, within type)")
+    for t in terms:
+        if t in TURNING:
+            X.append(pt.zscore(d, t, train))
+            names.append(f"{TURNING[t]} (per SD, within type)")
     if "LM angle" in terms:
         a = (d["angle"] - people["angle"].mean()) / people["angle"].std()
         X.append(a.fillna(0).to_numpy() * d["segment"].isin(ANGLE_SEGS).to_numpy())
@@ -338,6 +352,35 @@ def fig_confusion(panels, out_dir):
     pt._save(fig, out_dir / f"{PREFIX}_confusion.png", rect=(0, 0.015, 1, 0.99))
 
 
+def fig_variants(res, out_dir):
+    """HR per SD (full data) and ΔC vs B2 (over repeats) per turning variant; the four new ones in blue."""
+    plt = pt._plt()
+    fig, (a1, a2) = plt.subplots(1, 2, figsize=(10, 0.42 * len(res) + 1.6), sharey=True)
+    yy = np.arange(len(res))[::-1]
+    for y_, (col, r) in zip(yy, res.items()):
+        c = pt.MODEL_COLOR["mean T5"] if col in NEW_TURNING else pt.INK2
+        a1.plot(r["ci"], [y_] * 2, color=c, lw=1.4)
+        a1.plot(r["hr"], y_, "o", color=c, ms=5)
+        dc = np.asarray(r["dC"])
+        a2.plot([np.percentile(dc, 2.5), np.percentile(dc, 97.5)], [y_] * 2, color=c, lw=1.4)
+        a2.plot(dc.mean(), y_, "o", color=c, ms=5)
+    for ax, ref, lab in ((a1, 1.0, "HR per SD (95% CI), full data"),
+                         (a2, 0.0, "ΔC vs B2 (mean, 2.5th to 97.5th pct over repeats)")):
+        pt._grid(ax, "x")
+        ax.axvline(ref, color=pt.MUTED, lw=1, ls=":")
+        ax.set_xlabel(lab)
+    a1.set_xscale("log")
+    lo, hi = a1.get_xlim()
+    a1.set_xticks([t for t in (0.25, 0.33, 0.5, 0.67, 0.8, 1, 1.25, 1.5, 2, 3, 4) if lo <= t <= hi])
+    a1.xaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f"{v:g}"))
+    a1.xaxis.set_minor_formatter(plt.NullFormatter())
+    a1.set_yticks(yy, [TURNING[c] for c in res])
+    a1.set_title("Turning variants: B2 + one variant")
+    fig.text(0.01, 0.01, "Grey: the six of progression_turning.py; blue: added here. Curvature only, no LM angle.",
+             fontsize=7.5, color=pt.INK2)
+    pt._save(fig, out_dir / f"{PREFIX}_variants.png", rect=(0, 0.04, 1, 1))
+
+
 # ---------------------------------------------------------------- self-test (no data)
 def synthetic(seed=1):
     """Recover a known cloglog GLMM, check the gradient, and show why the two pooling shortcuts fail."""
@@ -368,6 +411,34 @@ def synthetic(seed=1):
     print(f"integral 40 vs 200 nodes: max |diff| {np.abs(P - person_risk(X, fit['beta'], fit['sigma'], ids, 200)).max():.1e}")
 
 
+# ---------------------------------------------------------------- turning variants
+def turning_variants(d, y, ids, Y, segs, grades, args, base_fit, fold_sets, base_metrics):
+    """{col: hr, ci, lr, p, dC, dlogloss, fails} for B2 + one turning variant; folds = the first repeats of the CV."""
+    full, Yv, out = np.ones(len(d), bool), Y.to_numpy(), {}
+    for col in TURNING:
+        X, names = design(d, full, (col,), segs, grades, args.person)
+        f = fit_glmm(X, y, ids, args.nodes)
+        b, s = f["beta"][-1], wald_se(f)[-2]  # last beta; the last theta is log s
+        lr = 2 * (f["ll"] - base_fit["ll"])
+        r = {"hr": np.exp(b), "ci": np.exp([b - 1.96 * s, b + 1.96 * s]), "lr": lr, "p": chi2.sf(max(lr, 0.0), 1),
+             "dC": [], "dlogloss": [], "fails": 0, "missing": int(d[col].isna().sum())}
+        for (fold, pfold), base in zip(fold_sets, base_metrics):
+            oof, theta = np.zeros(len(Y)), None
+            for k in range(args.folds):
+                tr, te = fold != k, fold == k
+                X, _ = design(d, tr, (col,), segs, grades, args.person)
+                fk = fit_glmm(X[tr], y[tr], ids[tr], args.nodes, theta0=theta)
+                r["fails"] += not fk["ok"]
+                theta = fk["theta"]
+                oof[pfold == k] = person_risk(X[te], fk["beta"], fk["sigma"], ids[te])
+            m = metrics(Yv, oof)
+            r["dC"].append(m["C"] - base["C"])
+            r["dlogloss"].append(m["log loss"] - base["log loss"])
+        out[col] = r
+        print(f"variant {TURNING[col]}: HR {r['hr']:.2f}, LR p {r['p']:.3g}, ΔC {np.mean(r['dC']):+.4f}")
+    return out
+
+
 # ---------------------------------------------------------------- main
 def fmt_ci(v):
     return f"{np.mean(v):.3f} ({np.percentile(v, 2.5):.3f} to {np.percentile(v, 97.5):.3f})"
@@ -379,6 +450,8 @@ def main():
     ap.add_argument("--out", default=str(Path(OUT_DIR) / f"{PREFIX}.md"))
     ap.add_argument("--folds", type=int, default=10)
     ap.add_argument("--repeats", type=int, default=50)
+    ap.add_argument("--variant-repeats", type=int, default=10,
+                    help="CV repeats (the first ones, same folds) for the turning-variant comparison; 0 = skip it")
     ap.add_argument("--nodes", type=int, default=30)
     ap.add_argument("--bins", type=int, default=5)
     ap.add_argument("--person", choices=("score2", "factors"), default="score2",
@@ -440,11 +513,12 @@ def main():
                           f"{'pass' if ok else 'FAIL'} |")
 
     # ---- cross-validation
-    rep_metrics, seg_auc, fails, first = [], [], {m: 0 for m in MODELS}, None
+    rep_metrics, seg_auc, fails, first, fold_sets = [], [], {m: 0 for m in MODELS}, None, []
     for r in range(args.repeats):
         fold_of = person_folds(Y, args.folds, np.random.default_rng(r))
         fold = d["id"].map(fold_of).to_numpy()
         pfold = Y.index.map(fold_of).to_numpy()
+        fold_sets.append((fold, pfold))
         oof = {m: np.zeros(len(Y)) for m in MODELS}
         seg_oof = {m: np.zeros(len(d)) for m in MODELS}
         thr = {m: {"person": np.zeros(len(Y)), "segment": np.zeros(len(d))} for m in MODELS}
@@ -528,6 +602,23 @@ def main():
         rep.append(f"| {key} | {fmt_ci(v['B2'])} | {fmt_ci(v['G02'])} | "
                    f"{fmt_ci(np.subtract(v['G02'], v['B2']))} |")
 
+    # ---- turning variants
+    nv = min(args.variant_repeats, args.repeats)
+    if nv:
+        var = turning_variants(d, y, ids, Y, segs, grades, args, fits["B2"], fold_sets[:nv], [r["B2"] for r in rep_metrics[:nv]])
+        rep += ["\n## Turning variants (curvature only)\n",
+                "B2 + one turning variant (z within segment type, missing = 0), no LM angle. HR per SD and LR test (1 df) "
+                f"vs B2 on the full data; ΔC and Δ log loss vs B2 on the folds of repeats 0..{nv - 1} (mean, 2.5th to 97.5th "
+                "percentile). Ten variants on the same data: expect about one p < 0.10 by chance. Exploratory; the "
+                "prespecified test is G02. *new* = not in progression_turning.py.\n",
+                "| variant | rows missing | HR per SD (95% CI) | LR | p | ΔC (G − B2) | Δ log loss | fold fits not converged |",
+                "|---|---|---|---|---|---|---|---|"]
+        for col, r in var.items():
+            rep.append(f"| {TURNING[col]}{' *new*' if col in NEW_TURNING else ''} | {count(r['missing'])} | "
+                       f"{r['hr']:.2f} ({r['ci'][0]:.2f} to {r['ci'][1]:.2f}) | {r['lr']:.2f} | {r['p']:.3g} | "
+                       f"{fmt_ci(r['dC'])} | {fmt_ci(r['dlogloss'])} | {r['fails']} of {nv * args.folds} |")
+        fig_variants(var, out_dir)
+
     # ---- per segment, confusion matrices, figures
     oof0, seg0, thr0 = first
     def n_lab(yv):
@@ -568,7 +659,7 @@ def main():
     fig_roc(panels, out_dir)
     fig_confusion(panels, out_dir)
     rep.append(f"\nFigures: {PREFIX}_auc.png, {PREFIX}_roc.png, {PREFIX}_confusion.png, {PREFIX}_calibration.png, "
-               f"{PREFIX}_deltas.png.\n")
+               f"{PREFIX}_deltas.png{f', {PREFIX}_variants.png' if nv else ''}.\n")
     Path(args.out).write_text("\n".join(rep))
     print("\n".join(rep))
 

@@ -10,6 +10,8 @@ Six geometry variants, each added on its own to the same base model and z-scored
 in the training folds (missing -> 0, the position mean):
   mean T5, 90th percentile of T5 (sharpest bend), fraction of the segment above the cohort 75th
   percentile of T5, mean T2.5, mean T10, mean T5 over the 20 mm upstream of the segment.
+build() also returns max T5, total T5 (rad), log mean T5 and the number of bends (runs above the p75
+threshold), which progression_who_pooled.py compares.
 
 1. Between people (logistic): base = position + BL grade + log SCORE2 + log follow-up.
    Per variant: OR per SD, robust p, out-of-fold position-stratified C and ΔC (person bootstrap),
@@ -64,6 +66,9 @@ def segment_features(Y, s, cuts):
             f[f"mean_T{c:g}"] = seg.mean() if len(seg) >= 2 else np.nan
             if c == 5.0:
                 f["p90_T5"] = np.percentile(seg, 90) if len(seg) >= 2 else np.nan
+                f["max_T5"] = seg.max() if len(seg) >= 2 else np.nan
+                f["total_T5"] = seg.sum() * c if len(seg) >= 2 else np.nan  # rad: all the turning in the segment
+                f["log_mean_T5"] = np.log(seg.mean()) if len(seg) >= 2 and seg.mean() > 0 else np.nan
                 f["t5_values"] = seg
                 up = th[(pos >= lo - UPSTREAM) & (pos < lo)]
                 f["up_T5"] = up.mean() if len(up) >= 2 else np.nan
@@ -98,6 +103,8 @@ def build(src):
     d = pd.DataFrame(rows)
     thr = np.percentile(np.concatenate([v for v in d["t5_values"] if len(v)]), 75)  # outcome-free threshold
     d["frac_T5"] = [np.mean(v > thr) if len(v) >= 2 else np.nan for v in d["t5_values"]]
+    d["bends_T5"] = [np.sum(np.diff(np.r_[0, (v > thr).astype(int)]) == 1) if len(v) >= 2 else np.nan
+                     for v in d["t5_values"]]  # runs of T5 above the threshold: separate bends
     rank = {g: i for i, g in enumerate(hq.GRADES)}
     d["y"] = (d["fu"].map(rank) > d["bl"].map(rank)).astype(float)
     return d.drop(columns="t5_values"), d["bl"].isin(GRADE) & d["fu"].isin(rank), skipped
