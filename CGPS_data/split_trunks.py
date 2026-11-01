@@ -8,10 +8,13 @@ into mcx/dcx at the first side branch labelled OM2 or >= 15 mm long, else half w
 between two labelled runs is split at its middle. A segment with no label gets no length (present = 0).
 
 Landmark rule, for trunks without p/m/d labels (and the in-house tracer trees):
-LAD: LM bifurcation -> first diagonal (p) -> half the remaining distance to the LAD end (m) -> end (d).
+LAD: LM bifurcation -> first diagonal (p) -> second labelled diagonal (m), else LAD_MD_FRAC of the
+remaining distance to the LAD end -> end (d).
 LCx: LM bifurcation -> OM1 (p) -> OM2 (m) -> end (d).
 RCA: ostium -> half way to the acute margin (p) -> acute margin (m) -> PDA origin (d); the acute margin
-is the RCA point farthest from the ostium-to-crux chord. A missing landmark falls back to the first
+is the sharpest bend (over TURN_CHORD mm chords) between the RCA point farthest from the
+ostium-to-crux chord and the crux (ACUTE = "chord" keeps the farthest point, the rule before
+2026-11-01, which sat ~20 mm proximal of the Medis labels). A missing landmark falls back to the first
 side branch >= 15 mm long, and without one to a fixed fraction of the trunk. Where the Medis labels
 exist the landmark rule is also run, with and without branch labels, to measure its boundary error.
 
@@ -44,6 +47,9 @@ NAMES = {
 }
 BRANCH = {"LAD": r"^d\d", "CX": r"^om\d", "RCA": r"^pda$"}
 MIN_BRANCH = 15.0
+LAD_MD_FRAC = 0.5  # LAD m/d without a labelled D2: this fraction of the way from D1 to the LAD end
+ACUTE = "turn"  # RCA acute margin: "turn" = sharpest bend distal of the chord point, "chord" = old rule
+TURN_CHORD = 10.0  # mm: chord on each side of a point for the bend angle at the acute margin
 BRIDGE = 3.0  # mm: a polyline end this close to another piece of the tree is joined to it
 ARTERY_OF = {k: a.lower() for a, ks in TRUNK.items() for k in ks}
 PART = {s: i for segs in NAMES.values() for i, s in enumerate(segs)}  # p = 0, m = 1, d = 2
@@ -153,7 +159,9 @@ def landmark_cuts(a, p, X, br, s, use_labels=True):
     rule = "labelled branch" if labelled else "long branch" if marks else "fraction of length"
     if a == "LAD":
         pm = marks[0] if marks else 0.25 * L
-        return pm, (pm + L) / 2, L, rule
+        d1 = next((b[2] for b in br if use_labels and b[0] == pm), None)
+        d2 = sorted(b[0] for b in br if use_labels and re.match(BRANCH[a], b[2]) and b[2] != d1 and b[0] > pm + 1.0)
+        return pm, d2[0] if d2 else pm + LAD_MD_FRAC * (L - pm), L, rule + ("; m/d at D2" if d2 else "")
     if a == "CX":
         pm = marks[0] if marks else L / 3
         return pm, next((m for m in marks if m > pm + 1.0), (pm + L) / 2), L, rule
@@ -163,8 +171,23 @@ def landmark_cuts(a, p, X, br, s, use_labels=True):
     dist = np.linalg.norm(np.cross(Y - Y[0], chord), axis=1)
     mid = (s > 0.2 * crux) & (s < 0.9 * crux)
     acute = s[mid][dist[mid].argmax()] if mid.any() else 2 / 3 * crux
+    if ACUTE == "turn":  # the bulge sits ~20 mm proximal of the Medis m/d: take the sharpest bend after it
+        acute = sharpest_bend(Y, s, acute, crux - TURN_CHORD) or acute
     found = any(m > 0.3 * L for m in marks)
     return acute / 2, acute, crux, f"acute margin; crux at {rule}" if found else "acute margin; crux at trunk end"
+
+
+def sharpest_bend(Y, s, lo, hi):
+    """Arc length in [lo, hi] with the largest angle between the chords TURN_CHORD mm before and
+    after it, or None if the window is empty."""
+    best, angle = None, -1.0
+    for i in np.flatnonzero((s >= lo) & (s <= hi)):
+        u = Y[i] - Y[np.searchsorted(s, s[i] - TURN_CHORD)]
+        v = Y[min(np.searchsorted(s, s[i] + TURN_CHORD), len(s) - 1)] - Y[i]
+        t = np.arctan2(np.linalg.norm(np.cross(u, v)), u @ v)
+        if t > angle:
+            best, angle = s[i], t
+    return best
 
 
 def cut(s, part, k):
