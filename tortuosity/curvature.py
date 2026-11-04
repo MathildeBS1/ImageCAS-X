@@ -45,6 +45,53 @@ def profile(P, l):
     return turning_angles(chord_resample(P, l)) / l
 
 
+def _at_chord(P, i, l, step):
+    """The point on P, walking from P[i] in direction step (+1 / -1), exactly l mm (straight line) from
+    P[i], solved as in chord_resample; None when the polyline ends first."""
+    Q = P[i::step]
+    hit = np.linalg.norm(Q[1:] - Q[0], axis=1) >= l
+    if not hit.any():
+        return None
+    j = int(np.argmax(hit))  # Q[1 + j] is the first point l or more away
+    a, v = Q[j], Q[1 + j] - Q[j]
+    w = a - Q[0]
+    A, B, C = v @ v, 2 * v @ w, w @ w - l * l
+    t = (-B + np.sqrt(max(B * B - 4 * A * C, 0.0))) / (2 * A)
+    return a + min(max(t, 0.0), 1.0) * v
+
+
+def smooth_points(P, s, w):
+    """Each point of P replaced by the mean of the points within w mm of arc length (fewer at the ends)."""
+    lo, hi = np.searchsorted(s, s - w, "left"), np.searchsorted(s, s + w, "right")
+    C = np.vstack([np.zeros(P.shape[1]), np.cumsum(P, axis=0)])
+    return (C[hi] - C[lo]) / (hi - lo)[:, None]
+
+
+def profile_thesis(P, l, s=None, smooth=0.0):
+    """Sliding-window T_l: (arc length, rad/mm) at every point of P that has a point l mm (straight
+    line) before and after it, the turning angle between P_i - B_i and F_i - P_i divided by l.
+
+    Same chord and angle as profile, but centred on each point instead of on vertices laid from P[0],
+    so it does not depend on where the respacing starts. s is the arc length of P (default: summed steps).
+    Off by default: the tracer centerlines are expected to arrive smoothed already. smooth > 0 first
+    averages the points over +-smooth mm (smooth_points), for unsmoothed trees: the centre point enters
+    each angle in full, so its jitter gives a spike, and since angles are >= 0 the spikes raise T_l most
+    in the noisiest centerlines.
+    """
+    s = np.r_[0, np.cumsum(np.linalg.norm(np.diff(P, axis=0), axis=1))] if s is None else np.asarray(s)
+    if smooth > 0:
+        P = smooth_points(P, s, smooth)
+    pos, theta = [], []
+    for i in range(1, len(P) - 1):
+        b, f = _at_chord(P, i, l, -1), _at_chord(P, i, l, 1)
+        if b is None or f is None:
+            continue
+        a, c = P[i] - b, f - P[i]
+        pos.append(s[i])
+        theta.append(np.arctan2(np.linalg.norm(np.cross(a, c)), a @ c))
+    return np.array(pos), np.array(theta) / l
+
+
 def mean_abs_curvature(P, l):
     """T_l in rad/mm, or nan when the centerline holds fewer than two angles at chord l."""
     V = chord_resample(P, l)  # l is the smoothing scale: bends smaller than l are skipped
