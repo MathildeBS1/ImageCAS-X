@@ -1,0 +1,78 @@
+% Detail moved out of methodology/10b_feature_validity.tex (sec:method-validity) to keep the main text
+% short (user, 2026-10-31). Nothing here changes a decision made in the main text.
+% Tables need \usepackage{array}. Red clarification notes need \usepackage{xcolor}.
+\providecommand{\clarify}[1]{\textcolor{red}{\textbf{Clarification needed:} #1}}
+\section{Details of the Feature Validation}
+\label{sec:app-validity}
+
+\subsection{Synthetic Shapes}
+\label{sec:app-validity-phantoms}
+
+Curvature was tested on circular arcs, helices and sine-shaped curves, taper on tubes whose radius decreases exponentially along their length, and the bifurcation angle and diameter ratios on Y-shaped tubes with set angles and diameters.
+The branches of the Y-shaped tubes were curved, so that the length over which a branch direction is fitted affects the result.
+Each shape was generated at [..] true values spanning the range observed in the cohort, to assess linearity.
+
+The centerline was displaced smoothly, with amplitudes of [..] to [..]\,mm and a correlation length of [..]\,mm.
+\clarify{where the error amplitudes come from.}
+Independent noise on each point at the same amplitude was added as a worst case.
+The radius was perturbed by random noise, by a bias that grows as the vessel narrows, mimicking the blurring of small vessels, and by local bulges at positions resembling side-branch origins.
+Without radius errors, taper and the diameter ratios would be exact by construction, and the robust fit and the exclusions of the taper definition would not be tested.
+\clarify{amplitudes of the radius errors, phantom dimensions and number of repetitions per setting.}
+
+The reference for each definition was its own value on the shape without errors, as the definitions measure different quantities.
+For the mean-curvature definitions the analytic curvature was reported as well, as the chord smooths the curve and so differs from it even without error.
+The count of bends was tested on sine-shaped curves only, at a fixed length, as an arc or a helix has no point where the bending changes direction.
+The scale-free error used to rank definitions is the standard deviation of the error divided by the between-participant standard deviation of the same definition in the cohort, computed without the outcome.
+
+\subsection{The Bifurcation Angle}
+\label{sec:app-validity-angle}
+
+No published study has varied the length over which the branch directions are fitted, and a ramus intermedius taken for the LCx widens the angle by about as much as the reported difference between the sexes \cite{medranogracia2016atlas}.
+
+\subsection{Grading the Evidence for the Hypotheses}
+\label{sec:app-validity-evidence}
+
+A hypothesis was graded strong when at least three independent cohorts, at least one imaged with CCTA, reported the association in the same direction after adjustment for other factors.
+It was graded moderate when it was mostly replicated but with some null findings, or when it came from one study with a smaller replication.
+It was graded weak when it came from a single study or a secondary source, from studies that did not test for it, or from anatomical reasoning without measurement.
+The grades are the author's judgement from a literature search that was not systematic, and they describe how consistent the identified studies were rather than how certain each association is.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Studies comparing coronary tortuosity between women and men. All six reported higher tortuosity in women.}
+  \label{tab:method-validity-sex}
+  \small
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{>{\raggedright\arraybackslash}p{1.6cm}>{\raggedright\arraybackslash}p{1.1cm}>{\raggedright\arraybackslash}p{1.9cm}>{\raggedright\arraybackslash}p{3.4cm}>{\raggedright\arraybackslash}p{2.7cm}}
+    \toprule
+    Study & n & Imaging & Measure of tortuosity & Women vs men \\
+    \midrule
+    \cite{li2011tortuosity} & 1,010 & angiography & three or more bends of at least 45$^{\circ}$ & odds ratio 2.6 \\
+    \cite{li2022tortuosity} & 1,280 & CCTA & three or more bends of at least 45$^{\circ}$ & odds ratio 1.68 \\
+    \cite{telloayala2026tortuosity} & 22,334 & angiography, RCA only, 2D & mean turning angle along the centerline & 0.17 SD higher \\
+    \cite{sharfo2024tortuosity} & 194 & CCTA & LAD length over the distance between its ends & higher, $p = 0.01$ \\
+    \cite{groves2009tortuosity} & 1,221 & angiography & visual count of severe bends & more women among tortuous \\
+    \cite{gharleghi2024leftmain} & 127 & CCTA, no stenosis or calcium & mean centerline curvature & 0.06 to 0.07\,mm$^{-1}$ higher \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The sex difference in curvature was graded strong, as six studies with different methods agreed in direction (Table~\ref{tab:method-validity-sex}).
+Most adjusted for age and risk factors.
+The grade does not establish the difference in the Herlev--{\O}sterbro cohort.
+The studies were conducted almost exclusively in patients referred with chest pain, most counted bends rather than measuring curvature per millimeter, and the largest used two-dimensional projections of the RCA only \cite{telloayala2026tortuosity}.
+The study closest to this thesis is a preprint that has not been peer reviewed and reports the sex difference in its full text only \cite{gharleghi2024leftmain}.
+Odds ratios for counted bends cannot be converted into differences in curvature, so the expected range was set wide, and studies that found no difference may have been less likely to be published.
+The reason for the difference is unknown; a smaller heart would require an artery on its surface to bend more tightly, but this has not been tested, so the estimate adjusted for body surface area was reported as secondary.
+The feature quantifies bending rather than torsion about the vessel axis, as do the cited studies.
+
+The association with hypertension was graded moderate: four studies reported higher tortuosity with hypertension \cite{li2011tortuosity, li2022tortuosity, telloayala2026tortuosity, sharfo2024tortuosity}, two found none \cite{groves2009tortuosity, gharleghi2024leftmain}, the effects were small, and no study used blood pressure on a continuous scale.
+The discriminant hypotheses were graded weak, as they rest on studies that did not test for these associations \cite{groves2009tortuosity}.
+Larger diameters in men were graded strong, as angiographic and CCTA studies agree \cite{dodge1992diameter, medranogracia2016atlas, gharleghi2024leftmain}, although it is unresolved whether the difference persists after adjustment for body size.
+A similar fractional taper across sex and body size was graded weak, as it follows from diameters scaling together rather than from a measurement of taper, and the steeper taper of the LAD was graded weak, having been found only in a secondary source.
+The wider angle in men and the wider angle with a ramus intermedius were graded weak, as they rest on one atlas of 300 participants \cite{medranogracia2016atlas}.
+The larger LCx in left dominance was graded weak: it follows from the larger territory of the LCx but was measured in a single small angiographic study \cite{dodge1992diameter}.
+Similar diameter ratios in women and men were graded weak, as they were read from group means in the same atlas.
+The scaling law was graded moderate: a meta-analysis of 1,070 coronary trees pooled the exponent at 2.39 with wide differences between studies \cite{taylor2024murray}, and the range for the Finet ratio was set around the value of 0.66 in a normal atlas \cite{medranogracia2016atlas}.
+
+The share of confirmed hypotheses was not used as a cut-off, as the commonly used criterion of 75\% \cite{terwee2007quality, prinsen2018cosmin} was proposed for instruments with many hypotheses, whereas each feature here has two to four.

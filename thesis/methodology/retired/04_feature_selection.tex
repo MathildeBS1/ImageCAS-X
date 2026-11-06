@@ -1,0 +1,45 @@
+% Steps 4 and 5 (2026-10-31): every geometric feature considered, and why five terms were taken
+% into the primary models. All criteria are outcome-blind; nothing here may be judged on its
+% association with plaque.
+% Prose, 2026-11-02 (user): no lists, no table, no subsections. Candidates set aside for one of
+% three reasons (weaker support in the literature, measurement error on CCTA, overlap with a
+% retained feature). Studies from the literature review return only as citations inside a reason,
+% never retold (Aida style: "were taken from Brummund et al. [9]"). The former Appendix C on
+% left-out properties is folded back in here.
+% HONESTY CHECK before submission: the text says the five terms were prioritised on the criteria
+% below and the rest were assigned to secondary analyses, NOT that a longer list was ranked and
+% cut. Keep it that way unless a ranking was actually done before the outcome was linked.
+% Candidates come from the plan: ~/Desktop/Speciale/CGPS_statistics-/CLAUDE.md ("Secondary and
+% exploratory threads", "Measurement notes") and reports/Centerline and lumen links to plaque.md.
+% Secondary analyses as listed in the plan; side-branch angles and ratios are not among them.
+% [..] and \clarify{} mark information that is not yet available; nothing there is to be guessed.
+\providecommand{\clarify}[1]{\textcolor{red}{\textbf{Clarification needed:} #1}}
+\section{Candidate Features and Their Selection}
+\label{sec:method-selection}
+
+There are many ways to quantify the geometry of a coronary tree from its centerlines and lumen contours (Section~\ref{sec:method-tracer}).
+With [..] participants, of whom [..] developed plaque, only five geometric features could be chosen without risking overfitting (Section~\ref{sec:method-size}).
+To keep the test of the geometry block a test of geometry rather than of the selection, the choice was made without the outcome, and all features and their definitions were fixed before baseline geometry was linked to follow-up plaque.
+
+The candidates were the properties of coronary geometry that the studies reviewed in Chapter~\ref{ch:literature} relate to wall shear stress or to where plaque forms, together with those that the tracer output allows to be computed.
+Where a property has several definitions, such as tortuosity, one primary definition was fixed and the others were kept for a sensitivity analysis (Section~\ref{sec:method-validity-definitions}).
+
+Some candidates had weaker support in the literature than the features that were retained.
+The tortuosity index measures the same bending as curvature but was unrelated to low wall shear stress \cite{kashyap2022tortuosity}, and counts of bends have been associated with coronary disease in opposite directions \cite{groves2009tortuosity,li2011tortuosity,telloayala2026tortuosity}.
+The angles and diameter ratios of the side-branch bifurcations were also set aside, as the evidence linking bifurcation geometry to low wall shear stress and to disease concerns the left main bifurcation \cite{cui2017bifurcation,garcha2025sensitivity,tommasino2024clap}, and the side branches lie outside the analysed arteries (Section~\ref{sec:method-population-arteries}).
+
+Other candidates could not be measured on CCTA with an error small enough relative to the property itself.
+Torsion depends on the third derivative of the centerline and is therefore highly sensitive to its sampling and smoothing, and the minor axis of a plaque-free lumen spans only a few voxels, so that its eccentricity would mostly reflect segmentation noise; no CCTA reproducibility has been reported for either \clarify{citations; reports/More segment features for low WSS.md}.
+Local lumen expansion and pointwise profiles along the vessel rest on the contour at single points, whose accuracy was not assessed, and the ratio of lumen volume to myocardial mass requires a segmentation of the myocardium that the tracer does not provide.
+
+The remaining candidates largely repeated a retained feature.
+Finet's ratio \cite{finet2008fractal}, the strongest predictor of the low wall shear stress area at the left main bifurcation in a computational cohort \cite{gharleghi2024leftmain}, is a combination of the two left main diameter ratios.
+The product of curvature and calibre and the curvature of the segment upstream are both derived from curvature, distance from the ostium is largely given by the position of the segment, and the number of side branches in a segment partly repeats the segment boundaries, most of which are placed at side branches (Section~\ref{sec:method-split}).
+
+This left five features: the curvature and the taper of each trunk segment, and the angle and the two diameter ratios of the left main bifurcation.
+Each could be computed from the tracer output in [..]\% or more of the clean-baseline cohort, and together they describe different aspects of the geometry, the bending and narrowing along the segments and the branching at the left main.
+The two diameter ratios share the left main diameter and correlate ([..] in the clean-baseline cohort), but both were kept, as each describes a different daughter.
+\clarify{whether the ratios enter on the log scale, as a scaling-law deviation plus an LAD/LCx asymmetry term (plan, measurement notes).}
+The excluded candidates were not ranked against each other, and no univariable screening or stepwise or penalised selection was used.
+Upstream turning, the pointwise profiles, the product of curvature and calibre, local lumen expansion and the ratio of lumen volume to myocardial mass were instead kept for secondary analyses, reported apart from the test of the geometry block.
+The five features are defined in Sections~\ref{sec:method-features} to~\ref{sec:method-ratio}, and their measurement properties are assessed in Section~\ref{sec:method-validity}.

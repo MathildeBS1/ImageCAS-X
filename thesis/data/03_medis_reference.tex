@@ -1,12 +1,23 @@
-% Medis-derived centerlines and contours, the reference for the in-house tracer (sec:method-medis).
-% Counts from CGPS_data/report_qc.md.
+% Medis centerlines and contours as delivered: what they are and whom they cover. How they are used
+% (comparison with the tracer, collapsing segments to arteries, contour matching, coordinates, and
+% that the comparison lies outside the plaque-free cohort) is in methodology/01b_medis_reference.tex
+% (sec:method-medis); do not repeat it here. Rewritten 2026-11-01.
+% Counts from the HØ_10Y Medis delivery (CGPS_data/CLAUDE.md) and:
+%   CGPS_data/Medis_and_outcome/medis_match.md (2026-10-29): 600 trees, all matched in BL and FU;
+%     599 plaque at BL, <5 plaque-free (suppressed; 600 - 599 makes it recoverable, see chat 2026-10-31).
+%   CGPS_data/Medis_and_outcome/medis_missing_plaque.md (2026-10-31): 724 with plaque at BL; 599 of
+%     them have a tree, 120 of the other 125 have _medis_finished = 1.
 \section{Medis Centerlines and Contours}
 \label{sec:data-medis}
 
-Two further data sets were derived in Medis from different selections of scans.
-The first holds centerline trees for 744 scans, stored as polylines in which every point carries the label of its coronary segment.
-The LAD, LCx and RCA trunks were complete in 576, 581 and 553 of them.
-The second holds cross-sectional contours of the lumen and of the plaque, with the lumen and plaque volumes, for the main vessels with plaque in [n] scans.
-Both data sets were used as the reference for the centerlines and lumen from the in-house tracer (Sections~\ref{sec:method-tracer} and~\ref{sec:method-medis}).
-They cover only selected scans, and the contours only vessels with plaque, so they are not drawn from the clean-baseline cohort, and they were treated as a reference rather than as ground truth.
-\clarify{visit of each data set (the centerline archive is named ``10Y''); how each selection was made and how many scans the two share; number of contour scans.}
+Two further data sets were made in Medis from baseline scans and delivered together with a log of their extraction.
+The first holds centerline trees of the coronary arteries for 600 scans, labelled by coronary segment.
+The second holds 3,049 contour segments of the lumen and the outer vessel wall, made only for segments with plaque.
+\clarify{how the trees and contours were made (traced by Medis, corrected by a reader, or both) and on what criterion the scans were selected; how many scans lie behind the 3,049 contour segments and how many of them also have a tree; in how many trees the LAD, LCx and RCA are complete.}
+
+Every tree was linked by its study identifier to a participant in both the baseline and the follow-up table.
+Of these 600 participants, 599 had plaque at baseline and fewer than five were plaque-free.
+The trees cover 599 of the 724 participants with plaque at baseline (82.7\%).
+For 120 of the remaining 125, the baseline table records the Medis plaque analysis as finished, which suggests that their trees are missing from the delivery rather than never made.
+Their plaque location, number of segments with plaque and worst stenosis grade were similar to those of the participants with a tree.
+\clarify{ask Kit whether a tree was made for every scan with plaque (so the 125 are lost in the delivery) or only for some, and on what criterion. The finished flag is filled only for segments the visual analysis graded as plaque, so it is not an independent check.}

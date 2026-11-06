@@ -1,0 +1,21 @@
+% Limitation moved out of methodology/10b_feature_validity.tex (user, 2026-10-31): repeatability and
+% stability of the geometric features were not assessed. Place in the Discussion chapter among the
+% limitations. Referenced from sec:method-validity and sec:method-validity-split.
+\subsection{Repeatability of the Geometric Features}
+\label{sec:disc-validity-repeatability}
+
+The repeatability of the geometric features could not be measured.
+Repeatability is the agreement between two measurements of the same participant when nothing has changed in between \cite{mokkink2010cosmin}, and it requires scans taken close together in time.
+No participant in the Herlev--{\O}sterbro cohort was scanned twice within a short interval.
+The baseline and follow-up scans cannot take their place, as they are about ten years apart, during which the vessels may change with age and plaque development, and the scanner, the protocol and the use of nitroglycerin differ between the visits.
+Running the tracer again on the same scan would not take their place either, as it captures only the variation of the algorithm and misses the variation between scans, such as differences in heart phase, contrast and image noise.
+
+Ideally, a subset of participants would have been scanned twice at the same visit.
+Such repeated scans would give the intraclass correlation of each feature with its confidence interval \cite{mcgraw1996icc, koo2016icc}, the within-participant standard deviation and the repeatability coefficient \cite{raunig2015qib}.
+Together with the baseline and follow-up scans, they would also show how well one baseline scan represents a participant over the follow-up period, separately from the measurement error.
+
+Without them, the size of the measurement error in the features is unknown, and this limits how the results can be read.
+Random measurement error shrinks a regression coefficient towards zero and lowers the power of a test \cite{frost2000dilution, hutcheon2010dilution}.
+A null result of the likelihood-ratio test for the geometry block can therefore not be told apart from a feature that is too noisy to show an effect.
+For the same reason, the share of the variance left after the known risk factors (Section~\ref{sec:method-validity-split}) cannot be divided into anatomy that differs between people and measurement error.
+A positive result is less affected, as random error tends to hide an association rather than create one, unless the error differs between the groups being compared, as it may between narrow and wide arteries.

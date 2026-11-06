@@ -1,0 +1,52 @@
+\documentclass[11pt,a4paper]{article}
+
+\input{setup/project}
+\input{setup/preamble}
+\input{setup/weekly}
+
+% The methods sections are input from ../methodology; their figures use paths from the thesis root.
+
+
+\renewcommand{\reportdate}{4 November 2026}
+
+\begin{document}
+
+\weeklytitle{10}
+
+\section{Week 10: 2--6 November 2026}
+
+\sectionprogress
+
+\begin{itemize}
+  \item \textbf{I am close to locking down how to build the risk model} My top model is a
+    segment-level cloglog GLMM over the 9 segments with a person random intercept, and its
+    segment risks pooled into one person risk. I will keep a person-level model of any plaque as a benchmark 
+  \item \textbf{A new method: Functional Principal Component Analysis (FPCA).} The mean turning angle per segment still loses information about where the bends lie even though not as much if it was computed on the full artery or at person level.
+    \begin{itemize}
+      \item \textbf{Profiles.} The turning profile of each segment is interpolated onto 50 positions
+        along the normalised segment length, giving one matrix of people $\times$ positions.
+      \item \textbf{Shapes.} The average profile is subtracted, and the singular value decomposition (SVD) gives the shapes along
+        which people differ most, with one score per person and shape. 
+        \item \textbf{Mean turning angle turns out to be a good summary.} On the Herlev--{\O}sterbro
+        Medis profiles, the first shape has the same sign along the whole segment and is basically a striaght line, so it represents the mean turning angle. The mean turning is therefore the best single summary of the profile, even though we have no idea if mean turning correlates with plaque. Some litterature says yes, some says no. 
+      \item \textbf{Where will the analysis be conducted?} Only the pLAD and mLAD have enough events for several curvature terms
+        (Riley maximum 10 and 8, against at most 5 elsewhere), so the analysis is done in these two
+        segments only, and it is descriptive.
+      \item \textbf{Number of shapes.} Fixed before the outcome is used. 
+  \item \textbf{I wrote some of the methods sections} on the in-house tracer, the Medis reference, the
+    cohort and outcome, and the arteries and segments.
+\end{itemize}
+
+\input{fpca_from_plots}
+
+\input{cloglog_pooled}
+
+\input{../methodology/01a_inhouse_tracer}
+
+\input{../methodology/01b_medis_reference}
+
+\input{../methodology/02_population_outcome}
+
+\input{../methodology/02b_segment_split}
+
+\end{document}

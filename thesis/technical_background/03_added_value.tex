@@ -1,0 +1,111 @@
+% Technical Background, section 3 (written 2026-11-06).
+% Pointed back to by: methodology/02_models (NOT WRITTEN) and methodology/11_cross_validation.tex
+%   (sec:method-cv; add the pointer when its \clarify is resolved).
+% EXCEPTION, at the user's request (2026-11-06): style_guide_technical_aida.md 2.3/10.2 puts
+%   evaluation measures in the Methodology, as Aida defines Dice there. Only the general
+%   definitions and their properties are here; which measures are primary, the folds and repeats,
+%   the number of bootstrap replicates and the software are in the Methodology.
+% Sources: ~/Desktop/Speciale/CGPS_statistics-/reports/Model comparison metrics who and where.md;
+%   every cited claim checked against that report; all DOIs checked on Crossref 2026-11-06.
+% Own statements, not cited: calibration-in-the-large is zero in the fitting data for a logistic
+%   model with an intercept fitted by maximum likelihood (score equation); LR = 2N x Delta log loss
+%   for persons fitted independently; repeating the CV does not shrink sampling uncertainty.
+% Hazard closer (guide 3.6): a significant LR test with Delta C near zero is coherent.
+% Notation: A_i (person outcome, as in eq:tech-agg-conditional), hat p_{0i}, hat p_{1i}, N, n_1, n_0,
+%   F folds (K is the number of FPCA components).
+% LEFT OUT on purpose: decision curves and net benefit (no treatment threshold for the outcome),
+%   ICI/E50/E90, MIX-C, Nadeau-Bengio correction, nested CV for model selection.
+
+\section{Quantifying Added Predictive Value}
+\label{sec:tech-added-value}
+
+Added predictive value is the improvement in prediction obtained when a block of predictors is added to a base model, and it is judged by comparing the base model with the extended model on the same persons \cite{steyerberg2010performance, steyerberg2019cpm}.
+Let $A_i \in \{0, 1\}$ be the observed outcome of person $i = 1, \dots, N$, and let $\hat p_{0i}$ and $\hat p_{1i}$ denote the risks predicted for that person by the base model and by the extended model.
+The two models are nested, as the extended model reduces to the base model when the coefficients of the block are zero.
+
+Two questions are asked of the block: whether it is associated with the outcome given the base predictors, and how much it changes the predictions.
+The first is answered by the likelihood-ratio test of Eq.~\eqref{eq:tech-lr}.
+For nested models, the null hypotheses of no improvement in the area under the receiver operating characteristic curve (AUC), in reclassification and in discrimination slope all reduce to this hypothesis that the coefficients of the block are zero \cite{pepe2013testing}.
+A separate test of a performance measure therefore adds no information.
+The DeLong test of a difference in AUC also assumes a normal null distribution that does not hold when one model contains the other \cite{demler2012delong}, and in simulations its size stayed far below the nominal level and its power was low \cite{pepe2013testing}.
+Testing the coefficients and then the difference in AUC often leads to discordant conclusions \cite{vickers2011onetest}.
+The second question is answered by estimates of the change in performance, each with a confidence interval, and not by tests.
+
+\subsection{Discrimination}
+\label{sec:tech-discrimination}
+
+While the likelihood-ratio test shows whether the block is associated with the outcome, it does not show whether the block separates persons who develop the outcome from persons who do not.
+Discrimination is measured by the concordance statistic $C$, the probability that a randomly chosen person with the outcome has a higher predicted risk than a randomly chosen person without it \cite{harrell1996multivariable},
+\begin{equation}
+  C = \frac{1}{n_1 n_0} \sum_{i:\, A_i = 1} \; \sum_{i':\, A_{i'} = 0}
+  \left[ \mathbf{1}(\hat p_i > \hat p_{i'}) + \tfrac{1}{2}\, \mathbf{1}(\hat p_i = \hat p_{i'}) \right],
+  \label{eq:tech-cindex}
+\end{equation}
+where $n_1$ and $n_0$ are the numbers of persons with and without the outcome and $\mathbf{1}(\cdot)$ is 1 when its argument holds and 0 otherwise.
+For a binary outcome $C$ equals the AUC, and it ranges from 0.5 for a model that ranks at random to 1 for one that ranks every pair correctly.
+The added value in discrimination is $\Delta C = C_1 - C_0$, computed from $\hat p_{1i}$ and $\hat p_{0i}$ on the same persons.
+$C$ depends only on the ranking of the predicted risks, so it is unchanged when every risk is shifted or scaled and says nothing about whether the risks are correct.
+When the base model already discriminates well, a predictor that is clearly associated with the outcome can still change $C$ very little \cite{pencina2008nri, steyerberg2010performance}.
+
+For units nested in clusters, such as segments within persons, the pairs of Eq.~\eqref{eq:tech-cindex} can be split into pairs of units from the same cluster and pairs from different clusters, giving a within-cluster and a between-cluster $C$ \cite{vanklaveren2014clustered}.
+A covariate that adds the same amount to the linear predictor of every unit in a cluster leaves the within-cluster $C$ unchanged, so the within-cluster $C$ measures only how well a model ranks the units inside a cluster.
+
+\subsection{Calibration}
+\label{sec:tech-calibration}
+
+While $C$ measures how well a model ranks persons, it does not measure whether the predicted risks agree with the observed frequency of the outcome, which is calibration \cite{vancalster2019calibration}.
+Calibration is assessed with the recalibration model of Eq.~\eqref{eq:tech-recalibration} applied to the model's own predictions \cite{cox1958binary},
+\begin{equation}
+  \mathrm{logit}\, P(A_i = 1) = a + \gamma\, \mathrm{logit}\, \hat p_i ,
+  \label{eq:tech-calibration}
+\end{equation}
+where the calibration slope $\gamma$ is estimated together with $a$, and the calibration intercept is $a$ estimated with $\gamma$ fixed at 1, which is calibration-in-the-large.
+A calibration intercept of 0 means that the mean predicted risk equals the observed proportion.
+A slope below 1 means that the predicted risks are too extreme, the typical consequence of overfitting, and a slope above 1 means that they are too moderate \cite{vancalster2019calibration}.
+These two measures form the weak level of a hierarchy that ranges from agreement of the mean risk, through intercept and slope, to agreement across the whole range of predicted risk shown by a smoothed calibration curve \cite{vancalster2016hierarchy}.
+The Hosmer--Lemeshow test is not recommended, as its result depends on an arbitrary grouping of the predictions and it gives no direction or size of the miscalibration \cite{vancalster2019calibration}.
+For a logistic model with an intercept fitted by maximum likelihood, the mean predicted risk in the fitting data equals the observed proportion, so calibration-in-the-large is informative only in data not used to fit the model.
+
+\subsection{Overall Accuracy}
+\label{sec:tech-accuracy}
+
+While discrimination and calibration describe two separate properties, overall accuracy combines them into a single distance between the predicted risks and the outcomes.
+The Brier score and the log loss are
+\begin{equation}
+  \mathrm{BS} = \frac{1}{N} \sum_{i=1}^{N} \left( A_i - \hat p_i \right)^2 ,
+  \qquad
+  \mathrm{LL} = -\frac{1}{N} \sum_{i=1}^{N} \left[ A_i \log \hat p_i + (1 - A_i) \log (1 - \hat p_i) \right],
+  \label{eq:tech-brier}
+\end{equation}
+where lower values are better for both \cite{brier1950verification, steyerberg2010performance}.
+Both are strictly proper scoring rules, so their expected value is optimized only by the true risks, and a model cannot improve them by predicting risks that are more extreme or more moderate than the truth \cite{steyerberg2010performance}.
+The Brier score depends on the prevalence $\bar A$ of the outcome, and the scaled Brier score $1 - \mathrm{BS} / \{\bar A (1 - \bar A)\}$ expresses it relative to a model that predicts $\bar A$ for everyone \cite{steyerberg2010performance}.
+The log loss is the mean negative log-likelihood of the outcomes, so for models fitted to independent persons the likelihood-ratio statistic equals $2N$ times the reduction in log loss in the fitting data, and the log loss in held-out data is the out-of-sample counterpart of that statistic.
+The added value is the change $\Delta\mathrm{BS}$ or $\Delta\mathrm{LL}$ between the two models.
+
+\subsection{Reclassification}
+\label{sec:tech-reclassification}
+
+While $\Delta C$ changes little when the base model is strong, reclassification measures were introduced to be more sensitive to a new predictor \cite{pencina2008nri}.
+The net reclassification improvement (NRI) is the proportion of persons with the outcome whose predicted risk moves up minus the proportion whose risk moves down, plus the corresponding difference in the opposite direction for persons without the outcome, and the integrated discrimination improvement (IDI) is the increase in the difference between the mean predicted risk of persons with and without the outcome \cite{pencina2008nri}.
+Neither is a proper scoring rule.
+With simulated markers that carried no information, tests of the NRI rejected in up to 63\% of the datasets used to fit the model \cite{pepe2014nripvalues}, and the NRI can overstate the value of a predictor even in independent data \cite{kerr2014nri}.
+Their tests reduce to the test of the coefficients of the block \cite{pepe2013testing}, so they add no information to the likelihood-ratio test and add a risk of false positives.
+
+\subsection{Internal Validation}
+\label{sec:tech-internal-validation}
+
+While all of these measures can be computed in the data used to fit the model, they are then optimistic, as the model is partly fitted to noise in those data \cite{steyerberg2019cpm}.
+Cross-validation addresses this by splitting the persons into $F$ folds, fitting the model on $F - 1$ folds and predicting the persons of the remaining fold, so that every prediction is made for a person who did not contribute to the fit.
+Repeating the split with different random assignments reduces the dependence of the result on one particular split, but not the uncertainty that comes from the finite number of persons.
+When units are nested in clusters, the folds are formed by cluster, as a held-out unit whose cluster also contributed units to the fit is partly predicted from its own cluster.
+Every step that learns from the data, such as standardization constants, spline knots, imputation models and the variance of a random effect, is repeated within each training fold, as a step fitted on all persons lets the held-out persons influence their own predictions \cite{collins2024evaluation}.
+
+The two models are evaluated on the same persons and folds, so the uncertainty of interest is that of the difference between them and not of each model separately.
+Two separate confidence intervals that overlap say little about the difference, whereas a paired interval resamples persons with replacement, recomputes both models and their difference in each replicate, and takes percentiles of the differences.
+Every modeling step, including the cross-validation itself, is repeated in each bootstrap replicate, and omitting a step leaves the interval too narrow \cite{collins2024evaluation}.
+
+The likelihood-ratio test and the estimates of added value answer different questions and can disagree without contradiction.
+A block can be clearly associated with the outcome and still change $C$ by less than the width of its interval when the base model is strong \cite{pencina2008nri, vickers2011onetest}.
+Correct reading of added value therefore depends on reporting the test together with the estimates.
+Otherwise, a small $\Delta C$ is read as the absence of any association, or a significant test as a gain in prediction.

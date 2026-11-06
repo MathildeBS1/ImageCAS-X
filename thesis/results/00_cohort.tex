@@ -1,0 +1,74 @@
+% Study cohort and outcome frequencies (moved 2026-10-31 from data/04_study_cohort.tex,
+% data/02_visual_analysis.tex and methodology/02_population_outcome.tex). Criteria and outcome
+% definition: sec:method-population.
+% Counts on the 1,801-patient table, dtu-gpu-7, 2026-10-31: clean_baseline_count.py,
+% clean_baseline_plaque_location.py, medis_missing_plaque.py. Percentages computed from those counts.
+% The new-plaque counts are on the 1,077 plaque-free participants, before the image-quality
+% exclusion; recompute on the study cohort once the criterion is fixed.
+% Flowchart needs \usepackage{tikz} and \usetikzlibrary{positioning, arrows.meta, calc}.
+% [..] and \clarify{} mark information that is not yet available; nothing there is to be guessed.
+\providecommand{\clarify}[1]{\textcolor{red}{\textbf{Clarification needed:} #1}}
+\section{Study Cohort and Incident Plaque}
+\label{sec:results-cohort}
+
+Figure~\ref{fig:results-flowchart} shows the restriction of the 1,801 participants to the study cohort with the criteria of Section~\ref{sec:method-population}.
+All 1,801 baseline scans had been read visually, so no participant was excluded for a missing read.
+Of the 1,801, 724 (40.2\%) had plaque or stenosis in at least one segment at baseline and were excluded, leaving 1,077 (59.8\%) with a plaque-free baseline, all with a graded follow-up scan.
+A further [..] were excluded for insufficient image quality, leaving [..] participants in the study cohort.
+\clarify{follow-up time between the scans in the study cohort (median and interquartile range).}
+
+About ten years after baseline, 483 of the 1,077 plaque-free participants (44.8\%) had developed plaque in at least one segment.
+Of these, 452 (93.6\%) had it in at least one of the nine segments of the LAD, LCx and RCA and thus had the outcome, whereas 31 (6.4\%) developed plaque only in the LM or a side branch.
+The LAD was affected most often, followed by the RCA and the LCx (Table~\ref{tab:results-plaque-location}).
+Of the 452 participants who developed plaque in a main artery, 261 (57.7\%) had at most a minimal stenosis there, 140 (31.0\%) a mild one, 37 (8.2\%) a moderate one and 14 (3.1\%) a severe stenosis or an occlusion, so most of the incident plaque was small.
+\clarify{all counts in this paragraph and the table are on the 1,077 before the image-quality exclusion; recompute on the study cohort.}
+
+\begin{table}[htbp]
+  \centering
+  \caption{Incident plaque at follow-up per vessel among the 1,077 participants with a plaque-free baseline. The LAD, LCx and RCA comprise their proximal, mid and distal segments; Other comprises the LM and the side branches. A vessel is counted once per participant regardless of how many of its segments had plaque, and a participant can count in several vessels. Participant percentages are relative to the 1,077 participants and vessel percentages to the [..] vessels with plaque; percentages may not sum to 100 due to rounding.}
+  \label{tab:results-plaque-location}
+  \small
+  \begin{tabular}{llrr}
+    \toprule
+    Vessel & Segments & Participants, $n$ (\%) & Vessels with plaque, $n$ (\%) \\
+    \midrule
+    LAD & pLAD, mLAD, dLAD & 390 (36.2) & [..] ([..]) \\
+    LCx & pLCx, mLCx, dLCx & 127 (11.8) & [..] ([..]) \\
+    RCA & pRCA, mRCA, dRCA & 185 (17.2) & [..] ([..]) \\
+    Other & LM, side branches & [..] ([..]) & [..] ([..]) \\
+    \midrule
+    Any & & 483 (44.8) & [..] (100) \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{figure}[htbp]
+  \centering
+  \small
+  \begin{tikzpicture}[
+      node distance=6mm and 8mm,
+      base/.style={rounded corners=3pt, align=center, inner sep=4pt, minimum height=12mm, very thick},
+      box/.style={base, draw=blue!60!black, fill=blue!10, text width=26mm},
+      excl/.style={base, draw=red!65!black, fill=red!8, text width=26mm, minimum height=9mm},
+      ref/.style={base, draw=gray!60!black, fill=gray!10, text width=26mm, minimum height=9mm},
+      arr/.style={-{Stealth[length=2.2mm]}, thick, gray!70!black},
+    ]
+    \node[box] (all) {BL and FU CCTA,\\all read at BL\\\mbox{$n = 1{,}801$}};
+    \node[box, right=of all] (clean) {Plaque-free BL\\\mbox{$n = 1{,}077$}};
+    \node[box, right=of clean] (iq) {Study cohort\\\mbox{$n = $ [..]}};
+
+    \node[excl, below=9mm of $(all)!0.5!(clean)$] (x1) {Plaque at BL\\\mbox{$n = 724$}};
+    \node[excl, below=9mm of $(clean)!0.5!(iq)$] (x2) {Poor image quality\\\mbox{$n = $ [..]}};
+    \node[ref, below=6mm of x1] (medis) {Medis tree\\\mbox{599 of 724}};
+    \node[box, below=9mm of iq] (out) {Incident plaque in a trunk segment\\\mbox{$n = $ [..]}};
+
+    \draw[arr] (all) -- (clean);
+    \draw[arr] (clean) -- (iq);
+    \draw[arr] (iq) -- (out);
+    \draw[arr, red!65!black] ($(all.east)!0.5!(clean.west)$) -- (x1);
+    \draw[arr, red!65!black] ($(clean.east)!0.5!(iq.west)$) -- (x2);
+    \draw[arr, dashed] (x1) -- (medis);
+  \end{tikzpicture}
+  \caption{Restriction of the Herlev--{\O}sterbro data set to the study cohort (criteria in Section~\ref{sec:method-population}). The Medis trees (Section~\ref{sec:data-medis}) come from the participants with plaque at baseline, apart from fewer than five. BL, baseline; FU, follow-up.}
+  \label{fig:results-flowchart}
+\end{figure}

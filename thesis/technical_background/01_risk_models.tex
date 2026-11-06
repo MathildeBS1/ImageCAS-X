@@ -1,0 +1,54 @@
+% Technical Background, section 1 (written 2026-11-06; replaces the parked logistic/ridge/1D-CNN
+%   plan, now retired/05_risk_models_parked.tex).
+% Pointed back to by: methodology/02_models (NOT WRITTEN), the base model of the who analysis.
+% Model: Aida 3.2 / 3.2.1, the method in the section body and one subsection one step deeper,
+%   opening on the parent's limitation.
+% Does NOT decide the open base choice (recalibrated SCORE2 versus refitted SCORE2 factors, root
+%   CLAUDE.md "Open"): both are presented as general methods; the choice is Methodology.
+% Hazard closer (guide 3.6): an added block can look informative by correcting the weights of a
+%   published score. Own reasoning, not cited; see Hlatky 2009 (AHA) in
+%   ~/Desktop/Speciale/CGPS_statistics-/reports/Geometry added value over SCORE2.md if a source is wanted.
+% Notation: z_i, gamma_0, gamma_k, LP_i, g, a, gamma. Avoids beta, eta, b, S, j (the GLMM) and the
+%   FPCA symbols.
+% LEFT OUT on purpose (Methodology): which link, which predictors, SCORE2-OP, follow-up time,
+%   degrees of freedom and the Riley budget.
+
+\section{Clinical Risk Prediction Models}
+\label{sec:tech-risk-models}
+
+A clinical risk prediction model estimates the absolute probability that a person with given characteristics develops an outcome within a stated time horizon \cite{steyerberg2019cpm}.
+Let $\mathbf{z}_i = (z_{i1}, \dots, z_{iP})^\top$ denote the predictors of person $i$.
+The model combines them into a linear predictor and maps it to a risk through a link function $g$,
+\begin{equation}
+  \mathrm{LP}_i = \gamma_0 + \sum_{k=1}^{P} \gamma_k z_{ik},
+  \qquad
+  p_i = g^{-1}(\mathrm{LP}_i),
+  \label{eq:tech-risk-lp}
+\end{equation}
+where $\gamma_0$ is the intercept, which sets the overall level of risk, $\gamma_k$ is the weight of predictor $k$, and $g$ is commonly the logit or the complementary log-log link \cite{steyerberg2019cpm}.
+The weights set the ranking of persons by risk, whereas the intercept sets the level of risk in the population the model was fitted to.
+
+A risk model is either developed in the data at hand, with every weight estimated there, or taken from a published score whose weights were estimated elsewhere.
+SCORE2 is such a score: it estimates the 10-year risk of fatal and non-fatal cardiovascular disease from age, sex, smoking, systolic blood pressure and non-HDL cholesterol, with separate calibrations for four European risk regions \cite{score2_2021}.
+A published score costs no parameters in new data and carries weights estimated in a much larger population, but those weights were chosen for its own outcome and population.
+
+\subsection{Recalibration of an Existing Score}
+\label{sec:tech-recalibration}
+
+While a published score ranks persons with weights estimated elsewhere, its predicted risks are miscalibrated in a population with a different baseline risk or for an outcome other than the one it was built for.
+Updating methods address this by re-estimating part of the model in the new data, in steps that each estimate more parameters \cite{janssen2008updating, steyerberg2019cpm}.
+Recalibration-in-the-large re-estimates only the intercept.
+Logistic recalibration, introduced by Cox \cite{cox1958binary}, re-estimates an intercept and one slope on the published linear predictor,
+\begin{equation}
+  g(p_i) = a + \gamma\, \mathrm{LP}_i ,
+  \label{eq:tech-recalibration}
+\end{equation}
+where $a$ shifts the level of risk and $\gamma$ scales all published weights by the same factor, so that the published ranking of persons is kept.
+For a score reported as a risk $\hat p_i$, the published linear predictor is recovered on the scale of the link, for example $\mathrm{LP}_i = \log\{-\log(1 - \hat p_i)\}$ for the complementary log-log link.
+Revision re-estimates selected weights, and refitting re-estimates every weight, so that the score's predictors are kept but its weighting is not \cite{janssen2008updating}.
+Each step adapts the model more closely to the new data at the cost of more parameters, which the new data must be large enough to estimate \cite{steyerberg2019cpm}.
+
+Recalibration keeps the relative weights of the published score, so a predictor whose effect on the new outcome differs from its effect in the score stays mis-weighted.
+A block of new predictors added to a recalibrated score is then compared against this mis-weighting as well as against the score.
+Correct reading of added value over a published score therefore depends on whether its relative weights fit the new outcome.
+Otherwise, a new predictor that is correlated with a mis-weighted factor, such as age, can appear to add information only by correcting that weight.

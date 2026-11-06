@@ -1,0 +1,49 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=2.2cm]{geometry}
+\usepackage{booktabs, tabularx, array}
+\usepackage[hidelinks]{hyperref}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.5em}
+\pagestyle{empty}
+% Week 10: why the pooled segment cloglog GLMM suits the who question, in words only.
+\renewcommand{\arraystretch}{1.3}
+
+\begin{document}
+\sloppy
+
+\subsection*{Why a pooled segment cloglog GLMM}
+Geometry and plaque are both measured per segment, but the question is asked per person. The model
+therefore learns per segment and answers per person.
+
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash\bfseries}p{3.6cm}X@{}}
+\toprule
+\textbf{Part of the model} & \textbf{Why it is a good idea here} \\
+\midrule
+One row per segment & Curvature, taper and plaque are all recorded in each of the nine trunk
+  segments. That detail is used instead of being averaged away. \\
+cloglog link & Every segment starts plaque-free and is checked once, about ten years later: whether
+  plaque appeared is known, but not when. That is a survival question, and the cloglog model is the
+  survival model for exactly this kind of data. \\
+Added pieces, one test & Segment baseline, SCORE2, segment length and geometry are added together.
+  Fitting with and without geometry gives one test of whether geometry adds to SCORE2. \\
+Segment baseline & Each of the nine segments gets its
+  own starting level of risk: high in the pLAD, where plaque is common, and low in the dLCx, where it is
+  rare. The other pieces then only explain differences on top of each segment's normal level, so a
+  segment does not look high-risk just because of where it sits. \\
+Person effect & Unmeasured risk, such as diet or genes, acts on all segments of a person at once.
+  Without it, one person's nine segments would count as nine people and the model would be
+  overconfident. \\
+Pooling & The question is \emph{who} develops plaque, so the nine segment risks are combined into one
+  person risk. With cloglog this is simple: how fast risk builds up in each segment just adds up to how fast it builds up in the person. A
+  logistic model has no such simple way to combine them. The person risk comes out at the right level
+  and can be compared with SCORE2 alone. \\
+\bottomrule
+\end{tabularx}
+
+\textbf{An assumption to keep in mind.} Each geometry feature gets one weight for all nine segments,
+which keeps the number of weights within what the number of people who developed plaque allows. This
+assumes that a bend has the same effect in every segment, which may not be true. A logistic model
+would make the same kind of assumption. Whether the effect differs between the LAD, LCx and RCA is
+checked by a secondary test.
+
+\end{document}

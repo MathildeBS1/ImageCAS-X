@@ -1,0 +1,79 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[margin=1.8cm]{geometry}
+\usepackage{amsmath, amssymb, graphicx}
+\usepackage[hidelinks]{hyperref}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.4em}
+\pagestyle{empty}
+% The pooled segment cloglog GLMM, explained on made-up data. Figures: cloglog_explained_figures.py.
+% Text left, figure right, as in fpca_from_plots.tex.
+\newcommand{\glmmrow}[2]{\par\noindent
+  \begin{minipage}[t]{0.52\textwidth}\vspace{0pt}#1\end{minipage}\hfill
+  \begin{minipage}[t]{0.45\textwidth}\vspace{0pt}#2\end{minipage}\par\medskip}
+\newcommand{\glmmfig}[2]{\centering\includegraphics[width=\linewidth]{week_figure/cloglog/#1}\\[-0.1em]
+  {\footnotesize #2}}
+
+\begin{document}
+\sloppy
+
+\subsection*{The pooled segment cloglog GLMM}
+Both the geometry and the outcome are recorded per segment: curvature and taper are measured in each
+of the nine trunk segments, and each segment is read for incident coronary plaque at follow-up. The
+risk model is therefore fitted on the segments, one row per segment. The who question is about the
+person, so the segment risks are then pooled into one person risk. The model is a cloglog generalized linear mixed model (GLMM): a cloglog
+link, a linear predictor, and a person random intercept. A person-level model of any plaque is kept as
+the benchmark. The figures use made-up numbers.
+
+\glmmrow{%
+\textbf{The cloglog link.} Each segment is plaque-free at baseline and seen again about ten years
+later, and when plaque started is unknown. This is grouped survival data, for which the proportional
+hazards model is a cloglog model (Prentice and Gloeckler 1978). The name lists the steps: the
+\emph{complement} $1-p$ is the probability that the segment stays plaque-free, the first \emph{log}
+gives the hazard built up over follow-up, $\Lambda = -\log(1-p)$, and the second \emph{log} gives
+$\eta = \log\Lambda$, which can take any value and is modelled as a sum of terms:
+\[
+  \begin{split}
+  \mathrm{cloglog}\,P(y_{ij}=1 \mid b_i) = {} & \alpha_j + \beta_\mathrm{S}\,\mathrm{SCORE2}_i \\
+    & + \beta_\mathrm{L}\log\ell_{ij} + \text{geometry}_{ij} + b_i ,
+  \end{split}
+\]
+with $\ell_{ij}$ the segment length. $e^{\beta}$ is then a hazard ratio, which multiplies the hazard by the same factor in the pLAD and the
+rarer dLCx. An odds ratio would drift with the segment's baseline risk.
+}{%
+\glmmfig{c3_hr_vs_or.png}{A hazard ratio of 1.5 is the same at every baseline risk; the odds ratio is
+not.}
+}
+
+\glmmrow{%
+\textbf{Hazards add, the person effect multiplies.} A person is free of plaque only if all nine
+segments are, so the probabilities $e^{-\Lambda_j}$ multiply and the hazards add. The person risk
+depends on the segments only through the summed hazard $S_i = \sum_j e^{\eta_{ij}}$, and an
+unevaluable segment drops out of the sum. Risk that nobody measured acts on all segments of a person,
+so the nine rows of one person are not independent. The random intercept $b_i \sim N(0, \sigma^2)$
+captures this: it multiplies all nine hazards of person $i$ by $e^{b_i}$, and only $\sigma$ is
+estimated.
+}{%
+\glmmfig{r2_hazards_add.png}{The nine segment hazards of one made-up person, stacked, for three values
+of the person effect $b$.}
+}
+
+\glmmrow{%
+\textbf{One person risk.} For a new person $b$ is unknown, so the person risk averages over it:
+\[
+  P_i = 1 - \int \exp\!\big(-e^{b} S_i\big)\,\phi(b; 0, \sigma^2)\,\mathrm{d}b ,
+\]
+computed by Gauss--Hermite quadrature. For the made-up person $P = 0.548$. Setting $b = 0$ gives 0.534,
+the risk of the median person, and multiplying the average segment risks, which ignores the shared
+$b$, gives 0.687. Both shortcuts rank people correctly, so only calibration detects them.
+}{%
+\glmmfig{r3_average_over_b.png}{Person risk for each value of $b$ (blue), the spread of $b$ (grey) and
+the average used (green).}
+}
+
+\textbf{Fitting and testing.} The weights and $\sigma$ are fitted by maximum likelihood with $b$
+integrated out. Cross-validation is split by person, and $P_i$ uses the $\sigma$ of the training folds.
+Geometry is tested once, by a likelihood-ratio test of the geometry block; the gain in C and the
+calibration are estimated, not tested. The current code (\texttt{progression\_who\_pooled.py}) runs on
+the Medis trees with progression as the outcome and two geometry terms (mean turning and the LM angle).
+
+\end{document}

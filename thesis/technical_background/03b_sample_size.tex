@@ -1,0 +1,36 @@
+% Technical Background, section 3b (written 2026-11-06; moved out of methodology/03_model_size.tex at
+%   the user's request). Named 03b so that 04_fpca keeps its number.
+% Pointed back to by: methodology/03_model_size.tex (sec:method-size-budget).
+% Model: style_guide_technical_aida.md (definition opener, where sentence after the equation, tool
+%   paragraph last, hazard closer).
+% The values S >= 0.9, 0.05 and +-0.05 are the values Riley et al. recommend, so they are literature,
+%   not settings; the anticipated C, n and events used in this thesis are Methodology.
+% Notation: n, S, R^2_CS, P_max. Avoids the GLMM symbols and N of sec:tech-added-value.
+% LEFT OUT on purpose (Methodology): the anticipated C and its source, the number of participants and
+%   events, the pmsampsize settings, and how the parameters are spent.
+\providecommand{\clarify}[1]{\textcolor{red}{\textbf{Clarification needed:} #1}}
+\section{Sample Size for Prediction Models}
+\label{sec:tech-sample-size}
+
+The sample size a prediction model needs depends on the number of parameters it estimates, on the proportion of persons with the outcome and on how well the outcome can be predicted, and not only on the number of events per parameter \cite{riley2020samplesize}.
+For a binary outcome, Riley et~al.\ recommend a sample size that meets three criteria \cite{riley2020samplesize}:
+\begin{enumerate}
+  \item an expected uniform shrinkage of the coefficients of at least $S = 0.9$;
+  \item a difference of at most 0.05 between the apparent and the optimism-adjusted Nagelkerke $R^2$;
+  \item an overall risk estimated within $\pm 0.05$ of its true value.
+\end{enumerate}
+
+For a given number of persons, the first criterion gives the largest number of parameters $P_{\max}$ the data support,
+\begin{equation}
+  P_{\max} = n\,(S-1)\,\ln\!\left(1 - \frac{R^2_{\mathrm{CS}}}{S}\right),
+  \label{eq:tech-pmax}
+\end{equation}
+where $n$ is the number of persons, $S$ the target shrinkage and $R^2_{\mathrm{CS}}$ the anticipated Cox--Snell $R^2$ of the full model.
+A model with more parameters than $P_{\max}$ is expected to need more shrinkage than $S$ allows.
+
+The anticipated $R^2_{\mathrm{CS}}$ is rarely reported for a new outcome.
+It can instead be derived from an anticipated C-statistic, assuming that the linear predictor is normally distributed with equal variance in persons with and without the outcome \clarify{citation for the C-to-$R^2_{\mathrm{CS}}$ conversion (Riley, Van Calster and Collins 2021); not in refs.bib}.
+
+The \texttt{pmsampsize} package implements the three criteria and returns the sample size, or for a fixed sample size the number of parameters, that meets all of them \clarify{version and citation}.
+
+A model with more parameters than the data support overfits: its predicted risks are too extreme in new persons, which shows as a calibration slope below 1 (Section~\ref{sec:tech-calibration}).

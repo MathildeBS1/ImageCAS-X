@@ -1,0 +1,147 @@
+% Technical Background, section 4 (drafted 2026-11-06 as 08_fpca.tex; renumbered in the refactor).
+% Pointed back to by: NOTHING YET. No Methodology section describes FPCA, and the chapter rule says
+%   a background section without a Methodology section pointing back to it is cut. Write the
+%   Methodology FPCA text (descriptive shape scores, proximal and mid LAD) first, or drop this file.
+% Structure after style_guide_technical_aida.md: definition opener and origin; common domain; mean,
+%   covariance, eigenfunctions; scores and Karhunen-Loeve truncation; variance explained; modes of
+%   variation; K and sign; variance versus risk. Then one subsection per variant used, each opening
+%   on the limitation it addresses: computation on a grid (scaling stated); registration, ending
+%   on the hazard the Methodology resolves (normalized position leaves phase in the components).
+% Notation: x_i(t), t in [0,1], mu, Gamma, phi_k, lambda_k, xi_ik, grid t_g (g = 1..G), D, d_i,
+%   v_k, w. Avoids j, s, S, b, beta, c (taken by the GLMM, the curvature section and the centerline).
+% LEFT OUT on purpose (Methodology): the grid size, interpolation, the 5 mm chord, the sliding
+%   profile, the K rule, the segments analysed, the sign convention chosen, software.
+% UNCITED: the sentence on nearly equal eigenvalues being unstable; find a source or cut it.
+% All cite keys are in refs.bib (added and checked on Crossref 2026-11-06).
+% wordlist.txt lacks: FPCA, eigenfunction(s), Karhunen, Loeve, realizations may need checking.
+% Figure candidates (made-up data only, re-render as PDF): week10 f4_profiles_deviations,
+%   f5_covariance, f7_mean_pm, f8a_rebuild, f9_scree. Never f12_budget or any Medis or tracer figure.
+
+\section{Functional Principal Component Analysis}
+\label{sec:tech-fpca}
+
+Functional principal component analysis (FPCA) is a dimension reduction method designed for samples of curves, where each observation is a whole function and its values at neighboring positions are strongly correlated \cite{ramsay2005fda, wang2016fda}.
+It represents each curve by its deviation from the mean curve, expressed in a few scores that can enter a regression model in place of the many correlated values of the curve.
+The method extends principal component analysis from vectors to functions and is a central tool of functional data analysis \cite{ramsay2005fda}.
+In vascular geometry the curves are typically curvature or radius profiles along a vessel, where curvature is the inverse radius of the circle that best fits the centerline at a point.
+
+A comparison of curves position by position requires a position to mean the same on every curve, so all curves are defined on one common domain.
+Let $x_i(t)$, $i = 1, \dots, N$, denote curve $i$ at normalized position $t \in [0, 1]$, where $t = 0$ and $t = 1$ are the start and the end of the vessel segment.
+The curves are treated as realizations of a random function $X(t)$ with $\mathrm{E}\int_0^1 X(t)^2 \, dt < \infty$ \cite{wang2016fda}.
+
+The mean function $\mu(t) = \mathrm{E}\,X(t)$ is the average curve, and the variation around it is described by the covariance function
+\begin{equation}
+  \Gamma(t, u) = \mathrm{cov}\{X(t), X(u)\},
+  \label{eq:tech-fpca-cov}
+\end{equation}
+where $t, u \in [0, 1]$ are two positions on the domain.
+$\Gamma(t, u)$ is large when curves that lie above the mean at $t$ also tend to lie above it at $u$.
+A bend that spreads over neighboring positions therefore appears as a band of high covariance around the diagonal $t = u$.
+The covariance function is symmetric and non-negative definite and decomposes into eigenfunctions $\phi_k$ and eigenvalues $\lambda_k$ that solve
+\begin{equation}
+  \int_0^1 \Gamma(t, u)\, \phi_k(u)\, du = \lambda_k \phi_k(t),
+  \qquad
+  \int_0^1 \phi_k(t)\, \phi_{k'}(t)\, dt =
+  \begin{cases} 1, & k = k', \\ 0, & k \neq k', \end{cases}
+  \label{eq:tech-fpca-eigen}
+\end{equation}
+where $\lambda_1 \ge \lambda_2 \ge \dots \ge 0$ and the second condition makes the eigenfunctions orthonormal \cite{wang2016fda}.
+Each eigenfunction is a shape of deviation from the mean, and its eigenvalue is the variance of the curves along that shape.
+The first eigenfunction $\phi_1$ is thus the single shape along which the curves differ most.
+
+The amount of each shape in a curve is its score, commonly referred to as the principal component score, and is the projection of the curve's deviation from the mean onto the eigenfunction,
+\begin{equation}
+  \xi_{ik} = \int_0^1 \{x_i(t) - \mu(t)\}\, \phi_k(t)\, dt ,
+  \label{eq:tech-fpca-score}
+\end{equation}
+where $\xi_{ik}$ is the score of curve $i$ on component $k$.
+The scores have mean zero and variance $\lambda_k$, and scores on different components are uncorrelated \cite{wang2016fda}.
+Each curve is recovered from the mean and its scores by the Karhunen--Lo\`eve expansion, truncated after $K$ terms,
+\begin{equation}
+  x_i(t) = \mu(t) + \sum_{k=1}^{\infty} \xi_{ik} \phi_k(t)
+  \approx \mu(t) + \sum_{k=1}^{K} \xi_{ik} \phi_k(t),
+  \label{eq:tech-fpca-kl}
+\end{equation}
+where the truncated sum replaces the curve by $K$ numbers.
+For a given $K$, no other set of $K$ basis functions approximates the curves with a smaller expected squared error \cite{wang2016fda}.
+This property distinguishes the eigenfunctions from a fixed spline or Fourier basis and also makes them specific to the sample from which they are estimated.
+The share of the total variance retained by the first $K$ components is the fraction of variance explained,
+\begin{equation}
+  \mathrm{FVE}(K) = \frac{\sum_{k=1}^{K} \lambda_k}{\sum_{k \ge 1} \lambda_k},
+  \label{eq:tech-fpca-fve}
+\end{equation}
+where the denominator equals $\int_0^1 \Gamma(t, t)\, dt$, the variance at each position summed over the domain.
+
+An eigenfunction on its own has unit size and an arbitrary sign, so a component is read from its mode of variation \cite{jones1992displaying, wang2016fda},
+\begin{equation}
+  \mu(t) \pm \alpha \sqrt{\lambda_k}\, \phi_k(t),
+  \label{eq:tech-fpca-mode}
+\end{equation}
+where $\alpha$ is commonly 1 or 2.
+The curve with $+\alpha$ is that of a curve whose score on component $k$ lies $\alpha$ standard deviations above zero and whose other scores are zero.
+Plotting the two curves of Eq.~\eqref{eq:tech-fpca-mode} on either side of the mean shows what a high and a low score look like, such as a bend that is sharper or flatter in one part of the segment.
+The verbal label given to a component is a reading of this plot and not a tested property of the curves.
+
+The choice of $K$ balances the approximation error of a short expansion against the estimation error of the added components, and no rule for it is established \cite{wang2016fda}.
+Scree plots and thresholds on the fraction of variance explained, such as 80 or 90\%, are conventions without a theoretical basis, information criteria tend to select fewer components, and leave-one-curve-out cross-validation tends to select too many \cite{wang2016fda}.
+Components with nearly equal eigenvalues are poorly determined and can exchange or mix between samples, which makes components beyond the first few the least stable.
+The sign of a component is arbitrary, since $-\phi_k$ solves Eq.~\eqref{eq:tech-fpca-eigen} whenever $\phi_k$ does and reverses the sign of every score $\xi_{ik}$.
+A convention therefore fixes the sign, and components estimated again on bootstrap samples or cross-validation folds are aligned to it before they are compared.
+When the mean and eigenfunctions are estimated within training folds, the scores entering a validated model do not draw on the test curves.
+
+FPCA does not use any outcome, and its components are ordered by how much of the variance of the curves they explain in the sample, not by their association with disease.
+A low-variance component can thus carry more risk information than a leading one, and a leading one can carry none.
+The components are also specific to the sample, the domain and the preprocessing from which they are estimated, and they rest on second moments that are sensitive to outlying curves \cite{wang2016fda}.
+
+\subsection{Computation on a Grid}
+\label{sec:tech-fpca-grid}
+
+While FPCA is defined on continuous functions, curves are observed at discrete points, and the integrals above cannot be evaluated directly.
+The discrete form addresses this by interpolating every curve onto a common grid of positions $t_g$, $g = 1, \dots, G$, and replacing the integrals by sums \cite{ramsay2005fda}.
+Let $\mathbf{D}$ be the $N \times G$ matrix with rows $\mathbf{d}_i$ and entries $d_{ig} = x_i(t_g) - \hat\mu(t_g)$, where $\hat\mu(t_g)$ is the sample mean at position $t_g$.
+On an equally spaced grid with spacing $w = 1/G$, the eigenproblem~\eqref{eq:tech-fpca-eigen} becomes the eigenproblem of the sample covariance matrix $N^{-1}\mathbf{D}^\top\mathbf{D}$, with unit-length eigenvectors $\mathbf{v}_k \in \mathbb{R}^G$ and eigenvalues $\tilde\lambda_k$.
+The functional quantities follow as
+\begin{equation}
+  \hat\lambda_k = w\, \tilde\lambda_k,
+  \qquad
+  \hat\phi_k(t_g) = w^{-1/2}\, v_{kg},
+  \qquad
+  \hat\xi_{ik} = w^{1/2}\, \mathbf{v}_k^\top \mathbf{d}_i ,
+  \label{eq:tech-fpca-grid}
+\end{equation}
+where $v_{kg}$ is entry $g$ of $\mathbf{v}_k$ and $\hat\xi_{ik}$ is the score~\eqref{eq:tech-fpca-score} computed by the rectangle rule \cite{ramsay2005fda}.
+FPCA on an equally spaced grid is therefore ordinary principal component analysis with the grid positions as variables, computed from the singular value decomposition of $\mathbf{D}$.
+The factors in Eq.~\eqref{eq:tech-fpca-grid} rescale the eigenvalues, eigenfunctions and scores without changing the shape of the eigenfunctions or the fraction of variance explained, so the units of the scores are defined only once the scaling is stated.
+On knee-angle curves from 39 children, scores from this discrete form and from a smoothed spline-based FPCA agreed with $R^2 = 0.99$ on each of the first two components, with the remaining differences attributed to smoothing \cite{warmenhoven2021pca}.
+
+\subsection{Registration: Amplitude and Phase}
+\label{sec:tech-fpca-registration}
+
+While the mean and covariance summarize curves position by position, they assume that a feature lies at the same position $t$ on every curve.
+Curves differ both in amplitude, which is how large a feature is, and in phase, which is where along the domain it lies.
+Unaligned phase variation inflates the variance, blurs the mean until it may resemble none of the curves, and produces leading components that mix a shift of a feature with a change of its size \cite{wang2016fda, marron2015amplitude}.
+Registration addresses this by warping the domain of each curve with a strictly increasing function, either to align landmarks such as peaks or to minimize the distance to a common template \cite{ramsay2005fda, wang2016fda}.
+Amplitude and phase cannot be told apart from the curves alone when both are present, so the chosen class of warping functions defines what counts as phase \cite{wang2016fda, sangalli2009aneurisk}.
+
+The analysis of the internal carotid artery by Sangalli et al.\ \cite{sangalli2009aneurisk} applies this sequence to vessel geometry.
+Centerlines from 65 patients referred with suspected cerebral aneurysm were smoothed, their arc length was measured from the terminal bifurcation and registered by an affine warp, and FPCA was run separately on the radius and the curvature profiles.
+The first curvature component explained 33.4\% of the variance and described how sharply the artery bends at its last curvature peak.
+The second explained 18.2\% and described curvature between the two peaks, a pattern that may also reflect a residual shift of the peak position.
+The leading scores separated patients by aneurysm location with a leave-one-out error of 21.5\%, in a small cross-sectional sample in which the number of components was chosen on the same data \cite{sangalli2009aneurisk}.
+The study therefore illustrates the method rather than showing that geometry predicts disease.
+
+Mapping each segment onto $[0, 1]$ is itself a choice of warp, linear and anchored at the two ends of the segment.
+It removes the length of the segment and aligns its ends, but a bend that lies at different relative positions in different curves stays unaligned, and the distance in millimeters from a landmark is no longer represented.
+Correct reading of a component therefore depends on knowing which phase variation the warp has removed.
+Otherwise, a shift in where a bend lies may be read as a change in how sharply the vessel bends.
+
+% FIGURE (suggested, not yet rendered as PDF): made-up curves only, e.g. week10 f7_mean_pm.
+% \begin{figure}[h]
+%   \centering
+%   \includegraphics[width=0.85\textwidth]{content/background/figures/fpca_modes.pdf}
+%   \caption{Modes of variation of simulated curvature profiles. The black curve is the mean
+%     $\mu(t)$; the colored curves are $\mu(t) \pm 2\sqrt{\lambda_k}\,\phi_k(t)$ for the first
+%     three components, with the fraction of variance explained in each panel title. The curves
+%     are simulated and are not data from any cohort.}
+%   \label{fig:tech-fpca-modes}
+% \end{figure}

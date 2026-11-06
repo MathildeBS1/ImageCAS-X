@@ -1,0 +1,39 @@
+% Exact rule and thresholds of the segment division, moved out of methodology/02b_segment_split.tex
+% (sec:method-split) to keep the main text short (user, 2026-11-02).
+% Rule as implemented in CGPS_data/split_trunks.py (landmark_cuts; LAD_MD_FRAC = 0.29,
+% RCA_ACUTE_FRAC = 0.67, MIN_BRANCH = 15 mm). Check: CGPS_data/thesis_final/split_check.py
+% (OFF_TRUNK = 2.0 mm, MIN_OVERLAP = 2.0 mm).
+% Every threshold marked [x] is a design choice without a published value; fix it before the
+% check is run and before any outcome analysis, never tune it on the result.
+\section{Details of the Segment Division}
+\label{sec:app-split}
+
+\subsection{Landmark Rule}
+\label{sec:app-split-rule}
+
+The landmarks of each segment are given in Table~\ref{tab:method-segments}.
+A missing branch landmark was replaced by the first side branch of at least 15\,mm.
+Without such a branch, the LAD proximal--mid boundary was placed at 0.25 of the artery length, the LCx proximal--mid boundary at one third of the artery length and its mid--distal boundary half way between the proximal--mid boundary and the distal end, and the RCA was taken to end at its distal end instead of the PDA origin.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Anatomical landmarks defining the proximal, mid and distal segments of the three main coronary arteries. Fractions are of the distance along the artery and equal the median boundary position in the segment-labelled Medis centerlines. D1 and D2, first and second diagonal branch; OM1 and OM2, first and second obtuse marginal branch; PDA, posterior descending artery.}
+  \label{tab:method-segments}
+  \small
+  \begin{tabular}{lp{0.27\linewidth}p{0.27\linewidth}p{0.27\linewidth}}
+    \toprule
+    Artery & Proximal & Mid & Distal \\
+    \midrule
+    LAD & LM bifurcation to D1 origin & D1 origin to D2 origin, or to 0.29 of the distance from D1 to the distal end & To the distal end \\
+    LCx & LM bifurcation to OM1 origin & OM1 origin to OM2 origin & OM2 origin to the distal end \\
+    RCA & Ostium to half way to the acute margin & To the acute margin, at 0.67 of the distance from the ostium to the PDA origin & Acute margin to the PDA origin \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Check Against the Medis Contours}
+\label{sec:app-split-check}
+
+The contours were taken in the common coordinates of Section~\ref{sec:method-medis-agreement}, and each was projected onto the tracer artery by taking the nearest artery point for each of its ring centers.
+A contour whose median distance to the artery exceeded [x]\,mm was counted as off the artery, and the extent of the others was taken as the 5th to 95th percentile of their projected ring centers.
+The check included the segments graded with plaque at baseline and recorded as analysed in Medis (\texttt{ct\_cag\_<segment>\_medis\_finished}), and a segment was counted as missed when no contour overlapped the tracer segment of the same name by at least [x]\,mm.

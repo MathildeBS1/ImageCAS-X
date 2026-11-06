@@ -1,0 +1,23 @@
+% Study cohort and outcome, written for a first-time reader (rewritten 2026-11-02; arteries and
+% segments moved to 02b_segment_split.tex). Definitions only: the counts (flowchart, incident plaque per artery)
+% are in results/00_cohort.tex (sec:results-cohort), what the visual analysis recorded is in
+% data/02_visual_analysis.tex, and the overlap with the Medis trees in data/03_medis_reference.tex.
+% Does not repeat data/01-03: cohort size, segment grading, SIS/SSS, Medis coverage.
+% The choice of arteries (sec:method-population-arteries), why the analysis is per segment and the
+% division into segments (sec:method-split) and its check (sec:method-split-validation) are in
+% 02b_segment_split.tex; the landmark table is in appendix/B_segment_split_details.tex.
+% Does not repeat clinical_background_v2 (sec:wss, sec:tree).
+% Still open: follow-up time enters the model as log(years); missing baseline geometry (open
+% decision 9); partly graded FU arteries.
+% [..] and \clarify{} mark information that is not yet available; nothing there is to be guessed.
+\providecommand{\clarify}[1]{\textcolor{red}{\textbf{Clarification needed:} #1}}
+\section{Study Cohort and Outcome}
+\label{sec:method-population}
+
+The study cohort comprised the Herlev--{\O}sterbro participants without coronary plaque at baseline, defined by a segment involvement score (SIS) of zero (Section~\ref{sec:data-plaque-location}).
+Participants with insufficient image quality ([criterion]) were also excluded, and the resulting cohort is described in Section~\ref{sec:results-cohort}.
+The primary outcome was incident coronary plaque, defined at the segment level as a stenosis grade of minimal or worse and at the participant level as plaque in at least one of the analysed segments (Section~\ref{sec:method-population-arteries}).
+In a sensitivity analysis, the outcome was restricted to plaque with mild or worse stenosis.
+% Counts (65 RCAs, 5 LCxs, <5 LADs) belong in results/00_cohort.tex, not yet there.
+
+\clarify{The outcome could still change!!!}

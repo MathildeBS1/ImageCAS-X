@@ -1,8 +1,9 @@
+% SUPERSEDED 2026-11-01 by 01b_medis_reference.tex; not \input (duplicate label sec:method-medis).
 % Validation of the in-house segmentation and centerlines against the Medis output on the same scans.
 % Results go in the Results chapter, before the prediction results; limitations in the Discussion.
 % Every metric is tied to a feature: length_mm and T_5 (tortuosity/score.py), the curvature
 % profile (transformer input), and taper T (tortuosity/taper.py).
-% Medis segment codes and counts: CGPS_data/report_qc.md (744 cases, complete-trunk lists).
+% Medis counts: the HØ_10Y Medis delivery (600 BL trees, 3,049 contour segments).
 % [..] and \clarify{} mark information that is not yet available; nothing there is to be guessed.
 % Red clarification notes; needs \usepackage{xcolor} in the preamble. Remove before submission.
 \providecommand{\clarify}[1]{\textcolor{red}{\textbf{Clarification needed:} #1}}
@@ -12,9 +13,9 @@
 
 No manual reference segmentation exists for the Herlev--{\O}sterbro scans, so the centerlines and lumen contours of Section~\ref{sec:method-tracer} were compared with the output of the commercial software Medis on the same scans.
 \clarify{Medis product name and version; whether its output was corrected by a reader or is fully automatic.}
-\clarify{which visit (baseline or follow-up) the Medis scans belong to, and confirmation that they are the scans the segmentation was run on.}
-Two Medis data sets were available, drawn from different selections of scans.
-Labeled centerline trees were available for 744 scans, and cross-sectional contours of the lumen and of the plaque for the main vessels with plaque in [n] scans.
+\clarify{confirmation that the Medis scans are the baseline volumes the segmentation was run on.}
+Two Medis data sets were available, both from baseline scans that a reader had analysed.
+Labeled centerline trees were available for 600 scans, and cross-sectional contours of the lumen and of the outer vessel wall for 3,049 diseased segments.
 \clarify{how each selection was made, and how many scans the two sets share.}
 \clarify{what the plaque contour is (outer vessel wall, or plaque only) and in which coordinates the contours are stored.}
 The centerlines were used to validate the centerline features (Sections~\ref{sec:method-medis-trunks} and~\ref{sec:method-medis-match}), and the contours to validate the lumen segmentation and taper (Section~\ref{sec:method-medis-metrics}).
@@ -32,9 +33,9 @@ Each merged trunk was traced with the rule of Section~\ref{sec:method-trunk}, as
 \clarify{confirm that none of the unnamed Medis codes (18 to 22, 28) lie inside a trunk.}
 
 A trunk was used only if all of its segments were present and each was joined to the one before it, directly or through unlabeled points, with no gap larger than 1.0\,mm.
-This held for 576 LADs, 581 LCxs and 553 RCAs of the 744 Medis cases, and each artery was analyzed on its own complete trunks, so that a participant could contribute one artery but not another.
-\clarify{whether the cases flagged in report\_qc.md (disconnected segments, segments $<$ 2 mm, ...) are excluded, and how many.}
-\clarify{how the 744 centerline scans were selected (all participants, or e.g. only those with disease); this decides how close they are to the study population.}
+This held for [n] LADs, [n] LCxs and [n] RCAs of the 600 Medis trees, and each artery was analyzed on its own complete trunks, so that a participant could contribute one artery but not another.
+\clarify{whether trees with disconnected or very short segments are excluded, and how many.}
+\clarify{how the 600 centerline scans were selected; almost all come from participants with plaque at baseline, which decides how close they are to the study population.}
 
 \subsection{Correspondence Between Centerlines}
 \label{sec:method-medis-match}
@@ -76,14 +77,13 @@ Both lumens were expressed as an area-equivalent radius
 \end{equation}
 where $A$ is the cross-sectional lumen area in mm$^2$, which is the radius from which taper is computed.
 Cutting the in-house mask with the Medis plane rather than its own measures the segmentation error alone, without the error of the in-house centerline.
-Taper was then computed from both radius profiles over the same stretch, with the exclusion rules of the taper feature applied to both.
-\clarify{reference to the taper section once it exists (fourth feature; tortuosity/taper.py).}
+Taper was then computed from both radius profiles over the same stretch, with the exclusion rules of the taper feature (Section~\ref{sec:method-taper}) applied to both.
 Cross-sections were reported separately with and without plaque, as only those without plaque resemble the plaque-free trunks of the study population.
 \clarify{the rule for calling a cross-section plaque-free (from the plaque contour, or a Medis per-section flag).}
 
 \begin{table}[htbp]
   \centering
-  \caption{Each agreement measure is tied to the feature it bears on. Centerline measures use the complete trunks of the 744 centerline scans; contour measures use the main vessels with plaque in the separate contour scans.}
+  \caption{Each agreement measure is tied to the feature it bears on. Centerline measures use the complete trunks of the 600 centerline scans; contour measures use the main vessels with plaque in the separate contour scans.}
   \label{tab:method-medis-metrics}
   \begin{tabular}{llll}
     \toprule

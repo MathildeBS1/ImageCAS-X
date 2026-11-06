@@ -1,6 +1,8 @@
 % Data chapter, 2 to 3 pages: the three complementary data sets. Section files in numeric order:
 % 01 baseline CT volumes, 02 visual analysis (baseline and follow-up), 03 Medis centerlines and contours.
-% Numbers from CGPS_data/report.md, CGPS_data/plaque_location.md and CGPS_data/report_qc.md.
+% The study cohort criteria are in sec:method-population, its counts in sec:results-cohort.
+% Numbers from the 1,801-patient table (clean_baseline_count.py, clean_baseline_plaque_location.py on
+% dtu-gpu-7) and CGPS_data/Medis_and_outcome/medis_match.md.
 % Red notes need \usepackage{xcolor}. Remove before submission.
 \providecommand{\clarify}[1]{\textcolor{red}{\textbf{Clarification needed:} #1}}
 
@@ -21,8 +23,8 @@ A summary of the three data sets is provided in Table~\ref{tab:data-overview}.
     Data set & Content & Visit & Scans & Used for \\
     \midrule
     CT volumes & non-contrast and CCTA volumes & baseline & [n] & in-house tracer and geometric features \\
-    Visual analysis & stenosis grade and plaque type per segment; SIS and SSS & baseline and follow-up & 2,116 & cohort and outcome \\
-    Medis centerlines and contours & centerline trees labelled by segment; lumen and plaque contours of the main vessels with plaque & [visit] & 744 / [n] & reference for tracer centerlines and lumen \\
+    Visual analysis and patient characteristics & stenosis grade and plaque type per segment; SIS and SSS & baseline and follow-up & 1,801 & cohort and outcome \\
+    Medis centerlines and contours & centerline trees labelled by segment; lumen and plaque contours of the main vessels with plaque & baseline & 600 / [n] & reference for tracer centerlines and lumen \\
     \bottomrule
   \end{tabular}
 \end{table}

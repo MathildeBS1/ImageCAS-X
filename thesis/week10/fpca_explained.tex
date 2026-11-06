@@ -1,0 +1,265 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[margin=1.6cm]{geometry}
+\usepackage{amsmath, amssymb, graphicx, booktabs, paracol, xcolor}
+\usepackage[hidelinks]{hyperref}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.45em}
+\setlength{\columnsep}{1.2em}
+\columnratio{0.5}
+\graphicspath{{week_figure/fpca/}}
+\newcommand{\fig}[2]{\begin{center}\includegraphics[width=\linewidth]{#1}\\[-0.2em]{\footnotesize #2}\end{center}}
+\newcommand{\code}[1]{\texttt{\small #1}}
+\newcommand{\inwords}[1]{\par\noindent\colorbox{gray!12}{\parbox{\dimexpr\linewidth-2\fboxsep\relax}{\textbf{In words.} #1}}\par}
+\newcommand{\maths}[1]{\par\noindent\colorbox{blue!5}{\parbox{\dimexpr\linewidth-2\fboxsep\relax}{\footnotesize\textbf{Formula.} #1}}\par}
+
+\title{FPCA: the main ways people differ\\[0.2em]\large How the curvature shapes are found, idea by idea}
+\date{4 November 2026}
+
+\begin{document}
+\sloppy
+\maketitle
+\vspace{-1em}
+\begin{paracol}{2}
+
+Code: \code{tortuosity/curvature.py} (\code{profile\_thesis}) and
+\code{CGPS\_data/turning\_profile\_shapes.py} (\code{pca}, \code{shape\_count}). Figures use 300
+made-up people run through the same code, except the last (CGPS counts). Grey boxes give the idea,
+blue boxes the formula; the text can be read without the blue boxes.
+
+\switchcolumn
+\switchcolumn*
+
+%=======================================================================================
+\section{What goes in: one curve per person}
+\inwords{At every point of the segment, the turning is how sharply the vessel changes direction over
+5\,mm. Each segment is stretched or squeezed to run from 0 (start) to 1 (end) and read off at the same
+50 places, so place 15 means ``30\,\% of the way along'' for everyone. Each person is then one curve of
+50 numbers, and all people together are a table $M$ with one row per person.}
+
+Bends shorter than about 5\,mm are not seen; the 5\,mm is the scale. The first and last 5\,mm of a
+trunk get no value. There is one table per segment.
+
+\maths{$\theta$ is the angle between the 5\,mm chord arriving at a point and the one leaving it;
+$T = \theta/5\,\text{mm}$ (rad/mm). Places $u_j = (j - 0.5)/50$, linear interpolation.}
+
+\switchcolumn
+\fig{f1_turning_geometry}{Figure 1. The turning at one point: the angle between the chord arriving and
+the chord leaving.}
+\fig{f3_grid}{Figure 2. One segment in mm (top) and on the 50 places (bottom).}
+\switchcolumn*
+
+%=======================================================================================
+\section{Remove what everybody shares}
+\inwords{The average curve says how much everybody turns at each place, for example that everybody
+turns more near the start. It is the same for everyone, so it cannot tell people apart. At each place
+the average there is subtracted from everyone. What is left, the deviation, is how much and where each
+person turns more or less than the average person.}
+
+Subtracting the same number from everyone at a place keeps their order and the gaps between them
+(Figure~3, bottom). A deviation above 0 means the person turns more than average at that place, below 0
+less.
+
+\textbf{At each place the deviations add up to 0}, as those above the average cancel those below. Two
+things follow. A score of 0 below means ``like the average person''. And without the subtraction the
+first pattern found would be the average shape itself (``everybody turns like this''), not a way people
+differ.
+
+\maths{$m_j = \tfrac{1}{n}\sum_i M_{ij}$, \; $D_{ij} = M_{ij} - m_j$, \; $\sum_i D_{ij} = 0$. In the code:
+\code{mean = M.mean(0)}, \code{M - mean}.}
+
+\switchcolumn
+\fig{f4_profiles_deviations}{Figure 3. Top: curves of 25 of the 300 people and the average (black).
+Bottom: deviations; the width of the bundle at a place is how much people differ there.}
+\switchcolumn*
+
+%=======================================================================================
+\section{A pattern and a score}
+\inwords{A pattern is a curve of weights along the segment, one weight per place. A person's score is
+how much of the pattern they have. It is found by multiplying the person's deviation by the pattern's
+weight at every place and adding the 50 products up. Where both have the same sign the score rises,
+where they have opposite signs it falls, and where the weight is near 0 the place hardly counts.}
+
+The person in Figure~4 turns much less than average near the start and about average further on.
+\begin{itemize}\setlength\itemsep{0pt}
+  \item $\varphi_1$ has positive weight everywhere (``turns more everywhere''). The person's deviation is
+        mostly negative, so the products are mostly negative: score $-1.6$\,SD, less turning overall.
+  \item $\varphi_2$ is positive at the start and negative at the end (``more at the start, less at the
+        end''). The large negative deviation at the start gives a large negative product: score
+        $-2.3$\,SD, the opposite of the pattern, i.e.\ less at the start relative to the end.
+\end{itemize}
+
+A large positive score means the person clearly has the pattern, a large negative score its opposite,
+near 0 that they do not differ from the average in that way. Every pattern has the same size (the
+squared weights add to 1), so scores along different patterns are on the same footing.
+
+The score is also the amount of the pattern that, added to the average curve, comes closest to the
+person's curve (worked through in \code{shape\_score\_explained.tex}).
+
+\maths{$c_{ik} = \sum_j D_{ij}\varphi_{kj}$, \; $\sum_j \varphi_{kj}^2 = 1$.}
+
+\switchcolumn
+\fig{f6b_score}{Figure 4. Top: one person's deviation. Middle: the first two patterns. Bottom: deviation
+times weight at every place; the sum of the coloured minus the grey area is the score (shown in SD of all
+people's scores).}
+\switchcolumn*
+
+%=======================================================================================
+\section{The first pattern: the one that spreads people most}
+\inwords{Any curve of weights gives every person a score. A useful pattern is one that tells people
+apart: their scores along it are far apart. The first pattern, $\varphi_1$, is the curve of weights
+along which people's scores spread most. No plaque information is used.}
+
+\textbf{Spreading most = missing least.} Each person's deviation splits into two parts: the part the
+pattern describes (score times pattern) and the part it misses. The two parts add up, in squares, to the
+person's whole deviation, which is fixed by the data. A pattern that gives large scores therefore leaves
+little unexplained. $\varphi_1$ is the single curve that, on its own, describes most of how people
+differ.
+
+The spread along $\varphi_1$ has a name, the eigenvalue $\lambda_1$: the variance of the scores along it.
+
+In the made-up data (Figure~5), scores along $\varphi_1$ spread most (SD 0.042), along $\varphi_2$ less,
+along $\varphi_3$ least.
+
+\maths{$\lambda_k = \tfrac{1}{n}\sum_i c_{ik}^2$; \;
+$\sum_j D_{ij}^2 = c_{ik}^2 + \sum_j (D_{ij} - c_{ik}\varphi_{kj})^2$ (Pythagoras).}
+
+\switchcolumn
+\fig{f6c_spread}{Figure 5. Scores of all 300 people along the first three patterns. Each pattern spreads
+people less than the one before.}
+\switchcolumn*
+
+%=======================================================================================
+\section{Remove it and ask again}
+\inwords{Subtract from each person the part $\varphi_1$ describes: their score times the pattern. What is
+left has nothing of $\varphi_1$ in it any more. Ask the same question on what is left: which curve of
+weights spreads people most now? That is $\varphi_2$. Repeat.}
+
+Figure~6 shows the three rounds. In round 1, $\varphi_1$ (``more everywhere'') is found and removed; 42\,\%
+of the differences are left. In round 2, $\varphi_2$ (``start against end'') is found in what is left,
+and so on.
+
+\textbf{Each new pattern shares nothing with the earlier ones.} Nothing of $\varphi_1$ is left, so
+$\varphi_2$ cannot contain any of it: multiplying their weights place by place and adding gives 0. The
+patterns therefore never describe the same thing twice, and each person's deviation splits into separate
+pieces, one per pattern.
+
+There are as many patterns as places, 50. Most of the later ones describe noise (Section~\ref{sec:k}).
+
+\maths{left after round 1: $D_{ij} - c_{i1}\varphi_{1j}$; \; $\sum_j \varphi_{1j}\varphi_{2j} = 0$.}
+
+\switchcolumn
+\fig{f6_steps}{Figure 6. Find a pattern, remove it from everyone, repeat. Left: what is not yet
+described and the pattern found ($\pm 2$\,SD). Right: what is left after removing it.}
+\switchcolumn*
+
+%=======================================================================================
+\section{How much each pattern describes}
+\inwords{The spreads of all patterns add up to the total difference between people. A pattern's share is
+its spread divided by the total. A person can be rebuilt as the average plus their score times each
+pattern; each added pattern brings the rebuilt curve closer to the person.}
+
+In the made-up data $\varphi_1$ describes 58\,\%, $\varphi_2$ 29\,\% and $\varphi_3$ 12\,\% of how people
+differ. These shares are what the scree plot shows (Figure~10).
+
+Figure~7 rebuilds the person of Figure~4. The average alone misses all of their deviation; adding
+$\varphi_1$ lowers the whole curve; adding $\varphi_2$ lowers the start further; with $\varphi_3$ almost
+nothing is left. The made-up data were built from three patterns plus noise, so three patterns are
+enough here.
+
+\maths{share$_k = \lambda_k / \sum_{k'} \lambda_{k'}$; \; rebuilt curve $= m + c_1\varphi_1 + c_2\varphi_2
++ \dots$}
+
+\switchcolumn
+\fig{f8a_rebuild}{Figure 7. The person of Figure~4 (black) rebuilt from the average plus 0, 1, 2 and 3
+patterns. Grey: the part not yet described.}
+\switchcolumn*
+
+%=======================================================================================
+\section{Why the patterns are smooth, and how they are computed}
+\inwords{A bend covers several neighbouring places, so a person who turns more than average at one place
+also turns more at its neighbours. The patterns therefore come out as smooth curves, not as jumps from
+place to place. The computer does not try curves one by one; it finds all patterns at once from how the
+places move together.}
+
+Figure~8 (left) shows how places move together: red where people who turn more than average at one
+place also turn more at the other. It is red near the diagonal, where places are neighbours. The
+patterns (right) are read off from this table.
+
+FPCA finds the ways people \emph{differ} most, not the ways that matter for plaque.
+
+\maths{$S_{jj'} = \tfrac{1}{n}\sum_i D_{ij}D_{ij'}$. The patterns are the eigenvectors of $S$
+($S\varphi = \lambda\varphi$), the spreads its eigenvalues. The code gets the same patterns from a
+singular value decomposition of $D$ (\code{np.linalg.svd(M - mean)}).}
+
+\switchcolumn
+\fig{f5_covariance}{Figure 8. Left: how much the deviations at two places move together. Right: the first
+three patterns found from it, with their shares.}
+\switchcolumn*
+
+%=======================================================================================
+\section{Reading a pattern}
+\inwords{A pattern is easiest to read as two people: one with a lot of it and one with its opposite,
+drawn around the average. Where the weights are positive the first turns more than average; where the
+pattern crosses 0 the two swap sides. Each pattern is named in words before plaque is looked at.}
+
+In Figure~9, $\varphi_1$ is ``more everywhere'', $\varphi_2$ ``more at the start, less at the end'' and
+$\varphi_3$ ``more in the middle, less at the ends''.
+
+\textbf{The sign is a free choice.} A pattern and its opposite describe the same difference; only the
+sign of the scores flips. The code fixes it so that each pattern's weights add up to $\ge 0$.
+
+\textbf{Standardised score} $z = c/\mathrm{SD}$: $+1$ means one SD more of the pattern than the
+average person. This is what enters the model.
+
+\maths{high: $m + 2\,\mathrm{SD}_k\,\varphi_k$; low: $m - 2\,\mathrm{SD}_k\,\varphi_k$.}
+
+\switchcolumn
+\fig{f7_mean_pm}{Figure 9. Each pattern as a person with a lot of it (solid) and with its opposite
+(dashed), around the average.}
+\switchcolumn*
+
+%=======================================================================================
+\section{What comes out}
+\label{sec:k}
+\textbf{How many patterns are real.} Three checks, none of which looks at plaque; $K$ is fixed before
+the outcome is linked.
+\begin{itemize}\setlength\itemsep{0pt}
+  \item Horn: shuffle each place over people, so no real pattern is left, and redo the FPCA 200 times.
+        A pattern is real if its share beats the 95th percentile of the shuffled shares.
+  \item Bootstrap: redraw the people with replacement 200 times and redo the FPCA. A pattern is stable
+        if a redrawn pattern matches it closely: median best $|\text{cosine}| \ge 0.9$.
+  \item Cross-validation: hide one fifth of a held-out person's curve (one block of places), estimate
+        the scores from the rest and predict the hidden part. $K$ is where the error is lowest.
+\end{itemize}
+$K$: the patterns that pass Horn and the bootstrap, capped by the budget below.
+
+\switchcolumn
+\fig{f9_scree}{Figure 10. Share per pattern against chance. Made-up data built from three patterns: three
+pass.}
+\fig{f10_boot_cv}{Figure 11. Bootstrap stability and cross-validation error.}
+\switchcolumn*
+
+\textbf{The descriptive pLAD and mLAD models.} The main who model uses the mean turning per segment.
+The shapes are a descriptive analysis in the proximal and mid LAD only, one model per segment, not
+pooled and not part of the prespecified test. Each model has SCORE2 and the standardised scores
+$z_1, \dots, z_K$ and is not coded yet:
+\[
+  \log\!\bigl(-\log(1 - p_i)\bigr) = a + g\,\mathrm{SCORE2}_i + b_1 z_{i1} + \dots + b_K z_{iK},
+\]
+$p_i$ the risk that person $i$ develops plaque in the segment. $e^{b_k}$ is the hazard ratio per SD of
+pattern $k$. With $z_1$ in the model, $b_2, \dots, b_K$ ask whether the \emph{position} of the bends
+matters beyond how much the segment turns. The weights combine into one weight per place,
+$\beta_j = \sum_k (b_k/\mathrm{SD}_k)\,\varphi_{kj}$.
+
+\textbf{Budget.} With 275 (pLAD) and 201 (mLAD) people who developed plaque in the segment, Riley's
+criteria allow $K = 5$ and 4 at $C = 0.65$; the other segments have room for at most 2.
+
+\switchcolumn
+\fig{f11_model}{Figure 12. Top: how the model's sum becomes a risk. Bottom: the weight per place for
+example weights $b = (0.15, -0.10, 0)$.}
+\fig{f12_budget}{Figure 13. $K_{\max}$ per segment (CGPS, 1,077 plaque-free participants, before the
+image-quality exclusion).}
+\switchcolumn*
+
+\end{paracol}
+\end{document}

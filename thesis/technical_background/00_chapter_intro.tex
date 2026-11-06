@@ -3,24 +3,32 @@
 % Rule for what belongs here: a sentence that would be true if this thesis had never been written is
 % background; what was done, with which settings, on which data, is Methodology. Every section is
 % pointed back to by a Methodology section (thesis/methodology/0*.tex); if none does, cut it.
-% Order follows the order the Methodology uses the methods: image geometry, segmentation network,
-% centerline extraction with radius and the GNN labeller, curvature, risk models (parked).
+% REFACTORED 2026-11-06 (user): the centerlines and lumen contours are delivered by the in-house
+% tracer, so the chapter teaches only what the analysis rests on: the prediction model, the pooled
+% cloglog GLMM, how to quantify added predictive value, the sample size a model needs, and FPCA.
+% Order follows the order the Methodology uses the methods:
+%   01_risk_models.tex       risk models, recalibration of a published score   sec:tech-risk-models
+%   02_segment_glmm.tex      cloglog GLMM, LR test, segment to person risk     sec:tech-segment-glmm
+%                            (02_segment_glmm_long.tex is a reserve; never input both)
+%   03_added_value.tex       test versus estimate, C, calibration, Brier and   sec:tech-added-value
+%                            log loss, NRI/IDI, internal validation
+%                            EXCEPTION at the user's request: the guide puts metrics in the
+%                            Methodology; only the general definitions are here.
+%   03b_sample_size.tex      Riley criteria, P_max, anticipated R2, pmsampsize sec:tech-sample-size
+%   04_fpca.tex              functional principal component analysis          sec:tech-fpca
 % Map, Methodology file -> background it relies on:
-%   01_population_outcome   none (Data / Clinical Background)
-%   01a_inhouse_tracer     sec 1 image geometry; tracer background TODO (sec 2 U-Net kept for now)
-%   03_centerline_tree      sec 3 body
-%   04_artery_labeling      sec 3.1 GNN
-%   06_curvature            sec 4
-%   07_bifurcation_angle    sec 3 (centerline radius); principal-axis direction stays in Methodology
-%   08_daughter_ratio       sec 3 (centerline radius); scaling laws stay in Clinical Background
-%   09_volume_to_mass       none (supply-demand rationale is Clinical Background; mass = volume x
-%                           density is a Methodology sentence)
+%   02_models (NOT WRITTEN)  sec 1, sec 2, sec 3
+%   05_features              sec 2 (sec:tech-segment-glmm)
+%   03_model_size            sec 3b (sec:tech-sample-size)
+%   11_cross_validation      sec 3.5 internal validation (pointer to add)
+%   06_curvature (FPCA part) sec 4 (NOT WRITTEN; cut sec 4 if the descriptive FPCA is dropped)
+% Retired 2026-11-06 to technical_background/retired/ (not input): 01_image_geometry,
+%   02_segmentation_networks, 03_centerline_extraction, 04_curvature, 07_agreement and the parked
+%   05_risk_models plan. Their two Methodology pointers were resolved in place
+%   (methodology/06_curvature.tex states the 1/l^2 noise fact; 01b_medis_reference.tex never used it).
 % Each definition lives once: here if it is general, in the Methodology if it carries a setting.
 % No opening paragraph and no roadmap: Aida's chapter starts directly at its first section.
 % Present tense; past only for history (introduced in ...). No settings, no cohort, no results.
-% LEFT OUT on purpose: Medis (Data chapter and Methodology), transformers (no transformer in the
-% Methodology), CFD/FEM (no flow simulation), WSS and bifurcation scaling laws (Clinical Background),
-% segmentation metrics (Methodology), Tello Ayala et al. 2026 (literature review: a study, not a method).
 
 \chapter{Technical Background}
 \label{ch:technical}

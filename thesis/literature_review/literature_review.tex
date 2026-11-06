@@ -11,6 +11,7 @@
 % detail, Temov variation, SCORE2 description); Bekircavusoglu, Zebic Mihic, Givehchi and the
 % Chatzizisis mechanism no longer cited here (Zebic Mihic and Temov remain in the introduction).
 % Order: S1 history + Asakura (Korona pattern), van der Giessen, Stone 2012 | Kashyap, Zhang, Garcha (chronological) |
+% taper: Johnston 2009, Schultz 2023 (added 2026-11-02; evidence moved here from methodology/09_taper.tex) |
 % Griffo | S2 Cui (choice of angle; Givehchi dropped 2026-10-04, measurement error is not the point) | tortuosity (Groves, Li, Zebic Mihic 2024, Nannini, Tello Ayala;
 % reconciled by endpoint) | extraction (Bransby, Nannini), per-artery scope | S3 Temov variation,
 % Juan, Bekircavusoglu, Tommasino | Tello Ayala transformer + Glagov | Han | Sakellarios, Won |
@@ -21,7 +22,7 @@
 % synthesis only when every element is cited.
 % Full text read: kashyap, li, griffo, telloayala, zhang2024curvature, won2022paradigm, chan2024orfan,
 % bergstrom2021scapis, han2022plaque, tommasino2024clap, cui2017bifurcation, zebicmihic2024index,
-% nannini2024characterization, juan2017bifurcation, garcha2025sensitivity; vandergiessen and
+% nannini2024characterization, juan2017bifurcation, garcha2025sensitivity, schultz2023ess; johnston2009taper from the PDF; vandergiessen and
 % sakellarios via the publisher page (quotes to confirm by eye).
 % Mechanism (Chatzizisis) lives in clinical_background_v2/03_wall_shear_stress.tex; Murray in
 % methodology/08_daughter_ratio.tex; curvature and tortuosity index in technical_background/04_curvature.tex.
@@ -83,10 +84,23 @@ Garcha and Grande Guti\'errez (2025) \cite{garcha2025sensitivity} instead genera
 artificial left coronary trees, which let them change one feature at a time and simulate the flow
 in each.
 Between trees they varied the branch angle, the bending of the vessels and the division of diameter
-between the left anterior descending (LAD) and left circumflex (LCX) arteries.
+between the left anterior descending (LAD) and left circumflex (LCx) arteries.
 The area of low WSS at the bifurcation grew as the diameters of the two branches became more unequal.
 An uneven division also strengthened the effect of the angle and the bending, so these features act
 together rather than independently.
+
+The change in lumen calibre along an artery has been studied far less than its bending or branching.
+Johnston and Johnston (2009) \cite{johnston2009taper} simulated pulsatile flow through idealised
+S-shaped coronary tubes that narrowed along their length.
+The most persistent low WSS lay at the straight and wide inlet rather than on the inner wall of a
+bend, which they attributed in part to the taper and not only to the curvature.
+Their tubes were rigid and had no side branches, so all the flow left through a single outlet.
+Schultz et al.\ (2023) \cite{schultz2023ess} computed WSS from the CCTA of normal coronary arteries
+and found lumen size to be its main geometric determinant, with lower WSS in wider segments.
+This result was partly built into their simulations, which omitted side branches and gave every
+vessel the same outflow.
+No study identified in this search has related taper in patient arteries to WSS computed with their
+own flow, or taper at baseline to later plaque.
 
 Griffo et al.\ (2026) \cite{griffo2026wss} showed that the shape of the vessel alone is enough to
 estimate WSS, by training a graph neural network to do so without simulating the flow.
@@ -109,9 +123,9 @@ chosen measure can determine whether a relationship is detected at all.
 
 Cui et al.\ (2017) \cite{cui2017bifurcation} measured three angles at the left main bifurcation on
 the CCTA of patients referred for invasive angiography.
-These were the angle between the LAD and LCX and the angles between the left main artery and each of
+These were the angle between the LAD and LCx and the angles between the left main artery and each of
 its two daughters.
-Only the angle between the LAD and LCX was wider in patients with significant stenosis, while the two
+Only the angle between the LAD and LCx was wider in patients with significant stenosis, while the two
 angles involving the left main artery did not differ.
 A study measuring only the angles involving the left main artery would therefore have found no
 relationship between the bifurcation angle and stenosis.
@@ -174,7 +188,7 @@ many already had proximal LAD disease.
 Most of these events were progression on imaging requested by clinicians, and their reported
 intervals cannot be reproduced.
 In contrast, Won et al.\ (2022) \cite{won2022paradigm} followed registry patients without plaque on
-a first CCTA to a repeat scan some years later, observing new plaque in a substantial share of them
+a first CCTA to a repeat scan some years later, observing incident plaque in a substantial share of them
 and relating plaque progression to age, sex, hypertension, diabetes, hyperlipidemia, obesity,
 smoking and HbA1c but not to geometry.
 
@@ -183,7 +197,7 @@ Cohorts suited to this question have not measured geometry, since the plaque-fre
 et al.\ included none and the random population sample of Bergstr\"om et al.\
 \cite{bergstrom2021scapis} was scanned once and so had no follow-up.
 No study identified in this search has combined automated measurement of the whole coronary tree with
-follow-up to new plaque in a population selected at random rather than referred for suspected
+follow-up to incident plaque in a population selected at random rather than referred for suspected
 disease.
 An overview of the studies relating coronary geometry to disease is given in
 Table~\ref{tab:literature}.
@@ -214,7 +228,7 @@ Table~\ref{tab:literature}.
   \end{tabular}
   \caption{Overview of studies relating coronary geometry to disease, highlighting the cohort, the
     geometric approach and the main findings. None measured geometry in a randomly selected
-    population and followed it to new plaque. ACS: acute coronary syndrome; CAD: coronary artery
+    population and followed it to incident plaque. ACS: acute coronary syndrome; CAD: coronary artery
     disease; CCTA: coronary computed tomography angiography; RCA: right coronary artery.}
   \label{tab:literature}
 \end{table}

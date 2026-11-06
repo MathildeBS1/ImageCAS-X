@@ -324,3 +324,15 @@ Zandwijk
 Zebi
 Zeng
 Zhang
+FPCA
+eigenfunction
+eigenfunctions
+Karhunen
+Loève
+Lo
+cloglog
+NRI
+IDI
+DeLong
+Hosmer
+Lemeshow

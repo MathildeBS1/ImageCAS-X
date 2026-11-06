@@ -1,0 +1,106 @@
+% Technical Background, section 2 (was 06_segment_glmm_short.tex, written 2026-11-01). The version
+%   that is input. 02_segment_glmm_long.tex is the long reserve; never input both, they share labels.
+% Pointed back to by: methodology/05_features.tex (sec:tech-segment-glmm), methodology/02_models (NOT
+%   WRITTEN). Its last paragraph (LR rejection need not change the person risk) leads into
+%   03_added_value.tex.
+% Aim: the depth a non-statistics master thesis needs, readable on a first pass. Segments within
+%   persons are the running example instead of general units within clusters.
+% CUT from the long version (still there if needed): the Poisson counting-process derivation,
+%   Mundlak within/between split, latent-scale ICC,
+%   the written-out likelihood and quadrature formulas, the sigma^2 = 0 boundary test, the
+%   naive-product (Chebyshev) and second-order plug-in arguments, gamma frailty, empirical Bayes,
+%   the Gauss-Hermite formula for the person risk, and the partial-pooling aside.
+% LEFT OUT on purpose (Methodology): segment set, covariates, software, node counts, fold rules,
+%   the prespecified geometry block, person-level evaluation.
+
+\section{Clustered Binary Outcomes: A Complementary Log-Log Mixed Model}
+\label{sec:tech-segment-glmm}
+
+Clustered binary data consist of yes/no outcomes observed on several units within the same cluster, such as the segments of a coronary tree within a person.
+Let $y_{ij} \in \{0, 1\}$ indicate whether an event occurs in segment $j = 1, \dots, n_i$ of person $i = 1, \dots, N$ during an observation window, and let $\mathbf{x}_{ij}$ be the covariates of that segment, which may describe the segment, the person, or both.
+The segments of one person share characteristics that are not measured, so their outcomes are correlated, and a model that treats every segment as an independent observation reports standard errors that are too small.
+The generalized linear mixed model (GLMM) represents this correlation by adding a random effect for each person to a generalized linear model \cite{statacorp2025mecloglog}.
+
+\subsection{The Complementary Log-Log Link}
+\label{sec:tech-cloglog}
+
+The complementary log-log (cloglog) link relates the event probability $p_{ij}$ to the linear predictor $\eta_{ij} = \mathbf{x}_{ij}^\top \boldsymbol{\beta}$ through
+\begin{equation}
+  p_{ij} = 1 - \exp\!\left\{-\exp(\eta_{ij})\right\} .
+  \label{eq:tech-cloglog}
+\end{equation}
+Suppose that events occur in a segment at some rate over time and that only whether at least one event occurred during the window is observed.
+If the covariates multiply this rate by a constant factor, that is, if the hazards are proportional, the intercept absorbs the baseline risk accumulated over the window and each $\exp(\beta_k)$ is a hazard ratio whose value does not depend on the length of the window \cite{prentice1978grouped}.
+The logit link instead gives odds ratios, which change with the baseline risk and the window length, although at low risk the two links give nearly the same fit.
+
+The same reading shows how an exposure such as the length $E_{ij}$ of a segment enters the model.
+A constant hazard per unit of length makes the accumulated risk proportional to $E_{ij}$, so $\log E_{ij}$ enters $\eta_{ij}$ with its coefficient fixed at 1, as an offset.
+Entered instead with a free coefficient $\gamma$, it lets the hazard grow as $E_{ij}^{\gamma}$, where $\gamma = 1$ corresponds to events spread evenly along the segment, $\gamma < 1$ to risk concentrated at particular sites, and $\gamma > 1$ to risk that grows faster than length.
+
+\subsection{Random Intercepts}
+\label{sec:tech-glmm}
+
+A cloglog model of single segments ignores that the segments of one person share risk.
+The random-intercept cloglog GLMM adds a person effect $b_i$ to the linear predictor,
+\begin{equation}
+  p_{ij}(b_i) = 1 - \exp\!\left\{-\exp(\eta_{ij} + b_i)\right\},
+  \qquad
+  b_i \sim \mathcal{N}(0, \sigma^2),
+  \label{eq:tech-glmm}
+\end{equation}
+and assumes that the outcomes of a person's segments are independent given $b_i$.
+The factor $e^{b_i}$ multiplies the hazard of every segment of person $i$, and in survival analysis such a shared multiplier is called a frailty \cite{duchateau2008frailty}. % VERIFY: chapter and page in duchateau2008frailty (book not opened)
+The individual $b_i$ are not estimated as parameters but summarized by their variance $\sigma^2$.
+
+The coefficients of model~\eqref{eq:tech-glmm} are conditional: $\exp(\beta_k)$ compares two segments of the same person, or two persons with the same $b_i$.
+Averaged over persons, the effects are attenuated toward zero except at low risk, where the two nearly coincide \cite{pavlou2015marginal}.
+The size of $\sigma^2$ is easiest to read as the median hazard ratio,
+\begin{equation}
+  \mathrm{MHR} = \exp\!\left(\sqrt{2\sigma^2}\;\Phi^{-1}(0.75)\right) \approx \exp(0.954\,\sigma),
+  \label{eq:tech-mhr}
+\end{equation}
+where $\Phi^{-1}$ is the standard normal quantile function.
+For two segments with identical covariates in two randomly chosen persons, the MHR is the median hazard ratio of the segment in the person at higher risk against the segment in the person at lower risk, and an MHR of 1 means no clustering \cite{austin2017mhr}.
+
+\subsection{Fitting and Testing}
+\label{sec:tech-glmm-likelihood}
+
+The $b_i$ are not observed, so the likelihood of each person integrates over the normal distribution of $b$, a one-dimensional integral with no closed form.
+Adaptive Gauss--Hermite quadrature evaluates it numerically from a set of nodes placed around the most likely value of $b_i$ for each person \cite{liu1994gausshermite}.
+With a single node it reduces to the Laplace approximation, which is biased for binary outcomes in small clusters, mostly in $\sigma^2$ \cite{joe2008laplace, statacorp2025mecloglog}, and the number of nodes is increased until the estimates stop changing.
+
+A block of $k$ coefficients $\boldsymbol{\beta}_G$ is tested against $H_0\colon \boldsymbol{\beta}_G = \mathbf{0}$ by comparing the maximized log-likelihoods with the block, $\ell_1$, and without it, $\ell_0$:
+\begin{equation}
+  \mathrm{LR} = 2\left(\ell_1 - \ell_0\right) \;\overset{H_0}{\sim}\; \chi^2_k .
+  \label{eq:tech-lr}
+\end{equation}
+The two models are fitted to the same rows with the same link and integration settings, so that the difference reflects the block and not the approximation.
+
+\subsection{From Segment Risk to Person Risk}
+\label{sec:tech-aggregation}
+
+Model~\eqref{eq:tech-glmm} gives the risk of each segment, whereas the quantity of interest is often the risk that at least one segment of a person has an event, $A_i = \max_j y_{ij}$.
+Given $b_i$ the segments are independent, so the probability that none has an event is a product, which under the cloglog link collapses to a single exponential:
+\begin{equation}
+  P(A_i = 0 \mid b_i) = \prod_{j=1}^{n_i} \exp\!\left(-e^{\eta_{ij} + b_i}\right)
+  = \exp\!\left(-e^{b_i} S_i\right),
+  \qquad
+  S_i = \sum_{j=1}^{n_i} e^{\eta_{ij}} .
+  \label{eq:tech-agg-conditional}
+\end{equation}
+Within a person the segment hazards add, and the person outcome is again a cloglog model with linear predictor $\log S_i + b_i$.
+The risk of a new person, whose $b_i$ is unknown, averages over the distribution of $b$,
+\begin{equation}
+  P_i = P(A_i = 1) = 1 - \int \exp\!\left(-e^{b} S_i\right) \phi(b; 0, \sigma^2)\,\mathrm{d}b ,
+  \label{eq:tech-agg-marginal}
+\end{equation}
+where $\phi(b; 0, \sigma^2)$ is the normal density with mean 0 and variance $\sigma^2$.
+The segments enter only through $S_i$, so the integral stays one-dimensional however many segments a person has.
+The sum $S_i$ is dominated by the segments with the highest hazard, and a covariate that multiplies the hazard of one segment by $h$ multiplies $S_i$ by $(1 - w) + w h$, where $w$ is that segment's share of $S_i$, so an effect on one segment is diluted in the person risk.
+
+Setting $b_i = 0$ gives the simpler $1 - \exp(-S_i)$, the risk of the median person with these covariates rather than the average risk.
+Such predictions are miscalibrated: in simulations of random-intercept logistic models they had a calibration slope of 0.79, against 0.98 for predictions integrated over the random effect \cite{pavlou2015marginal}.
+Both are increasing functions of $S_i$ and rank persons identically, so only calibration separates them.
+
+The segment-level likelihood draws on both how many segments of a person have an event and which ones.
+A block of segment covariates can therefore improve the fit by predicting which segments are affected while leaving $S_i$, and with it $P_i$, nearly unchanged, and a rejection by the test of Eq.~\eqref{eq:tech-lr} does not by itself show that the block changes the person risk.

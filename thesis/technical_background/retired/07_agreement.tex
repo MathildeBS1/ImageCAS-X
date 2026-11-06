@@ -1,0 +1,76 @@
+% Technical Background, section 7. Pointed back to by: methodology/01b_medis_reference.tex
+% (sec:method-medis). Written 2026-10-31 from reports/Centerline and lumen contour comparison.md.
+% Placed here at the user's request (2026-10-31), although style_guide_technical_aida.md 10.2 puts
+% segmentation metrics in the Methodology: only the general definitions are here; thresholds,
+% strata, scales and which measure is primary are in the Methodology.
+% Model: Aida 3.3 / 3.3.1, the section body and one subsection one step deeper.
+% Cite: schaap2009cat08 (correspondence, OV/OT/AI; full text read in the research), bland1986agreement,
+%   bland1999measuring, bland2007agreement (repeated measures; full text read), mcgraw1996icc,
+%   koo2016icc, hutcheon2010dilution.
+% CHECK before submission: OV formula reconstructed from the Schaap text (formula image did not
+%   extract in the research); ICC(A,1) and ICC(C,1) written in variance-component form, check
+%   against McGraw and Wong (1996, erratum p. 390).
+% Hazard closer (guide 3.6): the ICC depends on the spread of the sample; resolved in the
+%   Methodology by making the limits of agreement primary.
+
+\section{Comparing Two Measurements of a Vessel}
+\label{sec:tech-agreement}
+
+A method comparison asks how closely two methods agree when they measure the same object, rather than which of them is correct.
+When neither method is free of error, the comparison yields agreement and not accuracy, and the method used as reference is called a reference standard rather than ground truth \cite{schaap2009cat08}.
+For a coronary centerline the comparison has two parts: deciding which points of the two centerlines describe the same position in the vessel, and measuring how far apart those points are.
+
+Correspondence between two centerlines is commonly established as in the evaluation framework of Schaap et al.\ \cite{schaap2009cat08}.
+Both centerlines are resampled at a fine, equal spacing, and the points of one are connected to the points of the other by an ordered set of connections of minimal total length, in which the first points are joined, the last points are joined, and each step advances by one point along one of the two curves.
+This order constraint keeps the correspondence from jumping to a neighbouring vessel, which nearest-point matching does not prevent, and it tolerates different point spacing and different lengths.
+A point is counted as a true positive when its connected point lies within the local lumen radius of the reference, and otherwise as a false negative on the reference or a false positive on the evaluated centerline.
+The overlap
+\begin{equation}
+  \mathrm{OV} = \frac{\mathrm{TP_M} + \mathrm{TP_R}}{\mathrm{TP_M} + \mathrm{TP_R} + \mathrm{FN} + \mathrm{FP}}
+  \label{eq:tech-ov}
+\end{equation}
+counts how much of the vessel both methods traced, where $\mathrm{TP_M}$ and $\mathrm{TP_R}$ are the true positives on the evaluated and the reference centerline, and FN and FP the false negatives and false positives.
+OT is the same ratio restricted to the part of the vessel wider than 1.5\,mm in diameter, and the accuracy AI is the mean length of the true-positive connections, in millimeters.
+The framework keeps capability and accuracy apart, as the distance to the reference says nothing about accuracy once the evaluated centerline has left the vessel \cite{schaap2009cat08}.
+
+Lumen contours that lie in the same cross-sectional plane are compared by their area $A$, or by the area-equivalent radius $r = \sqrt{A/\pi}$, and by their overlap.
+The Dice coefficient $2|X \cap Y| / (|X| + |Y|)$ of the two enclosed regions $X$ and $Y$ measures overlap, and the mean distance between the two contours measures how far their borders lie apart \cite{taha2015metrics}.
+Area and overlap answer different questions: two contours can enclose the same area while being displaced, and a high Dice can hide a small but systematic difference in size.
+
+\subsection{Limits of Agreement and Intraclass Correlation}
+\label{sec:tech-agreement-loa}
+
+Correlation between two methods does not measure their agreement, as a correlation is unchanged when one method reads systematically higher or by a constant factor \cite{bland1986agreement}.
+Bland and Altman instead summarize the difference $\delta = x_1 - x_2$ between the two methods on the same object by its mean $\bar{\delta}$, the bias, and the 95\% limits of agreement
+\begin{equation}
+  \bar{\delta} \pm 1.96\, s_\delta ,
+  \label{eq:tech-loa}
+\end{equation}
+where $s_\delta$ is the standard deviation of the differences \cite{bland1986agreement}.
+The limits are expected to contain the difference between the two methods for 95\% of future measurements on similar objects, provided the bias and spread are constant across the range of values and the differences are roughly normal.
+The difference is plotted against the mean of the two methods, never against one of them, which would correlate the difference with the axis by construction.
+When the spread of the differences grows with the size of the quantity, the analysis is done on the logarithm of the values, and the limits then bound the ratio of the two methods \cite{bland1999measuring}.
+
+When one object contributes several pairs, for example many cross-sections along each artery, the pairs are not independent.
+The difference is then modelled as
+\begin{equation}
+  \delta_{ij} = \mu + u_i + \varepsilon_{ij} ,
+  \label{eq:tech-loa-repeated}
+\end{equation}
+where $\mu$ is the bias, $u_i$ a random effect of object $i$ with variance $\sigma_u^2$, and $\varepsilon_{ij}$ the within-object error of pair $j$ with variance $\sigma_\varepsilon^2$, and the limits become $\mu \pm 1.96\sqrt{\sigma_u^2 + \sigma_\varepsilon^2}$ \cite{bland2007agreement}.
+Treating all pairs as independent, or averaging them to one pair per object, both give limits that are too narrow and make the methods appear to agree more closely than they do \cite{bland2007agreement}.
+
+The intraclass correlation coefficient relates the disagreement to the spread of the quantity across objects.
+With $\sigma_s^2$ the variance between objects, $\sigma_m^2$ the variance of the systematic difference between methods, and $\sigma_e^2$ the residual variance, the two-way single-measure forms are
+\begin{equation}
+  \mathrm{ICC(A,1)} = \frac{\sigma_s^2}{\sigma_s^2 + \sigma_m^2 + \sigma_e^2} ,
+  \qquad
+  \mathrm{ICC(C,1)} = \frac{\sigma_s^2}{\sigma_s^2 + \sigma_e^2} ,
+  \label{eq:tech-icc}
+\end{equation}
+where ICC(A,1) measures absolute agreement and is lowered by a systematic offset, whereas ICC(C,1) measures consistency and ignores it \cite{mcgraw1996icc}.
+The form must be stated with the value, as the forms can differ widely on the same data \cite{koo2016icc}.
+
+The ICC links agreement to the use of a measurement as a predictor.
+Random error in a predictor shrinks its estimated effect towards zero by the reliability ratio $\lambda = \sigma_s^2 / (\sigma_s^2 + \sigma_e^2)$, exactly in linear regression with one predictor and approximately in logistic regression \cite{hutcheon2010dilution}.
+Both the ICC and $\lambda$, however, grow with the between-object variance $\sigma_s^2$ at a fixed measurement error, so a value estimated in one population does not carry over to a population with a different spread of the quantity, whereas the limits of agreement, which are on the scale of the measurement, do as long as the error itself is the same.

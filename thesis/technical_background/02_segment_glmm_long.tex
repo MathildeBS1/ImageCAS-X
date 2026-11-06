@@ -1,0 +1,208 @@
+% RESERVE, not input (was 06_segment_glmm.tex); 02_segment_glmm.tex is the version that is input.
+% Technical Background, section 2. Pointed back to by: methodology/02_models.tex (sec:method-models,
+% NOT WRITTEN), the "who" pooled engine: a segment-level cloglog GLMM with a person random
+% intercept whose segment risks are aggregated to a person risk of any incident plaque.
+% Written 2026-10-31 from reports/Pooled segment GLMM background.md and its notes in
+% research_notes/Pooled segment GLMM background/. Only the rows marked "Technical Background" in
+% the report's split table are here.
+% Model: Aida 3.3 / 3.3.1 (guide section 5.1), a derivation chain with the assumption named at each
+%   step; general units nested in clusters, segments in persons only as illustration.
+% Own derivations, presented in the text and not cited: low-risk marginal slope (eq. after
+%   tech-glmm-marginal), cloglog closure under any-event aggregation, b = 0 as the median cluster
+%   and its second-order sign, the naive-product inequality, log-sum-exp dilution.
+% Terminology: the codebase calls the engine "pooled"; the text calls the unit-to-cluster step
+%   aggregation and says once what pooling usually means (gelman2006multilevel).
+% LEFT OUT on purpose (Methodology): the 9 trunk segments and the outcome-defining segment set,
+%   covariates and their coding, log length / log follow-up and offset vs free, software
+%   (lme4, glmmTMB, GLMMadaptive), node counts, cold starts, fold rules, the prespecified geometry
+%   block and its df, person-level evaluation (C, calibration, Brier, bootstrap, calibration by
+%   segment count). Coronary precedents (ICONIC, PARADIGM) and MIL/noisy-OR go to the literature
+%   review. No project simulation numbers appear here.
+% Hazard closer (guide section 3.6): the LR test of a unit-level block also uses within-cluster
+%   allocation, so a rejection is not by itself evidence about the cluster risk.
+
+\section{Clustered Binary Outcomes: A Complementary Log-Log Mixed Model}
+\label{sec:tech-segment-glmm}
+
+Clustered binary data consist of binary outcomes observed on several units nested within the same cluster, such as the segments of a coronary tree within a person.
+Let $y_{ij} \in \{0, 1\}$ indicate whether an event occurs in unit $j = 1, \dots, n_i$ of cluster $i = 1, \dots, N$ during an observation window, and let $\mathbf{x}_{ij}$ be a vector of covariates that may vary between units, between clusters, or both.
+Units of one cluster share characteristics that are not measured, so their outcomes are correlated, and a model that treats all unit rows as independent typically understates the standard errors of covariates that are constant within a cluster.
+The generalized linear mixed model (GLMM) represents this correlation by adding a random effect for each cluster to the linear predictor of a generalized linear model \cite{statacorp2025mecloglog}.
+With the complementary log-log (cloglog) link, the coefficients of such a model are log hazard ratios, and the risk of an event in any unit of a cluster follows from the unit risks by a single integral.
+
+\subsection{The Complementary Log-Log Link}
+\label{sec:tech-cloglog}
+
+While the logit is the usual link for a binary outcome, its coefficients are log odds ratios, and when events arise from a process in time, an odds ratio changes with the baseline risk and with the length of the observation window.
+The cloglog link models the event probability $p_{ij}$ through the linear predictor $\eta_{ij} = \mathbf{x}_{ij}^\top \boldsymbol{\beta}$ as
+\begin{equation}
+  p_{ij} = 1 - \exp\!\left\{-\exp(\eta_{ij})\right\},
+  \qquad
+  \log\!\left\{-\log(1 - p_{ij})\right\} = \eta_{ij} .
+  \label{eq:tech-cloglog}
+\end{equation}
+Unlike the logit and the probit, the cloglog is asymmetric: $p_{ij}$ approaches 1 sharply and 0 slowly.
+For small $p_{ij}$, $1 - \exp(-e^{\eta}) \approx e^{\eta}$, so cloglog, log and logit fits nearly coincide at low risk, and the choice between the links matters only where risk is moderate or high.
+The case for the cloglog rests on the hazard reading below, which holds at any level of risk.
+
+The hazard reading of the link follows from a counting process.
+Let the number of events in unit $j$ of cluster $i$ during a window of length $t$ be Poisson distributed with mean equal to the cumulative hazard $\Lambda_{ij} = \int_0^t \lambda_{ij}(s)\,\mathrm{d}s$, and suppose that only whether at least one event occurred is observed.
+Then $p_{ij} = 1 - \exp(-\Lambda_{ij})$.
+Under proportional hazards, $\lambda_{ij}(s) = \lambda_0(s) \exp(\mathbf{x}_{ij}^\top \boldsymbol{\beta})$, so that $\Lambda_{ij} = \Lambda_0(t) \exp(\mathbf{x}_{ij}^\top \boldsymbol{\beta})$ and
+\begin{equation}
+  \log\!\left\{-\log(1 - p_{ij})\right\} = \log \Lambda_0(t) + \mathbf{x}_{ij}^\top \boldsymbol{\beta} .
+  \label{eq:tech-cloglog-ph}
+\end{equation}
+The intercept absorbs the log baseline cumulative hazard, and each $\exp(\beta_k)$ is a hazard ratio whose value does not depend on the window length as long as the hazards are proportional.
+This is the grouped-data form of the proportional hazards model introduced by Prentice and Gloeckler \cite{prentice1978grouped}.
+The binary outcome records only whether one or more events occurred, so the data cannot distinguish a Poisson process from another process that yields the same probabilities, and the hazard interpretation is a property of the link rather than a finding.
+
+The same reading shows how a measure of exposure $E$, such as the duration of the window or the length of a unit, enters the model.
+If the hazard per unit of exposure is constant, $\Lambda_{ij} = \lambda_{ij} E_{ij}$, and $\log E_{ij}$ enters the linear predictor as an offset with its coefficient fixed at 1.
+Entered instead as a covariate with a free coefficient $\gamma$, it gives $\Lambda_{ij} \propto E_{ij}^{\gamma}$.
+A value $\gamma = 1$ corresponds to events that arise independently per unit of exposure, $\gamma < 1$ to risk concentrated at particular sites, and $\gamma > 1$ to risk that grows faster than exposure.
+When $E$ is correlated with other covariates in the model, $\gamma$ is identified only from the variation in $E$ that those covariates leave.
+
+\subsection{Random Intercepts and Conditional Effects}
+\label{sec:tech-glmm}
+
+A cloglog model for single units ignores that the units of one cluster share risk.
+The random-intercept cloglog GLMM adds a cluster effect $b_i$ to the linear predictor,
+\begin{equation}
+  p_{ij}(b_i) = P(y_{ij} = 1 \mid b_i) = 1 - \exp\!\left\{-\exp(\eta_{ij} + b_i)\right\},
+  \qquad
+  b_i \sim \mathcal{N}(0, \sigma^2),
+  \label{eq:tech-glmm}
+\end{equation}
+and assumes that the outcomes of a cluster are independent given $b_i$.
+The $b_i$ are not estimated as parameters but are summarized by their variance $\sigma^2$, the variance component \cite{statacorp2025mecloglog}.
+In survival analysis terms, $e^{b_i}$ is a frailty that multiplies the hazard of every unit in cluster $i$, so model~\eqref{eq:tech-glmm} is a shared-frailty proportional hazards model with a lognormal frailty, observed at a single time \cite{duchateau2008frailty}. % VERIFY: chapter and page in duchateau2008frailty (book not opened; the GLMM-frailty equivalence was seen only in a secondary source, arXiv 1403.6744)
+
+The coefficients in model~\eqref{eq:tech-glmm} are conditional, or cluster-specific: $\exp(\beta_k)$ is the hazard ratio for a change in $x_k$ within a fixed cluster.
+The marginal, or population-averaged, probability averages over the clusters,
+\begin{equation}
+  \bar{p}_{ij} = 1 - \int \exp\!\left(-e^{\eta_{ij} + b}\right) \phi(b; 0, \sigma^2)\,\mathrm{d}b ,
+  \label{eq:tech-glmm-marginal}
+\end{equation}
+where $\phi(b; 0, \sigma^2)$ is the normal density with mean 0 and variance $\sigma^2$.
+With a normal $b_i$, this integral has no closed form and is not of cloglog form in $\eta_{ij}$.
+In a random-intercept logistic model the conditional coefficients are larger in absolute value than the corresponding marginal ones \cite{pavlou2015marginal}.
+For the cloglog link a first-order expansion at low risk gives $\bar{p}_{ij} \approx \mathrm{E}[e^{\eta_{ij} + b}] = e^{\eta_{ij} + \sigma^2/2}$, so for a rare outcome the marginal model keeps the conditional slopes and shifts the intercept by $\sigma^2/2$; at moderate risk the expansion fails, the marginal effects are attenuated toward zero, and $\bar{p}_{ij}$ is available only by integration.
+
+The model also assumes that $b_i$ is independent of the covariates.
+For a covariate that varies within clusters, a single coefficient then mixes the within-cluster association, between units of one cluster, with the between-cluster association of the cluster mean $\bar{x}_i$, and it is biased for the within-cluster effect when $b_i$ is correlated with $\bar{x}_i$.
+Entering $x_{ij} - \bar{x}_i$ and $\bar{x}_i$ as separate covariates estimates the two effects separately; for linear models, Mundlak showed that once the dependence between the covariates and the cluster effects is modelled in this way, the random-effects and fixed-effects approaches give the same within-cluster estimate \cite{mundlak1978pooling}.
+In a nonlinear GLMM the device is approximate, as it relies on the mean of $b_i$ being linear in $\bar{x}_i$.
+A covariate that is constant within a cluster carries only between-cluster information.
+
+The size of $\sigma^2$ can be expressed on a latent scale.
+Model~\eqref{eq:tech-glmm} is equivalent to a latent-variable model in which $y_{ij} = 1$ exactly when $\eta_{ij} + b_i + \varepsilon_{ij} > 0$, where $\varepsilon_{ij}$ follows a standard Gumbel (extreme-value) distribution with mean equal to Euler's constant and variance $\pi^2/6$, against $\pi^2/3$ for the logistic distribution of the logit link \cite{statacorp2025mecloglog, nakagawa2017r2}.
+The latent-scale intraclass correlation is then
+\begin{equation}
+  \rho = \frac{\sigma^2}{\sigma^2 + \pi^2/6} .
+  \label{eq:tech-icc}
+\end{equation}
+This $\rho$ is a correlation between latent variables, not between two binary outcomes of a cluster, and the same $\sigma^2$ does not imply the same clustering under different links.
+A summary on the hazard scale is the median hazard ratio,
+\begin{equation}
+  \mathrm{MHR} = \exp\!\left(\sqrt{2\sigma^2}\;\Phi^{-1}(0.75)\right) \approx \exp(0.954\,\sigma),
+  \label{eq:tech-mhr}
+\end{equation}
+where $\Phi^{-1}$ is the standard normal quantile function.
+The MHR is the median of the hazard ratio between two units with identical covariates in two randomly chosen clusters, the one in the cluster at higher risk against the one in the cluster at lower risk \cite{austin2017mhr}.
+
+\subsection{Marginal Likelihood and Likelihood-Ratio Tests}
+\label{sec:tech-glmm-likelihood}
+
+The random intercepts are not observed, so the likelihood of model~\eqref{eq:tech-glmm} integrates them out, cluster by cluster:
+\begin{equation}
+  L(\boldsymbol{\beta}, \sigma) = \prod_{i=1}^{N} \int \prod_{j=1}^{n_i} p_{ij}(b)^{y_{ij}} \left\{1 - p_{ij}(b)\right\}^{1 - y_{ij}} \phi(b; 0, \sigma^2)\,\mathrm{d}b .
+  \label{eq:tech-glmm-lik}
+\end{equation}
+Each factor is a one-dimensional integral with no closed form.
+The Laplace approximation replaces the logarithm of each integrand by a second-order expansion around its mode $\hat{b}_i$, which is exact only when the integrand is Gaussian in $b$; for a cluster of a few binary outcomes it is not.
+The approximation is known to bias parameter estimates, more in the variance components than in the fixed effects \cite{statacorp2025mecloglog}, and its bias depends mainly on how discrete the response is, being larger for binary than for count data, and decreases as clusters grow \cite{joe2008laplace}.
+
+Adaptive Gauss--Hermite quadrature centres and scales the quadrature nodes at the mode $\hat{b}_i$ and the curvature-based scale $\hat{s}_i$ of each cluster's integrand \cite{liu1994gausshermite}:
+\begin{equation}
+  \int f_i(b)\,\mathrm{d}b \approx \sqrt{2}\,\hat{s}_i \sum_{q=1}^{Q} w_q\, e^{z_q^2}\, f_i\!\left(\hat{b}_i + \sqrt{2}\,\hat{s}_i z_q\right),
+  \label{eq:tech-aghq}
+\end{equation}
+where $f_i$ is the integrand of cluster $i$ in Eq.~\eqref{eq:tech-glmm-lik}, and $z_q$ and $w_q$ are the $Q$ nodes and weights of the Gauss--Hermite rule for $\int e^{-z^2} g(z)\,\mathrm{d}z$.
+With $Q = 1$ the rule reduces to the Laplace approximation \cite{statacorp2025mecloglog}.
+Quadrature centred at the conditional modes is accurate and efficient, whereas quadrature centred at the mean of the random effect is less accurate \cite{pinheiro1995approximations}, % VERIFY: claim taken from the GLMMadaptive documentation's summary of pinheiro1995approximations; full text not read
+and the usual check is that the estimates and the log-likelihood do not change when $Q$ is increased.
+
+A block of $k$ fixed-effect coefficients $\boldsymbol{\beta}_G$ is tested against $H_0\colon \boldsymbol{\beta}_G = \mathbf{0}$ with the likelihood-ratio statistic
+\begin{equation}
+  \mathrm{LR} = 2\left(\ell_1 - \ell_0\right) \;\overset{H_0}{\sim}\; \chi^2_k ,
+  \label{eq:tech-lr}
+\end{equation}
+where $\ell_1$ and $\ell_0$ are the maximized log-likelihoods with and without the block.
+The two models are fitted by maximum likelihood to identical rows, with the same link and the same integration rule and number of nodes, so that the difference reflects the block and not the approximation.
+The variance $\sigma^2$ is re-estimated in both models and, when positive, is a nuisance parameter in the interior of the parameter space, so the $\chi^2_k$ reference applies without correction, asymptotically in the number of clusters.
+A test of $\sigma^2 = 0$ itself places the parameter on the boundary, where the statistic follows an equal mixture of $\chi^2_0$ and $\chi^2_1$ \cite{self1987asymptotic}.
+That result is also asymptotic, and an estimate $\hat{\sigma}^2 = 0$ reduces model~\eqref{eq:tech-glmm} to an ordinary cloglog model with independent units.
+
+\subsection{Aggregation from Units to Clusters}
+\label{sec:tech-aggregation}
+
+Model~\eqref{eq:tech-glmm} gives the risk of an event in one unit, whereas the quantity of interest is often the risk that at least one unit of the cluster has an event, $A_i = \max_j y_{ij}$.
+The step from unit risks to this cluster risk is an aggregation.
+It differs from pooling, which in multilevel modelling usually means partial pooling: the shrinkage of cluster estimates toward the population mean, controlled by the variance of the random effect \cite{gelman2006multilevel}.
+
+Given $b_i$, the units are independent, so the probability that no unit has an event is a product, which under the cloglog link collapses to a single exponential:
+\begin{equation}
+  \begin{aligned}
+  P(A_i = 0 \mid b_i) &= \prod_{j=1}^{n_i} \left\{1 - p_{ij}(b_i)\right\}
+  = \prod_{j=1}^{n_i} \exp\!\left(-e^{\eta_{ij} + b_i}\right) \\
+  &= \exp\!\left(-e^{b_i} S_i\right),
+  \qquad
+  S_i = \sum_{j=1}^{n_i} e^{\eta_{ij}} .
+  \end{aligned}
+  \label{eq:tech-agg-conditional}
+\end{equation}
+Conditional on $b_i$, the cluster outcome is therefore itself a cloglog model, $P(A_i = 1 \mid b_i) = 1 - \exp\{-\exp(\log S_i + b_i)\}$, with linear predictor $\log S_i + b_i$.
+This closure is the binary counterpart of the superposition of independent Poisson processes, whose cumulative hazards add.
+The logit link has no such closure: aggregation under a logit unit model remains valid but keeps the full product of $n_i$ terms.
+The marginal risk of a cluster integrates over the random intercept,
+\begin{equation}
+  P_i = P(A_i = 1) = 1 - \int \exp\!\left(-e^{b} S_i\right) \phi(b; 0, \sigma^2)\,\mathrm{d}b
+  = 1 - \mathcal{L}_\sigma(S_i),
+  \label{eq:tech-agg-marginal}
+\end{equation}
+where $\mathcal{L}_\sigma(s) = \mathrm{E}[\exp(-s\,e^{b})]$ is the Laplace transform of the lognormal frailty $e^{b}$.
+The integrand depends on the units only through the scalar $S_i$, so the integral stays one-dimensional for any number of units.
+In shared-frailty survival analysis, the joint survival of a cluster is likewise the Laplace transform of the frailty evaluated at the summed cumulative hazard \cite{duchateau2008frailty}. % VERIFY: chapter and page in duchateau2008frailty
+The lognormal Laplace transform has no closed form \cite{asmussen2016laplace}, whereas a gamma frailty with mean 1 and variance $\theta$ gives $P_i = 1 - (1 + \theta S_i)^{-1/\theta}$.
+Equation~\eqref{eq:tech-agg-marginal} is exact under model~\eqref{eq:tech-glmm}; error in $P_i$ enters through its assumptions, namely conditional independence given one intercept, a common $\sigma^2$ for all clusters, a normal $b_i$, and a sum $S_i$ over exactly the units that define $A_i$, and through the numerical evaluation of the integral.
+
+The summed hazard is a log-sum-exp, $\log S_i = \log \sum_j e^{\eta_{ij}}$, a smoothed maximum of the unit linear predictors, so the cluster risk is dominated by the units with the highest hazard.
+A covariate that multiplies the hazard of a single unit by $h$ multiplies the conditional cluster hazard $e^{b_i} S_i$ by $(1 - w) + w h$, where $w$ is that unit's share of $S_i$.
+An effect on one unit is therefore diluted in the cluster risk in proportion to that unit's share.
+
+Two shortcuts that appear natural give different answers.
+Setting $b_i = 0$ gives $1 - \exp(-S_i)$.
+The conditional risk $P(A_i = 1 \mid b)$ increases with $b$ and $b_i$ has median 0, so this is the risk of the median cluster with the given covariates, not the mean risk over clusters.
+Writing $g(b) = \exp(-S_i e^{b})$, a second-order expansion gives $\mathrm{E}[g(b)] \approx g(0) + \tfrac{1}{2}\sigma^2 g''(0)$ with $g''(0) = g(0)\, S_i (S_i - 1)$, so for small $\sigma^2$ the plug-in underestimates $P_i$ when its own value is below $1 - e^{-1} \approx 0.63$ and overestimates it above, and the plug-in risks are spread too widely.
+Setting random effects to zero to obtain marginal risks is common in applied work and is incorrect; in simulations of random-intercept logistic models with an intraclass correlation of 0.30, such predictions had a calibration slope of 0.79, against 0.98 for predictions integrated over the random-effect distribution \cite{pavlou2015marginal}.
+
+The naive product $1 - \prod_j (1 - \bar{p}_{ij})$ of the marginal unit risks in Eq.~\eqref{eq:tech-glmm-marginal} treats the units as independent marginally, whereas they are independent only given $b_i$.
+Every factor $1 - p_{ij}(b)$ decreases in the same $b$, and a product of positive decreasing functions is decreasing, so by Chebyshev's inequality for functions of one variable that vary in the same direction, $\mathrm{E}\left[\prod_j \{1 - p_{ij}(b)\}\right] \ge \prod_j \mathrm{E}\left[1 - p_{ij}(b)\right]$.
+The naive product therefore never underestimates $P_i$, and equals it only when $\sigma^2 = 0$ or the cluster has one unit.
+The two shortcuts also differ in ranking.
+For a common $\sigma^2$, the integrated risk and the plug-in risk are both increasing functions of $S_i$, so they order clusters identically and any rank-based measure of discrimination cannot tell them apart; only calibration separates them.
+The naive product depends on how the hazard is spread over the units, not only on $S_i$, and can reorder clusters.
+
+A cluster that is not in the fitting data carries no information about its own $b_i$ beyond the estimated distribution, so the prediction for a new cluster is Eq.~\eqref{eq:tech-agg-marginal} evaluated at $\hat{\boldsymbol{\beta}}$ and $\hat{\sigma}^2$ \cite{pavlou2015marginal, skrondal2009prediction}.
+Empirical Bayes predictions of $b_i$ condition on the observed outcomes of the cluster \cite{skrondal2009prediction}, so they apply to existing clusters, and for a cluster whose $A_i$ is the target they use the target itself.
+With the nodes $x_k$ and weights $w_k$ of the Gauss--Hermite rule, the integral in Eq.~\eqref{eq:tech-agg-marginal} is
+\begin{equation}
+  \mathcal{L}_\sigma(S_i) \approx \frac{1}{\sqrt{\pi}} \sum_{k=1}^{K} w_k \exp\!\left(-S_i\, e^{\sqrt{2}\,\sigma x_k}\right) .
+  \label{eq:tech-agg-gh}
+\end{equation}
+The integrand is smooth, but its transition from 1 to 0 in $b$ sharpens as $\sigma$ and $S_i$ grow, so nodes fixed around $b = 0$ lose accuracy for large $\sigma$.
+
+The unit-level likelihood~\eqref{eq:tech-glmm-lik} draws information both from how many units of a cluster have an event and from which units have it.
+A covariate can therefore shift events between the units of a cluster while leaving $S_i$, and with it $P_i$, nearly unchanged.
+The likelihood-ratio test of Eq.~\eqref{eq:tech-lr} for a block of unit-level covariates can reject on this within-cluster allocation alone, so a rejection does not by itself show that the block changes the cluster risk of Eq.~\eqref{eq:tech-agg-marginal}.

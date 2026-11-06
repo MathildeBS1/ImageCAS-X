@@ -1,0 +1,166 @@
+% Results of sec:method-validity (methodology/10b_feature_validity.tex). Every [..] is a value to fill in
+% from the aggregate outputs on dtu-gpu-7 (counts 1-4 shown as <5); nothing here is to be guessed.
+% Order follows the methods: technical accuracy, construct validity, sensitivity, variance
+% explained by risk factors, decision. Repeatability is not assessed (discussion).
+% Delete the template sentence that does not apply after each table is filled.
+% Wide placeholder tables are scaled with \resizebox (graphicx); check them again once filled.
+% Red clarification notes; needs \usepackage{xcolor} in the preamble. Remove before submission.
+\providecommand{\clarify}[1]{\textcolor{red}{\textbf{Clarification needed:} #1}}
+\section{Measurement Properties of the Geometric Features}
+\label{sec:results-validity}
+
+The measurement properties of Section~\ref{sec:method-validity} were assessed in [..] clean-baseline participants with a visual read, of whom [..] had a follow-up scan, and in [..] participants with plaque at baseline as a secondary analysis.
+
+\subsection{Technical Accuracy on Synthetic Geometry}
+\label{sec:results-validity-accuracy}
+
+\begin{table}[htbp]
+  \centering
+  \caption{Technical accuracy of each definition on synthetic geometry with smooth centerline displacement and radius errors at an amplitude of [..]\,mm. Bias is relative to the definition's own value without errors; the scale-free error is the standard deviation (SD) of the error divided by the between-participant SD in the cohort. Primary definitions first.}
+  \label{tab:results-validity-accuracy}
+  \footnotesize
+  \setlength{\tabcolsep}{3pt}
+  \resizebox{\linewidth}{!}{%
+  \begin{tabular}{llcccc}
+    \toprule
+    Feature & Definition & Bias & SD of error & Linearity slope & Scale-free error \\
+    \midrule
+    Curvature & mean per mm, 5\,mm chord & [..] & [..] & [..] & [..] \\
+     & mean per mm, 2.5\,mm chord & [..] & [..] & [..] & [..] \\
+     & mean per mm, 10\,mm chord & [..] & [..] & [..] & [..] \\
+     & count of bends (sine curves) & [..] & [..] & [..] & [..] \\
+     & 90th percentile & [..] & [..] & [..] & [..] \\
+     & largest turning angle & [..] & [..] & [..] & [..] \\
+    \addlinespace
+    Taper & Theil--Sen, area-equivalent & [..] & [..] & [..] & [..] \\
+     & end-to-end ratio & [..] & [..] & [..] & [..] \\
+     & distance-transform radius & [..] & [..] & [..] & [..] \\
+     & no exclusions & [..] & [..] & [..] & [..] \\
+    \addlinespace
+    Diameter ratios & area-equivalent, [..]\,mm & [..] & [..] & [..] & [..] \\
+     & minimum diameter & [..] & [..] & [..] & [..] \\
+    \addlinespace
+    LM angle & fitted over [..]\,mm & [..] & [..] & [..] & [..] \\
+     & fitted over 5\,mm & [..] & [..] & [..] & [..] \\
+     & fitted over 10\,mm & [..] & [..] & [..] & [..] \\
+    \bottomrule
+  \end{tabular}
+  }
+\end{table}
+
+The primary definitions had a scale-free error of [..] to [..] (Table~\ref{tab:results-validity-accuracy}).
+Against the analytic curvature, the 5\,mm chord had a bias of [..] and resolved bends with a radius down to [..]\,mm.
+With independent point noise as the worst case, the scale-free error rose to [..].
+[One sentence for any alternative with a clearly lower scale-free error than the primary definition, and whether the primary was kept.]
+
+\subsection{Construct Validity}
+\label{sec:results-validity-groups}
+
+\begin{table}[htbp]
+  \centering
+  \caption{Tests of the a priori hypotheses in the clean-baseline cohort. Estimates as standardized differences (SD) or degrees, adjusted for age, with 95\% confidence intervals (90\% for hypotheses of no difference) in brackets. Bands and evidence as in Table~\ref{tab:method-validity}.}
+  \label{tab:results-validity-groups}
+  \footnotesize
+  \setlength{\tabcolsep}{2pt}
+  \resizebox{\linewidth}{!}{%
+  \begin{tabular}{lllllll}
+    \toprule
+    Feature & Hypothesis & Type & Band or margin & Confirmatory estimate & Secondary estimate & Confirmed \\
+    \midrule
+    Curvature & women vs men & K & 0.2 to 1.0 SD & [..] ([..], [..]) & [..] ([..], [..]) & [..] \\
+     & hypertension & K & $>0$, below sex & [..] ([..], [..]) & [..] ([..], [..]) & [..] \\
+     & LDL & D & $\pm 0.2$ SD & [..] ([..], [..]) & & [..] \\
+     & smoking & D & $\pm 0.2$ SD & [..] ([..], [..]) & & [..] \\
+     & family history & D & $\pm 0.2$ SD & [..] ([..], [..]) & & [..] \\
+    \addlinespace
+    Taper & diameter, men vs women & K & 5 to 30\% & [..] ([..], [..]) & [..] ([..], [..]) & [..] \\
+     & fractional taper, sex & K & $\pm 0.2$ SD & [..] ([..], [..]) & [..] ([..], [..]) & [..] \\
+     & fractional taper, BSA & K & $\pm 0.2$ SD & [..] ([..], [..]) & & [..] \\
+     & LAD vs RCA & K & $\geq 0.2$ SD & [..] ([..], [..]) & & [..] \\
+    \addlinespace
+    LM angle & men vs women & K & 5 to 15$^{\circ}$ & [..] ([..], [..]) & [..] ([..], [..]) & [..] \\
+     & ramus intermedius & K & 7 to 21$^{\circ}$ & [..] ([..], [..]) & & [..] \\
+    \addlinespace
+    Diameter ratios & left vs right dominance & K & $\geq 0.2$ SD & [..] ([..], [..]) & & [..] \\
+     & women vs men & K & $\pm 0.2$ SD & [..] ([..], [..]) & [..] ([..], [..]) & [..] \\
+     & Finet ratio (median) & I & 0.60 to 0.72 & [..] ([..], [..]) & & [..] \\
+    \bottomrule
+  \end{tabular}
+  }
+\end{table}
+
+Of the [..] hypotheses, [..] were confirmed, including [..] of the [..] graded strong (Table~\ref{tab:results-validity-groups}).
+Curvature was [..] standard deviations higher in women than in men (95\% CI [..] to [..]), [inside / outside] the band of 0.2 to 1.0; adjusted for body surface area, the difference was [..] (95\% CI [..] to [..]).
+The LM bifurcation angle was [..]$^{\circ}$ wider in men (95\% CI [..] to [..]) and [..]$^{\circ}$ wider with a ramus intermedius (95\% CI [..] to [..]).
+[All hypotheses of no difference were confirmed / The hypothesis of no difference for [..] was not confirmed, with a 90\% CI of [..] to [..]].
+\clarify{one sentence per unconfirmed hypothesis graded strong: which feature, and what was examined in its extraction.}
+
+\subsection{Sensitivity to Definitional Choices}
+\label{sec:results-validity-sensitivity}
+
+\begin{table}[htbp]
+  \centering
+  \caption{Confirmation of the hypotheses under each definition. Primary definitions first.}
+  \label{tab:results-validity-sensitivity}
+  \footnotesize
+  \setlength{\tabcolsep}{3pt}
+  \resizebox{\linewidth}{!}{%
+  \begin{tabular}{llcc}
+    \toprule
+    Feature & Definition & Hypotheses confirmed & Strong confirmed \\
+    \midrule
+    Curvature & mean per mm, 5\,mm chord & [..] of [..] & [..] of [..] \\
+     & mean per mm, 2.5\,mm chord & [..] of [..] & [..] of [..] \\
+     & mean per mm, 10\,mm chord & [..] of [..] & [..] of [..] \\
+     & count of bends & [..] of [..] & [..] of [..] \\
+     & 90th percentile & [..] of [..] & [..] of [..] \\
+     & largest turning angle & [..] of [..] & [..] of [..] \\
+    \addlinespace
+    Taper & Theil--Sen, area-equivalent & [..] of [..] & [..] of [..] \\
+     & end-to-end ratio & [..] of [..] & [..] of [..] \\
+     & distance-transform radius & [..] of [..] & [..] of [..] \\
+     & no exclusions & [..] of [..] & [..] of [..] \\
+    \addlinespace
+    Diameter ratios & area-equivalent, [..]\,mm & [..] of [..] & [..] of [..] \\
+     & other distances & [..] of [..] & [..] of [..] \\
+     & minimum diameter & [..] of [..] & [..] of [..] \\
+    \addlinespace
+    LM angle & fitted over [..]\,mm & [..] of [..] & [..] of [..] \\
+     & fitted over 5 / 10\,mm & [..] of [..] & [..] of [..] \\
+     & ramus excluded & [..] of [..] & [..] of [..] \\
+    \bottomrule
+  \end{tabular}
+  }
+\end{table}
+
+The higher curvature in women was [found under all / found under [..] of the [..]] definitions of curvature (Table~\ref{tab:results-validity-sensitivity}), [including / but not] at the 10\,mm chord, at which noise contributes least.
+[List any hypothesis that depended on the definition.]
+
+\subsection{Variance Explained by Known Risk Factors}
+\label{sec:results-validity-split}
+
+\begin{table}[htbp]
+  \centering
+  \caption{Share of the variance of each feature explained by the covariates of the base model ($R^2$).}
+  \label{tab:results-validity-split}
+  \footnotesize
+  \begin{tabular}{lc}
+    \toprule
+    Feature & $R^2$ \\
+    \midrule
+    Curvature & [..] \\
+    Taper & [..] \\
+    LM bifurcation angle & [..] \\
+    LM$\to$LAD ratio & [..] \\
+    LM$\to$LCx ratio & [..] \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The base-model covariates explained between [..] and [..] of the variance of the features (Table~\ref{tab:results-validity-split}), leaving [most / much / little] of it for the geometry.
+
+\subsection{Decision}
+\label{sec:results-validity-decision}
+
+[..] of the five features met the prespecified rules of Section~\ref{sec:method-validity-reading} and were retained unchanged.
+[If a feature failed:] [..] did not meet the rule on [..]; [what was examined, and which alternative replaced the primary definition, if any].
