@@ -1,0 +1,40 @@
+% Prediction model and its cross-validation (written 2026-11-06, user). Absorbs the former
+% 11_cross_validation.tex (sec:method-cv), whose general reasons are in
+% technical_background/03_added_value.tex (sec:tech-internal-validation) and are not repeated here.
+% Written to thesis/style_guide_methodology_aida.md: settings and reasons only; the theory is pointed
+% back to (sec:tech-segment-glmm, sec:tech-aggregation, sec:tech-recalibration, sec:tech-added-value).
+% Design: root CLAUDE.md "Decided" (one pooled cloglog GLMM, one LR test, Delta C and calibration
+% estimated, folds by person; no separate where model).
+% CODE CHECK: the settings below come from CGPS_data/progression_who_pooled.py, which is NOT in
+%   CGPS_data/thesis_final/ and still runs on the Medis trees with a progression outcome. Every
+%   setting taken from it carries a \clarify until the clean-cohort version exists there.
+% Open: the base (recalibrated SCORE2 vs refitted factors), how follow-up time enters, which rows
+%   carry the left main features, the number of folds and repeats.
+% [..] and \clarify{} mark information that is not yet available; nothing there is to be guessed.
+\providecommand{\clarify}[1]{\textcolor{red}{\textbf{Clarification needed:} #1}}
+\section{Prediction Model}
+\label{sec:method-models}
+
+To predict who develops plaque while using the outcome at the level at which it was graded, one complementary log-log mixed model was fitted over the nine segments of each participant (Section~\ref{sec:tech-segment-glmm}), with a random intercept per participant.
+Each row was one segment, and its outcome was incident coronary plaque in that segment (Section~\ref{sec:method-population}).
+The segment risks of a participant were then pooled into one risk of developing plaque in any of the nine segments (Section~\ref{sec:tech-aggregation}), and this person risk was the prediction that was evaluated.
+The model was fitted by maximum likelihood with Gauss--Hermite quadrature over the random intercept, with [..] nodes \clarify{node count; 30 in progression\_who\_pooled.py, checked there by a refit with doubled nodes}.
+
+The base model held the terms that the geometry has to add to: the segment position, with the proximal LAD as reference, the logarithm of the segment length, coronary dominance, the logarithm of the follow-up time, and the SCORE2 risk factors.
+\clarify{how follow-up time enters (term or offset); progression\_who\_pooled.py uses log follow-up as a term.}
+\clarify{whether the base is the recalibrated SCORE2 (Section~\ref{sec:tech-recalibration}) or the refitted SCORE2 factors; open, to be compared in this pooled model.}
+The extended model added the geometry block, the five features of Section~\ref{sec:method-selection}, each standardised within segment type on the training participants.
+\clarify{which segment rows carry the left main angle and diameter ratios; progression\_who\_pooled.py enters the angle on the proximal LAD and proximal LCx rows only.}
+
+To keep a single answer to whether geometry adds to the base, one likelihood-ratio test of the geometry block was prespecified (Eq.~\eqref{eq:tech-lr}), comparing the two models fitted to all participants.
+The change in the C-statistic, the calibration slope and intercept, the Brier score and the log loss were estimated with intervals and not tested (Section~\ref{sec:tech-added-value}).
+Which segments develop plaque was read from the same model, through the hazard ratios of the features, the segment intercepts, a within-participant C-statistic and a secondary test of a curvature and taper interaction with the artery, all reported as descriptive.
+
+\subsection{Cross-Validation}
+\label{sec:method-cv}
+
+The performance measures were estimated by cross-validation (Section~\ref{sec:tech-internal-validation}) with [F] folds repeated [R] times \clarify{folds and repeats; 10 folds repeated 50 times in progression\_who\_pooled.py}.
+The folds were formed per participant, so that all nine segments of a participant were in the same fold, and were stratified on whether the participant developed plaque.
+The base and the extended model were fitted on the same folds, and the standardisation constants, the coefficients and the variance of the random intercept were estimated on the training participants of each fold.
+Each measure was reported as the mean over the repeats with the 2.5th and 97.5th percentiles, together with the paired difference between the two models.
+\clarify{percentiles over repeats show the variation between fold splits, not sampling uncertainty (Section~\ref{sec:tech-internal-validation}); state whether the intervals of the differences come from a bootstrap of the whole procedure.}

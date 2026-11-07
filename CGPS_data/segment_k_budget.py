@@ -84,7 +84,7 @@ def main():
         phi = k / n
         ks = [int(np.floor(pmax(n, r2cs_from_c(c, phi), phi))) - args.base_df for c in C_VALUES]
         ok = n >= (1.96 / 0.05) ** 2 * phi * (1 - phi)
-        rows.append([s, n, k, pct(k, n), k // 10 - args.base_df, k // 15 - args.base_df,
+        rows.append([s, n, k, pct(k, n), max(k // 10 - args.base_df, 0), max(k // 15 - args.base_df, 0),
                      *[max(x, 0) for x in ks], "met" if ok else "not met"])
 
     rep = ["# Curvature scores per segment model: parameter budget\n",

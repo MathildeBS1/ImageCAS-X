@@ -14,6 +14,7 @@ Each split by segment and by visual grade. Aggregates only (counts 1-4 hidden); 
 medis_contour_coverage.md.
 """
 import argparse
+import sys
 from collections import defaultdict
 from pathlib import Path
 
@@ -21,6 +22,7 @@ import pandas as pd
 
 import hoe10y_qc as hq
 from cgps_stats import OUT_DIR, count, count_of, pct
+sys.path.insert(0, str(Path(__file__).resolve().parent / "thesis_final"))
 from split_check import COVERS, ORDER, build, contour_files
 from split_trunks import table
 

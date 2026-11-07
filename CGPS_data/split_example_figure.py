@@ -19,6 +19,7 @@ image or its file name. The figure still shows two patients' anatomy: check with
 leaves the server.
 """
 import argparse
+import sys
 import random
 from pathlib import Path
 
@@ -32,6 +33,7 @@ from matplotlib.patches import FancyBboxPatch
 import centerline_qc as cq
 import hoe10y_qc as hq
 from cgps_stats import OUT_DIR
+sys.path.insert(0, str(Path(__file__).resolve().parent / "thesis_final"))
 from split_check import COVERS, OFF_TRUNK, contour_files, contour_points, visual
 from split_trunks import ARTERY_OF, NAMES, graph, split
 
@@ -98,8 +100,6 @@ def draw_3d(ax, e, artery):
         ax.plot(*Y[m].T, color=color[seg], lw=3.5, solid_capstyle="round")
         k = np.argmin(abs(s - (lo + hi) / 2))
         ax.text(*(Y[k] + [0, 0, 6]), pretty(seg), color=INK, fontweight="bold", fontsize=9, ha="center")
-    for b in list(e["bounds"].values())[1:]:
-        ax.scatter(*Y[np.argmin(abs(s - b[0]))], marker="o", s=30, c=INK, depthshade=False)
     ax.set_box_aspect(np.ptp(Y, axis=0) + 1e-6, zoom=1.35)
     ax.view_init(elev=20, azim=-60)
     ax.set_axis_off()
@@ -149,9 +149,8 @@ def figure(good, bad, artery, out):
         ax = fig.add_subplot(gs[1, col]); ax.set_facecolor(SURF)
         draw_straight(ax, e, artery)
     handles = [Line2D([], [], color=INK2, lw=8, alpha=0.25, label="Medis contour"),
-               Line2D([], [], color=MISMATCH, lw=8, alpha=0.35, label="visual plaque, no Medis contour"),
-               Line2D([], [], ls="", marker="o", ms=5, color=INK, label="split boundary (Medis label change)")]
-    fig.legend(handles=handles, loc="lower center", ncol=3, frameon=False, fontsize=8.5, bbox_to_anchor=(0.5, 0.0))
+               Line2D([], [], color=MISMATCH, lw=8, alpha=0.35, label="visual plaque, no Medis contour")]
+    fig.legend(handles=handles, loc="lower center", ncol=2, frameon=False, fontsize=8.5, bbox_to_anchor=(0.5, 0.0))
     fig.savefig(out, dpi=200, bbox_inches="tight", facecolor=SURF)
     plt.close(fig)
 

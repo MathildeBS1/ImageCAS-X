@@ -1,0 +1,29 @@
+% Secondary analysis: shape of the curvature profile by FPCA (written 2026-11-06, user).
+% Decision (memory curvature-fpca-plad-mlad-only, 2026-11-04): the main model uses mean curvature;
+%   FPCA shape scores only in the proximal and mid LAD, each with its own descriptive cloglog model,
+%   not pooled and not part of the prespecified LR test.
+% Theory: technical_background/04_fpca.tex (sec:tech-fpca, sec:tech-fpca-grid,
+%   sec:tech-fpca-registration); its registration hazard is answered in the last paragraph here.
+% Settings: CGPS_data/turning_profile_shapes.py (grid 50, SVD, K rules var80/var90, Horn, circular
+%   shift, bootstrap 0.9, 5-fold CV) and CGPS_data/segment_k_budget.py (K_max per segment by Riley
+%   criteria (i) and (ii), base 1 df). Neither is in CGPS_data/thesis_final/; turning_profile_shapes
+%   still runs on the Medis trees (people with plaque at baseline) until split_check.tracer_tree exists.
+% Counts: saved.md has 275 and 201 events on the 1,077 before the image-quality exclusion; left as
+%   [..] until the study cohort is fixed.
+% [..] and \clarify{} mark information that is not yet available; nothing there is to be guessed.
+\providecommand{\clarify}[1]{\textcolor{red}{\textbf{Clarification needed:} #1}}
+\section{Secondary Analysis of Curvature Shape}
+\label{sec:method-fpca}
+
+Mean curvature (Section~\ref{sec:method-curvature}) gives the same value to a segment with one sharp bend and to one that turns evenly along its length.
+To describe where along a segment the turning lies, the curvature profile was analysed by functional principal component analysis (FPCA, Section~\ref{sec:tech-fpca}) as a secondary, descriptive analysis, outside the test of the geometry block (Section~\ref{sec:method-models}).
+Several shape scores can be estimated only where there are enough events, so the analysis was restricted to the proximal and mid LAD, with [..] and [..] participants who developed plaque in these segments.
+
+The profile of Eq.~\eqref{eq:method-profile} of each segment was placed on 50 equally spaced points of normalised position, from its first (0) to its last (1) profile point, by linear interpolation (Section~\ref{sec:tech-fpca-grid}).
+The FPCA was computed separately for each of the two segments, by a singular value decomposition of the centred matrix of participants by grid points.
+The profiles were not registered, so a component can also describe a shift of a bend along the segment (Section~\ref{sec:tech-fpca-registration}).
+
+The number of components $K$ of a segment was fixed before the scores were linked to the outcome, as the smaller of the number of components that passed [rule] and the largest number of parameters the segment supports by the criteria of Section~\ref{sec:tech-sample-size}, less the base.
+\clarify{which rule fixes $K$: turning\_profile\_shapes.py reports 80 and 90\% of variance, Horn's parallel analysis, a circular-shift null, bootstrap stability (median $|\cos| \geq 0.9$) and five-fold cross-validated prediction error.}
+For each segment, a complementary log-log model with the base and the $K$ scores was fitted to that segment's rows, one per participant, and its coefficients were reported as estimates with intervals and not tested.
+\clarify{the base of the segment models (1 degree of freedom in segment\_k\_budget.py, the recalibrated SCORE2) and the interval method.}

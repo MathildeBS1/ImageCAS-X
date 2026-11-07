@@ -2,7 +2,7 @@
 
     python thesis/methodology/turning_feature_schematic.py
 
-A made-up trunk (no patient data) with unevenly spaced points and made-up p/m/d boundaries, run
+A made-up artery (no patient data) with unevenly spaced points and made-up p/m/d boundaries, run
 through the real code: _at_chord and profile_thesis of tortuosity/curvature.py and mean_turning of
 CGPS_data/thesis_final/turning_feature.py. A, the trunk; B and C, the angle at one point and at the
 next; D, the profile at every point; E, the arc-length mean per segment. The trunk lies in a plane so
@@ -91,7 +91,7 @@ for b in BOUNDS[1:-1]:
 for k, (dx, dy) in enumerate(((3.5, -3.5), (-4, 3), (0, 3))):
     q = P2[np.argmin(np.abs(s - (BOUNDS[k] + BOUNDS[k + 1]) / 2))]
     ax.text(q[0] + dx, q[1] + dy, NAMES[k], color=PMD[k], fontsize=8.5, ha="center", va="center")
-ax.annotate("start of trunk", P2[0], xytext=(P2[0, 0] + 1, P2[0, 1] - 5.5), fontsize=8, color=INK2,
+ax.annotate("start of artery", P2[0], xytext=(P2[0, 0] + 1, P2[0, 1] - 5.5), fontsize=8, color=INK2,
             arrowprops=dict(arrowstyle="-", color=MUTED, lw=0.7))
 box = (P2[i0, 0] - HALF, P2[i0, 1] - HALF)
 ax.add_patch(Rectangle(box, 2 * HALF, 2 * HALF, fill=False, ls="--", lw=0.8, color=INK2))
@@ -194,7 +194,7 @@ for k in range(3):
             ha="center", va="bottom", bbox=dict(fc=SURF, ec="none", pad=0.6, alpha=0.85), zorder=4)
 ax.text(0.085, 0.95, r"$T_s = \frac{1}{s_{\mathrm{last}} - s_{\mathrm{first}}}\int \kappa(s)\,\mathrm{d}s$", transform=ax.transAxes, ha="left", va="top",
         fontsize=8.5, color=INK, bbox=dict(fc=SURF, ec=GRID, lw=0.6, pad=3))
-style(ax, "arc length along the trunk (mm)", r"$\kappa$ (rad/mm)")
+style(ax, "arc length along the artery (mm)", r"$\kappa$ (rad/mm)")
 ax.set_title("one mean turning per segment: the area under the profile divided by the length it covers",
              fontsize=8.5, color=INK2, loc="left")
 

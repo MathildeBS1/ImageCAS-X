@@ -6,7 +6,8 @@ The Medis trees should cover every patient who is not plaque-free at BL. This sc
 patients with plaque (ct_cag_sis > 0 or ct_cag_sss > 0) without a tree, split by ct_cag_visual_read,
 and for them reports the number of plaque segments, the worst grade, the segments with plaque
 (grade minimal or worse) and the Medis plaque-analysis status columns, next to the same numbers for
-the patients with a tree. Aggregates only (counts 1-4 shown as <5).
+the patients with a tree. The no-tree patients whose Medis analysis is marked finished get their own
+column, with the plaque type of their plaque segments. Aggregates only (counts 1-4 shown as <5).
 """
 
 import argparse
@@ -18,11 +19,20 @@ import hoe10y_qc as hq
 from cgps_stats import OUT_DIR, SEGMENTS, count, num, yes
 
 RANK = {g: i for i, g in enumerate(hq.GRADES)}
+TYPES = tuple(hq.PLAQUE_CODES)
+TYPE_OF_CODE = {str(v): k for k, v in hq.PLAQUE_CODES.items()}
 TRUNKS = ("plad", "mlad", "dlad", "pcx", "mcx", "dcx", "prca", "mrca", "drca")
 
 
 def pc(k, n):
     return f"{100 * k / n:.1f}" if n else ""
+
+
+def plaque_type(raw):
+    """Visual plaque-type cell -> one of TYPES, or 'not recorded'."""
+    t = hq.label_text(pd.Series([raw])).iloc[0]
+    t = TYPE_OF_CODE.get(t.removesuffix(".0"), t)
+    return t if t in TYPES else "not recorded"
 
 
 def main():
@@ -56,7 +66,9 @@ def main():
     rep.append(f"| **all** | | **{count(tree.sum())}** | **{count((~tree).sum())}** | **{count(len(bl))}** |")
     rep.append(f"\nTree IDs not in the BL sheet: {count(len(tree_ids - set(bl.index)))}.")
 
-    groups = {"plaque, no tree": plaque & ~tree, "plaque, tree": plaque & tree}
+    finished = pd.concat([num(bl[c]) == 1 for c in bl if c.endswith("_medis_finished")], axis=1).any(axis=1)
+    groups = {"plaque, no tree": plaque & ~tree, "no tree, Medis finished": plaque & ~tree & finished,
+              "plaque, tree": plaque & tree}
     n = {g: int(m.sum()) for g, m in groups.items()}
     hdr = "| | " + " | ".join(f"{g} n | %" for g in groups) + " |"
     sep = "|---|" + "---|---|" * len(groups)
@@ -96,6 +108,27 @@ def main():
                     ("CX (incl. OM1, OM2)", ("pcx", "mcx", "dcx", "om1", "om2")),
                     ("RCA (incl. PDA, PLA)", ("prca", "mrca", "drca", "pda", "pla"))]:
         rep.append(row(f"any {v}", [int(seg_plaque.loc[m, list(segs)].any(axis=1).sum()) for m in groups.values()]))
+
+    # plaque type of the plaque segments (BL _plaque_type exists only for segments with plaque)
+    ptype = pd.DataFrame({s: bl[f"ct_cag_{s}_plaque_type"].map(plaque_type) for s in grade.columns
+                          if f"ct_cag_{s}_plaque_type" in bl}).where(seg_plaque)
+    tot = {g: int(ptype[m].notna().sum().sum()) for g, m in groups.items()}
+    rep += ["", "## Plaque type of the plaque segments", "",
+            "Per plaque segment; % of the plaque segments in the group (" + ", ".join(
+                f"{g}: {count(tot[g])}" for g in groups) + ").", "",
+            "| | " + " | ".join(f"{g} segments | %" for g in groups) + " |", sep]
+    for t in TYPES + ("not recorded",):
+        ks = [int((ptype[m] == t).sum().sum()) for m in groups.values()]
+        rep.append(f"| {t} | " + " | ".join(f"{count(k)} | {pc(k, tot[g])}" for g, k in zip(groups, ks)) + " |")
+    nonc = ptype.isin(("mostly_noncalcified", "noncalcified"))
+    rep += ["", "Per patient; % of the patients in the group.", "", hdr, sep,
+            row("all plaque segments (mostly) calcified", [int((ptype[m].isin(("calcified", "mostly_calcified"))
+                                                                 | ptype[m].isna()).all(axis=1).sum()
+                                                                - (ptype[m].isna().all(axis=1)).sum())
+                                                            for m in groups.values()]),
+            row("any (mostly) noncalcified segment", [int(nonc[m].any(axis=1).sum()) for m in groups.values()]),
+            row("any segment with no type recorded", [int((ptype[m] == "not recorded").any(axis=1).sum())
+                                                      for m in groups.values()])]
 
     # Medis plaque-analysis status (BL only, filled only for segments with plaque)
     rep += ["", "## Medis plaque-analysis status columns", "",

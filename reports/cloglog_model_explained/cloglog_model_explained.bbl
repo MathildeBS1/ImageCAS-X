@@ -1,0 +1,378 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.2 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated by
+% biber as required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+
+\refsection{0}
+  \datalist[entry]{none/global//global/global}
+    \entry{statacorp2025mecloglog}{manual}{}
+      \name{author}{1}{}{%
+        {{hash=8402f20eb2f83aacb569a915446f09f6}{%
+           family={{StataCorp}},
+           familyi={S\bibinitperiod}}}%
+      }
+      \list{location}{1}{%
+        {College Station, TX}%
+      }
+      \list{organization}{1}{%
+        {Stata Press}%
+      }
+      \strng{namehash}{8402f20eb2f83aacb569a915446f09f6}
+      \strng{fullhash}{8402f20eb2f83aacb569a915446f09f6}
+      \strng{bibnamehash}{8402f20eb2f83aacb569a915446f09f6}
+      \strng{authorbibnamehash}{8402f20eb2f83aacb569a915446f09f6}
+      \strng{authornamehash}{8402f20eb2f83aacb569a915446f09f6}
+      \strng{authorfullhash}{8402f20eb2f83aacb569a915446f09f6}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{mecloglog: Multilevel mixed-effects complementary log-log regression}
+      \field{year}{2025}
+      \verb{urlraw}
+      \verb https://www.stata.com/manuals/memecloglog.pdf
+      \endverb
+      \verb{url}
+      \verb https://www.stata.com/manuals/memecloglog.pdf
+      \endverb
+    \endentry
+    \entry{prentice1978grouped}{article}{}
+      \name{author}{2}{}{%
+        {{hash=60a8bdbad761448d56b54e75a14b3dde}{%
+           family={Prentice},
+           familyi={P\bibinitperiod},
+           given={R.\bibnamedelimi L.},
+           giveni={R\bibinitperiod\bibinitdelim L\bibinitperiod}}}%
+        {{hash=849179036f582af297a3592054924c78}{%
+           family={Gloeckler},
+           familyi={G\bibinitperiod},
+           given={L.\bibnamedelimi A.},
+           giveni={L\bibinitperiod\bibinitdelim A\bibinitperiod}}}%
+      }
+      \strng{namehash}{da3d94581af81b205a764bae152ab74e}
+      \strng{fullhash}{da3d94581af81b205a764bae152ab74e}
+      \strng{bibnamehash}{da3d94581af81b205a764bae152ab74e}
+      \strng{authorbibnamehash}{da3d94581af81b205a764bae152ab74e}
+      \strng{authornamehash}{da3d94581af81b205a764bae152ab74e}
+      \strng{authorfullhash}{da3d94581af81b205a764bae152ab74e}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Biometrics}
+      \field{number}{1}
+      \field{title}{Regression analysis of grouped survival data with application to breast cancer data}
+      \field{volume}{34}
+      \field{year}{1978}
+      \field{pages}{57\bibrangedash 67}
+      \range{pages}{11}
+      \verb{doi}
+      \verb 10.2307/2529588
+      \endverb
+    \endentry
+    \entry{duchateau2008frailty}{book}{}
+      \name{author}{2}{}{%
+        {{hash=04010de483b0413adf31e5ca5a0c688b}{%
+           family={Duchateau},
+           familyi={D\bibinitperiod},
+           given={Luc},
+           giveni={L\bibinitperiod}}}%
+        {{hash=95a2911df60d4857b1ca686ce414e93e}{%
+           family={Janssen},
+           familyi={J\bibinitperiod},
+           given={Paul},
+           giveni={P\bibinitperiod}}}%
+      }
+      \list{location}{1}{%
+        {New York}%
+      }
+      \list{publisher}{1}{%
+        {Springer}%
+      }
+      \strng{namehash}{7fea4c60805b4a15f85050818e4c1f8f}
+      \strng{fullhash}{7fea4c60805b4a15f85050818e4c1f8f}
+      \strng{bibnamehash}{7fea4c60805b4a15f85050818e4c1f8f}
+      \strng{authorbibnamehash}{7fea4c60805b4a15f85050818e4c1f8f}
+      \strng{authornamehash}{7fea4c60805b4a15f85050818e4c1f8f}
+      \strng{authorfullhash}{7fea4c60805b4a15f85050818e4c1f8f}
+      \field{sortinit}{4}
+      \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{series}{Statistics for Biology and Health}
+      \field{title}{The Frailty Model}
+      \field{year}{2008}
+      \verb{doi}
+      \verb 10.1007/978-0-387-72835-3
+      \endverb
+    \endentry
+    \entry{austin2017mhr}{article}{}
+      \name{author}{3}{}{%
+        {{hash=72bb99ace345dcf7ae8b3e877ab1dc2f}{%
+           family={Austin},
+           familyi={A\bibinitperiod},
+           given={Peter\bibnamedelima C.},
+           giveni={P\bibinitperiod\bibinitdelim C\bibinitperiod}}}%
+        {{hash=5bd266934cd865c751aaafee5951baee}{%
+           family={Wagner},
+           familyi={W\bibinitperiod},
+           given={Philippe},
+           giveni={P\bibinitperiod}}}%
+        {{hash=b0fa509e52faa9aa3c1f2460396bc8e0}{%
+           family={Merlo},
+           familyi={M\bibinitperiod},
+           given={Juan},
+           giveni={J\bibinitperiod}}}%
+      }
+      \strng{namehash}{f3f16a3d1516784344f7c6e799545718}
+      \strng{fullhash}{f3f16a3d1516784344f7c6e799545718}
+      \strng{bibnamehash}{f3f16a3d1516784344f7c6e799545718}
+      \strng{authorbibnamehash}{f3f16a3d1516784344f7c6e799545718}
+      \strng{authornamehash}{f3f16a3d1516784344f7c6e799545718}
+      \strng{authorfullhash}{f3f16a3d1516784344f7c6e799545718}
+      \field{sortinit}{5}
+      \field{sortinithash}{20e9b4b0b173788c5dace24730f47d8c}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Statistics in Medicine}
+      \field{number}{6}
+      \field{title}{The median hazard ratio: a useful measure of variance and general contextual effects in multilevel survival analysis}
+      \field{volume}{36}
+      \field{year}{2017}
+      \field{pages}{928\bibrangedash 938}
+      \range{pages}{11}
+      \verb{doi}
+      \verb 10.1002/sim.7188
+      \endverb
+    \endentry
+    \entry{liang1986longitudinal}{article}{}
+      \name{author}{2}{}{%
+        {{hash=3259647b1e22a631b8fee654fb161889}{%
+           family={Liang},
+           familyi={L\bibinitperiod},
+           given={Kung-Yee},
+           giveni={K\bibinithyphendelim Y\bibinitperiod}}}%
+        {{hash=022dfc2e1071d95c0df10b84f7f84ef1}{%
+           family={Zeger},
+           familyi={Z\bibinitperiod},
+           given={Scott\bibnamedelima L.},
+           giveni={S\bibinitperiod\bibinitdelim L\bibinitperiod}}}%
+      }
+      \strng{namehash}{0e8ebbe00d8454695f8f140dd02848aa}
+      \strng{fullhash}{0e8ebbe00d8454695f8f140dd02848aa}
+      \strng{bibnamehash}{0e8ebbe00d8454695f8f140dd02848aa}
+      \strng{authorbibnamehash}{0e8ebbe00d8454695f8f140dd02848aa}
+      \strng{authornamehash}{0e8ebbe00d8454695f8f140dd02848aa}
+      \strng{authorfullhash}{0e8ebbe00d8454695f8f140dd02848aa}
+      \field{sortinit}{6}
+      \field{sortinithash}{b33bc299efb3c36abec520a4c896a66d}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Biometrika}
+      \field{number}{1}
+      \field{title}{Longitudinal data analysis using generalized linear models}
+      \field{volume}{73}
+      \field{year}{1986}
+      \field{pages}{13\bibrangedash 22}
+      \range{pages}{10}
+      \verb{doi}
+      \verb 10.1093/biomet/73.1.13
+      \endverb
+    \endentry
+    \entry{liu1994gausshermite}{article}{}
+      \name{author}{2}{}{%
+        {{hash=38189fe02b562b8892bd694420804211}{%
+           family={Liu},
+           familyi={L\bibinitperiod},
+           given={Qing},
+           giveni={Q\bibinitperiod}}}%
+        {{hash=aacec898241dab756fcab1bdf0d5f4d7}{%
+           family={Pierce},
+           familyi={P\bibinitperiod},
+           given={Donald\bibnamedelima A.},
+           giveni={D\bibinitperiod\bibinitdelim A\bibinitperiod}}}%
+      }
+      \strng{namehash}{6ee975b0b60bebb8462265be8dd01595}
+      \strng{fullhash}{6ee975b0b60bebb8462265be8dd01595}
+      \strng{bibnamehash}{6ee975b0b60bebb8462265be8dd01595}
+      \strng{authorbibnamehash}{6ee975b0b60bebb8462265be8dd01595}
+      \strng{authornamehash}{6ee975b0b60bebb8462265be8dd01595}
+      \strng{authorfullhash}{6ee975b0b60bebb8462265be8dd01595}
+      \field{sortinit}{7}
+      \field{sortinithash}{108d0be1b1bee9773a1173443802c0a3}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Biometrika}
+      \field{number}{3}
+      \field{title}{A note on {Gauss--Hermite} quadrature}
+      \field{volume}{81}
+      \field{year}{1994}
+      \field{pages}{624\bibrangedash 629}
+      \range{pages}{6}
+      \verb{doi}
+      \verb 10.2307/2337136
+      \endverb
+    \endentry
+    \entry{pavlou2015marginal}{article}{}
+      \name{author}{4}{}{%
+        {{hash=2a395764a1e6b9644934fd483c19a32e}{%
+           family={Pavlou},
+           familyi={P\bibinitperiod},
+           given={Menelaos},
+           giveni={M\bibinitperiod}}}%
+        {{hash=f8e884bbbe32c6130579c9d57fa2a6b2}{%
+           family={Ambler},
+           familyi={A\bibinitperiod},
+           given={Gareth},
+           giveni={G\bibinitperiod}}}%
+        {{hash=f848adc8f6868df704e4b4e83fe9a167}{%
+           family={Seaman},
+           familyi={S\bibinitperiod},
+           given={Shaun},
+           giveni={S\bibinitperiod}}}%
+        {{hash=2b305dab7718b9e0392d6e76e8d26682}{%
+           family={Omar},
+           familyi={O\bibinitperiod},
+           given={Rumana\bibnamedelima Z.},
+           giveni={R\bibinitperiod\bibinitdelim Z\bibinitperiod}}}%
+      }
+      \strng{namehash}{6c053cdca7d72c4d4abb728d84c5f413}
+      \strng{fullhash}{cb573884c106bfcaba83d4ec510b5d34}
+      \strng{bibnamehash}{cb573884c106bfcaba83d4ec510b5d34}
+      \strng{authorbibnamehash}{cb573884c106bfcaba83d4ec510b5d34}
+      \strng{authornamehash}{6c053cdca7d72c4d4abb728d84c5f413}
+      \strng{authorfullhash}{cb573884c106bfcaba83d4ec510b5d34}
+      \field{sortinit}{9}
+      \field{sortinithash}{0a5ebc79d83c96b6579069544c73c7d4}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{BMC Medical Research Methodology}
+      \field{title}{A note on obtaining correct marginal predictions from a random intercepts model for binary outcomes}
+      \field{volume}{15}
+      \field{year}{2015}
+      \field{pages}{59}
+      \range{pages}{1}
+      \verb{doi}
+      \verb 10.1186/s12874-015-0046-6
+      \endverb
+    \endentry
+    \entry{skrondal2009prediction}{article}{}
+      \name{author}{2}{}{%
+        {{hash=ada58485b5fa02cbe84dc9e35d15e7f4}{%
+           family={Skrondal},
+           familyi={S\bibinitperiod},
+           given={Anders},
+           giveni={A\bibinitperiod}}}%
+        {{hash=008bffe1f788da09116b223e2510c847}{%
+           family={Rabe-Hesketh},
+           familyi={R\bibinithyphendelim H\bibinitperiod},
+           given={Sophia},
+           giveni={S\bibinitperiod}}}%
+      }
+      \strng{namehash}{154f99bdb064bc25c82215468beea82d}
+      \strng{fullhash}{154f99bdb064bc25c82215468beea82d}
+      \strng{bibnamehash}{154f99bdb064bc25c82215468beea82d}
+      \strng{authorbibnamehash}{154f99bdb064bc25c82215468beea82d}
+      \strng{authornamehash}{154f99bdb064bc25c82215468beea82d}
+      \strng{authorfullhash}{154f99bdb064bc25c82215468beea82d}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Journal of the Royal Statistical Society: Series A (Statistics in Society)}
+      \field{number}{3}
+      \field{title}{Prediction in multilevel generalized linear models}
+      \field{volume}{172}
+      \field{year}{2009}
+      \field{pages}{659\bibrangedash 687}
+      \range{pages}{29}
+      \verb{doi}
+      \verb 10.1111/j.1467-985X.2009.00587.x
+      \endverb
+    \endentry
+    \entry{pinheiro1995approximations}{article}{}
+      \name{author}{2}{}{%
+        {{hash=e5166a8d30c5e8bdb2ae36273ae0e7dd}{%
+           family={Pinheiro},
+           familyi={P\bibinitperiod},
+           given={José\bibnamedelima C.},
+           giveni={J\bibinitperiod\bibinitdelim C\bibinitperiod}}}%
+        {{hash=360dc0972db106db1f3c633e3c95e02e}{%
+           family={Bates},
+           familyi={B\bibinitperiod},
+           given={Douglas\bibnamedelima M.},
+           giveni={D\bibinitperiod\bibinitdelim M\bibinitperiod}}}%
+      }
+      \strng{namehash}{d95ee54c06b3ac709f1e1e13fcb5f017}
+      \strng{fullhash}{d95ee54c06b3ac709f1e1e13fcb5f017}
+      \strng{bibnamehash}{d95ee54c06b3ac709f1e1e13fcb5f017}
+      \strng{authorbibnamehash}{d95ee54c06b3ac709f1e1e13fcb5f017}
+      \strng{authornamehash}{d95ee54c06b3ac709f1e1e13fcb5f017}
+      \strng{authorfullhash}{d95ee54c06b3ac709f1e1e13fcb5f017}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Journal of Computational and Graphical Statistics}
+      \field{number}{1}
+      \field{title}{Approximations to the log-likelihood function in the nonlinear mixed-effects model}
+      \field{volume}{4}
+      \field{year}{1995}
+      \field{pages}{12\bibrangedash 35}
+      \range{pages}{24}
+      \verb{doi}
+      \verb 10.1080/10618600.1995.10474663
+      \endverb
+    \endentry
+    \entry{self1987asymptotic}{article}{}
+      \name{author}{2}{}{%
+        {{hash=f00a90cfb61356c2271e3bd8ed27cf4d}{%
+           family={Self},
+           familyi={S\bibinitperiod},
+           given={Steven\bibnamedelima G.},
+           giveni={S\bibinitperiod\bibinitdelim G\bibinitperiod}}}%
+        {{hash=3259647b1e22a631b8fee654fb161889}{%
+           family={Liang},
+           familyi={L\bibinitperiod},
+           given={Kung-Yee},
+           giveni={K\bibinithyphendelim Y\bibinitperiod}}}%
+      }
+      \strng{namehash}{78257426dfa6eb0e89c8b9ff6a22d4b5}
+      \strng{fullhash}{78257426dfa6eb0e89c8b9ff6a22d4b5}
+      \strng{bibnamehash}{78257426dfa6eb0e89c8b9ff6a22d4b5}
+      \strng{authorbibnamehash}{78257426dfa6eb0e89c8b9ff6a22d4b5}
+      \strng{authornamehash}{78257426dfa6eb0e89c8b9ff6a22d4b5}
+      \strng{authorfullhash}{78257426dfa6eb0e89c8b9ff6a22d4b5}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Journal of the American Statistical Association}
+      \field{number}{398}
+      \field{title}{Asymptotic properties of maximum likelihood estimators and likelihood ratio tests under nonstandard conditions}
+      \field{volume}{82}
+      \field{year}{1987}
+      \field{pages}{605\bibrangedash 610}
+      \range{pages}{6}
+      \verb{doi}
+      \verb 10.1080/01621459.1987.10478472
+      \endverb
+    \endentry
+  \enddatalist
+\endrefsection
+\endinput
+

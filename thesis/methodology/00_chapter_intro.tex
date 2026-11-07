@@ -1,29 +1,34 @@
-% Chapter opener (rewritten 2026-10-31 to the user's seven stages, Aïda-style single paragraph).
+% Chapter opener (rewritten 2026-10-31, Aida-style single paragraph; refactored 2026-11-06 to nine
+% stages, one per section, in \input order).
 % Order of \input (no main file yet):
-%   01a_inhouse_tracer      tracer on all BL scans (cited tool, not own)    sec:method-tracer
+%   01a_inhouse_tracer      tracer on all BL scans (cited tool, not own)     sec:method-tracer
 %   01b_medis_reference     Medis collapsed to full arteries; tracer vs Medis sec:method-medis
-%   02_population_outcome   population, 17 segments, outcome, arteries      sec:method-population
-%   02b_segment_split       cutting the traced arteries into segments       sec:method-split
-%   02_models               prediction model, base terms (NOT WRITTEN)      sec:method-models
-%   03_model_size           parameter budget and feature selection          sec:method-size,
-%                           (Riley criteria: technical_background/03b)       sec:method-selection
-%   11_cross_validation     cross-validation                                sec:method-cv
-%   05_features to 09_      the chosen features in depth                    sec:method-features
-%   10b_feature_validity    measurement properties                          sec:method-validity
-% Retired, not \input: 10_medis_validation.tex (replaced by 01b_medis_reference.tex);
-%   retired/04_feature_selection.tex (merged into 03_model_size.tex, 2026-11-06).
+%   02_population_outcome   population, outcome                              sec:method-population
+%   02b_segment_split       dividing the traced arteries into segments       sec:method-split
+%   03_prediction_model     pooled cloglog GLMM, base, LR test, CV           sec:method-models, sec:method-cv
+%   04_model_size           parameter budget and feature selection          sec:method-size, sec:method-selection
+%                           (Riley criteria: technical_background/03b)
+%   05_features             umbrella, then 05a_curvature, 05b_bifurcation_angle,
+%                           05c_daughter_ratio, 05d_taper                     sec:method-features
+%   06_feature_validity     measurement properties                          sec:method-validity
+%   07_curvature_fpca       secondary analysis: curvature shape (FPCA)       sec:method-fpca
+% Deleted 2026-11-06: 10_medis_validation.tex (superseded by 01b_medis_reference.tex) and
+%   11_cross_validation.tex (moved into 03_prediction_model.tex).
+% Retired, not \input: retired/04_feature_selection.tex (merged into 04_model_size.tex).
 % Overview figure still to make (style guide: an overview figure opens the methods).
 \providecommand{\clarify}[1]{\textcolor{red}{\textbf{Clarification needed:} #1}}
 \chapter{Methodology}
 \label{ch:methodology}
 
-The methodology followed in this work is summarized in Figure~\ref{fig:method-overview} and consists of seven main stages:
+The methodology followed in this work is summarized in Figure~\ref{fig:method-overview} and consists of nine main stages:
 (1) extraction of the coronary centerlines and lumen contours from all baseline scans with an in-house tracer;
 (2) comparison of the extracted centerlines and lumen with Medis as a reference, as no ground truth was available;
 (3) selection of the plaque-free baseline cohort and definition of the outcome from the visual analysis;
 (4) division of the traced arteries into the segments of the visual analysis;
-(5) the prediction model, the number of parameters the cohort can support, the choice of geometric features within it, and the cross-validation;
-(6) definition of the geometric features and their expected measurement error;
-and (7) assessment of the validity of these features against known groups and the variance explained by known risk factors.
+(5) the prediction model and its cross-validation;
+(6) the number of parameters the cohort can support and the choice of geometric features within it;
+(7) definition of the geometric features;
+(8) assessment of their measurement properties, against synthetic shapes and known groups, and of the variance explained by known risk factors;
+and (9) a secondary, descriptive analysis of the shape of the curvature profile.
 
-\clarify{overview figure of the seven stages (label fig:method-overview).}
+\clarify{overview figure of the nine stages (label fig:method-overview).}

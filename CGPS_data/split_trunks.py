@@ -12,9 +12,9 @@ LAD: LM bifurcation -> first diagonal (p) -> second labelled diagonal (m), else 
 remaining distance to the LAD end -> end (d).
 LCx: LM bifurcation -> OM1 (p) -> OM2 (m) -> end (d).
 RCA: ostium -> half way to the acute margin (p) -> acute margin (m) -> PDA origin (d); the acute margin
-is the sharpest bend (over TURN_CHORD mm chords) between the RCA point farthest from the
-ostium-to-crux chord and the crux (ACUTE = "chord" keeps the farthest point, the rule before
-2026-11-01, which sat ~20 mm proximal of the Medis labels). A missing landmark falls back to the first
+is at RCA_ACUTE_FRAC of the way to the crux, where the Medis labels put it (ACUTE = "turn": the
+sharpest bend distal of the point farthest from the ostium-to-crux chord; "chord": that farthest
+point, the rule before 2026-11-01, ~20 mm proximal of the Medis labels). A missing landmark falls back to the first
 side branch >= 15 mm long, and without one to a fixed fraction of the trunk. Where the Medis labels
 exist the landmark rule is also run, with and without branch labels, to measure its boundary error.
 
@@ -47,8 +47,11 @@ NAMES = {
 }
 BRANCH = {"LAD": r"^d\d", "CX": r"^om\d", "RCA": r"^pda$"}
 MIN_BRANCH = 15.0
-LAD_MD_FRAC = 0.5  # LAD m/d without a labelled D2: this fraction of the way from D1 to the LAD end
-ACUTE = "turn"  # RCA acute margin: "turn" = sharpest bend distal of the chord point, "chord" = old rule
+LAD_MD_FRAC = 0.29  # LAD m/d without a labelled D2: this fraction of the way from D1 to the LAD end
+#   (median of the Medis labels, half A of medis_landmark_check.py, 2026-11-01; was 0.5)
+ACUTE = "fraction"  # RCA acute margin: "fraction" = RCA_ACUTE_FRAC of the crux, "turn" = sharpest bend
+#   distal of the chord point, "chord" = farthest from the ostium-crux chord (rule before 2026-11-01)
+RCA_ACUTE_FRAC = 0.67  # median Medis m/d / crux, half A of medis_landmark_check.py (IQR 0.7 to 0.7)
 TURN_CHORD = 10.0  # mm: chord on each side of a point for the bend angle at the acute margin
 BRIDGE = 3.0  # mm: a polyline end this close to another piece of the tree is joined to it
 ARTERY_OF = {k: a.lower() for a, ks in TRUNK.items() for k in ks}
@@ -171,7 +174,9 @@ def landmark_cuts(a, p, X, br, s, use_labels=True):
     dist = np.linalg.norm(np.cross(Y - Y[0], chord), axis=1)
     mid = (s > 0.2 * crux) & (s < 0.9 * crux)
     acute = s[mid][dist[mid].argmax()] if mid.any() else 2 / 3 * crux
-    if ACUTE == "turn":  # the bulge sits ~20 mm proximal of the Medis m/d: take the sharpest bend after it
+    if ACUTE == "fraction":
+        acute = RCA_ACUTE_FRAC * crux
+    elif ACUTE == "turn":  # the bulge sits ~20 mm proximal of the Medis m/d: take the sharpest bend after it
         acute = sharpest_bend(Y, s, acute, crux - TURN_CHORD) or acute
     found = any(m > 0.3 * L for m in marks)
     return acute / 2, acute, crux, f"acute margin; crux at {rule}" if found else "acute margin; crux at trunk end"
@@ -263,7 +268,7 @@ def split(X, lab, G, info=None):
             pm, md, end, rule = lc or lm
             source = "medis_label" if lc else "fraction" if lm[3].startswith("fraction") else "landmark"
             info[a] = {"reason": "ok_label" if lc else "ok_landmark", "source": source,
-                       "landmark": lm[:3] if lc else None,
+                       "landmark": lm[:3] if lc else None, "landmark_rule": lm[3] if lc else None,
                        "label_free": landmark_cuts(a, p, X, br, s, use_labels=False)[:3] if lc else None}
             out[a] = (pm, md, end, rule, X[p], s)  # trunk points and arc length, for per-segment features
         except Exception as ex:  # noqa: BLE001 - recorded per artery

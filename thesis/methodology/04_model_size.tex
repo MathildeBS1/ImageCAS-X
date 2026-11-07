@@ -1,0 +1,97 @@
+% Steps 3 to 5 (2026-10-31): how many parameters the prediction model can support, how many are left
+% for geometry once the base terms are paid for, and which geometric features fill them.
+% Renamed from 03_model_size.tex in the 2026-11-06 refactor (follows 03_prediction_model.tex).
+% Merged 2026-11-06 (user): methodology/04_feature_selection.tex folded in (now
+% methodology/retired/04_feature_selection.tex, not input), so the counts and the outcome-blind rule
+% are stated once, in the section intro. The Riley criteria, P_max equation, C-to-R2 conversion and
+% pmsampsize are in technical_background/03b_sample_size.tex (sec:tech-sample-size).
+% Written to thesis/style_guide_methodology_aida.md.
+% Outcome-blind: the budget uses only the number of participants and events, never geometry; the
+% selection uses only the literature and measurement properties, never association with plaque.
+% Plan: ~/Desktop/Speciale/CGPS_statistics-/CLAUDE.md, open decision 11 (about 15 to 20
+% parameters at C = 0.70). Earlier per-artery calculation: thesis/riley_sample_size.tex (outdated
+% design, per-artery models).
+% Numbers: CGPS_data/who_where_readiness.py, which still uses 10/20 events-per-parameter rules
+% (line 51); switch it to the Riley criteria (pmsampsize) before filling the [..].
+% Selection, prose only (user, 2026-11-02): no lists, no table. Candidates set aside for one of
+% three reasons (weaker support in the literature, measurement error on CCTA, overlap with a
+% retained feature). Studies from the literature review return only as citations inside a reason.
+% HONESTY CHECK before submission: the text says the five terms were prioritised on the criteria
+% below and the rest were assigned to secondary analyses, NOT that a longer list was ranked and
+% cut. Keep it that way unless a ranking was actually done before the outcome was linked.
+% Candidates come from the plan: ~/Desktop/Speciale/CGPS_statistics-/CLAUDE.md ("Secondary and
+% exploratory threads", "Measurement notes") and reports/Centerline and lumen links to plaque.md.
+% [..] and \clarify{} mark information that is not yet available; nothing there is to be guessed.
+\providecommand{\clarify}[1]{\textcolor{red}{\textbf{Clarification needed:} #1}}
+\section{Parameter Budget and Feature Selection}
+\label{sec:method-size}
+
+To keep the test of the geometry block a test of geometry rather than of the choices made before it, the size of the model of Section~\ref{sec:method-models} and its geometric features were fixed before baseline geometry was linked to follow-up plaque.
+First, the number of parameters the cohort could support was computed from the number of participants and events alone.
+Subsequently, the geometric features were chosen from the literature and their measurement properties to fit within what remained after the base terms.
+
+\subsection{Parameter Budget}
+\label{sec:method-size-budget}
+
+To let the required size depend on how well the outcome can be predicted, and not only on the number of events, the budget was set with the criteria of Riley et~al.\ (Section~\ref{sec:tech-sample-size}) instead of a fixed number of events per variable.
+The target shrinkage was $S = 0.9$, and the anticipated C-statistic of the full model was 0.70 \clarify{source for the anticipated C, e.g.\ the clinical-only model for plaque progression in PARADIGM (0.68); citation needed}.
+As this value is uncertain, the budget was also computed at 0.65 and 0.75.
+With [..] clean-baseline participants, of whom [..] ([..]\%) developed plaque in a segment of the LAD, LCx or RCA, the model supports $P_{\max} = [..]$ parameters at a C-statistic of 0.70 ([..] at 0.65, [..] at 0.75).
+\clarify{the Riley criteria are stated for a binary participant-level outcome, whereas the model is the segment-level cloglog GLMM pooled to a person risk; state that $n$ and the events are counted per participant, or how else.}
+
+The allocation of the degrees of freedom is shown in Table~\ref{tab:method-size-budget}.
+Parameters were counted as degrees of freedom: a continuous term entered linearly costs one, a spline with $k$ knots costs $k-1$, a factor with $m$ levels costs $m-1$, and every interaction costs at least one more.
+The base terms were fixed first, as they define what the geometry has to add to (Section~\ref{sec:method-models}), and the geometric block was given what remained.
+All geometric terms were entered linearly, since a spline on every term would have needed [..] degrees of freedom, more than the model supports.
+Each extra parameter lowers the expected shrinkage and the power of the test of the geometry block, so part of the budget was deliberately left unused, and no feature was added only because there was room for it.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Degrees of freedom available and used in the model. The geometric block is the five features of Section~\ref{sec:method-selection}.}
+  \label{tab:method-size-budget}
+  \small
+  \begin{tabular}{>{\raggedright\arraybackslash}p{6.4cm}c}
+    \toprule
+    & Degrees of freedom \\
+    \midrule
+    Participants & [..] \\
+    Events & [..] \\
+    $P_{\max}$ at C = 0.70 & [..] \\
+    \midrule
+    Base terms: refitted SCORE2 factors & [..] \\
+    Geometric block & 5 \\
+    \midrule
+    Total used & [..] \\
+    Left unused & [..] \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\clarify{the SCORE2 factors and their coding (age linear or spline, which cholesterol terms).}
+\clarify{whether an indicator for an absent left main is part of the geometric block (open decision 5); it would add one degree of freedom.}
+
+\subsection{Selection of Geometric Features}
+\label{sec:method-selection}
+
+Within this budget, the candidates were the properties of coronary geometry that the studies reviewed in Chapter~\ref{ch:literature} relate to wall shear stress or to where plaque forms, and that the tracer output (Section~\ref{sec:method-tracer}) allows to be computed.
+Where a property has several definitions, such as tortuosity, one primary definition was fixed and the others were kept for a sensitivity analysis (Section~\ref{sec:method-validity-definitions}).
+
+Some candidates had weaker support in the literature than the features that were retained.
+The tortuosity index measures the same bending as curvature but was unrelated to low wall shear stress \cite{kashyap2022tortuosity}, and counts of bends have been associated with coronary disease in opposite directions \cite{groves2009tortuosity,li2011tortuosity,telloayala2026tortuosity}.
+The angles and diameter ratios of the side-branch bifurcations were also set aside, as the evidence linking bifurcation geometry to low wall shear stress and to disease concerns the left main bifurcation \cite{cui2017bifurcation,garcha2025sensitivity,tommasino2024clap}, and the side branches lie outside the analysed arteries (Section~\ref{sec:method-population-arteries}).
+
+Other candidates could not be measured on CCTA with an error small enough relative to the property itself.
+Torsion depends on the third derivative of the centerline and is therefore highly sensitive to its sampling and smoothing, and the minor axis of a plaque-free lumen spans only a few voxels, so that its eccentricity would mostly reflect segmentation noise; no CCTA reproducibility has been reported for either \clarify{citations; reports/More segment features for low WSS.md}.
+Local lumen expansion and pointwise profiles along the vessel rest on the contour at single points, whose accuracy was not assessed, and the ratio of lumen volume to myocardial mass requires a segmentation of the myocardium that the tracer does not provide.
+
+The remaining candidates largely repeated a retained feature.
+Finet's ratio \cite{finet2008fractal}, the strongest predictor of the low wall shear stress area at the left main bifurcation in a computational cohort \cite{gharleghi2024leftmain}, is a combination of the two left main diameter ratios.
+The product of curvature and calibre and the curvature of the segment upstream are both derived from curvature, distance from the ostium is largely given by the position of the segment, and the number of side branches in a segment partly repeats the segment boundaries, most of which are placed at side branches (Section~\ref{sec:method-split}).
+
+This left five features: the curvature and the taper of each segment, and the angle and the two diameter ratios of the left main bifurcation.
+Each could be computed from the tracer output in [..]\% or more of the clean-baseline cohort, and together they describe different aspects of the geometry, the bending and narrowing along the segments and the branching at the left main.
+The two diameter ratios share the left main diameter and correlate ([..] in the clean-baseline cohort), but both were kept, as each describes a different daughter.
+\clarify{whether the ratios enter on the log scale, as a scaling-law deviation plus an LAD/LCx asymmetry term (plan, measurement notes).}
+The excluded candidates were not ranked against each other, and no univariable screening or stepwise or penalised selection was used.
+Upstream turning, the pointwise profiles, the product of curvature and calibre, local lumen expansion and the ratio of lumen volume to myocardial mass were instead kept for secondary analyses, reported apart from the test of the geometry block.
+The five features are defined in Sections~\ref{sec:method-features} to~\ref{sec:method-ratio}, and their measurement properties are assessed in Section~\ref{sec:method-validity}.

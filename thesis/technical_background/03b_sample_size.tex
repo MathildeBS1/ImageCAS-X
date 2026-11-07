@@ -1,6 +1,6 @@
 % Technical Background, section 3b (written 2026-11-06; moved out of methodology/03_model_size.tex at
 %   the user's request). Named 03b so that 04_fpca keeps its number.
-% Pointed back to by: methodology/03_model_size.tex (sec:method-size-budget).
+% Pointed back to by: methodology/04_model_size.tex (sec:method-size-budget).
 % Model: style_guide_technical_aida.md (definition opener, where sentence after the equation, tool
 %   paragraph last, hazard closer).
 % The values S >= 0.9, 0.05 and +-0.05 are the values Riley et al. recommend, so they are literature,
@@ -13,12 +13,7 @@
 \label{sec:tech-sample-size}
 
 The sample size a prediction model needs depends on the number of parameters it estimates, on the proportion of persons with the outcome and on how well the outcome can be predicted, and not only on the number of events per parameter \cite{riley2020samplesize}.
-For a binary outcome, Riley et~al.\ recommend a sample size that meets three criteria \cite{riley2020samplesize}:
-\begin{enumerate}
-  \item an expected uniform shrinkage of the coefficients of at least $S = 0.9$;
-  \item a difference of at most 0.05 between the apparent and the optimism-adjusted Nagelkerke $R^2$;
-  \item an overall risk estimated within $\pm 0.05$ of its true value.
-\end{enumerate}
+For a binary outcome, Riley et~al.\ recommend a sample size that meets three criteria: an expected uniform shrinkage of the coefficients of at least $S = 0.9$, a difference of at most 0.05 between the apparent and the optimism-adjusted Nagelkerke $R^2$, and an overall risk estimated within $\pm 0.05$ of its true value \cite{riley2020samplesize}.
 
 For a given number of persons, the first criterion gives the largest number of parameters $P_{\max}$ the data support,
 \begin{equation}

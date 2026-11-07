@@ -68,9 +68,9 @@ def segment_metrics(Y, s, cuts):
         if hi - lo < 1.0 or chord < 1.0 or seg.sum() < 2:
             rows.append(None)
             continue
-        dm = (hi - lo) / chord
-        rows.append({"length": hi - lo, "DM": dm, "ICM": (int(flip[seg[1:]].sum()) + 1) * dm,
-                     "SOAM": theta[seg].mean()})
+        dm, n_infl = (hi - lo) / chord, int(flip[seg[1:]].sum())
+        rows.append({"length": hi - lo, "DM": dm, "ICM": (n_infl + 1) * dm, "SOAM": theta[seg].mean(),
+                     "infl_10mm": 10 * n_infl / (hi - lo)})
     return rows
 
 
@@ -215,6 +215,13 @@ def main():
         rep.append(f"| {m} | {count(len(d))} | {ari:.3f} | {sil:.3f} |")
     ari, sil = clusters(np.column_stack([z(d[m]) for m in METRICS]), y)
     rep.append(f"| all three together | {count(len(d))} | {ari:.3f} | {sil:.3f} |")
+    ari, sil = clusters(z(d["length"])[:, None], y)
+    rep.append(f"| *baseline: segment length alone* | {count(len(d))} | {ari:.3f} | {sil:.3f} |")
+    g = d["infl_10mm"].to_numpy()[:, None]
+    ari, sil = clusters((g - g.mean()) / g.std(), y)  # no log: zero inflections is common
+    rep.append(f"| *inflections per 10 mm (ICM without length)* | {count(len(d))} | {ari:.3f} | {sil:.3f} |")
+    rep.append("\nDM and ICM grow with segment length. If length alone reaches a similar ARI, their clustering "
+               "mostly reflects how long the segments are, not how tortuous.")
 
     private = Path(args.private)
     private.mkdir(parents=True, exist_ok=True)

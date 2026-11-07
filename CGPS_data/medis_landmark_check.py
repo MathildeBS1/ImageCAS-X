@@ -29,7 +29,7 @@ from split_trunks import graph, split, table
 
 RULES = {"landmark": "with branch labels", "label_free": "label-free"}
 st_acute = st.ACUTE  # the setting in split_trunks; the other rule is run for comparison
-ACUTES = (st_acute, *[a for a in ("turn", "chord") if a != st_acute])
+ACUTES = (st_acute, *[a for a in ("fraction", "turn", "chord") if a != st_acute])
 KEYS = ["half", "artery", "rule", "acute"]
 
 
@@ -68,7 +68,9 @@ def collect(files):
                     rows.append({"half": half, "artery": a, "rule": how, "acute": acute if a == "RCA" else "",
                                  "share": share(medis, lm, merge), "pm": lm[0] - medis[0],
                                  "md": None if merge else lm[1] - medis[1],
-                                 "crux": lm[2] - medis[2] if a == "RCA" else None, "medis_frac": frac})
+                                 "crux": lm[2] - medis[2] if a == "RCA" else None, "medis_frac": frac,
+                                 "crux_from": (d["landmark_rule"] if how == "landmark" else "").split("crux at ")[-1]
+                                 if a == "RCA" else ""})
     st.ACUTE = st_acute
     return pd.DataFrame(rows)
 
@@ -96,12 +98,19 @@ def report(df, n_files):
           "LAD m/d and RCA p/m sit at a fraction of a length, so they also move with where the trunk ends.\n",
           table(["half", "artery", "boundary", "rule", "acute", "trunks", "median", "p25 to p75", "median abs"], rows)]
     rows = []
+    rca = df[(df["artery"] == "RCA") & (df["rule"] == "landmark") & (df["acute"] == st_acute)]
+    for (h, c), g in rca.groupby(["half", "crux_from"]):
+        d = describe(g["share"])
+        rows.append((h, c, d["n"], q(d, "median"), f"{q(d, 'p25')} to {q(d, 'p75')}"))
+    L += [f"## RCA share by where the crux came from (with branch labels, acute = {st_acute})\n",
+          table(["half", "crux from", "trunks", "median", "p25 to p75"], rows)]
+    rows = []
     sub = df[(df["half"] == "A") & (df["rule"] == "landmark") & (df["acute"].isin(["", st_acute]))]
     for a, name in (("LAD", "Medis m/d as fraction from D1 to the LAD end (for LAD_MD_FRAC)"),
                     ("RCA", "Medis m/d (acute margin) as fraction of the Medis crux")):
         d = describe(sub.loc[sub["artery"] == a, "medis_frac"])
-        rows.append((name, d["n"], f"{d['median']:.2f}" if d.get("median") is not None else "",
-                     f"{q(d, 'p25')} to {q(d, 'p75')}"))
+        f2 = lambda k: "" if d.get(k) is None else f"{d[k]:.2f}"
+        rows.append((name, d["n"], f2("median"), f"{f2('p25')} to {f2('p75')}"))
     L += ["## Medis boundaries as fractions (half A)\n",
           table(["quantity", "trunks", "median", "p25 to p75"], rows)]
     return "\n".join(L)
