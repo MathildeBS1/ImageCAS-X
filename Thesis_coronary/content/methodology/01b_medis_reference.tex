@@ -1,0 +1,32 @@
+% Comparison of the in-house tracer (sec:method-tracer) with the Medis reference (sec:data-medis).
+% Shortened 2026-11-01 from the 2026-10-31 version (source: reports/Centerline and lumen contour
+% comparison.md); the general definitions (correspondence, OV/OT/AI, limits of agreement) are in
+% technical_background/07_agreement.tex (sec:tech-agreement). Limitations (single reader, plaque-only
+% reference, shared imaging errors) go in the Discussion.
+% Every threshold marked [x] is a design choice without a published value; fix it before the
+% comparison is run and before any outcome analysis, never tune it on the result.
+% Red clarification notes; needs \usepackage{xcolor} in the preamble. Remove before submission.
+\providecommand{\clarify}[1]{\textcolor{red}{\textbf{Clarification needed:} #1}}
+\section{Medis Reference as validation for the in house tracer output}
+\label{sec:method-medis}
+
+No ground truth exists for the Herlev--{\O}sterbro scans, so the quality of the centerlines and lumen contours from the in-house tracer (Section~\ref{sec:method-tracer}) cannot be measured directly.
+Instead, they were compared to the Medis centerlines and the semi-manually annotated Medis contours of the same baseline scans (Section~\ref{sec:data-medis}), which gives an indirect estimate.
+Medis: \clarify{how were they exactly produced and handled (semi corrected?} 
+Medis data exist only for participants with plaque at baseline, so the comparison was made outside the plaque-free study cohort.
+
+The tracer and Medis label their centerlines at different levels.
+Medis labels each point of its centerlines with a segment, such as the \textbf{proximal} LAD, whereas the tracer labels only the artery.
+To measure the tracing error rather than a difference in where the tracer and Medis place the segment boundaries, the proximal, mid and distal Medis segments of each artery were collapsed into one full artery.
+This thesis uses only the LAD, LCx and RCA (Section~\ref{sec:method-population-arteries}), so the comparison was limited to these three arteries.
+
+\subsection{Agreement Between the Tracer and Medis}
+\label{sec:method-medis-agreement}
+The centerlines and contours enter the prediction model only through the geometric features computed from them (Section~\ref{sec:method-features}).                                                                           
+Therefore the agreement was measured on the features and not the points themselves.
+First the tracer centerlines and contours were mapped into the coordinates of Medis, and each tracer artery was paired with the Medis artery of the same participant and label.
+\clarify{in which coordinates are the Medis points stored: LPS millimeters, RAS millimeters or voxel indices? And in which coordinates does the tracer store its points?}
+
+Centerline features were computed on the full artery without any adjustments, whereas the lumen contour features were computed only over the part of the artery covered by the Medis lumen contours.
+To achieve this, the tracer centerline was cut where the first and the last Medis lumen contour lie \cite{schaap2009cat08}, which cut its lumen contours to the same stretch.
+

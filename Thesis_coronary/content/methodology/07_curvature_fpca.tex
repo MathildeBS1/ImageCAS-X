@@ -1,0 +1,24 @@
+% NOTES ONLY, to be written. Trimmed 2026-11-07 from thesis/methodology/07_curvature_fpca.tex
+% (full draft in git, commit e4eb857). Decision 2026-11-04: main model uses mean curvature; FPCA
+% shape scores only in pLAD and mLAD, each its own descriptive cloglog model, not pooled, not part
+% of the LR test. Theory: sec:tech-fpca, sec:tech-fpca-grid, sec:tech-fpca-registration.
+% Settings: CGPS_data/turning_profile_shapes.py and segment_k_budget.py, neither in thesis_final;
+% turning_profile_shapes still runs on the Medis trees.
+%
+% The section should contain:
+% - Why: mean curvature gives the same value to one sharp bend and to even turning; FPCA of the
+%   profile describes where along the segment the turning lies. Secondary, descriptive, outside the
+%   test of the geometry block (sec:method-models). Restricted to pLAD and mLAD for events ([..]).
+% - Profile (eq:method-profile) on 50 equally spaced points of normalised position, linear
+%   interpolation; FPCA per segment by SVD of the centred participant x grid matrix; no registration,
+%   so a component can also be a shift of a bend.
+% - K fixed before outcome linkage: smaller of [rule] and the Riley budget of the segment less the
+%   base. Open: which rule (80/90% variance, Horn, circular-shift null, bootstrap |cos| >= 0.9,
+%   5-fold CV error).
+% - Per segment a cloglog model with the base and K scores, one row per participant, estimates with
+%   intervals, not tested. Open: the base (1 df, recalibrated SCORE2, in segment_k_budget.py) and
+%   the interval method.
+\section{Secondary Analysis of Curvature Shape}
+\label{sec:method-fpca}
+
+\todonote{To be written: FPCA of the curvature profile in the proximal and mid LAD as a descriptive secondary analysis.}

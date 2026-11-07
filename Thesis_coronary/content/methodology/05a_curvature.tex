@@ -1,0 +1,25 @@
+% NOTES ONLY, to be written. Trimmed 2026-11-07 from thesis/methodology/05a_curvature.tex
+% (full draft in git, commit e4eb857). Implementation: CGPS_data/thesis_final/turning_feature.py
+% (mean_turning, segment_turning) on each artery from split_trunks.py; figure from
+% turning_feature_schematic.py.
+%
+% The subsection should contain:
+% - Curvature as mean turning angle per mm, a form of average curvature, the tortuosity measure most
+%   closely, although weakly, related to low WSS (kashyap2022tortuosity; simulation study, keep
+%   "although weakly").
+% - Turning angle at each point between two 5 mm chords, chord ends by linear interpolation;
+%   atan2 form (eq:method-turn), unsigned in [0, pi].
+% - Noise: a positional error sigma gives spurious turning that falls with the square of the chord
+%   length; 5 mm chord as in vanzandwijk2019curvature. No further smoothing; no values within 5 mm of
+%   either artery end. TODO: confirm with Kit that the tracer centerlines arrive smoothed.
+% - Profile kappa = theta / l in rad/mm (eq:method-profile, referred to by curvature_fpca), computed
+%   on the whole artery and then divided at the segment boundaries.
+% - Segment value T_s = arc-length mean of the profile (eq:method-tl), trapezoid rule; fewer than two
+%   profile points -> missing.
+% - Difference from Tello Ayala et al. (2D, consecutive points): 3D, fixed chord, normalised by
+%   length, so independent of point spacing.
+% - Figure fig:method-turning.
+\subsection{Turning-angle curvature}
+\label{sec:method-curvature}
+
+\todonote{To be written: turning angle over 5\,mm chords, the curvature profile and its arc-length mean per segment.}

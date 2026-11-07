@@ -1,0 +1,19 @@
+% ---------------------------------------------------------------
+% DTU logo.
+% If figures/dtu_logo.pdf exists it is used. Otherwise a TikZ
+% approximation of the wordmark plus the three wave elements is
+% drawn so the project always compiles. Replace it with the real
+% file from the design guide before you submit anything.
+% ---------------------------------------------------------------
+\newcommand{\dtulogo}[1][3.2cm]{%
+  \IfFileExists{figures/dtu_logo.pdf}
+    {\includegraphics[width=#1]{dtu_logo.pdf}}
+    {\begin{tikzpicture}[x=#1/4,y=#1/4]
+       \node[text=dtuaccent,anchor=south,
+             font=\sffamily\bfseries\fontsize{34}{34}\selectfont,
+             inner sep=0pt,scale=#1/3.2cm] at (2,0.55) {DTU};
+       \foreach \y in {0,-0.62,-1.24}{%
+         \fill[dtuaccent]
+           (0,\y) -- (1,\y+0.26) -- (2,\y) -- (3,\y+0.26) -- (4,\y)
+                 -- (3,\y-0.26) -- (2,\y) -- (1,\y-0.26) -- cycle;}
+     \end{tikzpicture}}}

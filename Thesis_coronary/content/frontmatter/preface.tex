@@ -1,0 +1,25 @@
+\chapter*{Preface}
+\addcontentsline{toc}{chapter}{Preface}
+
+This thesis [short description of what the thesis is about].
+
+The thesis was prepared in collaboration with [section / department / company].
+
+The project lasted from [start date] to [end date] and was carried out in
+fulfilment of the requirements for the Master of Science degree in
+[your programme] at the Technical University of Denmark (DTU).
+
+The reader is assumed to have a fundamental knowledge of [prerequisites].
+
+% Signature: put a scanned signature at figures/signature.png (optional).
+% For two authors, copy the \sigblock line into a second column.
+\newcommand{\sigblock}[2]{%
+  \begin{minipage}[t]{0.45\linewidth}\centering
+    \IfFileExists{figures/#1}{\includegraphics[height=1.6cm]{#1}}{\rule{0pt}{1.6cm}}\\[2pt]
+    #2
+  \end{minipage}}
+\vspace{3.5cm}
+\begin{center}
+  \sigblock{signature.png}{\authorname\ (\studentnumber)}\\[1.2em]
+  Kongens Lyngby, \today
+\end{center}

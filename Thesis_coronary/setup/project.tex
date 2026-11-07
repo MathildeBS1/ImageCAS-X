@@ -1,0 +1,59 @@
+% ---------------------------------------------------------------
+% Edit these once. Every weekly report and the thesis title page
+% pick them up.
+% ---------------------------------------------------------------
+\newcommand{\projecttitle}{Your thesis title goes here}
+\newcommand{\course}{Master Thesis}
+
+% Supervisors, one per line. Used on the weekly title page and the
+% thesis cover.
+\newcommand{\supervisorlist}{%
+  Rasmus R. Paulsen\\
+  Kit Mills Bransby \\
+  Philip Ruessell Pedersson}
+
+\newcommand{\authorname}{Mathilde Brinch Sørensen}
+\newcommand{\studentnumber}{s254124}
+\newcommand{\authorline}{\authorname\ (\studentnumber)}
+
+% Date of the current report. Override it in each weekNN.tex with
+% \renewcommand{\reportdate}{January 22, 2026}
+\newcommand{\reportdate}{\today}
+
+% ---------------------------------------------------------------
+% Cover page and information page (page 2). Edit these once.
+% ---------------------------------------------------------------
+\newcommand{\thesisperiod}{3.\ February 2026 - 3.\ August 2026}
+\newcommand{\thesisects}{35 ECTS points}
+
+% Cover image: put the file in figures/ (leave as is to skip it)
+\newcommand{\coverimagefile}{coverimage.png}
+
+% "Author" or "Authors" (also used on the cover)
+\newcommand{\thesisauthorlabel}{Author}
+\newcommand{\thesisauthorsuffix}{}      % set to s for several authors
+
+% --- Cover: one line per person, separated by \\ -----------------
+\newcommand{\coverauthors}{\authorname\ (\studentnumber)}
+\newcommand{\coversupervisors}{%
+  [Title] Rasmus R. Paulsen\\[0pt]
+  [Title] Kit Mills Bransby\\[0pt]
+  [Title] Philip Ruessell Pedersson}
+
+% --- Page 2 ------------------------------------------------------
+% \thesisauthor{Name (student number)}{Programme}{Institution}
+\newcommand{\thesisauthor}[3]{#1\par #2\par #3\par\vspace{15.3pt}}
+% \thesissupervisor{Title and name}{Affiliation}
+\newcommand{\thesissupervisor}[2]{#1\par #2\par\vspace{15.3pt}}
+
+\newcommand{\thesisauthors}{%
+  \thesisauthor{\authorname\ (\studentnumber)}{M.Sc. [Your programme]}{Technical University of Denmark}}
+
+\newcommand{\thesissupervisors}{%
+  \thesissupervisor{[Title] Rasmus R. Paulsen}{[Department], Technical University of Denmark}
+  \thesissupervisor{[Title] Kit Mills Bransby}{[Department / company]}
+  \thesissupervisor{[Title] Philip Ruessell Pedersson}{[Department / company]}}
+
+\newcommand{\coverphotonote}{[Describe the cover image and its sources, e.g.\ 3D rendering of \ldots].}
+\newcommand{\publisher}{DTU Compute, Department of Applied Mathematics and Computer Science,\newline
+Richard Petersens Plads, Building 324, 2800 Kgs.\ Lyngby, Denmark}

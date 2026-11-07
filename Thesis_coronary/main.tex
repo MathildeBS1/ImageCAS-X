@@ -1,0 +1,49 @@
+% ===============================================================
+% THESIS ROOT DOCUMENT — DTU layout
+% ===============================================================
+% Compile with XeLaTeX (Overleaf: Menu > Compiler > XeLaTeX), like Aida's thesis.
+\documentclass[10pt,twoside,openright]{book}
+
+\input{setup/project}
+\input{setup/preamble}
+% B5 page (176 x 250 mm), margins measured from Aida's thesis
+\usepackage[paperwidth=176mm,paperheight=250mm,inner=25.75mm,outer=20.1mm,top=35mm,bottom=31mm,headheight=12pt,headsep=20pt]{geometry}
+\input{setup/dtustyle}
+
+% Turn off draft-only notes in the final document.
+\draftnotesfalse
+
+% While drafting, uncomment to compile only one chapter.
+% \includeonly{content/methods}
+
+\begin{document}
+
+\dtucover{Kongens Lyngby 2026}
+\dtuinfopage
+
+\frontmatter
+\pagestyle{fancy}
+\input{content/frontmatter/abstract}
+\input{content/frontmatter/preface}
+\input{content/frontmatter/acknowledgements}
+\input{content/frontmatter/abbreviations}
+
+\tableofcontents
+\mainmatter
+
+\include{content/introduction}
+\include{content/litterature_review}
+\include{content/background}
+\include{content/data}
+\include{content/methods}
+\include{content/results}
+\include{content/discussion}
+\include{content/conclusion}
+
+\printbibliography[heading=bibintoc]
+
+\appendix
+
+\input{content/aideclaration}
+
+\end{document}

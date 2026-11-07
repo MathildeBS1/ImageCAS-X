@@ -1,0 +1,54 @@
+% NOTES ONLY, to be written. Trimmed 2026-11-07 from thesis/methodology/06_feature_validity.tex
+% (full draft in git, commit e4eb857). Figure feature_validity_schematic.{py,pdf} still in
+% thesis/methodology/. Detail for reproduction: appendix sec:app-validity. Results:
+% results/01_feature_validity. Code: CGPS_data/hypertension_tortuosity.py, tortuosity/taper.py.
+% Medis is deliberately not part of this section (it is in medis_reference, sec:method-medis).
+% COSMIN taxonomy (mokkink2010cosmin), QIBA terminology (kessler2015qib, raunig2015qib).
+%
+% The section should contain:
+% - Opening: without a reference standard, a null result cannot be told from a failed measurement,
+%   so the features are checked indirectly and without the outcome. Repeatability not assessable
+%   (no short-interval rescans; sec:disc-validity-repeatability). Primary definitions fixed before
+%   any hypothesis is tested. Figure fig:method-validity: modest group difference, large spread.
+% - Technical accuracy on synthetic shapes (sec:method-validity-accuracy): arcs, helices, sines,
+%   tapering tubes, Y-tubes; smooth centerline displacement [..] to [..] mm and radius perturbation
+%   incl. a bias growing as the vessel narrows; bias and linearity; error SD scaled by the
+%   between-participant spread. Tests the computation, not the tracer. Phantom benchmark not written.
+% - Definitional choices (sec:method-validity-definitions, with sec:method-validity-sensitivity):
+%   table tab:method-validity-definitions of primary and alternative definitions per feature; chosen
+%   on accuracy and literature, never on the hypotheses; every hypothesis recomputed per alternative.
+%   Open: diameter sampling distance, angle fitting length.
+% - Construct validity (sec:method-validity-groups, sec:method-validity-evidence): prespecified
+%   known-groups, internal-relationship and discriminant hypotheses with a size and direction
+%   (table tab:method-validity, using only BL/FU header variables). Confirmed when the estimate is in
+%   its range; no-difference hypotheses by a 90% CI within +-0.2 SD (lakens2017equivalence). Age
+%   adjusted; body-size adjustment as in the source study. Evidence graded strong/moderate/weak.
+%   Caveats: mostly referral cohorts, only a preprint measured curvature this way
+%   (gharleghi2024leftmain), noise in narrow arteries can mimic the sex difference.
+%   Open: confirm expected ranges before the data are opened.
+% - Variance explained (sec:method-validity-split): R^2 of each feature on the base covariates;
+%   1 - R^2 is room for geometry, but it cannot be split into anatomy and error without rescans.
+% - Decision rules (sec:method-validity-reading): keep if all strong hypotheses confirmed; else check
+%   extraction, then the alternative with the smallest scale-free error, never the best-fitting one.
+%   Open: what happens if no alternative passes; the date everything was fixed.
+\section{Measurement Properties of the Geometric Features}
+\label{sec:method-validity}
+
+\todonote{To be written: technical accuracy, definitional choices, construct validity, variance explained by known risk factors and the decision rules. See the notes in the source.}
+
+\subsection{Technical Accuracy on Synthetic Shapes}
+\label{sec:method-validity-accuracy}
+
+\subsection{Definitional Choices}
+\label{sec:method-validity-definitions}
+\label{sec:method-validity-sensitivity}
+
+\subsection{Construct Validity}
+\label{sec:method-validity-groups}
+\label{sec:method-validity-evidence}
+
+\subsection{Variance Explained by Known Risk Factors}
+\label{sec:method-validity-split}
+
+\subsection{Decision Rules}
+\label{sec:method-validity-reading}

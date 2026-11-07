@@ -1,0 +1,45 @@
+% Coronary segments: the choice of arteries, their division into proximal, mid and distal
+% segments, and a check of the division. Short main text (user, 2026-11-02): the exact division,
+% thresholds and the landmark table are in appendix/B_segment_split_details.tex (sec:app-split).
+% Placed after 02_population_outcome. Humanised 2026-11-02 in the style of clinical_background_v2.
+% Does not repeat: tracer labels only the artery, Medis by segment (01b, sec:method-medis-arteries);
+% what the visual analysis and the Medis trees and contours are (data/02, data/03).
+% Division: CGPS_data/split_trunks.py (landmark_cuts). Check: CGPS_data/thesis_final/split_check.py
+% --trees tracer, section 2 (contours by location vs the visual BL grade: a contour whose majority
+% segment is not graded plaque = miss); reference run --trees medis.
+% Red clarification notes; needs \usepackage{xcolor} in the preamble. Remove before submission.
+\providecommand{\clarify}[1]{\textcolor{red}{\textbf{Clarification needed:} #1}}
+\section{Analysed Arteries and Segments}
+
+\subsection{Choice of Arteries}
+\label{sec:method-population-arteries}
+
+The analysis covered the three main coronary arteries, the left anterior descending (LAD), the left circumflex (LCx) and the right coronary artery (RCA), both for the outcome and for the geometric features.
+These arteries are present in every heart, whereas the number and size of the side branches vary between individuals and with dominance (Section~\ref{sec:dominance}).
+Their larger diameter also makes the measurements less sensitive to error: with a voxel size of [..]\,mm, an error of one voxel at the lumen boundary corresponds to about [..]\% of the diameter of a main artery \cite{dodge1992diameter}, compared with [..]\% for a side branch \clarify{voxel size; side-branch diameter and its citation}.
+The left main (LM) was also left out.
+None of the studies in the literature review related LM geometry to plaque in the LM itself; the angle of the LM bifurcation was instead related to disease further down, in the LAD and LCx (Chapter~\ref{ch:literature}).
+A participant who developed plaque only in the LM or in a side branch was therefore counted as without the outcome.
+This applied to a small proportion of participants (Section~\ref{sec:results-cohort}), and the implications of this misclassification are addressed in Section~[..] \clarify{discussion section on this misclassification, not yet written}.                                                                           
+
+\subsection{Division into Segments}
+\label{sec:method-split}
+
+Geometry is theorised to influence plaque formation through low wall shear stress, which is a local force. 
+A feature averaged over a whole artery would risk blurring these local differences, so the features were computed at the same fine resolution as the outcome.
+Each of the three arteries was therefore divided into a proximal, a mid and a distal segment, giving nine segments per participant (Figure~\ref{fig:method-segments}).
+
+The visual analysis does not record where one segment ends and the next begins, so a landmark division method was developed and used in this thesis to place the boundaries.
+Where no such branch was available, the boundary was placed at a fixed fraction of the distance along the artery.
+The full division is given in Appendix~\ref{sec:app-split}.
+
+% Figure from segment_selection_schematic.py (made-up tree, no patient data).
+
+\subsection{Validation of the Division}
+\label{sec:method-split-validation}
+
+To give an indication of the reliability of the division, the Medis lumen contours were projected onto the nearest points of the divided tracer artery, and the segment holding the largest part of each contour was looked up in the visual analysis.
+If that segment was not graded with plaque at baseline, a miss was recorded.
+Only the position of the contour was used, not the segment name Medis gave it, so the check does not depend on how Medis divided the artery.
+The miss rate is reported in Section~\ref{sec:results-cohort}.
+A slightly displaced boundary moves only a few points at either end of a segment, so features computed per segment were preferred, despite this uncertainty, to features averaged over the whole artery.

@@ -1,0 +1,30 @@
+% ---------------------------------------------------------------
+% Project notation. Define a symbol ONCE here and never think about
+% it again. If you later rename something, you rename it in one line
+% and every weekly report plus the thesis follows.
+% ---------------------------------------------------------------
+
+% --- Names and abbreviations -----------------------------------
+\newcommand{\nnunet}{nnU\nobreakdash-Net}
+\newcommand{\dataset}{ImageCAS}          % rename to your dataset
+\newcommand{\ourmethod}{ShapeNetX}       % rename to your method
+
+% --- Metrics ----------------------------------------------------
+\newcommand{\dsc}{\mathrm{DSC}}
+\newcommand{\iou}{\mathrm{IoU}}
+\newcommand{\hd}{\mathrm{HD}_{95}}
+
+% --- Math shorthands -------------------------------------------
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\vect}[1]{\mathbf{#1}}
+\newcommand{\norm}[1]{\left\lVert #1 \right\rVert}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\argmax}{arg\,max}
+
+% --- Notes to self (only visible in draft mode) -----------------
+% Put \drafttrue in a weekly report, \draftfalse in main.tex, and
+% these vanish from the final thesis without you deleting anything.
+\newif\ifdraftnotes
+\draftnotestrue
+\newcommand{\todonote}[1]{\ifdraftnotes\textcolor{orange}{[TODO: #1]}\fi}

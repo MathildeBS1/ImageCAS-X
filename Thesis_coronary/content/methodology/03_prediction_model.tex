@@ -1,0 +1,40 @@
+% NOTES ONLY, to be written. Trimmed 2026-11-07 from thesis/methodology/03_prediction_model.tex
+% (full draft in git, commit e4eb857).
+% Design: root CLAUDE.md "Decided". Settings come from CGPS_data/progression_who_pooled.py, which is
+% not in CGPS_data/thesis_final/ and still runs on the Medis trees with a progression outcome; the
+% text must follow the clean-cohort version once it exists there.
+%
+% The section should contain:
+% - One segment-level complementary log-log GLMM over the nine segments, random intercept per
+%   participant (sec:tech-segment-glmm). One row per segment, outcome incident coronary plaque in
+%   that segment (sec:method-population).
+% - Segment risks pooled into one person risk of plaque in any of the nine segments
+%   (sec:tech-aggregation); the person risk is what is evaluated.
+% - Fit: maximum likelihood, Gauss-Hermite quadrature over the random intercept. Open: node count
+%   (30 in the script, checked by a refit with doubled nodes).
+% - Base model: segment position (pLAD reference), log segment length, dominance, log follow-up
+%   time, SCORE2 risk factors. Open: follow-up as term or offset; recalibrated SCORE2
+%   (sec:tech-recalibration) vs refitted SCORE2 factors, compared in this pooled model.
+% - Extended model: base + geometry block (five features, sec:method-selection), standardised
+%   within segment type on the training participants. Open: which segment rows carry the left main
+%   angle and ratios (script: pLAD and pLCx rows only).
+% - One prespecified LR test of the geometry block (eq:tech-lr), both models on all participants.
+%   Delta C, calibration slope and intercept, Brier score and log loss estimated with intervals,
+%   never tested (sec:tech-added-value).
+% - Where: read descriptively from the same model (feature hazard ratios, segment intercepts,
+%   within-participant C, secondary curvature/taper x artery test). No separate where model.
+% - Subsection Cross-Validation (sec:method-cv): folds by participant, all nine segments in one
+%   fold, stratified on developing plaque. Same folds for base and extended model; standardisation,
+%   coefficients and random-intercept variance estimated on training participants of each fold.
+%   Report mean over repeats with 2.5th/97.5th percentiles and the paired difference. Open: folds and
+%   repeats (10 x 50 in the script); percentiles show split variation, not sampling uncertainty,
+%   so state whether difference intervals come from a bootstrap of the whole procedure.
+\section{Prediction Model}
+\label{sec:method-models}
+
+\todonote{To be written: the pooled cloglog GLMM, its base and extended model, the LR test of the geometry block and the estimated performance measures. See the notes in the source.}
+
+\subsection{Cross-Validation}
+\label{sec:method-cv}
+
+\todonote{To be written: person-level folds, stratified on the outcome, and how the measures are summarised.}

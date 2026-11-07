@@ -1,0 +1,15 @@
+\chapter*{Abbreviations}
+\addcontentsline{toc}{chapter}{Abbreviations}
+
+% One row per abbreviation, alphabetical: \abbrev{short}{long}
+% Same text size, width and spacing as Abstract, Preface and Acknowledgements.
+\newcommand{\abbrev}[2]{\textbf{#1} & #2 \\}
+\renewcommand{\arraystretch}{1.1}
+\noindent
+\begin{longtable}{@{}p{2.6cm}@{}p{\dimexpr\linewidth-2.6cm\relax}@{}}
+\abbrev{AI}{Artificial Intelligence}
+\abbrev{CAD}{Coronary Artery Disease}
+\abbrev{CCTA}{Coronary Computed Tomography Angiography}
+\abbrev{CT}{Computed Tomography}
+\abbrev{DSC}{Dice Similarity Coefficient}
+\end{longtable}

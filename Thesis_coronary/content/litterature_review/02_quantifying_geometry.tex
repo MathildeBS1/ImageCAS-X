@@ -1,0 +1,50 @@
+% Literature Review, section 2. Notes for the whole chapter are in 00_chapter_intro.tex.
+\section{Quantifying Coronary Geometry}
+\label{sec:lit-measure}
+
+Using coronary geometry as a marker relies on a consistent quantification of vessel shape.
+However, clinical studies have quantified coronary geometry inconsistently over the years, and the
+chosen measure can determine whether a relationship is even detected at all.
+
+Cui et al.\ (2017) \cite{cui2017bifurcation} measured three angles at the left main bifurcation on
+the CCTA of patients referred for invasive angiography.
+These were the angle between the LAD and LCX and the angles between the left main artery and each of
+its two daughters.
+Only the angle between the LAD and LCX was wider in patients with significant stenosis, while the two
+angles involving the left main artery did not differ.
+A study measuring only the angles involving the left main artery would therefore have found no
+relationship between the bifurcation angle and stenosis.
+
+For tortuosity, studies using different measures have disagreed even on the direction of the
+association.
+Groves et al.\ (2009) \cite{groves2009tortuosity} screened the invasive angiograms of consecutive
+patients and graded tortuosity visually as two consecutive turns that reversed the direction of a
+major artery.
+Patients with such severe tortuosity were less likely to have significant CAD than a randomly chosen
+group without it.
+Li et al.\ (2011) \cite{li2011tortuosity} instead counted sharp bends along the main arteries of
+consecutive patients with chest pain.
+Tortuous patients were again less likely to have CAD, although the association was borderline, and
+among patients with CAD the rate of adverse events at follow-up did not differ with tortuosity.
+Most recently, Tello Ayala et al.\ (2026) \cite{telloayala2026tortuosity} segmented the right
+coronary artery automatically in a large archive of angiograms from referred patients and computed
+the turning angle at each point along its centerline.
+Greater average tortuosity was associated with CAD, and a transformer that read the full profile of
+turning angles identified CAD better than the average alone.
+Depending on how tortuosity is measured, the same artery could therefore be read as a sign of less
+disease or of more.
+
+The geometric studies reviewed here examined only the right coronary artery or the left
+tree alone \cite{telloayala2026tortuosity,garcha2025sensitivity,zhang2024curvature}.
+To determine the full potential of the coronary tree as a risk marker, this must be extended.
+Collectively, these findings suggest that an inconsistent measure
+\cite{cui2017bifurcation,kashyap2022tortuosity} and a partial view of the tree may each hide where
+geometry relates to disease.
+
+Using geometry in routine risk assessment relies on automated segmentation of the coronary tree from
+CCTA.
+Bransby et al.\ (2026) \cite{bransby2026imagecasx} annotated a large public CCTA dataset anew and
+benchmarked several deep learning segmentation methods on it.
+They compared each method with the agreement between expert annotators of the same scans.
+The best method came close to this agreement but ultimately concluded that automated
+segmentation does not yet match human annotators.

@@ -1,0 +1,72 @@
+% Introduction -- written from scratch on 2026-10-02 after the 2026-09-07 rejection.
+% Rewritten 2026-10-04 after the funnel of thesis/style_guide_aida.md (her ch. 1): one step per
+% paragraph, claims only. Paragraph 1 is fixed. Evidence cut from here and still owed to the
+% State of the Art: 196 patients, left main bifurcation angle 35.5 to 178 degrees
+% \cite{temov2016bifurcation}; 136 autopsy hearts, no visible narrowing until plaque fills about 40\%
+% of the cross-section \cite{glagov1987remodeling}. The 127-patient curvature result is already in
+% clinical_background/05_hemodynamics.tex.
+% 2026-10-04: limitations paragraph trimmed to a problem statement; the evidence (Han, Tello Ayala,
+% Glagov, Temov) now lives in literature_review.tex. "considers only" softened to "rests on", since
+% chan2024orfan shows imaging already refines risk in referred patients. shen2026geometry replaced
+% by kashyap2022tortuosity and zebicmihic2024index (Shen excluded thesis-wide, user 2026-10-04).
+% 2026-10-05: paragraph 4 reordered to match the review (measurement = Sec. 2, timing = Sec. 3);
+% zebicmihic2024index swapped for cui2017bifurcation so every cited study is discussed in the review.
+% No forward references in this chapter (user).
+
+\chapter{Introduction}
+\label{ch:introduction}
+Cardiovascular disease is the leading cause of death worldwide, accounting for an estimated 19.2
+million deaths in 2023 \cite{stark2025gbd}.
+Coronary artery disease (CAD) is the largest single contributor, responsible for nearly half of
+these deaths \cite{stark2025gbd}.
+It develops when plaque builds up in the walls of the coronary arteries, which supply the heart
+muscle with blood.
+The plaque slowly narrows the arteries and can, in extreme cases, rupture, forming a clot that
+blocks blood flow and causes a heart attack \cite{libby2019atherosclerosis}.
+
+Plaque does not form evenly along the coronary tree, even though risk factors such as high blood
+pressure, high cholesterol and smoking reach every segment through the blood.
+Instead, it tends to collect where the drag of the blood flow on the vessel wall is low or
+oscillating \cite{chatzizisis2007ess}.
+This drag is known as wall shear stress, and it is low mainly on the outer wall just after a
+bifurcation and on the inner wall of a bend \cite{asakura1990flow}.
+Where plaque forms is therefore tied to the geometry of the tree, which, unlike shear, can be
+measured directly from an image.
+
+Coronary geometry varies considerably between individuals \cite{temov2016bifurcation}, so some
+trees contain more extensive low-shear regions than others.
+Predisposition to plaque may therefore depend not only on systemic risk factors but also on the
+anatomy of the individual's own arteries.
+Standard risk assessment, however, rests on the former, combining age, sex, smoking, blood
+pressure and cholesterol into a single score \cite{score2_2021}.
+
+Whether geometry adds to such a score remains unknown.
+Studies relating geometry to plaque have defined geometry inconsistently, and the definition can
+decide whether a relationship is found \cite{cui2017bifurcation,kashyap2022tortuosity}.
+Most also measured geometry in referred patients whose plaque was already present, so the geometry
+may be a consequence of the disease rather than its cause \cite{han2022plaque}.
+
+The aim of this thesis is to test whether coronary geometry, measured before any symptoms of heart
+disease, can categorize individuals by their risk of developing plaque.
+Rather than referred patients, this work uses adults selected at random from the population of
+greater Copenhagen by the Copenhagen General Population Study (CGPS) and scanned for research with
+coronary computed tomography angiography (CCTA) \cite{fuchs2023cgps}.
+A longitudinal subset of these individuals was scanned a second time 10 years later.
+The work proceeds in two stages.
+First, an automatic pipeline is developed that segments the coronary tree, assigns each vessel to
+its coronary artery and computes branching angles, branch radius ratios and vessel curvature.
+Second, these features are used to predict which individuals develop new plaque at a second scan.
+Two risk models are compared: a logistic regression on summary features and a transformer that reads
+the full curvature profile along each artery.
+% TODO (author): baseline open until the CGPS variables are checked. If every SCORE2 marker is
+% available the baseline is all of them; otherwise name the subset used.
+Both are judged by how much they improve on a baseline model of conventional risk factors, and both are fitted
+separately for each coronary artery, since shear acts locally.
+
+Together, these stages establish an automated workflow that measures coronary geometry at population
+scale and tests its link to plaque.
+If geometry does carry risk, the workflow can identify individuals at increased risk from CCTA scans
+that are already acquired.
+If it does not, the result indicates that the localization of plaque within a tree does not translate
+into a difference in risk between individuals, and the workflow remains a tool for research on
+coronary anatomy and CAD.

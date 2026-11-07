@@ -1,0 +1,27 @@
+% NOTES ONLY, to be written. Trimmed 2026-11-07 from thesis/methodology/05d_taper.tex
+% (full draft in git, commit e4eb857). Implementation: tortuosity/taper.py, not yet in
+% CGPS_data/thesis_final/.
+%
+% The subsection should contain:
+% - Rationale: steady-flow WSS = 4 mu Q / (pi r^3) (malek1999shear); flow falls along the artery
+%   with side branches, and with the pooled exponent 2.39 (taylor2024murray) taper carries only part
+%   of the signal. Evidence for taper is thin (sec:lit-wss), no study links it to later plaque.
+%   Log-radius slope is independent of overall calibre. Expected sign: lower taper -> lower WSS ->
+%   more plaque, but sub-detection wall thickening could give the opposite sign. Open: two-sided
+%   or signed test.
+% - Size of the effect: about 0.25 mm diameter per 10 mm in normal arteries (medranogracia2016atlas),
+%   about one voxel over 30 mm, so a robust fit over many cross-sections.
+% - Computation in taper.py: resample every 0.5 mm; tangent from points 2.5 mm before and after;
+%   orthogonal cut on a 12 x 12 mm grid at 0.1 mm, trilinear mask, threshold 0.5; area of the
+%   connected region containing the centerline point; area-equivalent radius r = sqrt(A/pi)
+%   (distance-transform radius kept for sensitivity). Open: how a voxel mask is formed from the
+%   tracer's lumen contours.
+% - Exclusions: first 3 mm, within two median radii of a side-branch junction, centerline point
+%   outside the lumen, region touching the grid edge or another labelled vessel.
+% - T = -10 b, b the Theil-Sen slope of ln r against s: fractional loss of radius per 10 mm.
+%   Missing when remaining samples span < 20 mm or are < 60% of all samples.
+% - Open: taper.py gives one T per artery, sec:method-selection uses taper per segment.
+\subsection{Lumen Taper}
+\label{sec:method-taper}
+
+\todonote{To be written: rationale for taper and its Theil--Sen estimate from the lumen cross-sections.}

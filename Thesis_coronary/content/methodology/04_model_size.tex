@@ -1,0 +1,45 @@
+% NOTES ONLY, to be written. Trimmed 2026-11-07 from thesis/methodology/04_model_size.tex
+% (full draft in git, commit e4eb857).
+% Outcome-blind: the budget uses only participants and events, never geometry; the selection uses
+% only the literature and measurement properties, never association with plaque.
+% Numbers: CGPS_data/who_where_readiness.py still uses 10/20 events-per-parameter rules; switch it to
+% the Riley criteria (pmsampsize) first. Plan: ~/Desktop/Speciale/CGPS_statistics-/CLAUDE.md, open
+% decision 11 (about 15 to 20 parameters at C = 0.70).
+%
+% The section should contain:
+% - Opening: model size and features fixed before baseline geometry is linked to follow-up plaque,
+%   so the LR test tests geometry, not earlier choices. First the budget, then the selection.
+% - Subsection Parameter Budget (sec:method-size-budget): Riley criteria (sec:tech-sample-size),
+%   shrinkage S = 0.9, anticipated C = 0.70 (source needed, e.g. PARADIGM clinical-only 0.68), also
+%   0.65 and 0.75. Participants, events and P_max to fill in. Open: the criteria are for a binary
+%   person-level outcome; state that n and events are counted per participant.
+%   Degrees-of-freedom counting (linear 1, spline k-1, factor m-1, interaction >= 1), base first,
+%   geometry gets the rest, all geometric terms linear, part of the budget left unused on purpose.
+%   Table tab:method-size-budget (participants, events, P_max, base df, geometry 5, used, unused).
+%   Open: SCORE2 factor coding; whether an absent-left-main indicator joins the geometric block.
+% - Subsection Selection of Geometric Features (sec:method-selection): candidates are geometry the
+%   literature (ch:literature) ties to WSS or plaque location and the tracer output allows. One
+%   primary definition each, others to sensitivity (sec:method-validity-definitions). Candidates set
+%   aside for weaker literature support (tortuosity index, bend counts, side-branch bifurcations),
+%   measurement error on CCTA (torsion, eccentricity, local expansion, pointwise profiles, lumen
+%   volume to myocardial mass) or overlap with a retained feature (Finet's ratio, curvature x
+%   calibre, upstream curvature, distance from ostium, side-branch count). Prose only, no table.
+%   Five features remain: segment curvature and taper, LM angle, LM->LAD and LM->LCx ratios.
+%   Coverage [..]% of the cohort; the two ratios share the LM diameter, correlation [..]. Open: log
+%   scale or scaling-law deviation plus asymmetry term. No ranking, screening, stepwise or penalised
+%   selection; the rest go to secondary analyses.
+% HONESTY CHECK: say the five were prioritised on these criteria, NOT that a longer list was ranked.
+\section{Parameter Budget and Feature Selection}
+\label{sec:method-size}
+
+\todonote{To be written: how many parameters the cohort supports and which geometric features fill them. See the notes in the source.}
+
+\subsection{Parameter Budget}
+\label{sec:method-size-budget}
+
+\todonote{To be written: Riley criteria, the anticipated C-statistic and the allocation table.}
+
+\subsection{Selection of Geometric Features}
+\label{sec:method-selection}
+
+\todonote{To be written: the candidates, why each set-aside one was set aside, and the five retained features.}

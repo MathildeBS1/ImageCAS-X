@@ -1,0 +1,196 @@
+% ===============================================================
+% DTU house style
+% Colours and typography follow the DTU design guide
+% (https://designguide.dtu.dk). The chapter/heading layout follows
+% the DTU Compute thesis convention used in the example theses.
+%
+% NOTE: the official DTU Thesis Template on Overleaf is XeLaTeX and
+% uses Neo Sans, DTU's real heading font, which is licensed and not
+% bundled here. This file reproduces the layout in plain pdfLaTeX
+% with a Helvetica-metric substitute so it compiles anywhere.
+% See setup/README-dtu.md for how to swap in the official one.
+% ===============================================================
+
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tikz}
+\usetikzlibrary{positioning, arrows.meta, fit, backgrounds, calc, shapes.geometric}
+\usepackage{graphicx}   % needed for \resizebox
+\usepackage{booktabs}
+\usepackage{parskip}
+\usepackage{setspace}
+% --- Official DTU colour palette --------------------------------
+% Primary
+\definecolor{dtured}{HTML}{990000}      % corporate red
+% Secondary
+\definecolor{dtublue}{HTML}{2F3EEA}
+\definecolor{dtubrightgreen}{HTML}{1FD082}
+\definecolor{dtunavy}{HTML}{030F4F}
+\definecolor{dtuyellow}{HTML}{F6D04D}
+\definecolor{dtuorange}{HTML}{FC7634}
+\definecolor{dtupink}{HTML}{F7BBB1}
+\definecolor{dtugrey}{HTML}{DADADA}
+\definecolor{dtucoral}{HTML}{E83F48}
+\definecolor{dtugreen}{HTML}{008835}
+\definecolor{dtupurple}{HTML}{79238E}
+
+% Pick the accent colour for the cover and headings. The design
+% guide says: one colour, used consistently, throughout.
+\colorlet{dtuaccent}{dtured}
+
+% --- Typography -------------------------------------------------
+% Headings are set in TeX Gyre Adventor (as in Aida's thesis), body in
+% Latin Modern. This needs XeLaTeX or LuaLaTeX (Overleaf: Menu >
+% Compiler). Under pdfLaTeX (weekly reports) it falls back to Helvetica.
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[scaled=0.92]{helvet}
+  \newcommand{\dtuheadfont}{\sffamily}
+  \newcommand{\dtuchapfont}{\sffamily}
+\else
+  \usepackage{fontspec}
+  \newfontfamily\dtuheadfont{TeX Gyre Adventor}[Ligatures=TeX]
+  \newfontfamily\dtuchapfont{TeX Gyre Adventor}[Ligatures=TeX]
+\fi
+\colorlet{dtuchapgrey}{black!35}
+
+% --- Headings ---------------------------------------------------
+% Chapter: light-grey "CHAPTER" + large red number, right-aligned
+% regular-weight title, thin rule underneath.
+\makeatletter
+\@ifundefined{chapter}{}{%
+\titleformat{\chapter}[display]
+  {\dtuchapfont\raggedleft}
+  {\raggedright{\color{dtuchapgrey}\fontsize{18}{20}\selectfont\MakeUppercase{\chaptertitlename}}\hspace{0.4em}{\color{dtuaccent}\fontsize{40}{44}\selectfont\thechapter}}
+  {1.2em}
+  {\fontsize{28}{34}\selectfont}
+  [\vspace{-28pt}\rule{\linewidth}{0.6pt}]
+\titleformat{name=\chapter,numberless}[display]
+  {\dtuchapfont\raggedleft}{}{0pt}{\fontsize{28}{34}\selectfont}
+  [\vspace{-28pt}\rule{\linewidth}{0.6pt}]
+\titlespacing*{\chapter}{0pt}{-40.7pt}{4pt}
+\titlespacing*{name=\chapter,numberless}{0pt}{-40.7pt}{4pt}
+}
+\makeatother
+
+\titleformat{\section}{\dtuheadfont\fontsize{14}{17}\selectfont}{\thesection}{0.8em}{}
+\titleformat{\subsection}{\dtuheadfont\fontsize{12}{15}\selectfont}{\thesubsection}{0.8em}{}
+\titleformat{\subsubsection}{\dtuheadfont\fontsize{10}{13}\selectfont}{\thesubsubsection}{0.8em}{}
+\titlespacing*{\section}{0pt}{2.2ex plus 1ex minus .2ex}{1.2ex plus .2ex}
+\titlespacing*{\subsection}{0pt}{2ex plus 1ex minus .2ex}{1ex plus .2ex}
+
+% Captions: bold label, small text
+\usepackage[font=small,labelfont=bf,labelsep=quad]{caption}
+% Paragraphs indented, no vertical space (as in Aida's thesis)
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{4pt}
+\setstretch{1.1}  
+
+% --- Running heads ----------------------------------------------
+% Even: page number left, chapter right. Odd: section left, page right.
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0.4pt}
+\makeatletter
+\@ifundefined{chapter}{}{\renewcommand{\chaptermark}[1]{\markboth{\thechapter\ #1}{}}}
+\makeatother
+\renewcommand{\sectionmark}[1]{\markright{\thesection\ #1}{}}
+\fancyhead[LE,RO]{\dtuheadfont\footnotesize\thepage}
+\fancyhead[RE]{\dtuheadfont\footnotesize\nouppercase{\leftmark}}
+\fancyhead[LO]{\dtuheadfont\footnotesize\nouppercase{\rightmark}}
+\fancypagestyle{plain}{\fancyhf{}\renewcommand{\headrulewidth}{0pt}}
+
+% Blank pages inserted by openright: no header
+\makeatletter
+\def\cleardoublepage{\clearpage\if@twoside\ifodd\c@page\else
+  \hbox{}\thispagestyle{empty}\newpage\fi\fi}
+\makeatother
+
+% --- Logo -------------------------------------------------------
+\input{setup/dtulogo}
+
+% --- Cover page -------------------------------------------------
+% Layout follows the DTU Compute thesis cover: red marker + "DTU Compute",
+% bold title, optional cover image, authors, supervisors, DTU logo.
+% \dtucover{place and year}   e.g. \dtucover{Kongens Lyngby 2026}
+% Put your cover image in figures/ and set \coverimagefile in project.tex.
+\newcommand{\dtucover}[1]{%
+  \begin{titlepage}
+  \thispagestyle{empty}
+  \begin{tikzpicture}[remember picture,overlay,x=1pt,y=1pt]
+    % Red marker and department name
+    \fill[dtuaccent] ([shift={(50.5,-103)}]current page.north west) rectangle
+      ++(3,-18);
+    \node[anchor=north west,inner sep=0pt,align=left,font=\dtuheadfont\fontsize{9}{11}\selectfont]
+      at ([shift={(58,-102)}]current page.north west)
+      {DTU Compute\\[1pt]{\color{black!55}Department of Applied Mathematics and Computer Science}};
+    % Title and thesis type
+    \node[anchor=north west,inner sep=0pt,text width=400pt,align=left]
+      at ([shift={(50.5,-137)}]current page.north west)
+      {{\dtuheadfont\bfseries\fontsize{20}{22}\selectfont\projecttitle\par}
+       \vspace{6pt}
+       {\dtuheadfont\fontsize{13}{16}\selectfont\course\par}};
+    % Cover image (optional)
+    \IfFileExists{figures/\coverimagefile}{%
+      \node[anchor=north,inner sep=0pt]
+        at ([shift={(0,-235)}]current page.north)
+        {\includegraphics[width=255pt]{\coverimagefile}};}{}
+    % Authors and supervisors
+    \node[anchor=north west,inner sep=0pt,text width=330pt,align=left,
+          font=\dtuheadfont\fontsize{10}{17.9}\selectfont]
+      at ([shift={(50.5,-428)}]current page.north west)
+      {{\bfseries Author\thesisauthorsuffix:}\\[0pt] \coverauthors\\[17.9pt]
+       {\bfseries Supervisors:}\\[0pt] \coversupervisors};
+    % Logo and place/year
+    \node[anchor=south east,inner sep=0pt]
+      at ([shift={(-44,68)}]current page.south east) {\dtulogo[1.2cm]};
+    \node[anchor=north west,inner sep=0pt,font=\dtuheadfont\fontsize{8}{10}\selectfont]
+      at ([shift={(50.5,-612)}]current page.north west) {#1};
+  \end{tikzpicture}
+  \null
+  \end{titlepage}}
+
+% --- Information page (second page) -----------------------------
+% Title, period, ECTS, authors, supervisors with affiliations, cover
+% photo note and publisher. All text is set in project.tex.
+\newcommand{\dtuinfopage}{%
+  \thispagestyle{empty}
+  \begingroup
+  \dtuheadfont\fontsize{8.5}{15.3}\selectfont
+  \setlength{\parindent}{0pt}
+  \vspace*{45pt}
+  {\bfseries\projecttitle}\par
+  \course\par
+  \thesisperiod\par
+  \thesisects\par
+  \vspace{15.3pt}
+  {\bfseries\thesisauthorlabel}\par
+  \thesisauthors
+  {\bfseries Supervisors}\par
+  \thesissupervisors
+  \vspace{4pt}
+  \begin{tabular}{@{}p{2.2cm}>{\raggedright\arraybackslash}p{\dimexpr\linewidth-2.2cm\relax}@{}}
+    \bfseries Cover photo: & \coverphotonote\\[6pt]
+    \bfseries Published by: & \publisher
+  \end{tabular}
+  \endgroup
+  \clearpage}
+
+% --- Weekly-report banner ---------------------------------------
+% A slim version of the cover for the short reports.
+\newcommand{\dtuweeklyhead}[2]{%
+  \noindent\begin{minipage}[b]{0.72\linewidth}
+    {\dtuheadfont\bfseries\LARGE \projecttitle\par}\vspace{0.3em}
+    {\dtuheadfont\large\color{dtuaccent} Weekly Report #1 \normalcolor\quad\small #2\par}
+  \end{minipage}\hfill
+  \begin{minipage}[b]{0.24\linewidth}\raggedleft\dtulogo[1.8cm]\end{minipage}
+  \vspace{0.5em}
+  {\color{dtuaccent}\hrule height 1.2pt}
+  \vspace{0.9em}
+  \noindent\begin{tabular}{@{}r@{\hspace{1em}}l@{}}
+    \dtuheadfont\bfseries Course      & \course \\
+    \dtuheadfont\bfseries Supervisors &
+      \begin{tabular}[t]{@{}l@{}}\supervisorlist\end{tabular} \\
+    \dtuheadfont\bfseries Author      & \authorline \\
+  \end{tabular}
+  \vspace{1.4em}}

@@ -1,0 +1,44 @@
+% NOTES ONLY, to be written. The one Technical Background file that describes the prediction model.
+% Trimmed 2026-11-07 from thesis/technical_background/01_risk_models.tex, 02_segment_glmm.tex and
+% the reserve 02_segment_glmm_long.tex (full drafts in git, commit e4eb857).
+% NOT YET CONFIRMED: the segment-level cloglog GLMM is expected but will be confirmed the week of
+% 2026-11-09. Write nothing model-specific before then. Added value (C, calibration, Brier, log
+% loss, NRI/IDI, internal validation; was 03_added_value.tex) and sample size (Riley criteria;
+% was 03b_sample_size.tex) are deliberately not written yet either.
+% Pointed back to by: content/methodology/03_prediction_model.tex (sec:method-models).
+% Rule: general methods only, present tense; settings, covariates, software and node counts are
+% Methodology.
+%
+% The section should contain, whatever the model:
+% - Clinical risk prediction models: absolute risk of an outcome over a time horizon from
+%   predictors, linear predictor mapped to a risk through a link (steyerberg2019cpm). Weights set
+%   the ranking, the intercept the level.
+% - Developed in the data versus a published score; SCORE2 (score2_2021) as the example. A published
+%   score costs no parameters but its weights were chosen for its own outcome and population.
+% - Recalibration (janssen2008updating, cox1958binary): in-the-large, logistic recalibration
+%   (intercept + one slope on the published linear predictor), revision, refitting; each step costs
+%   more parameters. Recovering the linear predictor from a published risk on the link scale.
+% - Hazard closer: a recalibrated score keeps its relative weights, so a new block correlated with a
+%   mis-weighted factor (e.g. age) can look informative only by correcting that weight. Does NOT
+%   decide the open base choice (recalibrated SCORE2 vs refitted factors).
+%
+% If the cloglog GLMM is confirmed, it should also contain:
+% - Clustered binary outcomes (segments within persons); correlated outcomes make naive standard
+%   errors too small; GLMM adds a random person effect (statacorp2025mecloglog).
+% - Cloglog link: proportional hazards over the window give hazard ratios independent of window
+%   length (prentice1978grouped); logit gives odds ratios, close at low risk. Exposure such as
+%   segment length: log length as an offset (coefficient 1) or with a free coefficient.
+% - Random intercept: shared frailty multiplying all segment hazards (duchateau2008frailty, page
+%   still to verify), summarised by sigma^2; conditional versus marginal effects
+%   (pavlou2015marginal); median hazard ratio (austin2017mhr).
+% - Fitting and testing: integration over the random intercept by adaptive Gauss-Hermite quadrature
+%   (liu1994gausshermite); Laplace bias in small binary clusters (joe2008laplace); LR test of a
+%   block of k coefficients against chi^2_k, both models on the same rows and settings.
+% - Segment risk to person risk: given b_i the segment hazards add (S_i), and the person risk
+%   integrates over b; b_i = 0 gives the median person and is miscalibrated (pavlou2015marginal,
+%   slope 0.79 vs 0.98). An effect on one segment is diluted in S_i, so a rejected LR test need not
+%   change the person risk.
+\section{Prediction Model}
+\label{sec:tech-model}
+
+\todonote{To be written once the model is confirmed (week of 2026-11-09): risk prediction models, recalibration of a published score and, if confirmed, the segment-level cloglog GLMM and its pooling into a person risk. See the notes in the source.}

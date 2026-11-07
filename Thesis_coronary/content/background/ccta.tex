@@ -1,0 +1,20 @@
+% Clinical Background v2, section 4. Source: clinical_background/03_ccta.tex.
+% Fixed: CCTA expanded at first use; resolution claims now sourced (dodge1992diameter,
+% medranogracia2016atlas); our 0.5 mm grid stated.
+% SINGLE SOURCE: abbara2016scct still carries gating and motion. A second source is wanted;
+% nieman2024scct is in refs.bib but its full text is not read, so it is not cited here.
+% FIGURE WANTED: acquisition schematic, or a clean vessel beside one degraded by motion and
+% blooming. External figure needs a credit from figures/external/CREDITS.md. No \ref until it exists.
+% CHECK: that the segmentation network of this thesis is run on the 0.5 mm resampled volumes is a
+% pipeline fact (CLAUDE.md, volumes_resampled/), stated without citation.
+
+\section{Coronary CT angiography}
+\label{sec:ccta}
+
+Coronary computed tomography angiography (CCTA) is the non-invasive imaging test recommended as the first-line investigation in patients with suspected chronic coronary syndrome \cite{knuuti2019esc}.
+During acquisition, the patient lies on the table of a computed tomography scanner, and a contrast agent, a solution containing iodine that absorbs X-rays strongly, is injected into a vein in the arm.
+The X-ray tube and its detector rotate around the patient, recording a projection of the chest at each angle, and the projections are reconstructed into a three-dimensional volume \cite{abbara2016scct}.
+The acquisition is timed to the passage of the contrast agent through the coronary arteries, resulting in a volume in which the lumen appears bright against the surrounding tissue \cite{abbara2016scct}.
+
+As the coronary arteries move with the heart muscle throughout the cardiac cycle, acquisition is synchronized to the electrocardiogram, and the volume is reconstructed from the phase of least motion, conventionally mid-diastole \cite{abbara2016scct}.
+The heart rate is lowered with medication before the scan, lengthening this window \cite{abbara2016scct}.The reconstructed volume is a grid of voxels, the three-dimensional equivalent of pixels, and no structure smaller than a voxel can be resolved.

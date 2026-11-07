@@ -1,0 +1,26 @@
+% NOTES ONLY, to be written. Trimmed 2026-11-07 from thesis/methodology/05_features.tex and
+% 05a-05d (full drafts in git, commit e4eb857). Figures still in thesis/methodology/:
+% features_overview_schematic.{py,pdf} and turning_feature_schematic.{py,pdf}.
+% CHECK: CGPS_data/thesis_final/ holds only turning_feature.py and split_check.py; taper, angle and
+% ratios have no final script yet, so their text cannot be written to the code yet.
+%
+% Umbrella section should contain:
+% - Features drawn from studies relating geometry to low WSS or plaque location (ch:literature,
+%   sec:method-selection), some adapted (curvature on 3D centerlines over a fixed chord).
+% - Read from the arteries of sec:method-split, points in mm with an artery label, traversed from
+%   the ostium. Open: in split_trunks.py the LAD and LCx paths start at the LM bifurcation, not at
+%   the ostium; only the RCA starts at the ostium.
+% - Curvature and taper per segment; angle and ratios once per participant at the LM bifurcation.
+%   Open: the split points carry no lumen radius, and the tracer gives a contour per step, not a mask.
+% - Table tab:method-features (feature, measured on, input, section) and the overview figure
+%   fig:method-features.
+% - Shared rules: unit of measurement; missing values (TODO).
+\section{Geometric Features}
+\label{sec:method-features}
+
+\todonote{To be written: where the features come from, what they are read from, and the overview table and figure.}
+
+\input{content/methodology/05a_curvature}
+\input{content/methodology/05b_bifurcation_angle}
+\input{content/methodology/05c_daughter_ratio}
+\input{content/methodology/05d_taper}

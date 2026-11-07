@@ -1,0 +1,47 @@
+% Literature Review, section 1. Notes for the whole chapter are in 00_chapter_intro.tex.
+\section{Coronary Geometry and Wall Shear Stress}
+\label{sec:lit-wss}
+
+Research on coronary geometry and plaque began with autopsy studies such as Asakura and Karino
+(1990) \cite{asakura1990flow}, which found plaque at bifurcations and bends.
+Van der Giessen et al.\ (2009) \cite{vandergiessen2009bifurcation} later located plaque on the outer
+walls of bifurcations in living patients, although the low wall shear stress (WSS) at these sites was
+inferred from their position rather than computed.
+
+Computational studies have explored which features of the geometry may influence the extent of low
+WSS.
+Kashyap et al.\ (2022) \cite{kashyap2022tortuosity} reconstructed the left main bifurcation from the
+CCTA of individuals without CAD and simulated the blood flow through each.
+They then compared every tortuosity measure used in earlier studies with the share of the vessel
+wall exposed to low WSS.
+Average curvature was the measure most closely related to low WSS, and the relationship was
+significant although weak.
+
+Zhang et al.\ (2024) \cite{zhang2024curvature} extended such simulations from a single bifurcation to
+whole left coronary trees reconstructed from a public CCTA dataset, comparing stenosis-free trees
+with moderately and severely stenosed ones.
+They measured geometry and WSS for the whole tree and separately for the segments at and between
+bifurcations.
+Average curvature separated stenosed from stenosis-free trees at the whole-tree level and between
+bifurcations, but not at the bifurcations themselves.
+The area of low WSS separated only moderate from severe stenosis.
+
+Garcha and Grande Guti\'errez (2025) \cite{garcha2025sensitivity} instead generated a large set of
+artificial left coronary trees, which let them change one feature at a time and simulate the flow
+in each.
+Between trees they varied the branch angle, the bending of the vessels and the division of diameter
+between the left anterior descending (LAD) and left circumflex (LCX) arteries.
+The area of low WSS at the bifurcation grew as the diameters of the two branches became more unequal.
+An uneven division also strengthened the effect of the angle and the bending, so these features act
+together rather than independently.
+
+Griffo et al.\ (2026) \cite{griffo2026wss} moved away from simulations and trained a graph neural
+network to estimate WSS from the shape of the vessel alone.
+The network learned from single coronary arteries reconstructed from invasive angiograms, with
+simulated WSS as the reference, and its estimate agreed closely with the simulation.
+In a test set of patients who later had a heart attack, the estimated and the simulated WSS
+identified the lesion that caused it equally well, although both did so only moderately.
+
+Collectively, these studies highlight that vessel shape decides where WSS is low and carries enough
+of the flow information to replace its simulation
+\cite{kashyap2022tortuosity,garcha2025sensitivity,zhang2024curvature,griffo2026wss}.
