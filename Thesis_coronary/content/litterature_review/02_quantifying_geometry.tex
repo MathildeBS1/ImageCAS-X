@@ -1,50 +1,134 @@
 % Literature Review, section 2. Notes for the whole chapter are in 00_chapter_intro.tex.
-\section{Quantifying Coronary Geometry}
+% 2026-11-07 (user; plan ~/.claude/plans/glimmering-seeking-bee.md): rebuilt. The old
+% "Quantifying Coronary Geometry" repeated the tortuosity measures of sec:lit-wss without a thread
+% of its own. The section is now about reducing a curvature profile to one value: how it has been
+% done (arc/chord, bend count, average curvature), what the choice did to the direction of the
+% result, how other fields keep the whole curve (FPCA), and the sample sizes behind each approach.
+% Label sec:lit-measure kept so the pointers in Methods comments stay valid.
+% Moved to sec:lit-wss: Cui 2017, Juan 2017 (LM angle), Schoenenberger 2012 (Murray), the taper
+% null. Dropped: Medrano-Gracia 2016, Taylor 2024 (space).
+% Restored: Tello Ayala's profile-versus-mean result (cut 2026-11-07 for the page limit).
+% Fact check (user asked whether small cohorts are a problem): partly true. Detailed 3D geometry
+% comes from small samples (Zhang 39 trees, Sangalli 65, Cui 106, Kashyap 127, Chen 192); the large
+% studies measure on 2D angiograms or by eye (Li 1,010; Tello Ayala 22,334) or measure no geometry
+% (PARADIGM, SCAPIS). Written as a trade-off of detail against size, sizes in the table only.
+% Sources: grisan2008tortuosity full text (knowledge/docs_thesis/papers/grisan2008tortuosity.md):
+% arc/chord - 1 FALLS as turns are added at equal |curvature| and length (Fig. 11); reference was
+% one specialist's ranking. sangalli2009aneurisk full text (research_notes/FPCA technical background
+% section/fpca_vessel_geometry_applications.md): 65 referred patients, K chosen by the same LOO error
+% that is reported. telloayala2026tortuosity full text: transformer AUROC 0.67 vs mean 0.60, NO
+% test of the difference; CAD label read by the operator from the same angiograms.
+% warmenhoven2021pca accepted manuscript read.
+% CAREFUL: do not write that FPCA or the profile beats the mean in coronary arteries in general;
+% one referred, 2D, untested comparison. The thesis's main model uses mean curvature; FPCA is
+% secondary (Methods sec:method-fpca), so nothing here argues for FPCA as the primary measure.
+% CAREFUL: the referral sentence (Zebic Mihic) is an inference, worded "may"; do not strengthen it.
+% Overlap: Technical sec:tech-fpca-registration keeps Sangalli as the registration example; its
+% classification result now lives here only.
+% 2026-11-07 (user): first two paragraphs condensed to follow sec:lit-wss as now written (Kashyap
+% there names the "tortuosity index", so this section uses that term, not "arc/chord", and does not
+% reintroduce Kashyap). Cut: the bend-count definition (Li carries it), Grisan's single-specialist
+% caveat (the cited result is on simulated curves), Li's adverse-event null (Li still supports
+% "opposite" in the closing).
+% 2026-11-07 (user): opener rewritten to continue from sec:lit-wss: its studies described curvature
+% by one value per artery, then the unresolved problem of condensing a continuous property.
+% 2026-11-07 (user): FPCA paragraph cut to two sources, the field-wide case (ullah2013fda) and the
+%   vascular precedent (sangalli2009aneurisk); "systematic review" not named in the prose. The author
+%   has not read these papers; the support was checked by Claude: Ullah and Finch (PMC3626842, via
+%   fetch) found FPCA in 51 of 84 applied studies (60.7%), biomedical science, biomechanics and
+%   medicine the largest areas. Dropped after a search: muller2005gflm, yeatman2012afq,
+%   goldsmith2011pfr (removed from refs.bib), Ratcliffe 2002, Donoghue 2008, Casciaro 2014, Zhu 2024
+%   (arXiv). No peer-reviewed FPCA of coronary curvature profiles found in these searches.
+%   warmenhoven2021pca stays in Technical only.
+% 2026-11-07 (user): no explanation of FPCA here (Technical owns it); only papers that used it and
+%   what they achieved. Added donoghue2008achilles (MSSE 40:1323, DOI on Crossref; ABSTRACT ONLY via
+%   catalogue records: 12 runners with chronic Achilles injury vs 12 controls, FPCA of stance-phase
+%   joint angles, greater eversion, dorsiflexion and knee flexion, "first half of stance ... most
+%   relevant period in injury occurrence"). Small sample; cited for what FPCA located, not as
+%   evidence of prediction. Author has not read it.
+% 2026-11-07 (user, deep research; reports/FPCA paper for continuous profiles.md): the placeholder
+%   after Ullah and Finch filled with goldsmith2011pfr, now the NeuroImage paper (57:431-439, DOI
+%   10.1016/j.neuroimage.2011.04.044, Crossref checked; full text PMC3114268 read by Claude, not
+%   by the author), NOT the JCGS method paper cited earlier. 115 MS cases, 42 volunteers,
+%   cross-sectional; nested logistic models (age, sex, whole-brain index; + tract mean; + whole
+%   profile by FPCA-based penalized functional regression), train/test split. Quote: "attention to
+%   spatial variation yields up to 15% (mean across all tracts and MRI indices: 6.4%) improvement";
+%   optic radiation: weight "emphasizes the contrast between the middle portion of the tract and its
+%   termini ... Model 2, by construction, averages these regions". CAREFUL: corpus callosum test set
+%   favoured the mean (small test set), hence "in most tracts"; the profile enters as a smooth
+%   weight function, not as a few scores; case-control, strong contrast. Sangalli and Donoghue
+%   removed from the prose by the author; closing now cites goldsmith2011pfr instead of Sangalli.
+%   Runner-up (not used): Hatfield 2015 Arthritis Care Res (knee OA gait waveform PCA, baseline gait
+%   associated with later knee replacement, 54 patients).
+% 2026-11-07 (user): "Other fields ... whole curve" -> "Outside the coronary arteries ... whole
+%   profile", since Sangalli (carotid curvature) is not another field and "curve" could be read as
+%   the bent artery; FPCA framed as a method for any quantity changing over time or position.
+%   Sangalli back in the prose (only peer-reviewed FPCA of a vessel curvature profile found; 65
+%   referred patients, cross-sectional, aneurysm location, K chosen on the same data) and in the
+%   closing cite. Goldsmith's middle-versus-ends clause cut for length.
+% Closing sentence is the one Methods sec:method-selection points back to (bend count, arc/chord:
+% null/opposite; average curvature: most often related). LM-daughter angles moved to sec:lit-wss.
+% 2026-11-07 (user): opener kept close to the earlier two-paragraph version, framed on the
+%   difficulty of condensing a continuous property (curvature) into one number, with the sec:lit-wss
+%   measures (average curvature, tortuosity index) as the example; second paragraph opens on the
+%   direction of the CAD association changing with the measure. A longer draft (Kashyap's measure
+%   list, Zhang's torsion, Grisan's simulated-turns example, Tello Ayala r = 0.116) was rejected.
+% 2026-11-07 (user; plan ~/.claude/plans/recursive-exploring-avalanche.md): opening made general:
+%   reducing a continuously changing property to fewer values loses part of the profile (cited to
+%   ramsay2005fda, general claim only; FPCA not explained here), then curvature has no agreed
+%   summary. User's "showed ... many different ways" softened to "described": the sec:lit-wss
+%   studies used different summaries but did not set out to show this. Bend sharpness vs bend count
+%   example sets up Li (count) vs Tello Ayala (average turning angle). Second paragraph is the
+%   user's own wording, only paste whitespace removed.
+% 2026-11-07 (user: "optimise for easy understanding on the first read"): wording only, no
+%   claims added or removed. "measure" -> "summary" to match paragraph 1; Li's "tortuous patients"
+%   spelled out (more bends); Tello Ayala's direction written as more/less likely ("weakly
+%   inversely associated" -> "slightly less likely") and opened with "In contrast"; FPCA scores ->
+%   "the shape of the profile" (scores are defined only in Technical); "transformer" -> "neural
+%   network"; Tello Ayala caveats moved to their own sentence; CAD label caveat spelled out.
+% 2026-11-07 (user): opening paragraph from the user's rewrite ("common challenge in the analysis
+%   of biological structures"), with typos fixed, "tortuosity" -> "curvature" (Zhang used average
+%   curvature), the bend-sharpness vs bend-count reason and ramsay2005fda restored, the
+%   no-agreed-summary sentence and its four cites restored (grisan2008tortuosity was otherwise
+%   uncited), and the CAD-direction sentence back in its own paragraph, now opening "In clinical
+%   studies of the coronary arteries". The entries above describing earlier openers are superseded.
+% OPEN: the tortuosity index is named here and in sec:lit-wss but defined in neither.
+% 2026-11-08 (user; Aida pass over the whole chapter, style_guide_sota_aida.md): inserted clause in the
+% Condensing sentence removed; FPCA frame cited; Sangalli (2009) now before Goldsmith (2011)
+% (chronological, "Subsequently"); closing synthesis cites every study it gathers, double hedge cut.
+\section{Measures of Coronary Curvature}
 \label{sec:lit-measure}
 
-Using coronary geometry as a marker relies on a consistent quantification of vessel shape.
-However, clinical studies have quantified coronary geometry inconsistently over the years, and the
-chosen measure can determine whether a relationship is even detected at all.
 
-Cui et al.\ (2017) \cite{cui2017bifurcation} measured three angles at the left main bifurcation on
-the CCTA of patients referred for invasive angiography.
-These were the angle between the LAD and LCX and the angles between the left main artery and each of
-its two daughters.
-Only the angle between the LAD and LCX was wider in patients with significant stenosis, while the two
-angles involving the left main artery did not differ.
-A study measuring only the angles involving the left main artery would therefore have found no
-relationship between the bifurcation angle and stenosis.
+Condensing a continuously changing property into a single value is a common challenge in the
+analysis of biological structures, since any summary keeps only some aspects of the profile, such as
+the sharpness or the number of the bends \cite{ramsay2005fda}.
+For curvature in coronary arteries, different summaries have been used and none has been agreed
+\cite{grisan2008tortuosity,kashyap2022tortuosity,li2011tortuosity,telloayala2026tortuosity}.
 
-For tortuosity, studies using different measures have disagreed even on the direction of the
-association.
-Groves et al.\ (2009) \cite{groves2009tortuosity} screened the invasive angiograms of consecutive
-patients and graded tortuosity visually as two consecutive turns that reversed the direction of a
-major artery.
-Patients with such severe tortuosity were less likely to have significant CAD than a randomly chosen
-group without it.
-Li et al.\ (2011) \cite{li2011tortuosity} instead counted sharp bends along the main arteries of
-consecutive patients with chest pain.
-Tortuous patients were again less likely to have CAD, although the association was borderline, and
-among patients with CAD the rate of adverse events at follow-up did not differ with tortuosity.
-Most recently, Tello Ayala et al.\ (2026) \cite{telloayala2026tortuosity} segmented the right
-coronary artery automatically in a large archive of angiograms from referred patients and computed
-the turning angle at each point along its centerline.
-Greater average tortuosity was associated with CAD, and a transformer that read the full profile of
-turning angles identified CAD better than the average alone.
-Depending on how tortuosity is measured, the same artery could therefore be read as a sign of less
-disease or of more.
+In clinical studies of the coronary arteries, the choice of curvature summary has even decided the
+direction of the association with CAD.
+Li et al.\ (2011) \cite{li2011tortuosity} counted sharp bends on the invasive angiograms of patients
+with chest pain and found that patients with more such bends were less likely to have CAD.
+In contrast, Tello Ayala et al.\ (2026) \cite{telloayala2026tortuosity} found that right coronary
+arteries with a greater average turning angle were more likely to have CAD, while by the tortuosity
+index the same arteries were slightly less likely to.
 
-The geometric studies reviewed here examined only the right coronary artery or the left
-tree alone \cite{telloayala2026tortuosity,garcha2025sensitivity,zhang2024curvature}.
-To determine the full potential of the coronary tree as a risk marker, this must be extended.
-Collectively, these findings suggest that an inconsistent measure
-\cite{cui2017bifurcation,kashyap2022tortuosity} and a partial view of the tree may each hide where
-geometry relates to disease.
+Outside the coronary arteries, studies have avoided this reduction by analysing the whole profile
+instead of a single value.
+A common method for quantities that change continuously over time or along a structure is
+functional principal component analysis (FPCA) \cite{ramsay2005fda}.
+Sangalli et al.\ (2009) \cite{sangalli2009aneurisk} applied FPCA to the curvature profile of the
+internal carotid artery, and the shape of the profile separated patients by where their aneurysm
+lay.
+Subsequently, Goldsmith et al.\ (2011) \cite{goldsmith2011pfr} used FPCA to analyse a tissue
+property measured along white-matter tracts of the brain, and in most tracts the whole profile
+separated patients with multiple sclerosis from healthy volunteers better than the tract average.
+In the coronary arteries, Tello Ayala et al.\ (2026) \cite{telloayala2026tortuosity} found that a
+neural network reading the whole turning-angle profile identified CAD better than a model using
+only the average turning angle.
 
-Using geometry in routine risk assessment relies on automated segmentation of the coronary tree from
-CCTA.
-Bransby et al.\ (2026) \cite{bransby2026imagecasx} annotated a large public CCTA dataset anew and
-benchmarked several deep learning segmentation methods on it.
-They compared each method with the agreement between expert annotators of the same scans.
-The best method came close to this agreement but ultimately concluded that automated
-segmentation does not yet match human annotators.
+Together, these studies suggest that the shape of a profile along a structure holds information that
+a single value discards, which may help in understanding the relation between artery geometry and
+disease \cite{sangalli2009aneurisk,goldsmith2011pfr,telloayala2026tortuosity}. 
+s

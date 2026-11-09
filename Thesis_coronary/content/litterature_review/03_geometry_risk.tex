@@ -1,70 +1,151 @@
 % Literature Review, section 3, with the summary table. Notes for the whole chapter are in
 % 00_chapter_intro.tex.
-\section{Geometry and Risk of Coronary Disease}
+% 2026-11-07 (reports/Literature review table and gaps.md): Sakellarios 2017 cut (small, established
+% disease). Added Chen 2024 and Lee 2024 (the two near misses: plaque-free artery or segment at
+% baseline, but referred patients, a few years, radiomic features), Good 2026 (SCAPIS
+% re-examination, design only) and Hageman 2023 (imaging adds little to SCORE2 even for events).
+% Won 2022 corrected: conventional risk factors were NOT associated with rapid progression; only
+% HbA1c at follow-up was; plaque development was described, not modelled.
+% Tommasino caveat rephrased: from their Table 2 (B 1.499, SE 0.206) the 95% CI is 2.99 to 6.71,
+% not 3.80 to 6.70; two p-values do not reproduce; table says logistic, text says Cox. Never quote
+% the HR. Gap sentence now about geometry on a plaque-free scan, not "automated whole-tree
+% measurement". "new plaque" removed from text and caption.
+% 2026-11-07: Zhang 2024 row added back (nine features, only curvature significant) so the null
+% features sit beside Cui's 0; Adj = no (group comparison of 20 vs 19 trees, no adjustment).
+% Table placed after the first paragraph so it floats to the top of page 3 (3-page limit).
+% Table rebuilt as a gap map (PRISMA 2020, Cochrane ch. 9, SWiM, CHARMS "predictors available at
+% the time of use"): four text columns plus four design columns; rows grouped by strand; Li beside
+% Tello Ayala so the opposite signs sit together. No "This thesis" row (no forward references).
+% CHECK before submission: Li 2011 Adj (is OR 0.755 from the multivariable model?); Tommasino Adj
+% inferred from "multivariable"; Han Adj is matching plus plaque adjustment (footnote b); Chen 2024
+% covariates of the radiomics model not stated (?); whole Lee 2024 row is abstract level, and some
+% C-index values came from a search snippet. Re-check SCAPIS re-examination and CGPS output.
+% 2026-11-07 (user): transitions added (recent studies, "In contrast", base-score uncertainty);
+% table cells shortened to make room (Cui as two measures +;0; Han timing, Lee segment count and
+% the LAD of Chen only in the text); legend moved to a scriptsize note under the table.
+% 2026-11-07 (user; plan ~/.claude/plans/functional-marinating-wand.md): prose restructured to
+% continue from sec:lit-measure: opener picks up 02's closing (disease on the same scan),
+% topic-sentence paragraphs, Won moved before Chen and Lee (chronological), closing "Collectively"
+% synthesis before the gap sentence. Studies, table and claims unchanged.
+% 2026-11-07 (user): rewritten to the level of sec:lit-wss and sec:lit-measure: reason-bearing
+% transitions, each study followed by its caveat in a sentence of its own, glosses for PARADIGM,
+% glycated haemoglobin, myocardial bridge and radiomic features. Opener follows the new closing of
+% sec:lit-wss (no evidence that geometry precedes plaque). Hageman tied to "beyond the established
+% risk factors"; gap sentence also names added value. Studies, claims and table unchanged; Lee,
+% Good and Hageman still cited for direction only (abstract level).
+% 2026-11-08 (user): opener states the problem directly in Aida's frame (uncited present-tense
+% frame, author-year study, "This finding implies", requirement last). CAREFUL: Glagov is
+% cross-sectional autopsy; keep the wording to what it found.
+% 2026-11-08 (user; plan ~/.claude/plans/bright-tinkering-kurzweil.md): table limited to the
+% studies of this section, in text order (Aida); Li, Tello Ayala, Zhang dropped, Cui dropped as no
+% section cites it any more. Outcome symbols replaced by a one-clause main finding taken from the
+% prose; Good folded into the Bergstrom row. Inserted ", however," clauses moved to the front;
+% Bergstrom now subject of its sentence. The Li 2011 Adj CHECK above is moot (row gone).
+% 2026-11-08 (user; plan bright-tinkering-kurzweil.md): opener reframed from risk prediction to
+% what an artery at risk looks like (sick cohorts cannot show the shape before disease; Glagov);
+% longitudinal topic sentence moved back to open paragraph 2.
+% 2026-11-08 (user; Aida pass): table moved to the end of the section after a closing pointer
+% sentence, as in Aida's Sec. 1.1; float [htbp]. Typo fix in the opener ("confidently", "were").
+% 2026-11-08 (user; plan bright-tinkering-kurzweil.md): tightened into a review of prior work.
+% Cut: opener duplicate ("cannot establish with confidence"), Tommasino "requested by clinicians",
+% HbA1c gloss; PARADIGM and "did not measure geometry" folded into the Won sentences. Aida ladder
+% added (Subsequently, More recently, Despite these advances). Studies, claims, table unchanged.
+% 2026-11-08 (user; plan bright-tinkering-kurzweil.md): Han/Tommasino paragraph dropped (cited in
+% the opener, table rows kept); plaque-free strand closed with a cited synthesis (suggest: Chen
+% moderate, Lee abstract level); Hageman tied to prognostic value.
+% 2026-11-09 (user): Chen 2024 cut from prose and table (shape only at a myocardial bridge); Won
+% and Lee framed by "did not measure geometry"; SCAPIS framed as not rescanned and no geometry; gap
+% paragraph adds "only part of the tree" and "random population sample". Rewritten for a first
+% read: plain words for remodelling and reverse causality, no "Nevertheless"/"Despite these
+% advances". "plaque burden is significant in all of them" replaced (unsourced, "significant"
+% ambiguous) by "plaque can develop in any of them". CHECK: Li 2011 and Han 2022 may cover the
+% whole tree; "none covered all three" refers to the studies cited in that sentence.
+% 2026-11-09 (user; plan ~/.claude/plans/enumerated-wibbling-nest.md): table rebuilt to fit the
+% 130 mm text width in Aida's form (4 text columns, no symbols or legend, footnotesize). Rows are one
+% per missing ingredient of the gap: Tommasino (geometry + repeat scan, not plaque-free), Tello Ayala
+% (largest geometry study, one artery, one exam; back in since the gap paragraph cites it), Won and
+% Lee (plaque-free + repeat scan, no geometry), Bergstrom (population, one scan). Han dropped
+% (culprit lesions in ACS; prose citation kept); Chen already cut. CHECK: Tommasino "many with
+% disease" and Lee row are abstract level; Tello Ayala 22,334 patients on 2D angiograms (full text).
+% 2026-11-09 (user): Hageman numbers added on request (exception to the no-numbers rule): CAC
+% percentile raised the C-index by 0.0198 (95% CI 0.0115 to 0.0281), the largest of the modifiers;
+% from the abstract (RTI record). CHECK in the full text and its correction (Eur J Prev Cardiol
+% 2024;31(13):e103); the gain was estimated in the cohorts with CAC data (likely MESA/HNR).
+\section{Follow-up From a Plaque-Free Scan}
 \label{sec:lit-risk}
 
-Estimating an individual's risk of developing plaque from geometry requires geometry measured before
-plaque appears and a later scan showing whether it does.
-Geometry measured once plaque is present cannot show which came first, as an artery remodels while
-plaque grows \cite{glagov1987remodeling}.
+In an early autopsy study, Glagov et al.\ (1987) \cite{glagov1987remodeling} found that coronary
+arteries enlarged as plaque accumulated in their wall.
+The geometry of a diseased artery may therefore be a consequence of its plaque rather than a cause.
+Many of the studies relating coronary geometry to disease were conducted in patients who already
+had coronary disease
+\cite{li2011tortuosity,zhang2024curvature,han2022plaque,tommasino2024clap,telloayala2026tortuosity},
+so they cannot show whether the geometry preceded the plaque or resulted from it.
+To establish whether geometry predisposes to plaque, geometry must be measured on a plaque-free
+scan and the same arteries re-examined on a later scan.
 
-Studies with follow-up have mostly concerned disease that was already present.
-Sakellarios et al.\ (2017) \cite{sakellarios2017bifurcation} followed bifurcations with repeated
-CCTA in a small group of patients with established disease, reporting that WSS predicted lumen
-reduction best when the daughter branch was included.
-Han et al.\ (2022) \cite{han2022plaque} compared a small sample of patients who later had an acute
-coronary syndrome with matched controls from a registry of patients referred for suspected disease.
-Their findings indicate that the lesions that caused the event lay nearer the ostium and more often
-at bifurcations than other lesions in the same patients.
-However, the typical event followed within weeks of the scan, so these lesions were already present
-at imaging.
-Tommasino et al.\ (2024) \cite{tommasino2024clap} followed patients referred for CCTA for one year,
-linking a wide left main bifurcation angle to progression of proximal LAD disease in a cohort in which
-many already had proximal LAD disease.
-Most of these events were progression on imaging requested by clinicians, and their reported
-intervals cannot be reproduced.
-In contrast, Won et al.\ (2022) \cite{won2022paradigm} followed registry patients without plaque on
-a first CCTA to a repeat scan some years later, observing new plaque in a substantial share of them
-and relating plaque progression to age, sex, hypertension, diabetes, hyperlipidemia, obesity,
-smoking and HbA1c but not to geometry.
+Only recently have studies followed people from a plaque-free scan to a repeat scan.
+Won et al.\ (2022) \cite{won2022paradigm} followed the plaque-free patients of the PARADIGM
+registry, whose CCTA was repeated for clinical reasons, and found that a substantial share
+developed plaque.
+The study did not measure geometry and related plaque development only to clinical variables.
+Lee et al.\ (2024) \cite{lee2024radiomics} predicted which plaque-free segments in the same registry
+developed plaque from clinical risk factors and image features, again without measuring geometry.
+Both studies included only patients scanned for a clinical reason, whose risk of developing plaque
+may differ from that of the general population.
 
-Despite these advancements, a significant gap remains in the current literature.
-Cohorts suited to this question have not measured geometry, since the plaque-free registry of Won
-et al.\ included none and the random population sample of Bergstr\"om et al.\
-\cite{bergstrom2021scapis} was scanned once and so had no follow-up.
-No study identified in this search has combined automated measurement of the whole coronary tree with
-follow-up to new plaque in a population selected at random rather than referred for suspected
-disease.
-An overview of the studies relating coronary geometry to disease is given in
-Table~\ref{tab:literature}.
+A cohort drawn at random from the general population avoids this selection, but the few studies that have
+examined such a cohort with CCTA have neither repeated the scan nor reported coronary geometry.
+Bergstr\"om et al.\ (2021) \cite{bergstrom2021scapis} scanned a random population cohort once and
+reported how common plaque was, and Good et al.\ (2026) \cite{good2026scapis} have so far only published the design of the repeat scan of the same cohort.
 
-\begin{table}[h]
+Even if geometry is related to later plaque, it is useful for risk assessment only if it carries
+information that the established risk factors do not already hold, and such additions have proved
+hard to find.
+Hageman et al.\ (2023) \cite{hageman2023score2} found that even coronary artery calcium, a direct
+marker of coronary atherosclerosis, increased the C-index of SCORE2 for cardiovascular events by
+only 0.020 (95\% CI 0.012 to 0.028), the largest gain among the risk modifiers they tested.
+
+In summary, the studies that followed people from a plaque-free scan did not measure geometry
+\cite{won2022paradigm,lee2024radiomics}.
+The studies that examined geometry covered only part of the coronary tree, either the left main
+bifurcation \cite{kashyap2022tortuosity,tommasino2024clap}, the left coronary tree
+\cite{zhang2024curvature,garcha2025sensitivity} or the right coronary artery
+\cite{telloayala2026tortuosity}, and none covered all three main coronary arteries, although plaque
+can develop in any of them.
+No study identified in this literature review related the geometry of all three main coronary
+arteries on a plaque-free scan to plaque at a repeat scan in a random population cohort.
+Table~\ref{tab:literature} gives an overview of these studies and their designs.
+
+\begin{table}[htbp]
   \centering
   \footnotesize
-  \begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.16\linewidth}%
-                  >{\raggedright\arraybackslash}p{0.22\linewidth}%
-                  >{\raggedright\arraybackslash}p{0.25\linewidth}%
-                  >{\raggedright\arraybackslash}p{0.29\linewidth}@{}}
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{0.17\linewidth}%
+      >{\raggedright\arraybackslash}p{0.31\linewidth}%
+      >{\raggedright\arraybackslash}p{0.17\linewidth}%
+      >{\raggedright\arraybackslash}X@{}}
     \toprule
-    Author \& Year & Cohort & Geometric Approach & Main Findings \\
+    Author \& Year & Population and Design & Geometry Measured & Main Finding \\
     \midrule
-    Zhang (2024) & 39 left coronary trees, stenosed and stenosis-free
-      & Whole-tree curvature on CCTA, cross-sectional
-      & Curvature separates stenosed from stenosis-free trees. \\
-    Li (2011) & 1010 consecutive angiography patients
-      & Bend count on invasive angiograms, cross-sectional
-      & Tortuosity inversely associated with CAD. \\
-    Tello Ayala (2026) & 22,334 referred patients
-      & Turning-angle profile along the RCA, cross-sectional
-      & Tortuosity higher with CAD; the full profile identifies CAD better than its mean. \\
-    Han (2022) & 116 referred patients with later ACS, 116 controls
-      & Lesion position and shape on CCTA, follow-up to ACS
-      & Event-causing lesions nearer the ostium and at bifurcations; events within weeks. \\
+    Tommasino 2024 & 499 referred, many with disease; repeat CCTA after 1 year
+      & LM bifurcation angle & Wide LM angle with proximal LAD progression\textsuperscript{a} \\
+    Tello Ayala 2026 & 22,334 referred; one invasive angiogram & Turning-angle profile of the RCA
+      & Whole profile identified CAD better than its mean \\
+    Won 2022 & 402 referred, plaque-free; repeat CCTA after 3.6 years & None
+      & Plaque developed in a substantial share \\
+    Lee 2024 & 1,162 referred, plaque-free segments; repeat CCTA after $\geq$2 years & None
+      & Image features added to clinical risk factors \\
+    Bergstr\"om 2021 & 25,182 random population cohort; one CCTA & None
+      & Plaque common; repeat scan planned (Good 2026) \\
     \bottomrule
-  \end{tabular}
-  \caption{Overview of studies relating coronary geometry to disease, highlighting the cohort, the
-    geometric approach and the main findings. None measured geometry in a randomly selected
-    population and followed it to new plaque. ACS: acute coronary syndrome; CAD: coronary artery
-    disease; CCTA: coronary computed tomography angiography; RCA: right coronary artery.}
+  \end{tabularx}
+  \par\smallskip
+  \begin{minipage}{\linewidth}\scriptsize
+    Follow-up as median. \textsuperscript{a}Statistics do not reproduce from the reported
+    coefficients. LM: left main; RCA: right coronary artery.
+  \end{minipage}
+  \caption{Overview of the studies closest to relating coronary geometry to later plaque,
+    highlighting population and design, geometry measured and main findings.}
   \label{tab:literature}
 \end{table}

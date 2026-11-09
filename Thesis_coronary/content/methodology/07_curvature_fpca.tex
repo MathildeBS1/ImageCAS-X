@@ -12,6 +12,26 @@
 % - Profile (eq:method-profile) on 50 equally spaced points of normalised position, linear
 %   interpolation; FPCA per segment by SVD of the centred participant x grid matrix; no registration,
 %   so a component can also be a shift of a bend.
+% - MOVED HERE 2026-11-09 from sec:tech-fpca (project-specific; the Technical Background now holds
+%   only general FPCA and points here for curves at unequal positions):
+%   - Respacing onto the grid. The profile values sit at the centerline points, which are not
+%     evenly spaced along the artery, so they cannot enter the grid of sec:tech-fpca-grid directly.
+%     Code (CGPS_data/turning_profile_shapes.py, on_grid): the profile points with lo <= pos < hi
+%     are kept (segments with fewer than MIN_PTS points are dropped), arc-length position is
+%     normalised to [0, 1] by the first and last kept point, and the profile is linearly
+%     interpolated onto G = 50 MIDPOINT positions t_g = (g - 0.5)/G. Midpoints match w = 1/G and the
+%     rectangle rule of eq:tech-fpca-grid. The interpolation is in arc length, so unevenly spaced
+%     points do not weight any part of the segment more than another.
+%   - Segment ends as landmarks (former last paragraph of sec:tech-fpca-registration): mapping a
+%     segment onto [0, 1] by its two ends is a landmark registration with the ends as the only
+%     landmarks and a linear warp between them (Wang p. 28: landmark method is the reference when
+%     all landmarks are present and identifiable, which segment ends are by construction). The
+%     ends exist in every segment, and the length of the segment is removed. A bend between the
+%     ends still lies at different relative positions in different curves, and its distance in mm
+%     from a landmark is lost, so a shift in where a bend lies may be read as a change in how
+%     sharply the vessel bends.
+%   - Write both as prose only once the FPCA code is in CGPS_data/thesis_final/ (turning_profile_
+%     shapes.py is not there yet and still runs on the Medis trees), per root CLAUDE.md.
 % - K fixed before outcome linkage: smaller of [rule] and the Riley budget of the segment less the
 %   base. Open: which rule (80/90% variance, Horn, circular-shift null, bootstrap |cos| >= 0.9,
 %   5-fold CV error).

@@ -1,47 +1,186 @@
 % Literature Review, section 1. Notes for the whole chapter are in 00_chapter_intro.tex.
-\section{Coronary Geometry and Wall Shear Stress}
+% 2026-11-07 (reports/Literature review table and gaps.md): Griffo 2026 cut (the thesis does not
+% estimate WSS); Kashyap, Zhang and Garcha each condensed for the page limit; computational-studies opener cut; closing synthesis no longer claims shape can "replace" the simulation, it now keeps
+% Kashyap's weak relation; LCX -> LCx.
+% CHECK: research notes linked Garcha's DOI to an arXiv preprint of the excluded review; confirm
+% every Garcha claim against the Scientific Reports paper (doi 10.1038/s41598-025-85781-x).
+% 2026-11-07 (user): transitions added at every paragraph joint, modelled on a review opener
+% ("Accurate prediction of ... fundamentally depends on ... Early foundational work by ...").
+% 2026-11-07 (user): no sentence opens with "Since"; Kashyap, Zhang and Garcha back to the earlier
+% (2026-10) wording, Kashyap's two sentences merged; Griffo stays cut; new closing kept.
+% 2026-11-07 (user): section now opens with the geometry -> low WSS -> plaque link
+% (chatzizisis2007ess, also cited in the Introduction); WSS abbreviation moved to that sentence.
+% Mechanism itself stays in Clinical sec:wss.
+% 2026-11-07 (reports/Why lumen taper as a feature.md): taper paragraph rebuilt as the argument for
+% taper: flow loss -> taper (Gijsen 2019 consensus, full text partly read, quote "typically
+% accompanied by tapering of the lumen"; it does NOT list taper among low-WSS sites) -> low WSS in
+% tapered models (Johnston 2009, conference paper, idealised rigid) and widest lumen (Schultz 2023,
+% fixed-outflow caveat) -> why shape not size (Dodge 1992, abstract only) -> why before plaque
+% (Seiler 1992, abstract only). "where most plaque is found" removed (no source). The step
+% taper -> low WSS -> plaque is written as an untested hypothesis. Not used: Javier 1995, Zubaid
+% 2002 (abstract only; the "0.22 mm per 10 mm" figures are from diseased arteries), Kamiya &
+% Togawa, Zarins, Cheng (secondary pages only), Shen 2025 / arXiv 2507.17109 (excluded).
+% Alternatives (torsion, helicity, raw diameter, LM length, distance from ostium, V/M, eccentricity,
+% radiomics) are eliminated in Methods sec:method-selection, not here; table in the report.
+% "nine" removed from the Zhang sentence (no numbers in prose).
+% 2026-11-07 (user): taper part restructured around the case for taper, led by the flow literature:
+% P1 what taper adds (size, not bending/branching) + lumen size relates more closely to WSS than
+% bending (Johnston & Johnston 2007 PMB, 4 angiographic RCAs, abstract: "strong correlation between
+% WSS and reciprocal radius and a weaker correlation between high curvature and extremes of WSS";
+% Schultz 2023; carotid widening Zarins 1983, Bijari 2014); P2 taper = shape form of size (Gijsen,
+% Johnston 2009) and why not absolute size (Dodge); P3 reverse causation (Seiler) + hypothesis.
+% 2026-11-07 (user): carotid evidence now explicitly introduced as another vascular bed; closing
+% sentence extended to lumen size and widening (coronary simulations + carotid).
+% 2026-11-07 (user): taper part condensed to one paragraph with only what the Methods needs:
+% definition (Gijsen), size->WSS (Johnston 2007), taper->low WSS (Johnston 2009), other bed
+% (Bijari), why change not size (Dodge), why before plaque (Seiler), hypothesis. Cut for length:
+% Schultz 2023 (fixed-flow caveat), Zarins 1983 (still cited in Clinical sec:wss).
+% 2026-11-07 (user): taper part rewritten for first-read understanding: explanations kept and
+% set-up sentences allowed, fewer papers. Kept: johnston2007diameter, johnston2009taper,
+% bijari2014flare, dodge1992diameter, glagov1987remodeling (re-used from Sec. 3). Cut from the
+% prose: gijsen2019wss (definition now stated as anatomy), seiler1992structure (reverse causation now
+% via Glagov), schultz2023ess, zarins1983carotid. Bib entries kept for Methods use.
+% CAREFUL: "a wider lumen gives a slower flow along the wall and therefore a lower WSS" is the
+% physics behind Johnston 2007 and Methods 05d (WSS ~ Q/r^3); no formula here. "would be expected
+% to be low" is the hypothesis, not a finding.
+% 2026-11-07 (user): Johnston 2009 sentence now states the complementarity of taper and curvature
+% (bends: both models; straight proximal part: tapered only); carotid and measurement paragraphs
+% rewritten in academic register and shortened. CAREFUL: "complementary rather than redundant" is
+% an inference from Johnston 2009, worded "indicating".
+% 2026-11-07 (reports/Recent lumen taper studies.md): taper evidence ordered as one line towards the
+% thesis setting: Johnston 2007 (real RCAs, radius) -> Johnston 2009 (idealised, taper isolated) ->
+% Kandangwa 2022 (taper removed from one real RCA shape; healthy volunteer, MRI; sensitivity analysis
+% in its Limitations; full text) -> Schultz 2023 (plaque-free CCTA arteries; fixed outflow, no side
+% branches; full text) -> Pacheco 2021 (51 referred women, QCA taper z-scores vs atherosclerosis
+% score, weak, cross-sectional; full text PMC10976284; its abstract wrongly suggests a CFR link).
+% Not used: Alamir 2024 (stenosed, NN attribution), Huo 2013 (whole tree; wide-lumen result in pigs),
+% taper-as-reference papers (Kang 2013, Shahzad 2013, Tu 2021, Weng 2024), preprints.
+% Choi 2020 (CCTA diameter scaling, Theil-Sen) belongs in Methods 05d.
+% 2026-11-07 (user): Johnston work framed as one series: 2007 PMB (real RCAs, radius > curvature)
+% -> 2008 ANZIAM J (uniform S-shaped models, Crossref 10.21914/anziamj.v49i0.330) -> 2009 MODSIM
+% (tapered). Johnston 2006 J Biomech not cited: its abstract is about viscosity models; the
+% proximal-to-distal WSS trend is only reported second-hand in the 2009 paper.
+% 2026-11-07 (user): shortened; Kandangwa 2022 cut (one volunteer, reports where HIGH WSS moves),
+% Schultz caveat merged, Pacheco shortened; new opening states taper is less studied than bending
+% and branching (consistent with the searches; no gap claim beyond "less attention").
+% Left to Methods/Discussion (design arguments, not literature): taper applies to every segment of
+% all three arteries; scale-free; a null result is informative. Alamir 2024 not used (abstract does
+% not state radius importance). Gharleghi 2025 IEEE TBME (sex: smaller, more curved arteries in
+% women) possible for Methods 06, not cited here.
+% 2026-11-07 (research_notes/Why lumen taper as a feature/taper_other_vascular_beds.md): carotid
+% evidence on WIDENING added, labelled as another vascular bed: Zarins 1983 (abstract level; also
+% cited in Clinical sec:wss), Bijari 2014 Stroke (full text, ARIC MRI, cross-sectional; flare
+% beta 0.173, R2 0.112 -> 0.135; sign reversed when diseased vessels included). CAREFUL: this is
+% local widening, not gradual taper; do not claim a direction for taper. Taper-specific evidence
+% outside the coronaries is inconclusive and left out: Sundell & Roach 1998 (aorta, more lesions
+% with MORE taper), Peiffer 2012 (rabbit, lesions at high shear), Van Tricht 2004 (null).
+% 2026-11-07 (plan: taper paragraph, so all five model features have literature; Methods 05d points
+% to sec:lit-wss): Johnston & Johnston 2009 (MODSIM proceedings, full text read): idealised rigid
+% S-shaped arteries, outlet radius 78% of inlet; tapered models alone show consistently low WSS in
+% the straight proximal inlet; "due, in part, to the overall taper in the artery and not only to
+% the local curvature variation". Conference paper, idealised geometry.
+% CAREFUL Schultz 2023 (full text, knowledge/docs_thesis/papers/schultz2023ess.md): 349 visually
+% normal vessels, referred patients; minimal ESS 3.8 Pa (<2.6 mm) vs 1.2 Pa (large); fixed 1 ml/s
+% outflow for every vessel and no side branches, which the authors say gives unrealistically high
+% distal ESS, so the diameter gradient is partly built in. Keep the caveat in the prose.
+% Not used: Javier 1995 (IVUS taper partly from plaque; PubMed 7810498 has no abstract, publisher
+% page paywalled, so unverified); Shen 2025 arXiv 2507.17109 (preprint of excluded shen2026geometry);
+% Shen arXiv 2502.06161 and Gharleghi arXiv 2401.12504 (preprints). WSS ~ Q/r^3 and normal taper
+% values stay in Methods 05d.
+% 2026-11-07 (plan: null features, so Methods sec:method-selection can point back here):
+% Kashyap: tortuosity index (arc/chord) no significant correlation with low TAWSS, p = 0.86, 127
+% patients (Europe PMC abstract, PMC8764056); curvature-based measures (RMS, squared-derivative)
+% also significant, so do not write that all other measures failed.
+% Zhang: "Absolute average curvature was the only anatomical parameter significantly higher in the
+% stenosed whole trees ... and non-bifurcating segments" (full text, knowledge/docs_thesis/papers/
+% zhang2024curvature.txt); nine features incl. inflow angle, bifurcation angle, Finet's ratio, MISD,
+% torsion. Angle and Finet p-values are not in the main text (Fig. 3 shows curvature, OSI, TSVI
+% only) -> CHECK supplementary appendix A before writing "did not differ". Side-branch diameter
+% (p = 0.041) and distal torsion (p = 0.024) at bifurcations left out (an aside in the paper).
+% TSVI (flow index, AUC 0.876) beat curvature (AUC 0.711); not in the prose.
+% CHECK: lines below the Zhang paragraph (Garcha) contain pasted diff markers; fix before compiling.
+% 2026-11-07 (user; plan ~/.claude/plans/glimmering-seeking-bee.md): sec:lit-measure rebuilt
+% around summarising curvature, so its feature evidence moved here. After Garcha: Cui 2017 and
+% Juan 2017 (LM angle, clinical, same scan) and Schoenenberger 2012 (Murray deviation, abstract
+% only, direction only). Taylor 2024 and Medrano-Gracia 2016 dropped for space. The taper-null
+% sentence joins the taper paragraph. Closing gains the angle sentence that sec:method-selection
+% points back to (LM-daughter angles null: Cui).
+% CHECK: Cui's referral cohort and Juan "not after adjustment" (P = 0.064, PMC5431433), as before.
+% 2026-11-07 (user): closing shortened to summarise only what the body presents (Kashyap, Zhang,
+% Garcha; Johnston 2009, Schultz) and now ends on the gap (simulation or single scan, no timing).
+% Cui/Juan angle sentence moved from the closing into the body after Garcha, so sec:method-selection
+% (04_model_size) and the Introduction still find them here. Cut from the prose: johnston2007diameter
+% and bijari2014flare in the closing (carotid flare was only in the closing); bib entries kept.
+% 2026-11-08 (user: apply the evidence-phrasing skill, Gijsen 2019 patterns): WSS sentence scoped
+% to coronary arteries and cited gijsen2019wss (full text read; p. 3422 "Since wall shear stress in
+% coronary arteries cannot be measured directly, we need to compute ..."); van der Giessen
+% "confirmed" -> "found the same pattern"; Kashyap's weak correlation now a clause of the finding;
+% Garcha (limit later cut, see below) and Johnston 2009 each end on their limit (artificial trees; idealised rigid models);
+% Johnston 2007 marked as few arteries (no number, prose rule); one "therefore" per paragraph;
+% grammar fixes ("to be the whole", "more unequal", "showed to"). Kept: no sentence opens with
+% "Since" (2026-11-07 rule). CAREFUL: the Garcha and Johnston limit sentences are this thesis's
+% reading of the designs, not limits the authors state.
+% 2026-11-08 (user): opening sentence kept as before; new second sentence ties the simulated flow
+% to low WSS and then to geometry (how the studies below use the simulation, not how CFD works).
+% It matches Kashyap (share of the wall with low WSS vs tortuosity measures) and Garcha (low-WSS
+% area at the bifurcation); Zhang related curvature to stenosis directly.
+% 2026-11-08 (user): Garcha paragraph rewritten for first-read clarity (width of LAD vs LCx instead
+% of "division of the diameter"); its closing limit sentence (artificial trees) cut.
+% 2026-11-08 (user; Aida pass over the whole chapter, style_guide_sota_aida.md): Asakura as author-year
+% subject; Kashyap and Zhang sentences rebuilt without inserted clauses; ", however," moved to front.
+\section{Wall Shear Stress and Where Plaque Forms}
 \label{sec:lit-wss}
 
-Research on coronary geometry and plaque began with autopsy studies such as Asakura and Karino
-(1990) \cite{asakura1990flow}, which found plaque at bifurcations and bends.
-Van der Giessen et al.\ (2009) \cite{vandergiessen2009bifurcation} later located plaque on the outer
-walls of bifurcations in living patients, although the low wall shear stress (WSS) at these sites was
-inferred from their position rather than computed.
+The use of coronary geometry to predict incident coronary plaque rests on the premise that vessel
+shape influences the level of wall shear stress (WSS), and that plaque tends to develop where WSS is
+low \cite{chatzizisis2007ess}.
+Early foundational work by Asakura and Karino (1990) \cite{asakura1990flow} on autopsied hearts
+found plaque concentrated at bifurcations and bends.
+Van der Giessen et al.\ (2009) \cite{vandergiessen2009bifurcation} later found the same pattern on
+the CT scans of living patients and located the plaque on the outer walls of the bifurcations.
 
-Computational studies have explored which features of the geometry may influence the extent of low
-WSS.
-Kashyap et al.\ (2022) \cite{kashyap2022tortuosity} reconstructed the left main bifurcation from the
-CCTA of individuals without CAD and simulated the blood flow through each.
-They then compared every tortuosity measure used in earlier studies with the share of the vessel
-wall exposed to low WSS.
-Average curvature was the measure most closely related to low WSS, and the relationship was
-significant although weak.
+WSS cannot be measured directly in the coronary arteries of patients \cite{gijsen2019wss}.
+Studies have therefore simulated the blood flow through arteries reconstructed from scans to see which features of the geometry lead to low WSS.
+Kashyap et al.\ (2022) \cite{kashyap2022tortuosity} simulated the flow through the left main
+bifurcation of individuals without CAD and tested which measure of tortuosity best predicted how much of the wall had low WSS.
+Their work showed that average curvature had the strongest correlation with low WSS, which was
+weak but significant, while the most widely used measure, the tortuosity index, was not related to low WSS.
 
-Zhang et al.\ (2024) \cite{zhang2024curvature} extended such simulations from a single bifurcation to
-whole left coronary trees reconstructed from a public CCTA dataset, comparing stenosis-free trees
-with moderately and severely stenosed ones.
-They measured geometry and WSS for the whole tree and separately for the segments at and between
-bifurcations.
-Average curvature separated stenosed from stenosis-free trees at the whole-tree level and between
-bifurcations, but not at the bifurcations themselves.
-The area of low WSS separated only moderate from severe stenosis.
+Zhang et al.\ (2024) \cite{zhang2024curvature} extended the simulation to the whole left coronary
+tree and related the geometry to disease by comparing stenosis-free with stenosed trees.
+Their comparison included the bifurcation angle and the ratio of the parent diameter to the summed
+daughter diameters (Finet's ratio), but only average curvature was significantly higher in stenosed
+trees.
 
-Garcha and Grande Guti\'errez (2025) \cite{garcha2025sensitivity} instead generated a large set of
-artificial left coronary trees, which let them change one feature at a time and simulate the flow
-in each.
-Between trees they varied the branch angle, the bending of the vessels and the division of diameter
-between the left anterior descending (LAD) and left circumflex (LCX) arteries.
-The area of low WSS at the bifurcation grew as the diameters of the two branches became more unequal.
-An uneven division also strengthened the effect of the angle and the bending, so these features act
-together rather than independently.
+Both studies used the arteries of patients, which differ in many features at once, so the effect of
+a single feature is hard to separate from the others.
+Garcha and Grande Guti\'errez (2025) \cite{garcha2025sensitivity} therefore generated a large set of
+artificial left coronary trees in which they could change one feature at a time.
+They varied the angle between the two branches, how strongly the vessels bent, and how wide the
+left anterior descending (LAD) artery was compared with the left circumflex (LCx) artery.
+They found that the more the two branches differed in width, the larger the area of low WSS was at the bifurcation.
+A difference in width also strengthened the effect of the angle and of the bending.
 
-Griffo et al.\ (2026) \cite{griffo2026wss} moved away from simulations and trained a graph neural
-network to estimate WSS from the shape of the vessel alone.
-The network learned from single coronary arteries reconstructed from invasive angiograms, with
-simulated WSS as the reference, and its estimate agreed closely with the simulation.
-In a test set of patients who later had a heart attack, the estimated and the simulated WSS
-identified the lesion that caused it equally well, although both did so only moderately.
+Whereas the bending of an artery and the division of its diameter at bifurcations have been
+studied repeatedly, less attention has been given to how the lumen narrows along each artery,
+referred to as lumen taper.
+Johnston and Johnston studied taper in a series of flow simulations.
+In a small number of right coronary arteries reconstructed from patient angiograms, they found that
+WSS depended more on the width of the lumen than on the curvature \cite{johnston2007diameter}.
+However, width and bending change together in a real artery, so their separate effects are hard
+to tell apart.
+To separate them, the authors built simplified S-shaped model arteries, first with a constant lumen
+width \cite{johnston2008sshaped} and then with a lumen that narrowed along the artery
+\cite{johnston2009taper}.
+In both models, curvature lowered WSS on the inner wall of each bend, while only the narrowing model
+had an additional region of consistently low WSS in the straight proximal part of the artery, where
+no bend is present.
+Taper and curvature therefore lowered WSS at different sites, indicating that they carry
+complementary information.
+The models were idealised and rigid, so this separation has not been shown in real coronary
+arteries.
 
-Collectively, these studies highlight that vessel shape decides where WSS is low and carries enough
-of the flow information to replace its simulation
-\cite{kashyap2022tortuosity,garcha2025sensitivity,zhang2024curvature,griffo2026wss}.
+
+Collectively, these studies point to average curvature, lumen taper, the division of diameter at the
+bifurcation and, together with it, the bifurcation angle as the features most closely tied to low
+WSS \cite{kashyap2022tortuosity,zhang2024curvature,garcha2025sensitivity,johnston2009taper}.
