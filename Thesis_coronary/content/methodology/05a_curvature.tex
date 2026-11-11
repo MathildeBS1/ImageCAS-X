@@ -1,25 +1,475 @@
-% NOTES ONLY, to be written. Trimmed 2026-11-07 from thesis/methodology/05a_curvature.tex
-% (full draft in git, commit e4eb857). Implementation: CGPS_data/thesis_final/turning_feature.py
-% (mean_turning, segment_turning) on each artery from split_trunks.py; figure from
-% turning_feature_schematic.py.
-%
-% The subsection should contain:
-% - Curvature as mean turning angle per mm, a form of average curvature, the tortuosity measure most
-%   closely, although weakly, related to low WSS (kashyap2022tortuosity; simulation study, keep
-%   "although weakly").
-% - Turning angle at each point between two 5 mm chords, chord ends by linear interpolation;
-%   atan2 form (eq:method-turn), unsigned in [0, pi].
-% - Noise: a positional error sigma gives spurious turning that falls with the square of the chord
-%   length; 5 mm chord as in vanzandwijk2019curvature. No further smoothing; no values within 5 mm of
-%   either artery end. TODO: confirm with Kit that the tracer centerlines arrive smoothed.
-% - Profile kappa = theta / l in rad/mm (eq:method-profile, referred to by curvature_fpca), computed
-%   on the whole artery and then divided at the segment boundaries.
-% - Segment value T_s = arc-length mean of the profile (eq:method-tl), trapezoid rule; fewer than two
-%   profile points -> missing.
-% - Difference from Tello Ayala et al. (2D, consecutive points): 3D, fixed chord, normalised by
-%   length, so independent of point spacing.
-% - Figure fig:method-turning.
-\subsection{Turning-angle curvature}
+% Methods, subsection of sec:method-features: the curvature feature only. The general feature
+% introduction and why curvature was kept belong to 05_features.tex and sec:method-selection.
+% Implementation (since 2026-11-10): CGPS_data/thesis_final/curvature_feature.py (chord_point,
+% curvature_profile, segment_mean, segment_curvature; CHORD = 5 mm, no smoothing) on each artery of
+% split_trunks.split. Until 2026-11-09: turning_feature.py, running profile_thesis and _at_chord of
+% tortuosity/curvature.py with kappa = theta / l. Checked against the code line by line on 2026-11-10.
+% Figure: content/methodology/figures/turning_feature_schematic.py (made-up artery, run through the
+%   same code; moved from outdated/thesis_retired/methodology/ 2026-11-09).
+% 2026-11-09: written from the e4eb857 draft (thesis/methodology/05a_curvature.tex), after the
+%   thesis-style skill and the Aida methodology guide. Changes: "curvature profile" ->
+%   "turning-angle profile" (as in sec:lit-measure and 07); pointer to sec:lit-wss instead of the
+%   chapter; one sentence defining curvature as inverse radius (owed here, see the content map);
+%   reasons moved to the front of their sentences; segment value written T instead of T_s, since s
+%   is the arc length; caption cut from seven sentences to three.
+% Cut as already said elsewhere: why average curvature rather than the tortuosity index
+%   (sec:lit-wss, sec:method-selection); what Tello Ayala et al. found (sec:lit-measure).
+% CAREFUL: kashyap2022tortuosity is a simulation study of the LM bifurcation in CAD-free
+%   individuals and the relation was weak; keep "although weakly", never "predicts plaque".
+% CHECK: "No further smoothing" assumes the tracer centerlines arrive smoothed. The question to Kit
+%   is not in 01a_inhouse_tracker.tex yet (content map); add it there.
+% CHECK: CGPS_data/thesis_final/README.md pointer to this file fixed 2026-11-09.
+% Spelling British (normalised, neighbouring, millimetre), as in the Literature Review; Methods 02b
+%   still writes "millimeters".
+% 2026-11-09 (user: more human, a thesis not a paper): loosened after the Aida register. "This
+%   thesis" as subject once, the intuition of each step before its symbols, plainer verbs
+%   ("measured", "reduced to one number"), shorter sentences. Same facts and equations as before.
+% 2026-11-09 (user): heading and opener now "tortuosity", with the chosen measure as average
+%   curvature; new paragraph on the tortuosity measures considered but not used, taken from the
+%   retired selection draft (outdated/thesis_retired/methodology/04_model_size.tex): tortuosity
+%   index (Kashyap: unrelated to low WSS), bend counts (direction of the CAD association differs,
+%   sec:lit-measure), torsion (measurement noise). Label sec:method-curvature kept.
+%   groves2009tortuosity left out: cut from the Literature Review, so not cited here either.
+% CHECK: sec:method-selection notes (04_model_size.tex) also list the tortuosity index and bend
+%   counts as set aside; state them once, here, and let sec:method-selection point back.
+% CITATION WANTED: torsion sensitivity to centerline noise and its CCTA reproducibility (the
+%   retired draft had the same \clarify; reports/More segment features for low WSS.md).
+% 2026-11-09 (user: concise, better structure, easy on a first read): restructured to choice ->
+%   measures not used -> angle -> chord length -> profile and segment value. The Tello Ayala
+%   paragraph is folded into the angle paragraph as the origin of the method; the FPCA pointer moved
+%   to the end. Torsion: "reproducibility on CCTA has not been reported" cut until a source is found.
+% 2026-11-09 (user: apply the Aida methodology guide to the whole subsection): chained opener naming
+%   the input (sec:method-split); First/Subsequently/Finally step map with the figure, and the step
+%   paragraphs in that order; in-sentence glosses (tortuosity index, torsion, end points) turned into
+%   their own clauses; meaning sentence after eq:method-tl; concede-and-defend for the 5 mm chord;
+%   "in this thesis" for own work vs "adapted from" for Tello Ayala; check pointer to
+%   sec:method-validity-accuracy (CHECK: that subsection is still empty; drop the pointer if the
+%   synthetic-shape analysis is not done).
+% 2026-11-09 (user: Aida style, measures not used moved to the end, the figure carries the main
+%   text, no unnecessary sentences): the step paragraphs now cite figure panels A to E; cut the
+%   step-map sentence (the panels do its job), the separate chord-end sentence (merged), the meaning
+%   sentence after eq:method-tl (panel E shows it) and the pointer to the still-empty
+%   sec:method-validity-accuracy. Measures not used form the last paragraph.
+% 2026-11-09 (user: fit in as the direct next section after 05_features): opening sentence cut to
+%   the measure and its resolution; the tracer arteries and the pointer to sec:method-split now
+%   live in the umbrella (sec:method-features), so they are not repeated here.
+% 2026-11-09 (user: rewrite now that the opening lives in 05_features; math at the level of
+%   02_fpca): the "chosen since the review found ..." sentence cut from the opening (the umbrella
+%   says the measure was the one most closely tied to low WSS); the definitional reason for average
+%   curvature now opens the last paragraph, before the measures not used. Math softened to the
+%   02_fpca level (two displayed equations): eq:method-turn removed (referenced nowhere), the angle
+%   between the chords and the atan2 computation now in words; the sigma/ell error argument in words
+%   (no "square of the chord length"); curvature as inverse radius without the symbols R and ell;
+%   plain reading of eq:method-tl after it. eq:method-profile (used by 07) and eq:method-tl kept.
+%   Facts rechecked against thesis_final/turning_feature.py. Copy before this pass: scratchpad
+%   05a_before_rewrite.tex (not in the repo).
+% 2026-11-09 (user: use the old week10.tex to help write this): plain wording taken from the
+%   turning-angle paragraph of outdated/thesis_retired/week10/fpca_from_plots.tex: the angle as how
+%   much the artery changes direction at a point; bends shorter than the chord are not resolved;
+%   about the first and last 5 mm of each artery get no value (profile_thesis needs a point 5 mm
+%   away in a straight line, so at least 5 mm of arc length; "about" kept); a bend across a segment
+%   boundary is still measured. Its FPCA paragraphs (flat first shape = mean turning, Medis profiles)
+%   belong to 07 (sec:method-fpca), not here.
+% 2026-11-09 (user: "write it more human, optimise for easy understanding on the first read, apply
+%   the Aida style guide to the whole section"; guides: thesis-style less_stiff.md and
+%   outdated/thesis_retired/style_guide_methodology_aida.md). Facts, cites, equations and labels
+%   unchanged. Changed: the user's first sentence kept, typos fixed ("quantied", "form of");
+%   curvature now two short sentences (inverse radius; a centerline on a circular bend turns one
+%   radian per radius length, so turning per mm equals curvature), replacing "so a tight bend has a
+%   high curvature ..." (filler) and the "about length/radius" chain. Window paragraph split in two:
+%   why a fixed length (uneven spacing makes consecutive-point angles cover different lengths), then
+%   the steps. Chord paragraph as Aida's concede-and-defend (balance, gain, cost, chosen value with
+%   source). Reason-first purpose clause for the arc-length mean ("To keep stretches with many
+%   points from counting more ..."), so the plain reading of eq:method-tl follows it. Measures not
+%   used: the long "Since ..., ..., it was preferred" sentence split into a verdict and its reason.
+%   Copy before this pass: scratchpad 05a_before_human_pass.tex (not in the repo).
+% 2026-11-09 (user: Aida guide; most important information first in each sentence, how it was done
+%   last): the measured quantity or outcome now opens each sentence and the procedure follows
+%   (sliding window "using ..."; angle measured at each point, interpolation as its own sentence;
+%   profile "obtained by dividing ..."; boundary bend, end points and torsion lead with the
+%   outcome; missing-segment rule before the trapezoid rule). Cut as a lead-in: "The length of the
+%   chords sets a balance between noise and detail"; the chord paragraph now opens with the 5 mm
+%   choice and its source. The arc-length reason moved from a "To ..." opener to the plain reading
+%   after eq:method-tl. Facts, cites, equations and labels unchanged. Copy before this pass:
+%   scratchpad 05a_before_order_pass.tex (not in the repo).
+% 2026-11-09 (user: "cut what was not done ... and replace with to ensure .. what was done, over
+%   the full section"): every counterfactual or not-done statement cut; reasons now as "To ensure
+%   ..., [what was done]". CUT: the consecutive-points counterfactual (uneven spacing now leads
+%   straight to the fixed window); "Longer chords add less false turning, since ..."; "The
+%   centerlines were not smoothed further" (still true in the code, smooth = 0; CHECK on tracer
+%   smoothing stands); "rather than its mean" in the FPCA pointer; the whole measures-not-used
+%   paragraph (tortuosity index unrelated to low WSS, Kashyap; bend counts opposite direction,
+%   sec:lit-measure, li2011tortuosity; torsion and its \clarify{citation}). The reason for the
+%   measure is now one closing sentence. CHECK: 04_model_size notes (sec:method-selection) said the
+%   tortuosity index and bend counts are set aside here; they are not any more, so state them there
+%   or nowhere. The user's own edits to the opener (curvature sentences removed, "along a segment of
+%   the artery", "The measure was adapted ...") were kept. Copy before this pass: scratchpad
+%   05a_before_ensure_pass.tex (not in the repo).
+% 2026-11-09 (user: "optimise for overall flow between sections, limit repetition, and add a small
+%   section on other ways of quantifying tortuosity and why they were not chosen"). Facts, cites,
+%   equations and labels unchanged; new label sec:method-curvature-other.
+%   - Flow: opener names the measure as a form of average curvature, so the evidence for it can sit
+%     once, in the new subsubsection, against the alternatives (it was a loose closing sentence).
+%     The figure float now closes the method part, before the subsubsection.
+%   - Repetition cut: "To ensure" 5 -> 2 (window, arc-length mean; others now "To keep ...", "To
+%     capture ...", "Where ... nearly straight"); the angle defined once (the "measured at each
+%     point" and "is the angle between" sentences merged); "centerline points" 4 -> 2; the chord
+%     limits (short bends, artery ends) in one paragraph.
+%   - NEW \subsubsection{Other Measures of Tortuosity}: the reason for average curvature (Kashyap,
+%     although weakly; Zhang, Tello Ayala), then the tortuosity index, bend counts and torsion, each
+%     with why it was not chosen, restored from scratchpad 05a_before_ensure_pass.tex. Torsion keeps
+%     its \clarify{citation} (CITATION WANTED above). Resolves the CHECK of the previous entry: the
+%     measures set aside are again stated here, so sec:method-selection can point back.
+%   Copy before this pass: scratchpad 05a_before_flow_pass.tex (not in the repo).
+% 2026-11-09 (user: rewrite with the current version and useful_from_week/{curvature,tortuosity}.tex,
+%   "be aware that it is a sliding window now", better figures for the thesis). Both week files
+%   describe the retired respacing method (points relaid every ell from the ostium, T = sum theta / L_c)
+%   and ImageCAS-X data; only their reasoning was taken, rewritten for the sliding window of
+%   profile_thesis. Taken: the angle between the arriving and leaving chord in 3D, atan2 accurate on
+%   near-straight stretches, no sign since each bend lies in its own plane, a 2D projection hides
+%   part of the turn (new fig:method-turning-3d, remade from turning_angle_3d.png with the real
+%   _at_chord); the chord argument (position error tilts both chords by about error/ell, angles are
+%   never negative so false turns add up, most on straight stretches; an error at the centre point
+%   tilts both its chords; "at least h/sqrt 12" softened to "likely of the order of the voxel size",
+%   since the tracer predicts continuous positions and need not round to the grid). Left out: all ImageCAS-X numbers (560/800 RCAs, 2/5/8 mm medians, voxel spacings),
+%   the respacing, the 3 sigma/ell constant, the Tello Ayala groups and transformer, the next-steps text.
+%   fig:method-turning remade: P_j several points on (window moved visibly, the earlier window faint),
+%   neutral highlight colours, labels clear of the chords, panel A larger.
+% CLARIFY added: the voxel size of the CGPS scans (also blank in sec:data-cohort) and the position
+%   precision of the tracer points (question for Kit, with the smoothing question in 01a).
+% Copy before this pass: scratchpad 05a_before_sliding_pass.tex (not in the repo).
+% 2026-11-09 (user: apply the Aida guide over the whole subsection; outdated/thesis_retired/
+%   style_guide_methodology_aida.md, thesis-style wins where they differ). Facts, cites, labels and
+%   equations unchanged. Kept as they already follow the guide: the opener (provenance verb "adapted
+%   from"), the First/Subsequently/Finally step order, the user's chord sentences, the T equation chain.
+%   Changed: eq:method-profile now has Aida's chain (lead-in, equation, "where" sentence, what it
+%   gives), with ell defined in the where sentence; the "first and last 5 mm have no value" fact
+%   stated once, in the profile paragraph (was in the chord paragraph and implied again under the
+%   equation), so the chord paragraph ends on its cost as a named simplification. Other measures: the
+%   50-word "Since ..., ..., it was chosen" sentence split into the evidence and the verdict, with the
+%   link that the mean turning angle measures average curvature (lost when the opener was cut); each
+%   measure now in one form, "[measure] was not used, as [reason]". Not added: a step-map sentence
+%   (cut earlier by the user, the figure panels do it) and a "check" move (no check exists; see the
+%   empty sec:method-validity-accuracy).
+%   Copy before this pass: scratchpad 05a_before_aida_pass2.tex (not in the repo).
+% 2026-11-09 (user: "use the equation" for the atan2 sentence): eq:method-turn restored as a
+%   displayed equation (removed in an earlier pass as referenced nowhere; the user wants it shown),
+%   with a "where" sentence; the chords are named a_i and b_i in the "First" sentence, matching the
+%   bold a and b of both figures. Same computation as profile_thesis: arctan2(|a x c|, a . c).
+% 2026-11-09 (user: "saying it has no sign is not needed"): cut "Since each bend of a 3D artery lies
+%   in its own plane, the angle has no sign"; the range 0 to pi already shows it is never negative.
+% 2026-11-09 (user: uncertainty to the Discussion, after the Aida guide: Methods keep the reason for a
+%   setting and its cost, the size of the error and its effect on the results go to the limitations
+%   block): moved to discussion.tex (Limitations notes) "These errors are likely of the order of the
+%   voxel size" with its \clarify, and "an error at the centre point tilts both of its chords at
+%   once"; the tilt clause folded into the chord sentence as its reason.
+% 2026-11-09 (user: make clearer that T does not depend on the number of points): the "many points
+%   do not count more" clause replaced by two sentences: the trapezoid rule weights each value by the
+%   distance to its neighbours, and with fixed-length chords T is independent of point density
+%   (twice the points, twice the profile values, same T). Checked on a made-up 3D artery at five
+%   point densities with profile_thesis and mean_turning: T 0.0464 to 0.0471 rad/mm while the sum of
+%   kappa grew from 3.2 to 15.6 (scratchpad density_check.py, not in the repo). CHECK: put this check
+%   in sec:method-validity-accuracy if the synthetic-shape analysis is written.
+% 2026-11-09 (user: no "thus"; Aida guide; easy on a first read): T paragraph in Aida's equation
+%   chain (lead-in naming T, equation, where sentence, what T tells: "the average turning of the
+%   segment in rad/mm"); "thus" removed; the density sentence now opens with its reason ("As every
+%   angle also spans chords of the same length") and ends on the concrete case after a colon.
+% 2026-11-09 (user started the chord paragraph: "A chord length of 5 mm was chosen since ...
+%   Using a chord length ..."): completed in that frame; "A longer chord reduces the false turning, at
+%   the cost" -> "The cost is", since the opening now says what the longer chord does.
+%   CHECK: van Zandwijk's own words were "an adequate and robust option" (week file quote, paper
+%   not reopened); not quoted, since "robust" is on the banned list.
+% 2026-11-09 (user: write the angle paragraph and the window paragraph together, less repetition):
+%   merged into one paragraph opening with "First,"; the chord and the angle are now defined once
+%   (were twice), "5 mm" said once per chord end. Cut: "so there is no common side from which a turn
+%   is to the left or to the right" (the own-plane clause carries the reason).
+% 2026-11-10 (user: "analyse if turning angle ... is a correct way to measure the turning angle on
+%   the centerline between 3d points. Are there a better way to quantify mean curvature on the
+%   segments"; plan approved, three-point circle curvature chosen). Assessment: the 3D angle (atan2),
+%   the interpolated straight-line chord ends, the sliding window and the trapezoid mean are correct,
+%   and the summed chord angles of a polygon on a curve give its total curvature, so theta / l is a
+%   discrete curvature at the 5 mm scale. Its one bias: on a circle of radius R the chord angle is
+%   2 asin(l / 2R), so theta / l overestimates 1/R by +18.2% at R = 3 mm, +4.7% at 5 mm, +1.1% at
+%   10 mm, +0.3% at 20 mm, +0.1% at 40 mm (curvature_feature.py --check). Changed:
+%   - kappa is now the inverse radius of the circle through B, P and F (Menger curvature),
+%     kappa = 2 sin(theta / 2) / l: exact on circles of every radius (check: 1/R to 1e-4), 0.1092 vs
+%     0.1096 on a helix (theta / l: 0.1106), same positive bias from point noise on a straight line
+%     (scratchpad run: 0.0172 vs 0.0173 at sigma 0.15 mm), equal to theta / l for small angles. On
+%     the made-up artery of fig:method-turning the segment values moved by -0.1% to -0.7%.
+%   - Opener: "average curvature" (the term of sec:lit-wss, Kashyap and Zhang) instead of "mean
+%     turning angle per millimetre"; Tello Ayala now the source of the turning angle only, since
+%     they did not compute curvature. The user's opener otherwise kept.
+%   - Curvature defined as inverse radius, in the profile paragraph where it is used (owed per the
+%     content map; the user had removed it from the opener, so it was not put back there).
+%   - The reason for the circle is written as "To ensure ..." with no counterfactual (rule of the
+%     2026-11-09 ensure pass); the theta / l bias numbers stay here, not in the text.
+%   - Units rad/mm -> mm^-1 throughout, since kappa is no longer an angle per length.
+%   - Density sentence "but the same T" -> "nearly the same T": the check gives a spread of 1.9%
+%     across mean point spacings 0.125 to 0.5 mm, and up to 4% at 1 mm, where the straight polyline
+%     steps cut the bends; the trapezoid weighting itself does not depend on density.
+%   - "As every angle also spans chords of the same length" -> "every value rests on chords ...".
+%   - Caption of fig:method-turning: "turning-angle profile" -> "curvature profile". Both figures
+%     regenerated from curvature_feature.py; panel B/C shows kappa = 2 sin(theta/2)/l.
+%   Not used: curvature from a smoothing spline, |r' x r''| / |r'|^3, since its smoothing parameter
+%   plays the role of the chord, its two derivatives amplify point errors, and taking the absolute
+%   value gives the same positive noise bias. Not stated in the text (counterfactual rule); it could
+%   go into sec:method-curvature-other if wanted.
+%   Left untouched: sec:method-curvature-other (user's own text). CHECK there: "tortuoisty",
+%   "measures was considered", "preffered", "The amount of features".
+%   CHECK: 07_curvature_fpca.tex (sec:method-fpca) must call the profile the curvature profile in
+%   mm^-1 when written; its header was updated. CHECK: progression_who_pooled.py takes its turning
+%   values from progression_turning.build (respaced chord_resample, theta / l), not from
+%   curvature_feature.py; the model and this text disagree until that script calls segment_curvature.
+% 2026-11-10 (user: Aida guide over the whole subsection, easy on a first read, like the
+%   "Let x_i(t) denote ..." opening of sec:tech-fpca). Facts, cites, equations and labels unchanged.
+%   - Opener: new "To ensure that every angle covers the same length of artery, ... chords of a fixed
+%     length", so the uneven spacing leads somewhere (it was a loose fact).
+%   - Angle paragraph: one object per sentence in the order of the figure ("let P_i denote", then
+%     B_i and F_i, then the chords a_i and b_i, then theta_i), replacing the 50-word chord sentence;
+%     "The window then moved on" -> "The same was done at every point" (window was never defined).
+%   - Chord paragraph: "since ... since" chain split; the error fact now opens its sentence.
+%   - "Secondly" -> "Subsequently" (First/Subsequently/Finally); the curvature profile named in its
+%     own sentence after the equation; theta_i not redefined in the where sentence.
+%   - T paragraph: arc length s defined before the equation; "does not depend" -> "hardly depends",
+%     to agree with "nearly the same T" (spread 1.9%, see the 2026-11-10 entry above).
+%   - sec:method-curvature-other (user's own text) rewritten in the same terms: typos fixed; the
+%     five-feature limit points to sec:method-size; "proven association" -> "reported association"
+%     (skeptical-claims rule), and the user's caveat stated as: these associations were with low WSS
+%     or existing CAD, which may differ from the risk of developing plaque. Tortuosity index and
+%     torsion each get a defining sentence before the verdict. CHECK the user agrees with this
+%     reading of their sentence.
+%   Copy before this pass: scratchpad 05a_before_readability_pass.tex (not in the repo).
+% 2026-11-10 (user: "make sure the flow from sentence to sentence works"): "First, let P_i denote"
+%   -> a step sentence ("First, a turning angle was measured at every centerline point") followed by
+%   the notation; "These chord ends" -> "They" (chords were not yet named); "The same was done at
+%   every point" -> "Neighbouring points share most of their chords, so ..." (the step sentence now
+%   says every point); chord paragraph reordered as choice and its two reasons, then how an error
+%   tilts a chord, then why false turns add up, then the cost; T paragraph: the trapezoid sentence
+%   now ends on what it achieves, and the density sentence opens "Together with the fixed chord
+%   length" (was "also" with no first reason stated); FPCA pointer opens "Beyond its mean".
+% 2026-11-10 (user: "look at the two papers in full ... should I take anything from them or is my
+%   computation method good for my centerline points. evaluate if I should just call the feature
+%   curvature all the way through, tortuosity could get confusing"). Both read in full from
+%   important_papers/ (s10278-019-00300-5.pdf, s41598-022-04796-w.pdf).
+%   - van Zandwijk 2020 (vanzandwijk2019curvature; 71 suspected or known CAD, TeraRecon centerlines,
+%     manually corrected): local curvature "defined as reverse radius" and "calculated using Menger's
+%     formula (Eq. 1), at every 5 mm", kappa = 4A / (product of the three sides of the triangle of a
+%     point and the points s before and after it); segment value = average, mm^-1; 0.078 to 0.090
+%     mm^-1; 9% to 11% higher at end-systole than end-diastole. With two equal chords Menger's
+%     formula equals 2 sin(theta/2) / l (checked numerically, identical to 6 decimals), so the thesis
+%     computes van Zandwijk's curvature. The 5 mm scale is justified there only as "an adequate and
+%     robust option"; keep "follows van Zandwijk", never "validated". CHECK: their s may be along the
+%     curve rather than a straight line, and "at every 5 mm" may mean points 5 mm apart rather than a
+%     sliding window; their mean is unweighted. Hence "adapted to the unevenly spaced points".
+%   - Kashyap 2022: curvature "the reciprocal of the radius of curvature at a particular point on the
+%     centerline"; average absolute curvature = integral of kappa / L (Table 1) = eq:method-tl;
+%     VMTK-smoothed centerlines resampled at 0.01 mm, estimator of kappa not stated; values 0.40 to
+%     0.51 mm^-1 (scale dependence: to the Discussion notes). "Tortuosity" is their umbrella word.
+%   Changed: heading "Tortuosity" -> "Curvature" (label kept), since the tortuosity index (Lit Review,
+%   sec:method-curvature-other) and van Zandwijk's "tortuosity" (path / chord) are a different
+%   measure; "tortuosity" stays only as the umbrella word, defined once in sec:method-curvature-other.
+%   Opener credits van Zandwijk (Menger at 5 mm on CCTA) instead of Tello Ayala, who used raw angles
+%   between consecutive 2D points; telloayala2026tortuosity is still cited for bend counts below.
+%   Chord sentence "has previously been used ... \cite" -> "follows van Zandwijk et al." (cite once,
+%   in the opener). Menger named at eq:method-profile. T linked to Kashyap's average absolute
+%   curvature. Caption "one tortuosity value" -> "one average curvature". User's 2026-11-10 hand edits
+%   otherwise kept.
+% 2026-11-10 (user: "add the general Menger formula to the thesis text can you cite it also, is
+%   there a book on it?"): general form added as eq:method-menger, kappa = 4A / (product of the three
+%   sides), with the 5 mm form kept as eq:method-profile (label used by 07) as its reduction for two
+%   equal chords (identity checked numerically 2026-11-10). Cited to the original definition, Menger
+%   1930, Math. Ann. 103:466-501, doi 10.1007/BF01455705 (Crossref and EuDML checked; the paper itself,
+%   in German and on general metric spaces, was not read, only its bibliographic record and the
+%   definition as quoted by secondary sources: curvature of three points = inverse radius of the
+%   circumscribed circle). Book considered and not used: Tolsa 2014 (Birkhaeuser, Progress in
+%   Mathematics 307) covers Menger curvature in complex analysis, far from this use. The formula
+%   R = abc / (4A) for the circumradius is classical triangle geometry and needs no further source.
+% 2026-11-10 (user: "switch the code and the text to just have mengers formula. does menger work in
+%   3d?"): the turning angle is gone from text and code. curvature_feature.py now computes kappa with
+%   menger_curvature, 4A / (product of the three sides), 4A = 2 |a x b| in 3D; values identical to
+%   the former 2 sin(theta/2)/l to about 1e-16 mm^-1 on three test shapes (scratchpad check). Text:
+%   the turning-angle paragraph, eq:method-turn (atan2), the reduction to 2 sin(theta/2)/l and the
+%   small-angle remark cut; the Menger equation now carries eq:method-profile (label used by 07);
+%   eq:method-menger dropped. New sentence: three points lie in one plane, so the circle is defined in
+%   3D, and collinear points give 0. "false turning" -> "false curvature"; "every angle" -> "every
+%   value". The 3D projection figure (fig:method-turning-3d, figures/turning_angle_3d.py, kept on disk)
+%   is out of the text, since it shows a turning angle. Schematic panels B and C now draw the circle
+%   through B, P, F with R and kappa; caption updated. Opener typo "How much a segment bend" -> "bends".
+%   Still to decide: whether the literature-review link to the turning angle of Tello Ayala needs a
+%   pointer here (it no longer appears in the method).
+% 2026-11-10 (user: "give me the shorter version with only menger"): body replaced by the shortened
+%   draft, Menger only. Cut against the previous version: the separate fixed-chord sentence of the
+%   opener (now in the First paragraph), "neighbouring points share most of their chords", the
+%   error-tilt mechanism and "every value counts as positive" (both in the Discussion notes), the
+%   arc-length definition as its own sentence (now inside the Finally sentence), "T is the area under
+%   the profile ..." and the density sentence (the trapezoid clause carries the point). Facts, cites,
+%   labels and the code match unchanged. Copy before this pass: scratchpad 05a_before_short_menger.tex
+%   (not in the repo).
+% 2026-11-10 (user: short explanation of s_last - s_first and how arc length is computed): added to
+%   the where sentence of eq:method-tl that s_last - s_first is the length of the segment that has
+%   curvature values, and one sentence that arc length is the running sum of the distances between
+%   consecutive centerline points from the ostium (RCA) or the left main bifurcation (LAD, LCx).
+%   Checked against split_trunks.split (s = cumulative edge lengths along the artery path; LAD and LCx
+%   paths cut at the common LM node, or just after the labelled LM when the other artery is missing,
+%   see the 05_features notes) and curvature_profile (same cumulative sum when s is not given).
+% 2026-11-10 (user: the curvature definition sentence repeats the next paragraph; "do it"): the
+%   definition of curvature as inverse radius moved from its own sentence after the opener into the
+%   Menger sentence, where it is used; "0 on a straight stretch" kept once (after the equation) and
+%   "grows as the bend tightens" -> "a tighter bend gives a smaller circle and a larger curvature" in
+%   the same sentence. The user's own new opener ("The bending of each segment ... at scale 5 mm, the
+%   same scale used by van Zandwijk et al.") kept unchanged.
+% 2026-11-10 (user: "make the opening better"): user's "The feature used to quantify how a segment
+%   bends was average curvature,, computed ... at scale 5 mm, the same scale used by ..." -> "How
+%   much each segment bends was quantified by its average curvature, computed ... at a scale of 5 mm,
+%   the scale used by ...". The quantity measured now opens the sentence (no "The feature used to"
+%   lead-in); double comma and "at scale" fixed; "the same" dropped (nothing to be the same as).
+% 2026-11-10 (user: "put my version back with the fixes"): opening back to the user's wording, "The
+%   feature chosen to quantify how much each segment bends was average curvature", with the earlier
+%   fixes kept (single comma, "at a scale of 5 mm", "the scale used by").
+% 2026-11-10 (user: merge the fixed-chord sentence into the one before, no repetition): the two
+%   sentences ("First, ... found ... 5 mm behind and 5 mm ahead ..." and "To ensure that every value
+%   covers the same length ..., the chords were of this fixed length") merged into one, reason first;
+%   "on the unevenly spaced tracer points" -> "despite the uneven point spacing".
+% 2026-11-10 (user: the definition sentence repeats "inverse radius of the circle"): now one statement,
+%   "The curvature at P_i was taken as the inverse of the radius of the circle through the three
+%   points, which approximates the circle the centerline follows there, and was computed with Menger's
+%   formula as". "Approximates" is deliberate: the three-point circle at 5 mm estimates the circle the
+%   centerline follows (exact on circular bends, smooths bends shorter than the chord). The general
+%   definition of curvature as inverse radius is still carried by this sentence.
+% 2026-11-10 (user: "write better and infer aida styleguide", the three lines after the Menger
+%   equation; outdated/thesis_retired/style_guide_methodology_aida.md read). Aida's equation chain
+%   (§9.1): the where sentence now names every symbol (A_i and the norm as a distance) before the
+%   unit; then one sentence on what the quantity tells (0 on a straight line, larger as the bend
+%   tightens and the circle shrinks). The 3D validity as her "Since ..." reason form (§5), its own
+%   sentence instead of a three-part chain. The 5 mm trade-off as her concede-and-defend form (§5,
+%   §14): "Although [cost], [what it gains]". Same facts as before.
+% 2026-11-10 (user moved the 5 mm concede-and-defend sentence up to the opener, where the 5 mm scale
+%   is first named; "write a short comment up here"): reworded to refer to the scale, since no chord
+%   is defined yet at that point: "Although this scale does not resolve bends shorter than 5 mm, it
+%   keeps the false curvature caused by errors in the point positions low". Own line in the source.
+% 2026-11-10 (user trimmed the opener to "The feature chosen ... was average curvature, computed with
+%   Menger's formula." and asked to move the 5 mm source and trade-off into the First paragraph): two
+%   sentences added after the B_i/F_i sentence, "The 5 mm scale follows van Zandwijk et al. ..., who
+%   used it for coronary curvature on CCTA." and the concede-and-defend sentence. The Menger cite and
+%   "and was computed with Menger's formula \cite{menger1930metrik} as", lost in the user's trim,
+%   restored as the lead-in to eq:method-profile. CHECK: the opener no longer cites the figure as a
+%   whole; panel B is now its first citation, which is fine for LaTeX but panel A (uneven points) is
+%   not cited anywhere.
+% 2026-11-10 (user's own trade-off sentence, benefit first): kept, with "This" -> "This scale" (the
+%   previous sentence is about van Zandwijk), "but on the other hand" -> ", but", "5mm" -> "5\,mm".
+% 2026-11-10 (user: "write this more natural"): the 40-word chained sentence before eq:method-profile
+%   split in two: the circle first ("The three points define a circle that approximates the one the
+%   centerline follows at P_i."), then the curvature as the inverse of its radius, computed with
+%   Menger's formula. Same facts; kappa_i now named before the equation.
+% 2026-11-10 (user: "no just explain it better", the lead-in to eq:method-profile): the lead-in now
+%   says why the circle measures bending ("Exactly one circle passes through the three points, and
+%   the more sharply the centerline bends at P_i, the smaller this circle is"), then "The curvature
+%   kappa_i was therefore taken as the inverse of its radius". The sentence after the equation no
+%   longer repeats that (was "0 ... and increases as the bend tightens and the circle shrinks"); it now
+%   explains the formula on a straight stretch: points on a line, no triangle area, kappa_i = 0.
+%   "Approximates the circle the centerline follows" dropped; the 5 mm trade-off sentence carries the
+%   limit of the estimate.
+% 2026-11-10 (user: "explain better how mean curvature with arc length that is only arc length for
+%   that segment"): Finally paragraph reordered after Aida's equation chain. T named first as the
+%   segment's average curvature; arc length defined (running sum, ostium / LM bifurcation) before it
+%   is used; "Only the profile values inside the segment were used, from ... s_first to ... s_last"
+%   as the lead-in, so the segment-only stretch is explicit; where sentence for kappa(s); one
+%   sentence on what the integral and the division give (area under the profile over the stretch,
+%   divided by its length = curvature per mm); trapezoid rule explained as each stretch between
+%   neighbouring profile points counting with its length. Kashyap: "referred to ... as" ->
+%   "recommended by" (their own word: "We thus recommend the use of average-absolute-curvature").
+% 2026-11-10 (user: "write it shorter and easier to follow on the first read through, dont repeat
+%   yourself", the segment-mean paragraph): 194 -> about 130 words. T named with "using only the profile
+%   points inside the segment" in the lead-in; one where sentence; arc length in one sentence; the
+%   meaning of the equation and the Kashyap link merged ("T is thus the area under the profile divided
+%   by the length it covers"); the trapezoid sentence kept; missing rule and FPCA pointer joined. Cut as
+%   repetition: "its average curvature along the centerline" (T is named once), "where kappa(s) is the
+%   curvature profile" (named in the paragraph before), "the integral is the area ... dividing it by
+%   the length of the stretch" (now one clause).
+% 2026-11-10 (user: measuring s from the start of the artery is confusing for mid and distal
+%   segments): arc length now introduced as each point's position along the artery, and one sentence
+%   added that for a mid or distal segment s_first is where its profile begins and s_last - s_first
+%   is the length of the segment's own stretch, so the origin of s cancels in T.
+% 2026-11-10 (user: easier to understand, no repetition, better flow between sentences, the three
+%   sentences after the where sentence of eq:method-tl): now a chain, what s is -> which stretch
+%   counts ("Only the stretch between s_first and s_last enters the integral, so a mid or distal
+%   segment is averaged over its own length and not over the artery before it") -> what T is
+%   ("therefore the area under the segment's profile divided by this length"). "Position along the
+%   artery" and "the segment's own stretch" (said twice) cut; "thus" -> "therefore", one per paragraph.
+% 2026-11-10 (user cut the arc-length and stretch sentences after eq:method-tl): kept, with three
+%   fixes: ", the distance along the centerline" added to the where sentence (arc length is first
+%   used here and needs its meaning); "therefore" removed (the sentence it followed from is gone);
+%   "this length" -> "the length s_last - s_first it covers" (no antecedent left). The origin of s
+%   (ostium / LM bifurcation) is no longer stated; it cancels in T, and split_trunks.split holds it.
+% 2026-11-10 (user: trapezoid sentence easier to understand): split in two, what the rule does
+%   (joins neighbouring profile points with straight lines and adds the areas beneath them) and what
+%   follows from it (each stretch counts by its length, not by how many points it holds). Replaces
+%   "which weights each value by the length of centerline it covers, so densely traced stretches do
+%   not count more". Matches segment_mean (mean of neighbouring values times the step, summed).
+% 2026-11-10 (user: "do both"): "by linear interpolation between centerline points" cut from the
+%   First sentence (implementation detail; chord_point interpolates on the step that crosses 5 mm);
+%   "uneven point spacing of the centerline points" -> "uneven spacing of the centerline points";
+%   "the $B_i$ and $F_i$" -> "the points $B_i$ and $F_i$". Where sentence of eq:method-tl: "which is
+%   the distance" -> "which are distances along the centerline, summed point by point" (number
+%   agreement with "arc lengths").
+% 2026-11-10 (user: "improve inverse_radius.png to a figure that can go into the thesis and have that
+%   be the only illustration"): new fig:method-curvature from figures/curvature_figure.py (made-up
+%   artery, real code: chord_point, menger_curvature, curvature_profile, segment_mean). A, kappa = 1/R
+%   on circles of 20, 10 and 5 mm; B, the triangle of P_i, B_i, F_i at the tight bend, its circle and
+%   Menger's formula with its numbers (R 7.3 mm, kappa 0.138 mm^-1); C, the artery with the circle at a
+%   straight (kappa 0), a gentle (R 21 mm) and a tight point; D, the profile with T per segment (0.001,
+%   0.023, 0.032 mm^-1). Replaces fig:method-turning (turning_feature_schematic) as the only figure;
+%   both old scripts stay on disk, out of the text. Panel references remapped: opener cites the
+%   figure, B for placing B_i and F_i, A and C for the circle sentence, D for profile and T.
+\subsection{Curvature}
 \label{sec:method-curvature}
 
-\todonote{To be written: turning angle over 5\,mm chords, the curvature profile and its arc-length mean per segment.}
+
+The feature chosen to quantify how much each segment bends was average curvature, computed with Menger's formula (Figure~\ref{fig:method-curvature}).
+
+First, to ensure that every value covers the same length of artery despite the uneven spacing of the centerline points, the points $B_i$ and $F_i$ were placed on the centerline 5\,mm behind and 5\,mm ahead of every centerline point $P_i$ in a straight line (Figure~\ref{fig:method-curvature}B).
+The 5\,mm scale follows van Zandwijk et al.\ \cite{vanzandwijk2019curvature}, who also used it for coronary curvature on CCTA.
+This scale keeps the false curvature caused by errors in the point positions low, but does not capture bends shorter than 5\,mm.
+Exactly one circle passes through the three points, and the more sharply the centerline bends at $P_i$, the smaller this circle is (Figure~\ref{fig:method-curvature}A and C).
+The curvature $\kappa_i$ was therefore taken as the inverse of its radius, computed with Menger's formula \cite{menger1930metrik} as
+\begin{equation}
+  \kappa_i = \frac{4 A_i}{\lVert P_i - B_i \rVert \, \lVert F_i - P_i \rVert \, \lVert F_i - B_i \rVert} ,
+  \label{eq:method-profile}
+\end{equation}
+where $A_i$ is the area of the triangle with corners $B_i$, $P_i$ and $F_i$, and $\lVert \cdot \rVert$ denotes the distance between two points, so $\kappa_i$ is in mm$^{-1}$.
+On a straight stretch the three points lie on a line, so the triangle has no area and $\kappa_i = 0$.
+Since any three points lie in one plane, the formula applies directly to a 3D centerline.
+
+Subsequently, the values $\kappa_i$ along an artery formed its curvature profile, which has no value within about 5\,mm of either end (Figure~\ref{fig:method-curvature}D).
+To capture bends that cross a segment boundary, the profile was computed along the whole artery and only then divided at the segment boundaries.
+
+Finally, each segment was summarised to its average curvature $T$ (Figure~\ref{fig:method-curvature}D):
+\begin{equation}
+  T = \frac{1}{s_{\mathrm{last}} - s_{\mathrm{first}}} \int_{s_{\mathrm{first}}}^{s_{\mathrm{last}}} \kappa(s)\,\mathrm{d}s ,
+  \label{eq:method-tl}
+\end{equation}
+where $s_{\mathrm{first}}$ and $s_{\mathrm{last}}$ are the arc lengths of the segment's first and last profile point, which are distances along the centerline, summed point by point.
+$T$ is the area under the segment's profile divided by the length $s_{\mathrm{last}} - s_{\mathrm{first}}$ it covers, in mm$^{-1}$, which is the average absolute curvature recommended by Kashyap et al.\ \cite{kashyap2022tortuosity}.
+Segments with fewer than two profile points were recorded as missing, and the shape of the whole profile is analysed in Section~\ref{sec:method-fpca}.
+
+% Figure from figures/curvature_figure.py (made-up artery, no patient data, real thesis code).
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{content/methodology/figures/curvature_figure.pdf}
+  \caption{Average curvature on a made-up artery with unevenly spaced points, computed with the thesis code. The curvature is the inverse radius $1/R$ of a circle (A), and at each point $P_i$ it is computed with Menger's formula from the triangle of $P_i$ and the points $B_i$ and $F_i$ 5\,mm away (B), so a straight stretch gives 0 and a tighter bend gives a smaller circle and a larger curvature (C). The values form the curvature profile, which has no value near the ends of the artery, and the average curvature $T$ of each segment is the area under its profile divided by the length it covers (D).}
+  \label{fig:method-curvature}
+\end{figure}
+
+\subsubsection{Other Measures of Tortuosity}
+\label{sec:method-curvature-other}
+
+Tortuosity is used here for any measure of how much an artery bends, of which average curvature is one.
+Several other tortuosity measures were considered.
+Since the model was limited to five geometric features (Section~\ref{sec:method-size}), measures with a reported association were preferred.
+These associations were found with low WSS or with existing CAD, which may differ from the risk of developing plaque.
+
+The tortuosity index is the length of an artery divided by the straight distance between its ends.
+It was not used, as it was unrelated to low WSS in the study by Kashyap et al.\ \cite{kashyap2022tortuosity}.
+Counts of sharp bends were not used, as they have been associated with CAD in the opposite direction to the average turning angle (Section~\ref{sec:lit-measure}) \cite{li2011tortuosity,telloayala2026tortuosity}.
+Torsion measures how much the centerline twists out of the plane it bends in.
+It was not used, as it depends on the third derivative of the centerline and is therefore sensitive to small errors in the point positions \clarify{citation}.

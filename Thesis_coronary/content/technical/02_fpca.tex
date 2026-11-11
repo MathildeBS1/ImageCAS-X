@@ -119,12 +119,194 @@
 %   - "read" x3 in the modes sentence; "compared" x2 in the sign paragraph; "added component" x3.
 %   FORWARD REFERENCE dropped: (Section~\ref{sec:method-fpca}) in sec:tech-fpca-grid, per Aida (the
 %   background never mentions the Methodology; Methods 07 points back to sec:tech-fpca-grid).
+% 2026-11-09 (tenth pass, user: citations as often as Aida, one per paragraph). Where a whole
+%   paragraph comes from Wang, one \cite{wang2016fda} now closes it (opener, choice of K, the warping
+%   paragraph); the mode-of-variation cite moved to the end of its sentence. Paragraphs that mix Wang
+%   with own reasoning keep the cite on the sentence it supports, so the reasoning is not attributed
+%   to Wang. 25 -> 17 cite brackets for about 66 sentences.
+% 2026-11-09 (user): "with finite variance" added before the moment condition on X(t), as its
+%   plain reading (strictly a finite second moment, which implies finite variance).
+% 2026-11-09 (eleventh pass, user: "limit the length to an appropriate length and detail, after
+%   the section lengths in Aida's thesis; FPCA is a small part of the thesis"). Aida's whole
+%   Technical Background is about 1,800 words over 6 pages, her largest section about 600 words;
+%   this section was about 2,100 words, 7 equations and 5 figures over 8 pages. Cut to about 1,000
+%   words, 5 displayed equations, 2 figures, 3 subsections. Claims and cites unchanged in content.
+%   - MERGED into sec:tech-fpca-components: the former sec:tech-fpca-scores, sec:tech-fpca-reading
+%     and sec:tech-fpca-k (labels removed).
+%   - CUT figures: fig:tech-fpca-curves, fig:tech-fpca-cov, fig:tech-fpca-rebuild (the PDFs and
+%     fpca_figures.py are kept). Kept: fig:tech-fpca-modes (caption shortened), fig:tech-fpca-phase.
+%   - Covariance and FVE now inline (eq:tech-fpca-cov, eq:tech-fpca-fve removed), with the three
+%     sentences that read the covariance figure and the scree-plot sentence.
+%   - CUT (second tightening): the BIC/AIC/CV sentence on K (Wang p. 10; the ad hoc point kept);
+%     "a position must mean the same on every curve"; "breaking this covariance down" as its own
+%     sentence. Several sentence pairs merged.
+%   - CUT: "The starting point is" (now a direct definition of the mean); the sentence reading the
+%     rebuild figure; the fold-wise estimation sentence (a setting; Methods 07 has no CV); "each
+%     added component brings ... less and less"; the w^{-1/2} justification sentence; the
+%     "+alpha curve" sentence. Result: about 1,000 prose words, pp. 13-16 of main.pdf (was 13-20).
+% 2026-11-09 (twelfth pass, user: "apply Aida's style guide so it sounds human"). The cut of the
+%   eleventh pass had chained facts into long sentences with two or three "and/so/while" clauses
+%   (up to 50 words). Split back to one fact per sentence (Aida: median 24 words); "Let ... denote"
+%   for D; "Under this approximation" before the reduction (her derivation chain names the step);
+%   subsection openers "While [general], [limitation]" kept; the K paragraph split from the
+%   outcome-blind and outlier paragraph; the hazard closer kept as her two sentences; the colon
+%   list "break this covariance into shapes: the first ..., the second ..." made two sentences.
+%   Claims, cites, equations and labels unchanged.
+% 2026-11-09 (thirteenth pass, user: "soften the exact mathematical breakdown to a master-thesis
+%   level, FPCA is one small component; easy on the first read, each line following the last").
+%   Softened: the finite-variance formula dropped (words kept, user); "symmetric and non-negative
+%   definite" cut; eq:tech-fpca-eigen reduced to the integral equation, orthonormality in words;
+%   optimality in words ("no other K shapes describe the curves more closely on average"); the sign
+%   argument in words (no -phi_k equation reference); K trade-off in plain words.
+%   MOVED to Methods 07 notes (user): the grid derivation (D, d_i, rectangle rule, N^-1 D'D,
+%   eq:tech-fpca-grid with the w factors, SVD). sec:tech-fpca-grid now says it in words: rows of
+%   numbers, sums, sample mean and covariance, PCA with positions as variables, scaling sets units.
+%   Flow: mean -> deviations -> covariance -> shapes -> scores -> rebuilt curve -> why this basis ->
+%   showing a component -> how many -> what components ignore. Bridges added: "Their average",
+%   "These shapes", "Put together". Claims and cites unchanged in content.
+% 2026-11-09 (user): NEW fig:tech-fpca-steps (fpca_steps.pdf, block 6 of fpca_figures.py), a
+%   simulated version of outdated/thesis_retired/week10/week_figure/fpca/f6_steps.png: each
+%   component takes the largest remaining pattern, which is then removed for the next. The ordering
+%   sentence split into three ("Removing from each curve the part that follows this shape ...").
+%   Sequential reading uncited, as derivation (it equals the eigendecomposition). Figures now 3.
+% 2026-11-09 (humanizer pass, user). The text had few AI tells; changed only: the opener's two
+%   sentences that both ended ", referred to as X" (now "These shapes are the components.", a short
+%   sentence that varies the rhythm; scores "can replace"); "and so on for the following ones" ->
+%   "and so on"; "also brings more estimation error" -> "brings its own estimation error". Kept on
+%   purpose: "referred to as" for amplitude/phase (thesis-style gloss), "not a tested property"
+%   (user, seventh pass), Karhunen--Loeve en dash (a name), Title Case headings (as in the rest of
+%   the thesis).
+% 2026-11-09 (user): eigen paragraph explained in words. NEW: "Applying the covariance function to
+%   an eigenfunction returns the same shape, only multiplied by a number" (reads eq:tech-fpca-eigen);
+%   unit size and orthogonality as two sentences with their plain meaning (shape vs amount left to
+%   the scores; no two eigenfunctions describe the same pattern). Plain readings uncited; Wang
+%   cites kept on unit size and orthogonality. The modes paragraph no longer restates unit size
+%   ("Since an eigenfunction shows only a shape, a component is shown by ...").
+% 2026-11-09 (user: "less stiff"): "Removing from each curve the part that follows this shape leaves
+%   ..." -> "When each curve's share of this shape is taken out, what is left is ...".
+% 2026-11-09 (user, option 1): the removal step merged into the second-shape sentence ("Once it is
+%   subtracted from the curves, the second eigenfunction is the shape along which the rest varies
+%   most, and so on, ..."); replaces the "less stiff" version above.
+% 2026-11-09 (thesis-style pass over the section, with less_stiff.md). Changed: "found by breaking
+%   this covariance down into shapes. These shapes are ..." merged ("shapes" three times in two
+%   sentences); the eigen paragraph (8 sentences) split before "The first eigenfunction" so each
+%   paragraph does one job (what an eigenfunction is; how they are ordered); score sentence back to
+%   "The score of curve i on component k is ..." ("how strongly ... shows" was used three times:
+%   opener, unit-size sentence, score); grid paragraph (7 sentences) split after the sentence on
+%   unevenly spaced curves. Checked and left: no "Because", no lists, no banned words, no em
+%   dashes, one "therefore" per paragraph, every cite on a claim the fpca-wang check supports.
+%   OPEN: headings are Title Case, while thesis-style section 7 asks for sentence case; the
+%   chapters are mixed (Clinical in sentence case, Literature, Technical and Methods in Title
+%   Case). Decide once for the whole thesis.
+% 2026-11-09 (user): fig:tech-fpca-steps gets a top row (the curves with their mean; the same
+%   curves after subtracting it), so the figure shows the whole method top to bottom. The float
+%   moved to after the covariance paragraph, where it is first cited ("... deviate from it (Figure,
+%   top)"); the ordering sentence cites it again. Caption rewritten for four rows.
+% 2026-11-09 (user: explain the mean and deviations "the human way", after the retired
+%   outdated/thesis_retired/week10 fpca text): mean and deviation now one paragraph (typical value;
+%   same for every curve, so it cannot tell them apart; subtracted at each position; what is left
+%   shows how much and where a curve lies above or below; wide spread = curves differ a lot), and
+%   covariance its own paragraph (a peak covers neighboring positions, so they rise and fall together;
+%   Gamma large when above at t means above at u; FPCA looks for these patterns, each becomes a
+%   shape). Kept general: "curves" and "a feature such as a peak", not people or turning. The next
+%   paragraph now opens "These shapes are the eigenfunctions" (the old "found by breaking this
+%   covariance down into shapes" said the same as the new last sentence). Uncited (plain reading).
+% 2026-11-09 (user: in the real turning profiles there are few peaks; a curve that turns more than
+%   the mean at the start tends to do so at the end too): covariance example made general ("Neighboring
+%   positions ... and so can positions far apart, for example when a curve lies above the mean along
+%   its whole length"). fpca_figures.py re-simulated with broad patterns (overall level, start vs end,
+%   middle vs ends; about 63, 28 and 8% of the variance, 1% left), as in the week-10 Medis steps
+%   figure; fig:tech-fpca-steps and fig:tech-fpca-modes rebuilt. The phase figure keeps its peaks.
+%   CAREFUL: the simulation imitates the pattern only; the week-10 figure came from Medis trees
+%   (plaque at baseline), and the plaque-free tracer cohort may differ.
+% 2026-11-09 (user): the four-row figure split in two so text can sit between them: NEW
+%   fig:tech-fpca-mean (fpca_mean.pdf, the curves with their mean; the same curves minus the mean),
+%   placed after the covariance paragraph and cited by the mean paragraph; fig:tech-fpca-steps back
+%   to three rows, placed after the ordering paragraph that cites it. Both share one y-scale for the
+%   deviations (fpca_figures.py block 6). Figures now 4.
+% 2026-11-09 (fourteenth pass, user: "rewrite to the level of the JMP guide", Hersh, PDF in the
+%   repo root, style only, not cited). Two equations kept (user): eq:tech-fpca-kl (now only the
+%   truncated sum; it names x_i, mu, phi_k, xi_ik, K) and eq:tech-fpca-mode. REMOVED: the random
+%   function X(t) and "finite variance"; Gamma as a formula (covariance in words); eq:tech-fpca-eigen
+%   and "unit size"/"orthogonal" (plain readings kept: a shape says only what a pattern looks like,
+%   no two shapes describe the same pattern; Wang cite kept); eq:tech-fpca-score (scores in words:
+%   how strongly a curve shows a shape; uncorrelated with variance lambda_k, Wang); the FVE ratio
+%   (now "fraction of variance explained (FVE)" in words, as the modes-figure legend uses FVE);
+%   "the domain" from the sample-specific sentence. sec:tech-fpca-grid folded into 3 short sentences
+%   (user); the units-of-scores point moved to the Methods 07 notes. Registration shortened to
+%   alignment before FPCA (JMP's preprocessing level): the strictly increasing warp with fixed ends
+%   and the landmark-fails sentence cut (Methods 07 notes cite Wang p. 28 for the segment ends
+%   directly). Order follows JMP: mean, deviations, shapes, scores, rebuilt curve, mean +/- shape,
+%   scree plot, how many, alignment. Copy before this pass:
+%   scratchpad 02_fpca_before_jmp.tex (not in the repo).
+% 2026-11-09 (fifteenth pass, user): the JMP guide is now CITED (hershjmpfpca, vendor web guide,
+%   read in full) where its plain explanations are used, never for properties of FPCA (those keep
+%   wang2016fda; no JMP cite beside Wang on the same claim). Cited for: the deviation from the mean
+%   as what FPCA looks at; the sign and size of a score; the mode plot showing which parts of the
+%   curve a component changes most; examples of what a component may describe (level, width, a
+%   shift in where a feature lies; JMP's shape functions 1-3); the scree plot showing where adding
+%   components stops paying; keeping the main shape patterns without the components that mostly
+%   describe noise. Not taken (unchanged): basis fitting as a required step, smoothing built in, the
+%   90-99% rule, clustering and outlier detection, "dynamic data". Supersedes the "NOT cited" notes
+%   above. The user removed sec:tech-fpca-grid and sec:tech-fpca-registration (and with them
+%   fig:tech-fpca-phase and the warrenhoven/marron cites) before this pass; alignment and the grid
+%   now live only in the Methods 07 notes.
+% 2026-11-09 (user): mean paragraph rewritten by the user and tidied: "FPCA finds patterns in how
+%   the curves deviate from the mean, so the mean is first subtracted at each position"; the
+%   "same for every curve, so it cannot tell the curves apart" detour cut; the deviation sentence
+%   (JMP cite) kept.
+% 2026-11-09 (user: "rewrite so it does not repeat itself", opener excluded). CUT as repeats:
+%   "How strongly a curve shows a shape is given by its score" (opener says it); "Scores on
+%   different components are uncorrelated" (opener) and "the variance of the scores on component k
+%   is its eigenvalue" (same fact as "the variance of the curves along each shape is its eigenvalue");
+%   "A shape and its eigenvalue together form a component" (the opener calls the shapes the
+%   components); "Since a shape on its own does not show how much ..." (repeated "describes only
+%   what a pattern looks like") -> "To show how much the curves vary along a shape, ..."; "also"
+%   before arbitrary; the scree plot named once for its role, once as an ad hoc choice; "ranked by
+%   variance" (said by the ordering paragraph). Claims and cites otherwise unchanged.
+% 2026-11-09 (user: "include bootstrap, I will go with that one"): NEW paragraph on choosing K by
+%   bootstrap stability (resample curves with replacement, repeat FPCA, keep components whose shape
+%   changes little). General only; the setting (|cos| >= 0.9, number of resamples, the Riley cap)
+%   belongs in Methods 07. The sign alignment sentence above covers the components re-estimated on
+%   each bootstrap sample. Cited 2026-11-09 to song2018stability (see the next entry).
+% 2026-11-09 (user: "find a citation; write it as though bootstrap was always planned"). The K
+%   paragraph now leads into stability as the answer to the estimation-error trade-off ("The
+%   estimation error of a component can instead be judged directly ...") instead of "Another
+%   approach"; the closer "Whatever the rule, ..." -> "Keeping only the stable components fixes K
+%   from the curves alone, before ..."; "After the signs are aligned" ties to the sign paragraph.
+%   CHECK: song2018stability (Comput Stat 33:1923-1938) read at abstract level only; it selects the
+%   number of PCs of ordinary (multivariate) PCA by stability under SUBSAMPLING. Cited only for the
+%   principle (keep the components that stay stable under resampling), which carries to FPCA on a
+%   grid as ordinary PCA. No paper found that uses bootstrap eigenfunction stability to choose K in
+%   FPCA (search 2026-11-09; Benko et al. 2009 bootstrap FPCA tests equality between samples, not
+%   K). Read the full text before submission.
+% 2026-11-09 (user): MOVED to the Discussion notes (content/discussion.tex, Limitations): the
+%   outcome-blind sentence (a low-variance component can carry more information about an outcome
+%   than a leading one) and the outlier sentence (covariance is a second moment). Both are
+%   limitations, not needed to understand FPCA; the first also repeated "from the curves alone".
+%   The section now ends on the choice of K.
+% 2026-11-09 (user): MOVED to the Discussion notes: "The shapes are, however, specific to the sample
+%   and the preprocessing they were estimated from" (a limitation; uncited reasoning, as before).
+% 2026-11-09 (user: "was this not decided by bootstrap?"): the K paragraph no longer reads as an
+%   open choice. FVE kept as a descriptive measure only (the modes figure and the Results report
+%   it); the scree plot as a selection aid cut ("where adding components stops paying", JMP cite);
+%   "No rule ... ad hoc" folded into one contrast sentence that leads straight to the bootstrap
+%   ("A threshold on the FVE sets this balance only by an ad hoc choice, whereas ...").
+% 2026-11-09 (user): the K rule moved to Methods 07 ("Keeping only the stable components fixes K
+%   from the curves alone, before ..." and "After the signs are aligned"): it is a choice, not
+%   background. The section keeps what to judge (stability of a component under resampling,
+%   song2018stability) and one plain definition of a bootstrap sample. TODO: once
+%   01_prediction_model.tex explains the bootstrap in general (it is also used for the model's
+%   intervals), turn that definition into a pointer back to it (01 comes before 02, so no forward
+%   reference).
 % Pointed back to by: content/methodology/07_curvature_fpca.tex (sec:method-fpca), which also takes
 %   the landmark reading of the segment ends and the respacing onto the grid.
+% "Curve" stays general here: no curvature, turning angle or vessel in the prose. Methods 07
+%   (sec:method-fpca) states that the curve x_i(t) is the turning-angle profile of a segment.
 % Terms (fpca-wang section 2): "curve" is the observation, "profile" says what it measures, "bend"
 %   is only the shape of the vessel. "Score" is xi_ik, "component" the pair (phi_k, lambda_k).
-% Notation: x_i(t), t in [0,1], mu, Gamma, phi_k, lambda_k, xi_ik, grid t_g (g = 1..G), D, d_i,
-%   v_k, w, alpha. Avoids j, s, S, b, beta, c (taken by the GLMM, the curvature section and the
+% Notation: x_i(t), t in [0,1], mu, phi_k, lambda_k, xi_ik, K, alpha (Gamma and X(t) dropped in
+%   the fourteenth pass; t_g, G, D, d_i, v_k, w are in the Methods 07 notes). Avoids j, s, S, b, beta, c (taken by the GLMM, the curvature section and the
 %   centerline).
 % LEFT OUT on purpose (Methodology): the grid size, interpolation, the 5 mm chord, the sliding
 %   profile, the K rule, the segments analysed, the sign convention chosen, software.
@@ -132,187 +314,89 @@
 % wordlist.txt lacks: FPCA, eigenfunction(s), Karhunen, Loeve, realizations may need checking.
 % Figures: made-up curves only, from content/technical/figures/fpca_figures.py (re-run to rebuild).
 % Never a Medis or tracer figure here.
+% 2026-11-09 (user): the FVE and bootstrap-stability paragraphs given their own subsection again,
+%   sec:tech-fpca-k, text unchanged. The bootstrap procedure itself (number of samples, similarity
+%   measure, cut-off) belongs in Methods 07 once the code is in thesis_final/.
+%   CHECK: song2018stability may be about subspace stability of the first K components in ordinary
+%   PCA, not of a single functional component.
 
 \section{Functional Principal Component Analysis}
 \label{sec:tech-fpca}
 
-Functional principal component analysis (FPCA) is a dimension reduction method designed for functional data, where each observation is a whole function, referred to as a curve \cite{wang2016fda}.
-A curve is recorded at many positions whose neighboring values are strongly correlated, so entering the values one by one would give a regression model many covariates that largely repeat each other \cite{wang2016fda}.
-FPCA extends principal component analysis from vectors to functions and describes the curves by the shapes along which they differ most, referred to as components \cite{wang2016fda}.
-How strongly a curve shows each shape is given by its scores, which are uncorrelated and replace the values of the curve as covariates \cite{wang2016fda}.
+Functional principal component analysis (FPCA) is a dimension reduction method designed for functional data, where each observation is a whole function, referred to as a curve.
+A curve is recorded at many positions whose neighboring values are strongly correlated, so entering the values one by one would give a regression model many covariates that largely repeat each other.
+FPCA extends principal component analysis from vectors to functions and describes the curves by the few shapes along which they differ most.
+These shapes are the components.
+How strongly a curve shows each of them is given by its scores, which are uncorrelated and can replace the values of the curve as covariates \cite{wang2016fda}.
 
-\subsection{The Mean Function and the Components}
+\subsection{Components and Scores}
 \label{sec:tech-fpca-components}
 
-To compare curves position by position, a position must mean the same on every curve, so all curves are placed on one common domain.
-Let $x_i(t)$, $i = 1, \dots, N$, denote curve $i$ at position $t \in [0, 1]$, where $t = 0$ is the start and $t = 1$ the end of the domain.
-The curves are treated as realizations of a random function $X(t)$ with $\mathrm{E}\int_0^1 X(t)^2 \, dt < \infty$ \cite{wang2016fda}.
-
-The starting point is the mean function $\mu(t) = \mathrm{E}\,X(t)$, which is the average curve.
-FPCA describes how the individual curves deviate from it, so everything that follows is computed from the deviations $x_i(t) - \mu(t)$ (Figure~\ref{fig:tech-fpca-curves}).
+Let $x_i(t)$, $i = 1, \dots, N$, denote curve $i$ at position $t \in [0, 1]$, where $t = 0$ is the start and $t = 1$ the end of a domain common to all curves.
+The average of the curves at each position is the mean function $\mu(t)$.
+FPCA finds patterns in how the curves deviate from the mean, so the mean is first subtracted at each position (Figure~\ref{fig:tech-fpca-mean}).
+The deviation that is left shows how much and where a curve lies above or below the average curve \cite{hershjmpfpca}.
 
 \begin{figure}[tbp]
   \centering
-  \includegraphics[width=\textwidth]{content/technical/figures/fpca_curves.pdf}
-  \caption{Curves and their deviations from the mean. Left: 15 of 200 curves (grey) with their mean (black). Right: the same curves as deviations from the mean, which is what FPCA analyses. The curves are simulated and are not data from any cohort.}
-  \label{fig:tech-fpca-curves}
+  \includegraphics[width=\textwidth]{content/technical/figures/fpca_mean.pdf}
+  \caption{Curves and their deviations from the mean. Left: the curves (grey) with their mean (black). Right: the same curves after the mean is subtracted at each position. The curves are simulated and are not data from any cohort.}
+  \label{fig:tech-fpca-mean}
 \end{figure}
 
-Whether the deviations at two positions tend to go together is described by the covariance function
-\begin{equation}
-  \Gamma(t, u) = \mathrm{cov}\{X(t), X(u)\},
-  \label{eq:tech-fpca-cov}
-\end{equation}
-where $t, u \in [0, 1]$ are two positions on the domain.
-At a single position, $\Gamma(t, t)$ is the variance of the curves there.
-For two different positions, $\Gamma(t, u)$ is large when curves that lie above the mean at $t$ tend to lie above it at $u$ as well.
-A feature that spreads over several neighboring positions, such as a peak whose height varies between curves, therefore shows up as a block of high covariance along the diagonal $t = u$ (Figure~\ref{fig:tech-fpca-cov}).
+Neighboring positions tend to rise and fall together across curves, and so can positions far apart, for example when a curve lies above the mean along its whole length.
+How the deviations at two positions vary together is described by their covariance, and FPCA breaks this covariance down into shapes.
+Formally, the shapes are the eigenfunctions $\phi_k$ of the covariance, and the variance of the curves along each shape is its eigenvalue $\lambda_k$ \cite{wang2016fda}.
+
+The first shape is the one along which the curves vary most.
+Once it is subtracted from the curves, the second shape is the one along which the rest varies most, and so on, so that $\lambda_1 \ge \lambda_2 \ge \dots \ge 0$ (Figure~\ref{fig:tech-fpca-steps}).
+Each shape describes only what a pattern looks like, and no two shapes describe the same pattern \cite{wang2016fda}.
 
 \begin{figure}[tbp]
   \centering
-  \includegraphics[width=0.55\textwidth]{content/technical/figures/fpca_covariance.pdf}
-  \caption{Sample covariance function of the curves in Figure~\ref{fig:tech-fpca-curves}. Red marks pairs of positions at which the curves tend to deviate from the mean in the same direction, and the dotted line is the diagonal $t = u$, where the covariance is the variance. The block around $t = u = 0.5$ comes from the peak, whose height varies between curves at all of its positions together. The curves are simulated and are not data from any cohort.}
-  \label{fig:tech-fpca-cov}
+  \includegraphics[width=\textwidth]{content/technical/figures/fpca_steps.pdf}
+  \caption{The components found one at a time. Left: the deviations from the mean still unexplained before each step (grey), with $\pm 2\sqrt{\lambda_k}\,\phi_k$ (colored). Right: the same curves after the part along $\phi_k$ is removed from each, with the share of the total variance left in the title. The curves are those of Figure~\ref{fig:tech-fpca-mean}, simulated and not data from any cohort.}
+  \label{fig:tech-fpca-steps}
 \end{figure}
 
-The components are found by breaking this covariance down into shapes.
-The first shape is the one along which the curves differ most, the second is the one along which they differ most among the shapes orthogonal to the first, and so on.
-Formally, the shapes are the eigenfunctions $\phi_k$ of the covariance function, which is symmetric and non-negative definite, and each comes with an eigenvalue $\lambda_k$, so that
+A large positive score means that the curve deviates from the mean much like the shape, while a large negative score means that it deviates the opposite way \cite{hershjmpfpca}.
+Each curve can then be rebuilt from the mean and the first $K$ shapes, each weighted by the curve's score,
 \begin{equation}
-  \int_0^1 \Gamma(t, u)\, \phi_k(u)\, du = \lambda_k \phi_k(t),
-  \qquad
-  \int_0^1 \phi_k(t)\, \phi_{k'}(t)\, dt =
-  \begin{cases} 1, & k = k', \\ 0, & k \neq k', \end{cases}
-  \label{eq:tech-fpca-eigen}
-\end{equation}
-where $\lambda_1 \ge \lambda_2 \ge \dots \ge 0$ and the second condition makes the eigenfunctions orthonormal \cite{wang2016fda}.
-Each eigenvalue is the variance of the curves along its eigenfunction, and the two together form a component.
-
-\subsection{Scores and the Reconstruction of a Curve}
-\label{sec:tech-fpca-scores}
-
-A large positive score means that the curve deviates from the mean much like $\phi_k$, a large negative score means that it deviates the opposite way, and a score near zero means that the shape is nearly absent.
-Formally, the score is the projection of the curve's deviation from the mean onto the eigenfunction,
-\begin{equation}
-  \xi_{ik} = \int_0^1 \{x_i(t) - \mu(t)\}\, \phi_k(t)\, dt ,
-  \label{eq:tech-fpca-score}
-\end{equation}
-where $\xi_{ik}$ is the score of curve $i$ on component $k$.
-The scores have mean zero and variance $\lambda_k$, and scores on different components are uncorrelated \cite{wang2016fda}.
-
-Adding the shapes back to the mean, each weighted by its score, recovers the curve (Figure~\ref{fig:tech-fpca-rebuild}).
-This is the Karhunen--Lo\`eve expansion, which in practice is truncated after $K$ terms \cite{wang2016fda},
-\begin{equation}
-  x_i(t) = \mu(t) + \sum_{k=1}^{\infty} \xi_{ik} \phi_k(t)
-  \approx \mu(t) + \sum_{k=1}^{K} \xi_{ik} \phi_k(t),
+  x_i(t) \approx \mu(t) + \sum_{k=1}^{K} \xi_{ik}\, \phi_k(t),
   \label{eq:tech-fpca-kl}
 \end{equation}
-where the truncation replaces the curve by its first $K$ scores.
-In Figure~\ref{fig:tech-fpca-rebuild}, the mean alone misses the height of the curve's peak, the first shape restores it, the second corrects the tilt along the domain, and the third adds almost nothing.
+where $\xi_{ik}$ is the score of curve $i$ on component $k$.
+This is the Karhunen--Lo\`eve expansion, truncated after $K$ components \cite{wang2016fda}.
+For a given $K$, no other set of $K$ shapes describes the curves more closely on average \cite{wang2016fda}.
 
-\begin{figure}[tbp]
-  \centering
-  \includegraphics[width=\textwidth]{content/technical/figures/fpca_reconstruction.pdf}
-  \caption{One curve rebuilt from the mean and the first three eigenfunctions. Top: the mean and the eigenfunctions, with the curve's score on each. Bottom: the observed curve (dots) and the curve rebuilt with $K = 0$ to $3$ components, each step adding one eigenfunction weighted by its score. The curves are simulated and are not data from any cohort.}
-  \label{fig:tech-fpca-rebuild}
-\end{figure}
-
-The eigenfunctions thus serve as a basis for the curves, estimated from the curves themselves, and for a given $K$ no other set of $K$ basis functions approximates the curves with a smaller expected squared error \cite{wang2016fda}.
-The price is that the components are specific to the sample, the domain and the preprocessing they were estimated from, so components from different samples describe different shapes.
-
-\subsection{Reading the Components}
-\label{sec:tech-fpca-reading}
-
-An eigenfunction on its own has unit size and an arbitrary sign, so a component is shown instead by the mean together with the mean plus and minus a multiple of the eigenfunction, referred to as a mode of variation \cite{jones1992displaying, wang2016fda},
+To show how much the curves vary along a shape, a component is drawn as the mean together with its mode of variation,
 \begin{equation}
   \mu(t) \pm \alpha \sqrt{\lambda_k}\, \phi_k(t),
   \label{eq:tech-fpca-mode}
 \end{equation}
-where $\alpha$ usually ranges up to 2 \cite{wang2016fda}.
-The curve for $+\alpha$ is the curve whose score on component $k$ lies $\alpha$ standard deviations above zero and whose other scores are all zero.
-Plotted on either side of the mean, the two curves show what a high and a low score look like.
-In Figure~\ref{fig:tech-fpca-modes}, a high score on the first component means a taller peak, and a high score on the second a curve that rises from the start to the end of the domain.
+where $\alpha$ usually ranges up to 2 \cite{jones1992displaying, wang2016fda}.
+The two curves show what a high and a low score look like, and which parts of the curve the component changes most (Figure~\ref{fig:tech-fpca-modes}) \cite{hershjmpfpca}.
+A component may, for example, describe an overall shift in level, a change in width or a shift in where a feature lies \cite{hershjmpfpca}.
 The name given to a component is a reading of this plot, not a tested property of the curves.
+The sign of a shape is arbitrary, as flipping it together with every score describes the same curves.
+A convention fixes the sign, and components estimated more than once are aligned to it.
 
 \begin{figure}[tbp]
   \centering
   \includegraphics[width=\textwidth]{content/technical/figures/fpca_modes.pdf}
-  \caption{Reading the components. Left and middle: the modes of variation of the first two components, with the mean (black) and $\mu(t) \pm 2\sqrt{\lambda_k}\,\phi_k(t)$ (colored). Right: the share of the variance per component (bars) and the cumulative fraction of variance explained (line), which levels off after three components. The curves are simulated and are not data from any cohort.}
+  \caption{Modes of variation of the first two components, with the mean (black) and $\mu(t) \pm 2\sqrt{\lambda_k}\,\phi_k(t)$ (colored). Right: the share of the variance per component (bars) and its cumulative sum (line). The curves are simulated and are not data from any cohort.}
   \label{fig:tech-fpca-modes}
 \end{figure}
-
-The arbitrary sign also matters when components are estimated more than once, since $-\phi_k$ solves Eq.~\eqref{eq:tech-fpca-eigen} whenever $\phi_k$ does, with the sign of every score $\xi_{ik}$ reversed.
-A convention therefore fixes the sign, and components estimated again on bootstrap samples or cross-validation folds are aligned to it.
-When the scores enter a cross-validated model, the mean and eigenfunctions are estimated within the training folds only, so the scores do not draw on the test curves.
 
 \subsection{Choosing the Number of Components}
 \label{sec:tech-fpca-k}
 
-Each added component brings the rebuilt curves closer to the observed ones, but by less and less.
-How much of the total variance the first $K$ components retain is measured by the fraction of variance explained,
-\begin{equation}
-  \mathrm{FVE}(K) = \frac{\sum_{k=1}^{K} \lambda_k}{\sum_{k \ge 1} \lambda_k},
-  \label{eq:tech-fpca-fve}
-\end{equation}
-where the denominator equals $\int_0^1 \Gamma(t, t)\, dt$, the variance at each position summed over the domain.
-Plotting the share of each component against $k$, referred to as a scree plot, shows where adding components stops paying (Figure~\ref{fig:tech-fpca-modes}, right).
+The share of the total variance that the first $K$ components explain is referred to as the fraction of variance explained (FVE) (Figure~\ref{fig:tech-fpca-modes}, right).
+Keeping more components describes the curves more closely, but each added component brings its own estimation error.
+The aim is therefore to keep the main shape patterns and leave out the components that mostly describe noise \cite{hershjmpfpca}.
 
-Choosing $K$ is therefore a trade-off between keeping the main shapes and leaving out components that mostly describe noise.
-A short expansion approximates the curves poorly, whereas each further component brings more estimation error, and no rule for the balance is established \cite{wang2016fda}.
-The scree plot and thresholds on the fraction of variance explained are ad hoc rules carried over from ordinary principal component analysis \cite{wang2016fda}.
-Of the information criteria, the Bayesian information criterion selects fewer components than the Akaike information criterion, and leave-one-curve-out cross-validation tends to select too many \cite{wang2016fda}.
-Whatever the rule, it has to be fixed before the scores are related to an outcome.
-
-The outcome plays no part in the components themselves, since FPCA builds them from the covariance of the curves alone \cite{wang2016fda}.
-They are ranked by how much variance they describe, so a low-variance component can carry more information about the outcome than a leading one, and a leading one can carry none.
-The covariance is a second moment, so a few outlying curves can shift its components \cite{wang2016fda}.
-
-\subsection{Computation on a Grid}
-\label{sec:tech-fpca-grid}
-
-While FPCA is defined on continuous functions, curves are observed only at discrete points, so the integrals above cannot be evaluated directly.
-When all curves are observed on one common grid of positions $t_g$, $g = 1, \dots, G$, each curve becomes a row of numbers, one per position.
-The mean and covariance are then the sample mean and the sample covariance at the grid positions, and the eigenproblem becomes the eigendecomposition of a matrix \cite{wang2016fda}.
-Curves observed at positions that differ between curves, or that are unevenly spaced, are first brought onto such a grid.
-
-Let $\mathbf{D}$ be the $N \times G$ matrix with rows $\mathbf{d}_i$ and entries $d_{ig} = x_i(t_g) - \hat\mu(t_g)$, where $\hat\mu(t_g)$ is the sample mean at position $t_g$.
-On an equally spaced grid with spacing $w = 1/G$, each integral is approximated by $w$ times the sum of its integrand over the grid positions, referred to as the rectangle rule.
-Under this approximation, the eigenproblem~\eqref{eq:tech-fpca-eigen} reduces to that of the sample covariance matrix $N^{-1}\mathbf{D}^\top\mathbf{D}$, with unit-length eigenvectors $\mathbf{v}_k \in \mathbb{R}^G$ and eigenvalues $\tilde\lambda_k$.
-The functional quantities then follow as
-\begin{equation}
-  \hat\lambda_k = w\, \tilde\lambda_k,
-  \qquad
-  \hat\phi_k(t_g) = w^{-1/2}\, v_{kg},
-  \qquad
-  \hat\xi_{ik} = w^{1/2}\, \mathbf{v}_k^\top \mathbf{d}_i ,
-  \label{eq:tech-fpca-grid}
-\end{equation}
-where $v_{kg}$ is entry $g$ of $\mathbf{v}_k$ and $\hat\xi_{ik}$ is the score~\eqref{eq:tech-fpca-score} computed by the rectangle rule.
-The factor $w^{-1/2}$ keeps the unit norm of Eq.~\eqref{eq:tech-fpca-eigen}, since the squared entries of a unit-length eigenvector sum to one, whereas the integral of $\hat\phi_k^2$ is approximated by $w$ times that sum.
-
-FPCA on such a grid is therefore ordinary principal component analysis with the grid positions as variables, computed from the singular value decomposition of $\mathbf{D}$ \cite{warmenhoven2021pca}.
-The factors in Eq.~\eqref{eq:tech-fpca-grid} only rescale the eigenvalues, eigenfunctions and scores.
-They leave the shape of the eigenfunctions and the fraction of variance explained unchanged but set the units of the scores, so the scaling has to be stated for the scores to be interpretable.
-
-\subsection{Registration: Amplitude and Phase}
-\label{sec:tech-fpca-registration}
-
-While the mean and covariance compare curves position by position, they assume that a feature lies at the same position $t$ on every curve.
-Curves, however, differ both in how large a feature is, referred to as amplitude, and in where along the domain it lies, referred to as phase \cite{marron2015amplitude}.
-If phase varies and is ignored, the mean taken position by position distorts the features and may resemble none of the curves (Figure~\ref{fig:tech-fpca-phase}) \cite{wang2016fda}.
-Unaligned phase also inflates the variance and gives leading components that mix a shift of a feature with a change in its size \cite{marron2015amplitude}.
-
-\begin{figure}[tbp]
-  \centering
-  \includegraphics[width=\textwidth]{content/technical/figures/fpca_phase.pdf}
-  \caption{Phase and amplitude. Left: seven curves with the same peak at different positions, whose mean taken position by position (black) is a low, wide plateau that resembles none of them. Right: seven curves with the peak at one position and different heights, whose mean keeps the shape of the peak. The curves are simulated and are not data from any cohort.}
-  \label{fig:tech-fpca-phase}
-\end{figure}
-
-Registration addresses this by warping the domain of each curve with a strictly increasing function that keeps the two ends in place \cite{wang2016fda}.
-The warp either moves landmarks, such as peaks, to their average position, or brings each curve close to a common template \cite{wang2016fda}.
-Landmark registration is the reference method when clear features are present in every curve, but it fails when a landmark is missing or cannot be identified, which is common in noisy curves \cite{wang2016fda}.
-
-When amplitude and phase vary together, the curves alone cannot tell them apart, so the assumptions built into the warp decide what counts as phase \cite{wang2016fda}.
-Reading a component correctly therefore requires knowing which phase variation the registration has removed, if any.
-Otherwise, a shift in where a feature lies may be read as a change in its size.
+A threshold on the FVE can set this balance, but the threshold itself is an ad hoc choice \cite{wang2016fda}.
+Instead, $K$ can be chosen by how stable the components are when the sample changes \cite{song2018stability}.
+FPCA is repeated on many random subsamples of the curves, and for each candidate $K$ the first $K$ shapes are compared between the subsamples.
+Shapes that describe a pattern shared by the curves come back in every subsample, whereas shapes that describe noise change from one subsample to the next.
+$K$ is set to the number of components whose shapes stay most stable \cite{song2018stability}.

@@ -1,0 +1,48 @@
+% Technical Background, sample size. Source: outdated/thesis_retired/technical_background/03b_sample_size.tex
+% (written 2026-11-06), brought to the register of methodology/05a_curvature.tex on 2026-11-10 (user:
+% "write a section on the Riley criteria, the length, depth and ease of 05a_curvature").
+% Pointed back to by: methodology/04_model_size.tex (sec:method-size-budget).
+% Written to thesis-style and style_guide_technical_aida.md: definition opener, "First, Subsequently,
+%   Finally" for the criteria, Aida's equation chain (lead-in, equation, where sentence, what it gives),
+%   tool sentence last, closer as a consequence for how the budget is set.
+% The values S = 0.9, 0.05 and 0.05 are the values Riley et al. recommend, so they are literature, not
+%   settings. Left to the Methodology on purpose: the anticipated C and its source, n, events, the
+%   P_max values, the 0.65 and 0.75 sensitivity, how the parameters are spent, and the open point that
+%   the criteria are derived for a person-level binary outcome while the model is a segment-level GLMM.
+% Cut from the retired draft: the closing calibration sentence is kept only as a clause (no pointer to
+%   sec:tech-calibration, which does not exist; sec:tech-model is still notes).
+% Notation: n, S, R^2_CS, P_max, phi, as in the retired draft. Avoids the FPCA symbols.
+% CHECK: riley2020samplesize was NOT opened in full (bmj.com returned 403). The three criteria, their
+%   thresholds (S >= 0.9, 0.05 difference in Nagelkerke R^2, overall risk within +-0.05) and the P_max
+%   formula are as in the retired draft and as recalled from the paper; verify all three against the
+%   paper before submission, and check whether the paper states the criteria in this order.
+% CHECK: riley2021cstat (Stat Med 40:859-864, doi 10.1002/sim.8806): bibliographic record checked on
+%   Crossref 2020-11-10 (the record gives the online year 2020; volume 40 is 2021); the paper itself was
+%   not read. The assumption of a normal linear predictor with equal variance is from the retired draft.
+% CITATION WANTED: the pmsampsize package (version and reference).
+\section{Sample Size for Prediction Models}
+\label{sec:tech-sample-size}
+
+The sample size a prediction model needs depends on the number of parameters it estimates, on the proportion of persons with the outcome and on how well the outcome can be predicted, and not on the number of events per parameter alone \cite{riley2020samplesize}.
+Riley et al.\ recommend a sample size that meets three criteria for a binary outcome.
+First, the coefficients are expected to be shrunk by no more than 10\%, so the expected shrinkage $S$ is at least 0.9.
+Subsequently, the Nagelkerke $R^2$ of the model in the development data is at most 0.05 higher than its optimism-adjusted value.
+Finally, the overall proportion with the outcome is estimated to within $\pm 0.05$ of its true value.
+The sample size that meets all three is the one required.
+
+The first criterion bounds the number of parameters in a model.
+Shrinkage is the factor by which the coefficients of a model have to be multiplied to predict well in new persons, so a value below 1 means that the model overfits.
+For a given number of persons, the largest number of parameters $P_{\max}$ that keeps the expected shrinkage at $S$ is
+\begin{equation}
+  P_{\max} = n\,(S-1)\,\ln\!\left(1 - \frac{R^2_{\mathrm{CS}}}{S}\right),
+  \label{eq:tech-pmax}
+\end{equation}
+where $n$ is the number of persons, $S$ the target shrinkage and $R^2_{\mathrm{CS}}$ the Cox--Snell $R^2$ that the full model is anticipated to reach.
+A model with more than $P_{\max}$ parameters is expected to be shrunk by more than $S$ allows, and its predicted risks are too extreme in new persons.
+
+The Cox--Snell $R^2$ is rarely reported for a new outcome, so it is derived from the C-statistic the model is anticipated to reach \cite{riley2021cstat}.
+The derivation assumes that the linear predictor is normally distributed, with the same variance in persons with and without the outcome.
+A higher anticipated C-statistic gives a larger $R^2_{\mathrm{CS}}$ and therefore a smaller $P_{\max}$ for the same $n$.
+
+The \texttt{pmsampsize} package applies the three criteria and returns the required sample size or, for a fixed sample size, the largest number of parameters \clarify{citation and version of pmsampsize}.
+Since all three quantities are set from $n$, the outcome proportion and the anticipated C-statistic, the number of parameters of a model can be fixed before its coefficients are estimated.

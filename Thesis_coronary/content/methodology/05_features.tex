@@ -1,24 +1,124 @@
-% NOTES ONLY, to be written. Trimmed 2026-11-07 from thesis/methodology/05_features.tex and
-% 05a-05d (full drafts in git, commit e4eb857). Figures still in thesis/methodology/:
-% features_overview_schematic.{py,pdf} and turning_feature_schematic.{py,pdf}.
-% CHECK: CGPS_data/thesis_final/ holds only turning_feature.py and split_check.py; taper, angle and
-% ratios have no final script yet, so their text cannot be written to the code yet.
-%
-% Umbrella section should contain:
-% - Features drawn from studies relating geometry to low WSS or plaque location (ch:literature,
-%   sec:method-selection), some adapted (curvature on 3D centerlines over a fixed chord).
-% - Read from the arteries of sec:method-split, points in mm with an artery label, traversed from
-%   the ostium. Open: in split_trunks.py the LAD and LCx paths start at the LM bifurcation, not at
-%   the ostium; only the RCA starts at the ostium.
-% - Curvature and taper per segment; angle and ratios once per participant at the LM bifurcation.
-%   Open: the split points carry no lumen radius, and the tracer gives a contour per step, not a mask.
-% - Table tab:method-features (feature, measured on, input, section) and the overview figure
-%   fig:method-features.
-% - Shared rules: unit of measurement; missing values (TODO).
+% Umbrella for the five geometric features; each feature is a \subsection in its own file (05a-05d).
+% 2026-11-09: written from the notes (trimmed 2026-11-07 from thesis/methodology/05_features.tex,
+%   full drafts in git, commit e4eb857). Says only what all features are computed on; does not
+%   repeat why these five (sec:method-selection), why per segment (sec:method-split) or how they
+%   enter the model (sec:method-models).
+% Start point checked against CGPS_data/split_trunks.py (split, l.244-249): the LAD and LCx paths
+%   start at the LM bifurcation, or just after the labelled LM when the other artery is missing;
+%   only the RCA starts at the ostium. "The end of the left main" covers both cases. This resolves
+%   the \clarify of the retired draft.
+% Table has no input column: CGPS_data/thesis_final/ holds only turning_feature.py and
+%   split_check.py, so the inputs of the angle, the ratios and taper are unconfirmed (\clarify below).
+% Left out: the overview figure (outdated/thesis_retired/methodology/features_overview_schematic.pdf).
+%   05a has its own figure, and panel C shows diameters at made-up positions with no code behind it.
+% CHECK: taper per segment vs per artery is still unresolved (05d notes); the table says per segment.
+% 2026-11-09 (user): opening refocused on the five features that represent the tree's geometry and
+%   the table that summarises them; the tracer input moved to the third sentence.
+% 2026-11-09 (user): tortuosity and taper in all nine segments; angle and ratios enter only the
+%   proximal LAD and LCx. Angle checked against CGPS_data/progression_who_pooled.py (ANGLE_SEGS =
+%   plad, pcx; l.60, 128), not yet in thesis_final/. The ratios are not in that script yet.
+% CHECK: do both ratios enter both proximal segments, or LM->LAD on the pLAD and LM->LCx on the
+%   pLCx only? The text and table currently say both enter the two proximal segments.
+% 2026-11-09 (user): opening cut to three sentences; the distance-origin sentence and the \clarify
+%   were removed. Still true and kept here instead: no script in thesis_final/ computes the angle,
+%   the ratios or taper yet, and taper per segment vs per artery is open (05d).
+% 2026-11-09 (user): new first paragraph with the shared rationale, so the subsections do not repeat
+%   it: the hypothesis that shape disturbs flow and lowers WSS (mechanism owned by sec:wss, only
+%   pointed to), then one sentence per kind of feature. Simulation findings taken from sec:lit-wss
+%   and cited inside the reason (garcha2025sensitivity, johnston2009taper), not re-described.
+% CAREFUL: Garcha (synthetic trees) and Johnston (idealised rigid S-shaped models) are simulations;
+%   keep "in simulated"/"in model arteries", never "shown in patients". The bend sentence states the
+%   sec:wss mechanism without its citations, since the section pointer stands for them.
+% 2026-11-09 (user: one line): the rationale paragraph cut to one reason-first clause in the first
+%   sentence, pointing to sec:wss (mechanism) and sec:lit-wss (simulation evidence); the per-feature
+%   sentences and the garcha2025sensitivity / johnston2009taper citations were cut, since the
+%   pointers carry them.
+% 2026-11-09 (user): first sentence back to the original wording, with the rationale at its end
+%   ("each describe a part of the artery where the flow is thought to be disturbed", sec:wss) and the
+%   literature review as its support (sec:lit-wss, "suggested": mostly simulations). Last sentence:
+%   "centerlines and lumen contours", since taper needs the contours (the tracer outputs both).
+% 2026-11-09 (user: apply the Aida methodology guide, outdated/thesis_retired/style_guide_methodology_aida.md):
+%   chained opener naming the previous step and the input (§4.1, "Following the selection ...",
+%   tracer centerlines and lumen contours moved to the first sentence); reason as its own sentence
+%   (§5); where each feature is measured; pointer sentence to the table at the end (§4.3); caption
+%   in her "Summary of ... including ..." form (§9.2). No First/Subsequently/Finally map of the
+%   subsections (§2.4): they are not sequential steps, and the table's Section column does that job.
+% 2026-11-09 (user): opening reverted to the version before the Aida pass ("The geometry of the
+%   coronary tree was represented by ..."); the Aida caption kept. Rationale now "an aspect of the
+%   arteries' shape that is thought to disturb the flow and lower the WSS" (the features are shape
+%   properties, not parts of the artery). "which ... each describe" is plural on purpose.
+% 2026-11-09 (user): rationale split into its own sentence, literature first, then the haemodynamic
+%   reason. Background for the wording, not to be stated: the literature was searched for measures
+%   of shapes expected to change the flow (as bends and twists do in any stream), so the features
+%   come from the review and the review's shapes are those thought to disturb the flow.
+% 2026-11-09 (user): rationale rewritten to convey that the features were hypothesis-driven, not
+%   chosen by their association with plaque (without saying so): "chosen from a prior hypothesis"
+%   (shape disturbs flow, sec:wss), then the review supplied the measures (sec:lit-wss). Order
+%   follows the actual process: idea first, literature second.
+% CHECK: if sec:method-size states that features were fixed before geometry was linked to follow-up
+%   plaque, keep that claim there only; it must hold for every exploratory run (progression_*.py).
+% 2026-11-09 (user: make the text better): grammar and the missing bracket fixed in the user's
+%   "each way of quantifying were build from the strongest associations"; now "each was measured
+%   following the studies ... that tied it most closely to low WSS". The long segment sentence split
+%   in two (nine segments / left main bifurcation). The user removed the sec:method-selection pointer.
+% CAREFUL: "most closely" rests on the sec:lit-wss synthesis; only for tortuosity did a study compare
+%   measures (Kashyap: average curvature strongest, but weak). Do not upgrade to "strongest".
+% 2026-11-09 (user: reword it): shorter subject-first opener; "prior hypothesis" -> "a hypothesis
+%   set before the analysis"; the bifurcation sentence reason first ("Since each participant has one
+%   left main bifurcation"), naming the proximal LAD and LCx as the two segments that leave it.
+%   The reason why the angle enters only these rows is inferred, not documented in
+%   progression_who_pooled.py (ANGLE_SEGS has no comment beyond "the rows the angle can act on").
+% 2026-11-09 (user: go back): reverted the "reword it" pass. New third sentence: each shape can be
+%   quantified in several ways, and the measure chosen was the one most closely tied to low WSS in
+%   the review (user: "based on the best results in the literature"; written "most closely tied",
+%   see CAREFUL above).
+% 2026-11-09 (user: Aida guide on sentences 2-6): "selected on the basis of ..., namely" (her
+%   "namely" listing); measure choice in her absence-as-reason form ("Since ..., ...", §5); the two
+%   computation sentences merged with "whereas" and the model-entry rule as its own short sentence;
+%   provenance sentence in her "extracted from the ... outputs ... described in" form (§4.1, §7).
+% 2026-11-09 (user): reason added for entering the angle and ratios only in the proximal LAD and LCx:
+%   disturbed flow is expected just downstream of a bifurcation (sec:wss, lateral walls of the
+%   daughter branches) and entering them further down would dilute the effect. "Expected", not
+%   "strong": no study measured the effect per segment. 02b changed to match ("at the start of the
+%   LAD and LCx" instead of "further down").
+% 2026-11-09 (user: Aida guide on the proximal-only sentence): rewritten as her purpose clause
+%   ("To avoid diluting ..., ...", §4.2/§5), reason first, one sentence of 33 words.
+% Subsections 05a-05d: justify only their own definitional choices (e.g. 05a: average curvature over
+%   the tortuosity index), not why the feature was used.
+% TODO: shared rule for missing feature values, once the model code (03) is final.
+% 2026-11-10 (user: call the feature curvature, tortuosity could get confusing): "Tortuosity and
+%   lumen taper" -> "Curvature and lumen taper"; table row -> "Curvature (segment average)". The
+%   tortuosity index (sec:method-curvature-other) is a different measure; see the 05a header.
+% 2026-11-10: table row "mean turning angle per millimetre" -> "average curvature", after 05a moved
+%   to the three-point circle curvature (thesis_final/curvature_feature.py). The note above that
+%   thesis_final/ holds only turning_feature.py and split_check.py is now curvature_feature.py and
+%   split_check.py.
+\providecommand{\clarify}[1]{\textcolor{red}{\textbf{Clarification needed:} #1}}
 \section{Geometric Features}
 \label{sec:method-features}
 
-\todonote{To be written: where the features come from, what they are read from, and the overview table and figure.}
+The geometry of the coronary tree was summarised by the five features presented in Table~\ref{tab:method-features}.
+The features were selected on the basis of a prior hypothesis; that bends, branching and narrowing of the arteries disturb flow and lower the WSS (Section~\ref{sec:wss}).
+Each of these properties can be quantified in several ways, so the measure used for each was the one most closely tied to low WSS or plaque found in by the literature review (Section~\ref{sec:lit-wss}).
+Curvature and lumen taper were computed for each of the nine segments defined in Section~\ref{sec:method-split}, whereas the bifurcation angle and the diameter ratios from the left main to the LAD and to the LCx were computed once per participant at the left main bifurcation.
+To avoid diluting an effect expected just downstream of the bifurcation, where the flow is disturbed (Section~\ref{sec:wss}), the latter three entered the model only in the proximal LAD and the proximal LCx (Section~\ref{sec:method-models}).
+All five features were computed on the centerlines and lumen contours produced by the in-house tracer described in Section~\ref{sec:method-tracer}.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Summary of the geometric features computed from the in-house tracer output, including where each is measured and the segments it enters the model in.}
+  \label{tab:method-features}
+  \begin{tabular}{llll}
+    \toprule
+    Feature & Computed on & Segments & Section \\
+    \midrule
+    Curvature (segment average) & each segment & all nine & \ref{sec:method-curvature} \\
+    Bifurcation angle & left main bifurcation & proximal LAD and LCx & \ref{sec:method-angle} \\
+    Diameter ratios, LM to LAD and LM to LCx & left main bifurcation & proximal LAD and LCx & \ref{sec:method-ratio} \\
+    Lumen taper & each segment & all nine & \ref{sec:method-taper} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
 
 \input{content/methodology/05a_curvature}
 \input{content/methodology/05b_bifurcation_angle}

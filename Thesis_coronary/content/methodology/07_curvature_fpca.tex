@@ -1,7 +1,8 @@
 % NOTES ONLY, to be written. Trimmed 2026-11-07 from thesis/methodology/07_curvature_fpca.tex
 % (full draft in git, commit e4eb857). Decision 2026-11-04: main model uses mean curvature; FPCA
 % shape scores only in pLAD and mLAD, each its own descriptive cloglog model, not pooled, not part
-% of the LR test. Theory: sec:tech-fpca, sec:tech-fpca-grid, sec:tech-fpca-registration.
+% of the LR test. Theory: sec:tech-fpca (its grid and registration subsections were removed 2026-11-09; both topics
+% are now only in these notes and must be written here).
 % Settings: CGPS_data/turning_profile_shapes.py and segment_k_budget.py, neither in thesis_final;
 % turning_profile_shapes still runs on the Medis trees.
 %
@@ -9,6 +10,12 @@
 % - Why: mean curvature gives the same value to one sharp bend and to even turning; FPCA of the
 %   profile describes where along the segment the turning lies. Secondary, descriptive, outside the
 %   test of the geometry block (sec:method-models). Restricted to pLAD and mLAD for events ([..]).
+% - The curve: sec:tech-fpca keeps "curve" general (x_i(t), t in [0, 1]). Here the curve x_i(t)
+%   is the curvature profile of participant i in one segment, kappa by Menger's formula in mm^-1
+%   (eq:method-profile, sec:method-curvature; theta / l in rad/mm until 2026-11-10), at normalised
+%   position t along the segment. CHECK: turning_profile_shapes.py still uses profile_thesis
+%   (theta / l); switch it to curvature_feature.curvature_profile before it moves to thesis_final/. State
+%   this in one sentence when the prose is written, so the reader maps x_i(t) onto the profile.
 % - Profile (eq:method-profile) on 50 equally spaced points of normalised position, linear
 %   interpolation; FPCA per segment by SVD of the centred participant x grid matrix; no registration,
 %   so a component can also be a shift of a bend.
@@ -20,7 +27,7 @@
 %     are kept (segments with fewer than MIN_PTS points are dropped), arc-length position is
 %     normalised to [0, 1] by the first and last kept point, and the profile is linearly
 %     interpolated onto G = 50 MIDPOINT positions t_g = (g - 0.5)/G. Midpoints match w = 1/G and the
-%     rectangle rule of eq:tech-fpca-grid. The interpolation is in arc length, so unevenly spaced
+%     rectangle rule of the grid derivation below. The interpolation is in arc length, so unevenly spaced
 %     points do not weight any part of the segment more than another.
 %   - Segment ends as landmarks (former last paragraph of sec:tech-fpca-registration): mapping a
 %     segment onto [0, 1] by its two ends is a landmark registration with the ends as the only
@@ -32,13 +39,50 @@
 %     sharply the vessel bends.
 %   - Write both as prose only once the FPCA code is in CGPS_data/thesis_final/ (turning_profile_
 %     shapes.py is not there yet and still runs on the Medis trees), per root CLAUDE.md.
+% - Grid derivation (MOVED HERE 2026-11-09 from sec:tech-fpca-grid, which now says it in words
+%   only; formerly eq:tech-fpca-grid). D = N x G matrix of deviations, rows d_i, entries
+%   d_ig = x_i(t_g) - mu_hat(t_g). Equal spacing w = 1/G; rectangle rule: each integral = w times
+%   the sum over the grid. The eigenproblem reduces to that of N^-1 D'D, unit-length eigenvectors
+%   v_k, eigenvalues lambda_tilde_k; then lambda_hat_k = w lambda_tilde_k, phi_hat_k(t_g) =
+%   w^-1/2 v_kg, xi_hat_ik = w^1/2 v_k' d_i (the score by the rectangle rule). w^-1/2 keeps the unit
+%   norm: squared entries of v_k sum to 1, the integral of phi_hat^2 is w times that sum. Computed
+%   by SVD of D (warmenhoven2021pca). State the scaling used, since it sets the units of the scores.
+%   Uncited (derivation). Write as prose with the settings once the FPCA code is in thesis_final/.
+% - From sec:tech-fpca (fourteenth pass, 2026-11-09, JMP level): the Technical Background no longer
+%   gives the score integral, the eigen equation or the covariance formula, only the truncated
+%   expansion (eq:tech-fpca-kl) and the modes (eq:tech-fpca-mode). State here how the scores are
+%   computed (grid derivation above) and that the scaling sets the units of the scores, so the
+%   scaling used must be stated for the scores to be interpretable.
+% - Alignment (2026-11-09; the registration subsection of sec:tech-fpca was removed). Draft prose:
+%   "Each segment was mapped onto [0, 1] by its two ends, and the curves were not aligned further,
+%   so that where along the segment the turning lies stays in the profiles. A component can
+%   therefore describe both how much and where the turning lies \cite{marron2015amplitude}."
+%   Reason (user, 2026-11-09): whether the location of the deviation matters is part of what the
+%   descriptive FPCA looks at; the main model's mean turning already covers the amount regardless
+%   of location, so registering away the location would leave FPCA little to add. Cost: location
+%   variation spreads over extra components (tight Riley budget in pLAD/mLAD).
+% - Grid in words (2026-11-09; sec:tech-fpca-grid was removed): curves are observed at points, so
+%   FPCA is computed as ordinary PCA on the curves sampled on one common grid
+%   (warmenhoven2021pca); unevenly spaced curves are first brought onto it (respacing note above).
 % - K fixed before outcome linkage: smaller of [rule] and the Riley budget of the segment less the
-%   base. Open: which rule (80/90% variance, Horn, circular-shift null, bootstrap |cos| >= 0.9,
-%   5-fold CV error).
+%   base. The rule is bootstrap stability (song2018stability for the principle): K = the smaller of
+%   the number of components stable under bootstrap and the Riley budget of the segment less the
+%   base.
+%   Reason: the FPCA is descriptive and its components are named, so they must be reproducible.
+%   Draft prose (moved 2026-11-09 from sec:tech-fpca): "FPCA was repeated on each bootstrap
+%   sample, the sign of each eigenfunction was aligned to the full-sample eigenfunction, and a
+%   component counted as stable when [summary of |cos| over samples] was at least [threshold].
+%   Keeping only the stable components fixed K from the curves alone, before the scores were
+%   related to the outcome." Point back to sec:tech-fpca-components for the idea.
+%   Still to set before outcome linkage: the stability threshold (|cos| >= 0.9 between bootstrap
+%   and full-sample eigenfunction, after sign alignment, was the earlier draft), the number of
+%   bootstrap samples, and the summary (median |cos|). Compute on the plaque-free tracer cohort,
+%   not the Medis trees. General description in sec:tech-fpca-components.
+%   (Considered and not chosen: 80/90% variance, Horn, circular-shift null, 5-fold CV error.)
 % - Per segment a cloglog model with the base and K scores, one row per participant, estimates with
 %   intervals, not tested. Open: the base (1 df, recalibrated SCORE2, in segment_k_budget.py) and
 %   the interval method.
 \section{Secondary Analysis of Curvature Shape}
 \label{sec:method-fpca}
 
-\todonote{To be written: FPCA of the curvature profile in the proximal and mid LAD as a descriptive secondary analysis.}
+\todonote{To be written: FPCA of the turning-angle profile in the proximal and mid LAD as a descriptive secondary analysis.}

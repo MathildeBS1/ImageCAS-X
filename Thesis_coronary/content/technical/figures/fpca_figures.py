@@ -2,10 +2,11 @@
 
     python3 Thesis_coronary/content/technical/figures/fpca_figures.py
 
-Adapted from outdated/thesis_retired/week10/fpca_explained_figures.py. The FPCA is the grid version of
-sec:tech-fpca-grid: G = 50 midpoint positions t_g = (g - 0.5)/G, spacing w = 1/G, eigenvectors of the
+Adapted from outdated/thesis_retired/week10/fpca_explained_figures.py. The FPCA is the grid version (derivation in the
+Methods 07 notes, sec:method-fpca): G = 50 midpoint positions t_g = (g - 0.5)/G, spacing w = 1/G, eigenvectors of the
 sample covariance, then lambda = w * eigenvalue, phi = w^(-1/2) * v, xi = w^(1/2) * v'd.
 """
+import sys
 from pathlib import Path
 
 import matplotlib
@@ -14,8 +15,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 OUT = Path(__file__).resolve().parent
-INK, INK2, GRID, MUTED = "#0b0b0b", "#52514e", "#e4e3df", "#a3a29d"
-C = ("#2a78d6", "#eb6834", "#1baf7a")
+sys.path.insert(0, str(OUT.parents[2] / "setup"))
+from figure_colours import GRID, INK, INK2, MUTED, SERIES as C, diverging_cmap  # noqa: E402
+
 plt.rcParams.update({"font.size": 8.5, "axes.titlesize": 9, "axes.titlelocation": "left",
                      "mathtext.fontset": "cm", "pdf.fonttype": 42})
 rng = np.random.default_rng(7)
@@ -49,13 +51,16 @@ def bump(c, h=1.0, s=0.09):
 
 
 # ------------------------------------------------------------ made-up sample
-# Mean: one bump. Variation: the bump's height, a gradual tilt along the domain, and a small
-# shift of the bump, plus smooth noise.
+# Broad patterns, as in the turning-angle profiles (user, 2026-11-09): a curve that lies above
+# the mean at the start tends to lie above it at the end too. Variation: an overall level along the
+# whole domain, a start-versus-end tilt, and the middle versus both ends (about 60%, 28% and 10% of
+# the variance), plus smooth noise. Mean: higher near the start, gently falling. No central peak;
+# the phase figure (block 5) keeps its own peaked curves.
 N = 200
-mu_true = 0.4 + bump(0.5)
-f = np.array([bump(0.5), t - 0.5, np.gradient(bump(0.5), t) * 0.04])
-z = rng.normal(size=(N, 3)) * np.array([0.4, 0.35, 0.6])
-noise = np.array([np.convolve(rng.normal(0, 0.06, G + 8), np.ones(9) / 9, "valid") for _ in range(N)])
+mu_true = 0.9 - 0.35 * t + 0.08 * np.sin(2 * np.pi * t)
+f = np.array([np.ones(G), np.cos(np.pi * t), np.cos(2 * np.pi * t)])
+z = rng.normal(size=(N, 3)) * np.array([0.30, 0.29, 0.17])
+noise = np.array([np.convolve(rng.normal(0, 0.15, G + 8), np.ones(9) / 9, "valid") for _ in range(N)])
 X = mu_true + z @ f + noise
 
 mu = X.mean(0)
@@ -86,7 +91,7 @@ save(fig, "fpca_curves")
 S = D.T @ D / N
 fig, ax = plt.subplots(figsize=(3.4, 2.9))
 m = abs(S).max()
-im = ax.imshow(S, origin="lower", extent=(0, 1, 0, 1), cmap="RdBu_r", vmin=-m, vmax=m)
+im = ax.imshow(S, origin="lower", extent=(0, 1, 0, 1), cmap=diverging_cmap(), vmin=-m, vmax=m)
 ax.plot([0, 1], [0, 1], color=INK, lw=0.6, ls=":")
 ax.set_title(r"Covariance $\hat\Gamma(t, u)$", color=INK)
 ax.set_xlabel("position $t$", color=INK2)
@@ -132,7 +137,7 @@ for k in range(2):
     ax[k].plot(t, mu, color=INK, lw=1.8, label="mean")
     ax[k].plot(t, mu + d, color=C[0], lw=1.5, label=r"$+2\sqrt{\lambda_k}\,\phi_k$")
     ax[k].plot(t, mu - d, color=C[1], lw=1.5, ls="--", label=r"$-2\sqrt{\lambda_k}\,\phi_k$")
-ax[0].legend(frameon=False, fontsize=7)
+ax[1].legend(frameon=False, fontsize=7, loc="lower left")
 style(ax[2], "Variance explained", "component $k$", "share of variance")
 ks = np.arange(1, 7)
 ax[2].bar(ks, lam[:6] / lam.sum(), color=C[0], width=0.6)
@@ -156,5 +161,48 @@ for a, Y, title in ((ax[0], P, "Same height, different positions (phase)"),
 ax[0].set_ylabel("$x_i(t)$", color=INK2)
 ax[0].legend(frameon=False, fontsize=7.5, loc="upper left")
 save(fig, "fpca_phase")
+
+# ------------------------------------------------------------ 6. the mean subtracted, then components one at a time
+# Two figures, so text can sit between them. fpca_mean: the curves with their mean, and the same
+# curves with the mean subtracted. fpca_steps: per step k, left: what is still unexplained, with
+# +/- 2 sqrt(lambda_k) phi_k; right: the same curves after each curve's part along phi_k
+# (xi_ik phi_k) is subtracted. After the idea of
+# outdated/thesis_retired/week10/week_figure/fpca/f6_steps.png, on the simulated sample.
+steps = rng.choice(N, 30, replace=False)
+fig0, ax0 = plt.subplots(1, 2, figsize=(6.3, 2.2), sharex=True)
+style(ax0[0], "The curves and their mean", POS, "$x_i(t)$")
+for r in steps:
+    ax0[0].plot(t, X[r], color=MUTED, lw=0.7)
+ax0[0].plot(t, mu, color=INK, lw=2.0, label=r"mean $\hat\mu(t)$")
+ax0[0].legend(frameon=False, fontsize=7.5, loc="upper right")
+style(ax0[1], "After subtracting the mean", POS, "deviation")
+for r in steps:
+    ax0[1].plot(t, D[r], color=MUTED, lw=0.7)
+ax0[1].axhline(0, color=INK, lw=1.0)
+
+fig, ax = plt.subplots(3, 2, figsize=(6.3, 6.2), sharex=True)
+R = D.copy()
+for k in range(3):
+    left = 1.0 if k == 0 else 1 - fve[k - 1]
+    style(ax[k, 0], f"Step {k + 1}: {left:.0%} of the variance unexplained", None, "deviation")
+    for r in steps:
+        ax[k, 0].plot(t, R[r], color=MUTED, lw=0.7)
+    d = 2 * np.sqrt(lam[k]) * phi[:, k]
+    ax[k, 0].plot(t, d, color=C[k], lw=2.0, label=rf"$\pm 2\sqrt{{\lambda_{k + 1}}}\,\phi_{k + 1}$")
+    ax[k, 0].plot(t, -d, color=C[k], lw=2.0, ls="--")
+    ax[k, 0].legend(frameon=False, fontsize=7.5, loc="upper right")
+    R = R - np.outer(xi[:, k], phi[:, k])
+    style(ax[k, 1], rf"After removing $\xi_{{i{k + 1}}}\phi_{k + 1}$: {1 - fve[k]:.0%} left")
+    for r in steps:
+        ax[k, 1].plot(t, R[r], color=C[k], lw=0.7, alpha=0.85)
+dev = [ax0[1], *ax.flat]  # one y-scale for every panel of deviations, across both figures
+lo = min(a.get_ylim()[0] for a in dev)
+hi = max(a.get_ylim()[1] for a in dev)
+for a in dev:
+    a.set_ylim(lo, hi)
+for a in ax[-1]:
+    a.set_xlabel(POS, color=INK2)
+save(fig0, "fpca_mean")
+save(fig, "fpca_steps")
 
 print("FVE:", np.round(fve[:4], 3), "curve", i, "scores", np.round(xi[i, :3], 2))

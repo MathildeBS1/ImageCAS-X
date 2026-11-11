@@ -22,6 +22,14 @@
 %   mis-weighted factor (e.g. age) can look informative only by correcting that weight. Does NOT
 %   decide the open base choice (recalibrated SCORE2 vs refitted factors).
 %
+% - The bootstrap in general (added 2026-11-09): resampling the observations (here persons) with
+%   replacement to see how an estimate would vary across samples; percentile intervals. Used twice
+%   in the thesis: the person-level bootstrap for the intervals of the model's estimated measures
+%   (Methods 03 notes; plan in ~/Desktop/Speciale/CGPS_statistics-/CLAUDE.md) and the stability
+%   check of the FPCA components (sec:tech-fpca-components, Methods 07). Explain it once here so
+%   the FPCA section can point back. CITATION WANTED: a classic source (e.g. Efron and Tibshirani
+%   1993, An Introduction to the Bootstrap); not yet in refs.bib, add and check before citing.
+%
 % If the cloglog GLMM is confirmed, it should also contain:
 % - Clustered binary outcomes (segments within persons); correlated outcomes make naive standard
 %   errors too small; GLMM adds a random person effect (statacorp2025mecloglog).

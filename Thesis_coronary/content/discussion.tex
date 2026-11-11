@@ -2,4 +2,40 @@
 \label{ch:discussion}
 
 \section{Limitations}
+% NOTES, to be written (moved 2026-11-09 from Technical sec:tech-fpca, where they were general
+% statements; here they become limitations of the descriptive FPCA, Methods sec:method-fpca):
+% - Components are built from the curves alone and ranked by variance (wang2016fda, p. 26), and K
+%   keeps only the leading, bootstrap-stable components within the Riley budget. A low-variance
+%   shape that relates to plaque could therefore be left out, so a null association of the scores
+%   does not show that profile shape is irrelevant.
+% - The components rest on the covariance, a second moment, so a few outlying curves can shift
+%   them (wang2016fda, p. 11). In the turning profiles, tracer errors (kinks, mis-tracked
+%   stretches) give such curves. The bootstrap stability rule guards in part: a component driven
+%   by a few curves changes between bootstrap samples and fails the check. State whether outlying
+%   profiles were inspected or excluded once the FPCA code is in thesis_final/.
+% - The components are specific to the sample and the preprocessing they were estimated from
+%   (moved 2026-11-09 from sec:tech-fpca; uncited reasoning). Components from the Medis trees
+%   (plaque at baseline) need not carry over to the plaque-free tracer cohort, and changing the
+%   5 mm chord, the segment division or the grid would change the shapes. Components from another
+%   cohort or study are therefore not directly comparable.
+% - Position error in the tortuosity feature (moved 2026-11-09 from Methods sec:method-curvature,
+%   05a_curvature.tex). Methods keeps only the reason for the 5 mm chord and its cost. Here: the
+%   errors in the tracer point positions are likely of the order of the voxel size
+%   \clarify{voxel size of the CGPS scans and the position precision of the tracer points}. In the
+%   sliding window an error at the centre point tilts both of its chords at once, and since every
+%   angle counts as positive, the false turns add up instead of cancelling, so they raise T most on
+%   nearly straight segments and may differ between scans with different image noise. This is
+%   measurement error in a predictor, which tends to pull its hazard ratio towards 1 (CITATION
+%   WANTED for regression dilution); a null result for tortuosity is therefore weaker evidence of no
+%   association. Give the size once Kit answers; no ImageCAS-X numbers.
+% - Scale of the curvature values (2026-11-10, from the two papers read in full). Absolute curvature
+%   depends on the scale at which it is estimated: van Zandwijk et al. (vanzandwijk2019curvature,
+%   Menger's formula at 5 mm, as here) report 0.078 to 0.090 mm^-1, while Kashyap et al.
+%   (kashyap2022tortuosity, VMTK-smoothed centerlines resampled at 0.01 mm, first 10 mm after the LM
+%   bifurcation) report 0.40 to 0.51 mm^-1. CGPS values therefore compare only with studies at the
+%   same scale; hazard ratios per SD are unaffected by the scale only if the ordering of segments
+%   is. Uncited reasoning apart from the two values.
+% - Cardiac phase (same source): van Zandwijk et al. found curvature 9% to 11% higher at end-systole
+%   than at end-diastole, so the reconstruction phase is a source of variation in the feature.
+%   CHECK: CGPS reconstruction phase (sec:data-cohort, blank) and whether it varies between scans.
 \section{Future work}
