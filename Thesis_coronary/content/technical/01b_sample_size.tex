@@ -20,29 +20,36 @@
 %   Crossref 2020-11-10 (the record gives the online year 2020; volume 40 is 2021); the paper itself was
 %   not read. The assumption of a normal linear predictor with equal variance is from the retired draft.
 % CITATION WANTED: the pmsampsize package (version and reference).
+% 2026-11-13 (user: technical background more human): tone pass; claims and cites unchanged except one
+%   FIX: "a higher anticipated C ... smaller P_max" was wrong. In eq:tech-pmax, (S - 1) < 0 and
+%   ln(1 - R2/S) < 0 grows in size with R2, so P_max RISES with R2 (n = 1000, S = 0.9: R2 0.05 -> 5.7,
+%   R2 0.10 -> 11.8). Check that Methods 04 (0.65 / 0.75 sensitivity) reads the direction this way:
+%   the LOWER C is the conservative one. "Subsequently" -> "Second" (parallel criteria, not a
+%   sequence); criteria as "should"; "Since" opener removed; "smallest n that meets all three".
 \section{Sample Size for Prediction Models}
 \label{sec:tech-sample-size}
 
-The sample size a prediction model needs depends on the number of parameters it estimates, on the proportion of persons with the outcome and on how well the outcome can be predicted, and not on the number of events per parameter alone \cite{riley2020samplesize}.
-Riley et al.\ recommend a sample size that meets three criteria for a binary outcome.
-First, the coefficients are expected to be shrunk by no more than 10\%, so the expected shrinkage $S$ is at least 0.9.
-Subsequently, the Nagelkerke $R^2$ of the model in the development data is at most 0.05 higher than its optimism-adjusted value.
-Finally, the overall proportion with the outcome is estimated to within $\pm 0.05$ of its true value.
-The sample size that meets all three is the one required.
+How many persons a prediction model needs is not settled by the number of events per parameter alone.
+It also depends on how many parameters the model estimates, how common the outcome is and how well the outcome can be predicted \cite{riley2020samplesize}.
+For a binary outcome, Riley et al.\ recommend a sample size that meets three criteria.
+First, the coefficients should need to be shrunk by no more than 10\%, so the expected shrinkage $S$ is at least 0.9.
+Second, the Nagelkerke $R^2$ of the model in the development data should be at most 0.05 higher than its optimism-adjusted value.
+Finally, the overall proportion with the outcome should be estimated to within $\pm 0.05$ of its true value.
+The required sample size is the smallest one that meets all three.
 
-The first criterion bounds the number of parameters in a model.
-Shrinkage is the factor by which the coefficients of a model have to be multiplied to predict well in new persons, so a value below 1 means that the model overfits.
+The first criterion is the one that limits how many parameters a model can have.
+Shrinkage is the factor by which the coefficients of a model have to be multiplied for it to predict well in new persons, so a value below 1 means that the model overfits.
 For a given number of persons, the largest number of parameters $P_{\max}$ that keeps the expected shrinkage at $S$ is
 \begin{equation}
   P_{\max} = n\,(S-1)\,\ln\!\left(1 - \frac{R^2_{\mathrm{CS}}}{S}\right),
   \label{eq:tech-pmax}
 \end{equation}
 where $n$ is the number of persons, $S$ the target shrinkage and $R^2_{\mathrm{CS}}$ the Cox--Snell $R^2$ that the full model is anticipated to reach.
-A model with more than $P_{\max}$ parameters is expected to be shrunk by more than $S$ allows, and its predicted risks are too extreme in new persons.
+Adding parameters beyond $P_{\max}$ makes the model overfit more than $S$ allows, so its predicted risks become too extreme in new persons.
 
-The Cox--Snell $R^2$ is rarely reported for a new outcome, so it is derived from the C-statistic the model is anticipated to reach \cite{riley2021cstat}.
+The Cox--Snell $R^2$ is rarely reported for a new outcome, so it is derived instead from the C-statistic the model is anticipated to reach \cite{riley2021cstat}.
 The derivation assumes that the linear predictor is normally distributed, with the same variance in persons with and without the outcome.
-A higher anticipated C-statistic gives a larger $R^2_{\mathrm{CS}}$ and therefore a smaller $P_{\max}$ for the same $n$.
+A higher anticipated C-statistic gives a larger $R^2_{\mathrm{CS}}$ and therefore a larger $P_{\max}$ for the same $n$, as a stronger signal can support more parameters.
 
 The \texttt{pmsampsize} package applies the three criteria and returns the required sample size or, for a fixed sample size, the largest number of parameters \clarify{citation and version of pmsampsize}.
-Since all three quantities are set from $n$, the outcome proportion and the anticipated C-statistic, the number of parameters of a model can be fixed before its coefficients are estimated.
+All three criteria are set from $n$, the outcome proportion and the anticipated C-statistic, so the number of parameters of a model can be fixed before any of its coefficients are estimated.

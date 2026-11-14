@@ -1,0 +1,55 @@
+% Appendix to sec:method-angle (05b_bifurcation_angle.tex): why the angle is measured 5 to 10 mm from O
+% with a fitted line. Written 2026-11-11 from the explanation given to the user in session.
+% The O-placement argument is the thesis's own; Medrano-Gracia et al. give only "average in the 5-10 mm
+%   depth interval where variation is typically small" and "averaging angles in the 5-10 mm interval
+%   ensures a more robust measurement than a single point" (PDF read 2026-11-11).
+% Numbers: Table app-angle-tilt from a scratchpad numpy script (two straight arteries 75 deg apart, O 1 mm
+%   upstream along the left main axis, points at 2, 5, 10 mm from the true split): 50.4, 63.0, 68.5 deg.
+%   Table app-angle-offset and the bend case from CGPS_data/thesis_final/bifurcation_angle.py --check.
+% CHECK: "a millimetre or more" is reasoning, not a measured tracer error; compare O on the tracer trees
+%   with the Medis bifurcation once both are available.
+\chapter{Placement of the Bifurcation Point}
+\label{app:angle-origin}
+
+The bifurcation angle of Section~\ref{sec:method-angle} is measured from the bifurcation point $O$, the last centerline point shared by the LAD and the LCx.
+This point can only be placed approximately.
+Where the two lumens merge, the centerline runs through the middle of the widened confluence, so the point at which the paths of the two arteries separate depends on the segmentation and on how the tracer joins them rather than on a sharp anatomical landmark.
+An error in $O$ of a millimetre or more is therefore plausible.
+
+Such an error matters most for directions measured close to $O$.
+If the direction of an artery is taken as the line from $O$ to a point on it, a misplaced $O$ tilts that line, and the tilt shrinks as the point moves further away.
+Table~\ref{tab:app-angle-tilt} shows this for two straight arteries 75 degrees apart with $O$ placed 1\,mm upstream of the true split: measured to points 2\,mm along the arteries, the angle reads 50.4 degrees, and measured to points 10\,mm along, 68.5 degrees.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Angle between the lines from a bifurcation point placed 1\,mm upstream of the true split to points on two straight arteries 75 degrees apart, by the distance of the points from the true split.}
+  \label{tab:app-angle-tilt}
+  \begin{tabular}{lccc}
+    \hline
+    Distance from the true split (mm) & 2 & 5 & 10 \\
+    Measured angle (degrees) & 50.4 & 63.0 & 68.5 \\
+    \hline
+  \end{tabular}
+\end{table}
+
+Two choices keep the angle of this thesis from depending on $O$.
+The arteries are represented only from 5\,mm onwards, and the direction of each is a straight line fitted through its points between 5 and 10\,mm, which does not pass through $O$.
+Moving $O$ then only shifts the fitted stretch slightly along the artery.
+On the same two straight arteries, the fitted angle stays at 75 degrees for every position of $O$ up to 3\,mm upstream, whereas the angle between the lines from $O$, averaged over the same depths, falls to 43.7 degrees (Table~\ref{tab:app-angle-offset}).
+
+\begin{table}[htbp]
+  \centering
+  \caption{Bifurcation angle of two straight arteries 75 degrees apart when the bifurcation point $O$ is placed upstream of the true split, measured with the fitted lines of Section~\ref{sec:method-angle} and with lines from $O$ averaged over depths 5 to 10\,mm.}
+  \label{tab:app-angle-offset}
+  \begin{tabular}{lccccc}
+    \hline
+    $O$ upstream of the true split (mm) & 0 & 0.5 & 1 & 2 & 3 \\
+    Fitted lines (degrees) & 75.0 & 75.0 & 75.0 & 75.0 & 75.0 \\
+    Lines from $O$ (degrees) & 75.0 & 70.1 & 65.0 & 54.5 & 43.7 \\
+    \hline
+  \end{tabular}
+\end{table}
+
+The cost of the fitted line is that a bend within the 5 to 10\,mm stretch enters the angle.
+For two arteries that leave the bifurcation 60 degrees apart and curve away from each other on circles of 30\,mm radius, the fitted angle is 88.6 degrees and the averaged angle from $O$ 74.3 degrees.
+The interval itself follows Medrano-Gracia et al., who chose it because the angle varies little with depth there \cite{medranogracia2016atlas}.

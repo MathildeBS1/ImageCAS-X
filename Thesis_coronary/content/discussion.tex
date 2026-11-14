@@ -38,4 +38,11 @@
 % - Cardiac phase (same source): van Zandwijk et al. found curvature 9% to 11% higher at end-systole
 %   than at end-diastole, so the reconstruction phase is a source of variation in the feature.
 %   CHECK: CGPS reconstruction phase (sec:data-cohort, blank) and whether it varies between scans.
+% - Bends in the bifurcation angle (moved 2026-11-11 from Methods sec:method-angle, 05b). The
+%   direction of each artery is a line fitted over 5 to 10 mm from O, so a bend within that stretch
+%   also enters theta: on two arteries leaving 60 deg apart and curving away on 30 mm circles, the
+%   fitted angle is 88.6 deg (bifurcation_angle.py --check; appendix app:angle-origin). The angle
+%   therefore mixes the opening of the bifurcation with the early curvature of the arteries. Cardiac
+%   phase also matters: the left main angle varies by about 11 deg between systole and diastole
+%   (Girasis et al. 2010, SYNTAX substudy, 3D QCA; CITATION WANTED, not in refs.bib, full text not read).
 \section{Future work}

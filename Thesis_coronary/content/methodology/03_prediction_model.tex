@@ -12,12 +12,28 @@
 %   (sec:tech-aggregation); the person risk is what is evaluated.
 % - Fit: maximum likelihood, Gauss-Hermite quadrature over the random intercept. Open: node count
 %   (30 in the script, checked by a refit with doubled nodes).
+% - Open (added 2026-11-13): random-effects structure. The person intercept makes every pair of
+%   segments equally correlated (pLAD-mLAD as pLAD-dRCA); segments on one artery likely share more
+%   (inflow, plaque across segment boundaries). Effect: LR test rejects too often (already in
+%   sec:tech-glmm-likelihood), and the person risk is overstated if plaques cluster within an artery.
+%   Options: (a) add a person x artery intercept (LAD, LCx, RCA), nested in person; about three
+%   segments per artery and few events, so its variance may not be identifiable; (b) check residual
+%   correlation for same-artery vs different-artery pairs after the fit; (c) if (a) fails, keep the
+%   person intercept and state it as a limitation in the Discussion. Intervals from person-level
+%   resampling (CV, bootstrap) hold whatever the dependence; only the LR test leans on the intercept.
+%   Not a case for GEE: an exchangeable working correlation makes the same assumption, and GEE gives
+%   no joint distribution for the person risk. Theory: sec:tech-nested.
 % - Base model: segment position (pLAD reference), log segment length, dominance, log follow-up
 %   time, SCORE2 risk factors. Open: follow-up as term or offset; recalibrated SCORE2
 %   (sec:tech-recalibration) vs refitted SCORE2 factors, compared in this pooled model.
-% - Extended model: base + geometry block (five features, sec:method-selection), standardised
-%   within segment type on the training participants. Open: which segment rows carry the left main
-%   angle and ratios (script: pLAD and pLCx rows only).
+% - Extended model: base + geometry block (four features, sec:method-selection: curvature, taper,
+%   bifurcation angle, daughter asymmetry ln(D_LCx/D_LAD); each its own linear term; Finet's ratio
+%   dropped 2026-11-13, see 05c header),
+%   standardised within segment type on the training participants. Open: which segment rows carry the
+%   left main angle and asymmetry (script: pLAD and pLCx rows only).
+% - Secondary (decided 2026-11-11): angle x asymmetry, one prespecified term, estimated and reported,
+%   outside the LR test of the block (a product needs its main effects; support is one simulation
+%   study on synthetic trees, garcha2025sensitivity). sec:method-ratio points here.
 % - One prespecified LR test of the geometry block (eq:tech-lr), both models on all participants.
 %   Delta C, calibration slope and intercept, Brier score and log loss estimated with intervals,
 %   never tested (sec:tech-added-value).
@@ -29,7 +45,7 @@
 %   Report mean over repeats with 2.5th/97.5th percentiles and the paired difference. Open: folds and
 %   repeats (10 x 50 in the script); percentiles show split variation, not sampling uncertainty,
 %   so state whether difference intervals come from a bootstrap of the whole procedure.
-\section{Prediction Model}
+\section{Risk Model and Evaluation}
 \label{sec:method-models}
 
 \todonote{To be written: the pooled cloglog GLMM, its base and extended model, the LR test of the geometry block and the estimated performance measures. See the notes in the source.}

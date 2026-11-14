@@ -128,59 +128,60 @@
 % of "division of the diameter"); its closing limit sentence (artificial trees) cut.
 % 2026-11-08 (user; Aida pass over the whole chapter, style_guide_sota_aida.md): Asakura as author-year
 % subject; Kashyap and Zhang sentences rebuilt without inserted clauses; ", however," moved to front.
-\section{Wall Shear Stress and Where Plaque Forms}
+% 2026-11-13 (user): retitled after style_guide_sota_aida.md (noun phrase naming the strand); Asakura and
+% Van der Giessen cut from the opening, plaque-location evidence lives in Clinical sec:wss only.
+% 2026-11-13 (user; plan stateless-questing-crescent): tone pass for warmth; rules unchanged; claims and
+% citations unchanged. Each paragraph opens on the problem; short sentences for key findings; the
+% ", together with it," clause in the closing removed. Kashyap still "weak but significant".
+% 2026-11-13 (user): Garcha's LAD/LCx width contrast named "daughter asymmetry" (= Methods 05c,
+% ln(D_LCx/D_LAD)); closing names it instead of "division of diameter". Finet's ratio left out of the
+% closing: its only evidence here is Zhang's null. Later the same day Finet's ratio was dropped as a
+% model feature (05c header); Zhang's mention of it stays as part of what that study compared.
+\section{Geometric Determinants of Low Wall Shear Stress}
 \label{sec:lit-wss}
 
-The use of coronary geometry to predict incident coronary plaque rests on the premise that vessel
-shape influences the level of wall shear stress (WSS), and that plaque tends to develop where WSS is
+The use of coronary geometry to predict incident coronary plaque rests on a simple premise: the shape
+of a vessel affects the wall shear stress (WSS) on its wall, and plaque tends to develop where WSS is
 low \cite{chatzizisis2007ess}.
-Early foundational work by Asakura and Karino (1990) \cite{asakura1990flow} on autopsied hearts
-found plaque concentrated at bifurcations and bends.
-Van der Giessen et al.\ (2009) \cite{vandergiessen2009bifurcation} later found the same pattern on
-the CT scans of living patients and located the plaque on the outer walls of the bifurcations.
-
-WSS cannot be measured directly in the coronary arteries of patients \cite{gijsen2019wss}.
-Studies have therefore simulated the blood flow through arteries reconstructed from scans to see which features of the geometry lead to low WSS.
+Testing this premise in patients is difficult, as WSS cannot be measured directly in the coronary
+arteries \cite{gijsen2019wss}.
+Researchers have instead rebuilt arteries from scans and simulated the blood flow through them,
+asking which geometric features are associated with regions of low WSS.
 Kashyap et al.\ (2022) \cite{kashyap2022tortuosity} simulated the flow through the left main
-bifurcation of individuals without CAD and tested which measure of tortuosity best predicted how much of the wall had low WSS.
-Their work showed that average curvature had the strongest correlation with low WSS, which was
-weak but significant, while the most widely used measure, the tortuosity index, was not related to low WSS.
+bifurcation of people without CAD and tested which measure of tortuosity best predicted how much of the wall had low WSS.
+Average curvature had the strongest correlation with low WSS. It was weak but significant, while the most widely used measure, the tortuosity index, was not related to low WSS.
 
 Zhang et al.\ (2024) \cite{zhang2024curvature} extended the simulation to the whole left coronary
 tree and related the geometry to disease by comparing stenosis-free with stenosed trees.
-Their comparison included the bifurcation angle and the ratio of the parent diameter to the summed
-daughter diameters (Finet's ratio), but only average curvature was significantly higher in stenosed
-trees.
+They looked at several features, including average curvature, the bifurcation angle and the ratio of the parent
+diameter to the summed daughter diameters (Finet's ratio).
+Average curvature was the only one that was significantly higher in the stenosed trees.
 
-Both studies used the arteries of patients, which differ in many features at once, so the effect of
-a single feature is hard to separate from the others.
-Garcha and Grande Guti\'errez (2025) \cite{garcha2025sensitivity} therefore generated a large set of
-artificial left coronary trees in which they could change one feature at a time.
+Both studies worked with the arteries of patients, and real arteries differ in many features at once.
+This can make it hard to tell which feature is behind a given effect.
+Garcha and Grande Guti\'errez (2025) \cite{garcha2025sensitivity} got around this by generating a
+large set of artificial left coronary trees where they could change one feature at a time.
 They varied the angle between the two branches, how strongly the vessels bent, and how wide the
-left anterior descending (LAD) artery was compared with the left circumflex (LCx) artery.
-They found that the more the two branches differed in width, the larger the area of low WSS was at the bifurcation.
-A difference in width also strengthened the effect of the angle and of the bending.
+left anterior descending (LAD) artery was compared with the left circumflex (LCx) artery. The greater the asymmetry, the larger the area of low WSS at the bifurcation.
+Asymmetry also made the angle and the bending matter more.
 
-Whereas the bending of an artery and the division of its diameter at bifurcations have been
-studied repeatedly, less attention has been given to how the lumen narrows along each artery,
-referred to as lumen taper.
-Johnston and Johnston studied taper in a series of flow simulations.
-In a small number of right coronary arteries reconstructed from patient angiograms, they found that
-WSS depended more on the width of the lumen than on the curvature \cite{johnston2007diameter}.
-However, width and bending change together in a real artery, so their separate effects are hard
-to tell apart.
-To separate them, the authors built simplified S-shaped model arteries, first with a constant lumen
-width \cite{johnston2008sshaped} and then with a lumen that narrowed along the artery
+
+Bending and branching have been studied repeatedly, but less attention has been given to how
+the lumen narrows along each artery.
+Johnston and Johnston explored taper in a series of flow simulations.
+They began with a small number of right coronary arteries rebuilt from patient angiograms and found
+that WSS depended more on the width of the lumen than on its curvature \cite{johnston2007diameter}.
+However, as with the patient arteries in the studies above, width and bending change together in a
+real artery, so their separate effects are hard to tell apart.
+To separate them, the authors built simplified S-shaped model arteries, first with a constant lumen width \cite{johnston2008sshaped} and then with one that narrowed along its length
 \cite{johnston2009taper}.
-In both models, curvature lowered WSS on the inner wall of each bend, while only the narrowing model
-had an additional region of consistently low WSS in the straight proximal part of the artery, where
-no bend is present.
-Taper and curvature therefore lowered WSS at different sites, indicating that they carry
+In both models, curvature lowered WSS on the inner wall of each bend, but only the narrowing model also had a region of consistently low WSS in its straight proximal part,
+where there was no bend at all.
+Taper and curvature therefore lowered WSS in different places, indicating that they carry
 complementary information.
-The models were idealised and rigid, so this separation has not been shown in real coronary
+These were idealised and rigid models, so the separation has yet to be shown in real coronary
 arteries.
 
-
-Collectively, these studies point to average curvature, lumen taper, the division of diameter at the
-bifurcation and, together with it, the bifurcation angle as the features most closely tied to low
-WSS \cite{kashyap2022tortuosity,zhang2024curvature,garcha2025sensitivity,johnston2009taper}.
+Taken together, these studies point to four features as the ones most closely tied to low WSS:
+average curvature, lumen taper, daughter asymmetry and the bifurcation angle
+\cite{kashyap2022tortuosity,zhang2024curvature,garcha2025sensitivity,johnston2009taper}.

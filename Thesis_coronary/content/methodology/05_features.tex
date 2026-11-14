@@ -7,18 +7,15 @@
 %   start at the LM bifurcation, or just after the labelled LM when the other artery is missing;
 %   only the RCA starts at the ostium. "The end of the left main" covers both cases. This resolves
 %   the \clarify of the retired draft.
-% Table has no input column: CGPS_data/thesis_final/ holds only turning_feature.py and
-%   split_check.py, so the inputs of the angle, the ratios and taper are unconfirmed (\clarify below).
+% Table has no input column (the inputs are stated in each subsection). Code per feature: see the
+%   2026-11-13 entry at the end of this header.
 % Left out: the overview figure (outdated/thesis_retired/methodology/features_overview_schematic.pdf).
 %   05a has its own figure, and panel C shows diameters at made-up positions with no code behind it.
-% CHECK: taper per segment vs per artery is still unresolved (05d notes); the table says per segment.
+% Taper per segment (decided 2026-11-11, taper_feature.py); the old per-artery question is closed.
 % 2026-11-09 (user): opening refocused on the five features that represent the tree's geometry and
 %   the table that summarises them; the tracer input moved to the third sentence.
-% 2026-11-09 (user): tortuosity and taper in all nine segments; angle and ratios enter only the
-%   proximal LAD and LCx. Angle checked against CGPS_data/progression_who_pooled.py (ANGLE_SEGS =
-%   plad, pcx; l.60, 128), not yet in thesis_final/. The ratios are not in that script yet.
-% CHECK: do both ratios enter both proximal segments, or LM->LAD on the pLAD and LM->LCx on the
-%   pLCx only? The text and table currently say both enter the two proximal segments.
+% 2026-11-09 (user): curvature and taper in all nine segments; angle and ratios enter only the
+%   proximal LAD and LCx (progression_who_pooled.py: ANGLE_SEGS = plad, pcx; l.60, 128).
 % 2026-11-09 (user): opening cut to three sentences; the distance-origin sentence and the \clarify
 %   were removed. Still true and kept here instead: no script in thesis_final/ computes the angle,
 %   the ratios or taper yet, and taper per segment vs per artery is open (05d).
@@ -93,16 +90,38 @@
 %   to the three-point circle curvature (thesis_final/curvature_feature.py). The note above that
 %   thesis_final/ holds only turning_feature.py and split_check.py is now curvature_feature.py and
 %   split_check.py.
+% 2026-11-11 (daugther_ration_plan.md): the two LM->daughter ratios replaced by the daughter asymmetry
+%   ln(D_LCx / D_LAD) and Finet's ratio D_LM / (D_LAD + D_LCx) (sec:method-ratio); sentence 4 and the
+%   table row changed. Still five features. Both ratio features are per participant and enter the
+%   proximal LAD and LCx rows like the angle.
+% 2026-11-13 (user: update the notes to how the features are described now). Current definitions, each
+%   checked against its module in CGPS_data/thesis_final/ (README.md lists them):
+%   - Curvature: mean Menger curvature over 5 mm chords per segment, mm^-1 (curvature_feature.py, 05a);
+%     all nine segments.
+%   - Bifurcation angle: LAD-LCx, theta = arccos(u_LAD . u_LCx), u the least-squares line through the
+%     eleven points at 5 to 10 mm from O (bifurcation_angle.py, 05b); pLAD and pLCx.
+%   - Daughter asymmetry ln(D_LCx / D_LAD) and Finet's ratio D_LM / (D_LAD + D_LCx); D the median
+%     area-equivalent diameter, 5 to 10 mm from O for the LAD and LCx, first 2 mm from the ostium for
+%     the LM (daughter_ratio.py, 05c); pLAD and pLCx. Secondary angle x asymmetry term: sec:method-models.
+%   - Lumen taper: tau = -10 b, b the Theil-Sen slope of ln D on arc length per segment; first 3 mm and
+%     points within 2 median radii of side-branch origins dropped; missing under 10 mm kept length
+%     (taper_feature.py, 05d, text still to be written); all nine segments.
+%   Open: the tracer contour format is unknown (daughter_ratio.tracer_rings raises), so the ratios and
+%   taper are untested on data. progression_who_pooled.py still computes the angle with the old Medis
+%   function and has no ratios or new taper, so the model and this chapter disagree until it calls
+%   tree_angle, tree_ratios and tree_taper.
+% 2026-11-13 (user): Finet's ratio dropped (reasons in 05c header). Five features -> four: curvature,
+%   taper, bifurcation angle, daughter asymmetry. Sentences 1, 4, 5 and the table row changed.
 \providecommand{\clarify}[1]{\textcolor{red}{\textbf{Clarification needed:} #1}}
 \section{Geometric Features}
 \label{sec:method-features}
 
-The geometry of the coronary tree was summarised by the five features presented in Table~\ref{tab:method-features}.
+The geometry of the coronary tree was summarised by the four features presented in Table~\ref{tab:method-features}.
 The features were selected on the basis of a prior hypothesis; that bends, branching and narrowing of the arteries disturb flow and lower the WSS (Section~\ref{sec:wss}).
 Each of these properties can be quantified in several ways, so the measure used for each was the one most closely tied to low WSS or plaque found in by the literature review (Section~\ref{sec:lit-wss}).
-Curvature and lumen taper were computed for each of the nine segments defined in Section~\ref{sec:method-split}, whereas the bifurcation angle and the diameter ratios from the left main to the LAD and to the LCx were computed once per participant at the left main bifurcation.
-To avoid diluting an effect expected just downstream of the bifurcation, where the flow is disturbed (Section~\ref{sec:wss}), the latter three entered the model only in the proximal LAD and the proximal LCx (Section~\ref{sec:method-models}).
-All five features were computed on the centerlines and lumen contours produced by the in-house tracer described in Section~\ref{sec:method-tracer}.
+Curvature and lumen taper were computed for each of the nine segments defined in Section~\ref{sec:method-split}, whereas the bifurcation angle and the daughter asymmetry were computed once per participant at the left main bifurcation.
+To avoid diluting an effect expected just downstream of the bifurcation, where the flow is disturbed (Section~\ref{sec:wss}), the latter two entered the model only in the proximal LAD and the proximal LCx (Section~\ref{sec:method-models}).
+All four features were computed on the centerlines and lumen contours produced by the in-house tracer described in Section~\ref{sec:method-tracer}.
 
 \begin{table}[htbp]
   \centering
@@ -114,7 +133,7 @@ All five features were computed on the centerlines and lumen contours produced b
     \midrule
     Curvature (segment average) & each segment & all nine & \ref{sec:method-curvature} \\
     Bifurcation angle & left main bifurcation & proximal LAD and LCx & \ref{sec:method-angle} \\
-    Diameter ratios, LM to LAD and LM to LCx & left main bifurcation & proximal LAD and LCx & \ref{sec:method-ratio} \\
+    Daughter asymmetry & left main bifurcation & proximal LAD and LCx & \ref{sec:method-ratio} \\
     Lumen taper & each segment & all nine & \ref{sec:method-taper} \\
     \bottomrule
   \end{tabular}

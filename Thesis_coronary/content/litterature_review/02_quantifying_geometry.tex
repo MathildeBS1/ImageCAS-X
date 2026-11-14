@@ -96,38 +96,44 @@
 % 2026-11-08 (user; Aida pass over the whole chapter, style_guide_sota_aida.md): inserted clause in the
 % Condensing sentence removed; FPCA frame cited; Sangalli (2009) now before Goldsmith (2011)
 % (chronological, "Subsequently"); closing synthesis cites every study it gathers, double hedge cut.
-\section{Measures of Coronary Curvature}
+% 2026-11-13 (user): retitled after style_guide_sota_aida.md (noun phrase naming the strand).
+% 2026-11-13 (user; plan stateless-questing-crescent): tone pass for warmth; rules unchanged; claims and
+%   citations unchanged. Opener tied to curvature; "The choice of summary matters." as a short bridge;
+%   Li and Tello Ayala findings in sentences of their own; "Subsequently" -> "later"; bridge sentence
+%   before Tello Ayala's profile result (a neural network, not FPCA: "the same idea" = whole profile).
+\section{Quantification of Coronary Curvature}
 \label{sec:lit-measure}
 
 
-Condensing a continuously changing property into a single value is a common challenge in the
-analysis of biological structures, since any summary keeps only some aspects of the profile, such as
-the sharpness or the number of the bends \cite{ramsay2005fda}.
-For curvature in coronary arteries, different summaries have been used and none has been agreed
+Curvature changes continuously along an artery, and condensing such a property into a single value
+is a common challenge, since any summary only keeps specific parts, such as the average, how sharp the bends are or how many
+there are \cite{ramsay2005fda}.
+For coronary tortuosity or curvature, several summaries have been used and none has been agreed on
 \cite{grisan2008tortuosity,kashyap2022tortuosity,li2011tortuosity,telloayala2026tortuosity}.
 
-In clinical studies of the coronary arteries, the choice of curvature summary has even decided the
-direction of the association with CAD.
+In clinical studies of the coronary arteries, the choice of curvature summary has even decided the the direction of the association
+with CAD.
 Li et al.\ (2011) \cite{li2011tortuosity} counted sharp bends on the invasive angiograms of patients
-with chest pain and found that patients with more such bends were less likely to have CAD.
+with chest pain, and patients with more bends were less likely to have CAD.
 In contrast, Tello Ayala et al.\ (2026) \cite{telloayala2026tortuosity} found that right coronary
-arteries with a greater average turning angle were more likely to have CAD, while by the tortuosity
-index the same arteries were slightly less likely to.
+arteries with a greater average turning angle were more likely to have CAD.
+By the tortuosity index, the same arteries were slightly less likely to have CAD.
 
-Outside the coronary arteries, studies have avoided this reduction by analysing the whole profile
-instead of a single value.
+Outside the coronary arteries, researchers have avoided this reduction by analysing the whole
+profile rather than a single value.
 A common method for quantities that change continuously over time or along a structure is
 functional principal component analysis (FPCA) \cite{ramsay2005fda}.
 Sangalli et al.\ (2009) \cite{sangalli2009aneurisk} applied FPCA to the curvature profile of the
-internal carotid artery, and the shape of the profile separated patients by where their aneurysm
-lay.
-Subsequently, Goldsmith et al.\ (2011) \cite{goldsmith2011pfr} used FPCA to analyse a tissue
-property measured along white-matter tracts of the brain, and in most tracts the whole profile
-separated patients with multiple sclerosis from healthy volunteers better than the tract average.
-In the coronary arteries, Tello Ayala et al.\ (2026) \cite{telloayala2026tortuosity} found that a
-neural network reading the whole turning-angle profile identified CAD better than a model using
-only the average turning angle.
+internal carotid artery and found that the shape of the profile separated patients by where their
+aneurysm lay.
+Goldsmith et al.\ (2011) \cite{goldsmith2011pfr} later used FPCA on a tissue property measured
+along white-matter tracts of the brain.
+In most tracts, the whole profile separated patients with multiple sclerosis from healthy volunteers
+better than the tract average did.
+Tello Ayala et al.\ (2026) \cite{telloayala2026tortuosity} found that a neural network reading the
+whole turning-angle profile identified CAD better than a model using only the average turning
+angle.
 
-Together, these studies suggest that the shape of a profile along a structure holds information that
-a single value discards, which may help in understanding the relation between artery geometry and
-disease \cite{sangalli2009aneurisk,goldsmith2011pfr,telloayala2026tortuosity}. 
+Together, these studies suggest that the shape of a profile holds information that a single value
+discards, and that this information may help explain how the geometry of an artery relates to
+disease \cite{sangalli2009aneurisk,goldsmith2011pfr,telloayala2026tortuosity}.

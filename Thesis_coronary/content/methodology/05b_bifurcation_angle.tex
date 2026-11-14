@@ -1,7 +1,7 @@
 % Methods, subsection of sec:method-features: the bifurcation angle only. Which segments it enters
 % (proximal LAD and LCx) and why belong to 05_features.tex, how it enters the model to
 % sec:method-models.
-% Implementation (since 2026-11-10): CGPS_data/thesis_final/bifurcation_angle.py (point_at_depth,
+% Implementation (since 2026-11-10): CGPS_data/thesis_final/bifurcation_angle.py (point_at_depth, artery_direction,
 % angle_between, lm_angle, tree_angle; DEPTHS = 5 to 10 mm in 0.5 mm steps) on the LAD and LCx
 % arteries of split_trunks.split. Replaces who_where_readiness.lm_bifurcation_angle (Medis labels,
 % centroid of points 2 to 8 mm, one bifurcation point per daughter; no published source).
@@ -15,18 +15,20 @@
 %   single point" (word "robust" is theirs, not used here); the angle "slowly decreases as the
 %   measurement is taken further from the bifurcation point". Their values: 78.9 +- 23.1 deg (N = 300),
 %   89 deg with and 75 deg without an intermediate artery.
-% CHECK: how the "linear approximations" were fitted is not stated. The code uses the line from the
-%   bifurcation point to the centerline point at each depth; keep "follows", never "replicates".
-% CHECK: the bifurcation point is the first point shared by the tracer LAD and LCx
-%   (split_trunks.split starts both there when their paths share a node; otherwise the paths start after
+% CHECK: how the "linear approximations" were fitted is not stated. Since 2026-11-11 the code fits a
+%   least-squares line to each artery's eleven points at 5 to 10 mm (artery_direction); keep "follows",
+%   never "replicates".
+% CHECK: the bifurcation point O is where the two paths part: the first point split_trunks.split gives
+%   both arteries (arc length 0), which the text calls "the last centerline point shared" (same point;
+%   checked against bifurcation_angle.py 2026-11-13). (split_trunks.split starts both there when their paths share a node; otherwise the paths start after
 %   a labelled LM, the points differ and the angle is missing). How often this happens in the tracer
 %   trees is unknown until they are run.
 % OPEN: ramus intermedius. The tracer labels only the artery, so a ramus is not separated; the atlas
 %   found the angle 14 deg wider with one. Handling belongs to sec:method-validity-definitions.
 % CAREFUL: progression_who_pooled.py still takes the angle from the old Medis function, so the model
 %   and this text disagree until that script calls tree_angle.
-% Not used: angle A or C, the inflow angle (their own definitions, not in the five features), 2D
-%   projection (EBC: 3D is needed). Not stated in the text (counterfactual rule).
+% Not used: 2D projection (EBC: 3D is needed). Not stated in the text (counterfactual rule). Angles A
+%   and C and the inflow angle are now stated, in sec:method-angle-other (2026-11-11 entry).
 % 2026-11-10 (user: Aida methodology guide over sec:method-angle; no "The feature chosen", no
 %   First/Finally). Facts, cite, label and eq:method-angle unchanged. Changed: opener chains to the
 %   division into segments and names the input (guide 4.1); equation chain with a where sentence naming
@@ -34,27 +36,95 @@
 %   eq:method-angle-mean (9.1); the depth interval as concede-and-defend with its cost named (5); step
 %   markers removed, each step opens with what is measured. Cut: "since the tracer labels only the
 %   artery ..." (a reason about the tracer's design that was not checked against the labels).
+% 2026-11-11 (user, bifurcation_plan.md: the Note asking whether to use two angles, LM to side branch
+%   and LM to distal main vessel, and whether the inflow angle belongs in the model). Decided:
+%   - LAD-LCx only. Cui et al. 2017 (cui2017bifurcation; 106 referred patients, 2D reformats,
+%     cross-sectional) measured all three angles in the same patients; only LAD-LCx was associated with
+%     stenosis. Zhang et al. 2024 (zhang2024curvature; 53 stenosis-free vs 12 stenosed bifurcations):
+%     neither the bifurcation angle (p = 0.74) nor the inflow angle (p = 0.058) differed. Gharleghi et al.
+%     2024 (arXiv preprint, not cited): no angle, inflow included, related to low WSS on its own. The LM is
+%     10.5 +- 5.3 mm long in the atlas, so LM-based angles often lack a 5 to 10 mm stretch and do not
+%     exist without an LM; a second angle costs one more parameter in a block whose effective sample
+%     size is the number of people. Not stated in the text beyond sec:method-angle-other.
+%   - Direction of each artery: a least-squares line through its eleven points at 5 to 10 mm, replacing
+%     the mean of the angles of the lines from O. Synthetic check (bifurcation_angle.py --check): with
+%     lines from O a true 75 deg reads 70.1 / 65.0 / 54.5 / 43.7 deg when O sits 0.5 / 1 / 2 / 3 mm
+%     upstream of the real split; the fitted line stays at 75.0. Costs: 4 to 5 times more sensitive to
+%     point noise, and bends in the stretch enter more (arteries curving apart from 60 deg: fit 88.6,
+%     from O 74.3). Also the closer reading of the atlas ("linear approximations of the centrelines").
+%   - The text writes theta = arccos(u_LAD . u_LCx); the code computes the same angle as
+%     atan2(|u x v|, u . v) (angle_between), which is accurate near 0 and 180 deg. eq:method-angle kept;
+%     eq:method-angle-mean removed (referenced nowhere, grep 2026-11-11).
+%   - New fig:method-angle from figures/bifurcation_angle_figure.py (made-up bifurcation, real code;
+%     theta 86.5 deg, from O 82.1 deg on that shape; redrawn later the same day, see below).
+% CHECK: Zhang's inflow result was read from the arXiv version; confirm in the published paper before
+%   submission. CAREFUL: Cui is 2D, referred and cross-sectional, so "was associated", never "predicts".
+% CHECK: the thesis-style skill named in the plan was not available in this session; the text follows
+%   the shape of 05a instead.
+% 2026-11-11: sec:method-ratio (05c) reuses the bifurcation point O and the 5 to 10 mm interval
+%   (daughter_ratio.DEPTHS), so angle and diameters describe the same stretch; keep the two in step.
+% 2026-11-11 (user: no "The feature chosen", no First/Subsequently for short methods, true to the code
+%   but not every detail, flow between sentences, A++ thesis voice). Body rewritten as connected prose;
+%   facts, labels, cites and the equation unchanged. The reason for measuring away from O now opens the
+%   method ("Close to the bifurcation point O ... depends strongly on exactly where O is placed"), so the
+%   5 to 10 mm stretch and the fitted line follow from it; the earlier "Although ..., the fitted lines do
+%   not pass through O" sentence is folded into that reason. Cut from the text (kept in the code and the
+%   notes above): "eleven points", least-squares mechanics, arccos vs atan2. Caption cut to two sentences.
+%   "Other angles": "trees" -> "bifurcations" (Zhang compared bifurcations).
+% 2026-11-11 (user: smoother opening, straight to "The bifurcation angle between the LAD and LCx was
+%   computed following ..."): opener now names the angle, says 3D on the centerlines, and credits the
+%   atlas with "following" (never "replicating"; how its lines were fitted is not stated, see CHECK).
+% 2026-11-11 (user: the "Close to O ... depends strongly on where O is placed" sentence was unclear;
+%   explain it in an appendix, keep the text to "each artery was represented ..."). Sentence cut; the
+%   method now opens with the representation and one pointer sentence to app:angle-origin
+%   (content/appendix/bifurcation_point.tex: why O is approximate, the tilt table, fit vs from-O table,
+%   the bend cost). The O-placement argument is the thesis's own: Medrano-Gracia et al. give only
+%   "average in the 5-10 mm depth interval where variation is typically small" and "averaging angles in
+%   the 5-10 mm interval ensures a more robust measurement than a single point" (PDF read 2026-11-11),
+%   so no cite on it. CHECK: "placed approximately" / "a millimetre or more" (appendix) is reasoning,
+%   not a measured tracer error; compare O with the Medis bifurcation when both are available.
+% 2026-11-11 (user: "This was done ..." lead-in; include Medrano-Gracia's "Averaging angles in the 5-10
+%   mm interval ensures a more robust measurement than a single point"; reword the "price" sentence).
+%   Their reason is now cited, worded for what the thesis does (a line fitted over the stretch, not an
+%   average of angles): "as Medrano-Gracia et al. noted for their average over the same interval".
+%   "robust" used at the user's request (it was on the banned-word list earlier). "The price of ..."
+%   -> "On the other hand, a bend within the 5 to 10 mm stretch also changes the angle."
+% 2026-11-11 (user: one thesis-standard figure, slick and minimal, holding everything the text says):
+%   figures/bifurcation_angle_figure.py redrawn. A: lumen band and centerline, O, a bracket along the LAD
+%   centerline with ticks at 0, 5, 10 mm (distance is arc length), the points 5 to 10 mm on both
+%   arteries, a dotted box for B, a 5 mm scale bar. B: close-up, fitted lines solid over the stretch and
+%   dashed back towards O, u_LAD and u_LCx, theta. New made-up shape bends beyond 10 mm: theta 88.9 deg
+%   (fit), 87.5 deg from O. Caption rewritten to name what is drawn; panel A/B citations in the text
+%   unchanged.
 \subsection{Bifurcation Angle}
 \label{sec:method-angle}
 
-Note: Research if this is better to have two angles going into the model proximal main vessel and the side branch, and angle the angle between the proximal and distal main vessel. Also research if the inflow angle is important and should be included.
+The bifurcation angle between the LAD and the LCx was measured in 3D on the centerlines, following the method used by Medrano-Gracia et al.\ \cite{medranogracia2016atlas} (Figure~\ref{fig:method-angle}).
 
- 
-The bifurcation point $O$ was taken as the first centerline point shared by the LAD and the LCx, where their arc length starts.
-At the arc length $d$ from $O$, the points $L(d)$ on the LAD and $C(d)$ on the LCx were found, and the angle between the lines from $O$ to these points was computed as
+
+Distances were measured along the centerline from the bifurcation point $O$, the last centerline point shared by the two arteries.
+Along each artery, points were placed every 0.5\,mm between 5 and 10\,mm from $O$ (Figure~\ref{fig:method-angle}A), and a straight line was fitted through them by least squares to give the direction in which the artery leaves the bifurcation.
+Using a stretch of points rather than a single one makes the measurement more robust, as Medrano-Gracia et al.\ noted for their average over the same interval \cite{medranogracia2016atlas}.
+Since the line starts 5\,mm from $O$ and does not pass through it, the angle also hardly depends on the exact position of $O$, which can only be placed approximately (Appendix~\ref{app:angle-origin}).
+With $\mathbf{u}_{\mathrm{LAD}}$ and $\mathbf{u}_{\mathrm{LCx}}$ the unit vectors along the two lines, pointing away from the bifurcation (Figure~\ref{fig:method-angle}B), the angle is
 \begin{equation}
-  \theta(d) = \operatorname{atan2}\!\left( \lVert (L(d) - O) \times (C(d) - O) \rVert ,\; (L(d) - O) \cdot (C(d) - O) \right) ,
+  \theta = \arccos\left( \mathbf{u}_{\mathrm{LAD}} \cdot \mathbf{u}_{\mathrm{LCx}} \right) ,
   \label{eq:method-angle}
 \end{equation}
-where $\times$ and $\cdot$ denote the cross product and the dot product of two vectors, $\lVert \cdot \rVert$ the length of a vector, and $\operatorname{atan2}$ the angle that has this cross-product length and this dot product.
-$\theta(d)$ lies between 0 and 180 degrees, and a wider angle means that the two arteries leave the bifurcation further apart.
+where $\cdot$ denotes the dot product.
+$\theta$ was recorded as missing when the LAD and the LCx share no centerline point or either is shorter than 10\,mm.
 
-The bifurcation angle $\bar\theta$ was the mean over the depths from 5 to 10\,mm in steps of 0.5\,mm:
-\begin{equation}
-  \bar\theta = \frac{1}{11} \sum_{d \in \{5,\,5.5,\,\ldots,\,10\}} \theta(d) ,
-  \label{eq:method-angle-mean}
-\end{equation}
-where the eleven depths are in mm along the arteries from $O$.
-Although the angle depends on the depth at which it is measured, this interval follows Medrano-Gracia et al., who used it because the angle decreases slowly with depth, and averaging over it keeps $\bar\theta$ from resting on one depth.
-The cost is that bends in the first 10\,mm of the arteries enter the angle.
-$\bar\theta$ was recorded as missing for participants whose LAD and LCx share no first point or whose LAD or LCx is shorter than 10\,mm.
+% Figure from figures/bifurcation_angle_figure.py (made-up bifurcation, no patient data, real thesis code).
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{content/methodology/figures/bifurcation_angle_figure.pdf}
+  \caption{Bifurcation angle on a made-up left main bifurcation, computed with the thesis code. (A) The lumen in grey with its centerline; points are placed every 0.5\,mm between 5 and 10\,mm from the bifurcation point $O$, measured along the centerline. (B) Close-up of the dotted region: a line is fitted through each set of points (dashed back towards $O$), and $\theta$ is the angle between their directions $\mathbf{u}_{\mathrm{LAD}}$ and $\mathbf{u}_{\mathrm{LCx}}$.}
+  \label{fig:method-angle}
+\end{figure}
+
+\subsubsection{Other Angles at the Bifurcation}
+\label{sec:method-angle-other}
+
+Three other angles at the left main bifurcation were also considered: the angle between the left main and the LAD, the angle between the left main and the LCx, and the inflow angle, at which the left main enters the plane of its two daughters.
+The first two were not used, as only the LAD--LCx angle was associated with stenosis when all three angles between the vessels were measured in the same patients \cite{cui2017bifurcation}.
+The inflow angle was not used either, as it did not differ between stenosed and stenosis-free bifurcations \cite{zhang2024curvature}.

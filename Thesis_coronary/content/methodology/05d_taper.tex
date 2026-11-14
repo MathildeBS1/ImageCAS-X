@@ -1,29 +1,38 @@
-% NOTES ONLY, to be written. Trimmed 2026-11-07 from thesis/methodology/05d_taper.tex
-% (full draft in git, commit e4eb857). Implementation: tortuosity/taper.py, not yet in
-% CGPS_data/thesis_final/.
+% NOTES ONLY, to be written. Updated 2026-11-13 to the current definition (code:
+% CGPS_data/thesis_final/taper_feature.py, tree_taper / segment_taper; replaces tortuosity/taper.py,
+% which cut ImageCAS-X voxel masks with planes; earlier notes in git, commit e4eb857).
 %
 % The subsection should contain:
 % - Rationale: steady-flow WSS = 4 mu Q / (pi r^3) (malek1999shear); flow falls along the artery
 %   with side branches, and with the pooled exponent 2.39 (taylor2024murray) taper carries only part
-%   of the signal. Evidence for taper is thin (sec:lit-wss), no study links it to later plaque.
-%   [2026-11-07: sec:lit-wss now has the taper paragraphs (johnston2007diameter, johnston2009taper,
-%   bijari2014flare, dodge1992diameter, glagov1987remodeling); point back to them, do not restate.
-%   gijsen2019wss, seiler1992structure and schultz2023ess are in refs.bib and may be cited here.]
-%   Log-radius slope is independent of overall calibre. Expected sign: lower taper -> lower WSS ->
-%   more plaque, but sub-detection wall thickening could give the opposite sign. Open: two-sided
-%   or signed test.
+%   of the signal. Evidence for taper is thin (sec:lit-wss), no study links it to later plaque;
+%   sec:lit-wss has the taper paragraphs (johnston2007diameter, johnston2009taper, bijari2014flare,
+%   dodge1992diameter, glagov1987remodeling): point back to them, do not restate. gijsen2019wss,
+%   seiler1992structure and schultz2023ess are in refs.bib and may be cited. Expected sign: lower
+%   taper -> lower WSS -> more plaque, but sub-detection wall thickening could give the opposite sign.
+%   Open: two-sided or signed test.
 % - Size of the effect: about 0.25 mm diameter per 10 mm in normal arteries (medranogracia2016atlas),
 %   about one voxel over 30 mm, so a robust fit over many cross-sections.
-% - Computation in taper.py: resample every 0.5 mm; tangent from points 2.5 mm before and after;
-%   orthogonal cut on a 12 x 12 mm grid at 0.1 mm, trilinear mask, threshold 0.5; area of the
-%   connected region containing the centerline point; area-equivalent radius r = sqrt(A/pi)
-%   (distance-transform radius kept for sensitivity). Open: how a voxel mask is formed from the
-%   tracer's lumen contours.
-% - Exclusions: first 3 mm, within two median radii of a side-branch junction, centerline point
-%   outside the lumen, region touching the grid edge or another labelled vessel.
-% - T = -10 b, b the Theil-Sen slope of ln r against s: fractional loss of radius per 10 mm.
-%   Missing when remaining samples span < 20 mm or are < 60% of all samples.
-% - Open: taper.py gives one T per artery, sec:method-selection uses taper per segment.
+% - Definition (taper_feature.py): per segment (the nine segments of sec:method-split, decided
+%   2026-11-11). Diameter of each cross-section = area-equivalent diameter D = 2 sqrt(A / pi) of the
+%   tracer lumen contour (same as eq:method-diameter, sec:method-ratio; daughter_ratio.contour_diameter).
+%   tau = -10 b, b the Theil-Sen slope of ln D against arc length s (mm): the fractional loss of
+%   diameter per 10 mm (0.05 = narrows ~5 % per 10 mm; < 0 widens). ln D and ln r have the same slope;
+%   the log makes tau independent of overall calibre (sex, dominance). Theil-Sen so a few widened or
+%   narrowed contours do not move it (least squares printed for comparison in --check).
+% - Exclusions (keep_mask): the first 3 mm of each artery (START_MM), and points within K = 2 median
+%   radii (about one parent diameter) of any side-branch origin (split_trunks.branches on the artery
+%   path), since the lumen steps down at every origin and that step is far larger than normal taper;
+%   for the LAD and LCx the confluence at O is dropped by the same rule. Segment boundaries sit at
+%   branches, so this also trims segment ends.
+% - Missing: under MIN_MM = 10 mm of arc length between the first and last kept point in the segment
+%   (or fewer than 2 kept points). A per-artery fit over >= 20 mm is kept as a sensitivity analysis
+%   (artery_level_taper, as the old taper.py).
+% - Closed: per artery vs per segment (per segment). Dropped from the old notes: 0.5 mm resampling,
+%   tangent from +-2.5 mm, 12 x 12 mm orthogonal grid, voxel mask, distance-transform radius.
+% - Open: the tracer contour format is unknown (daughter_ratio.tracer_rings raises), so taper is
+%   untested on data; progression_who_pooled.py does not call tree_taper yet; the exclusion radii (K)
+%   and the 10 mm minimum are choices to put under sec:method-validity-definitions.
 \subsection{Lumen Taper}
 \label{sec:method-taper}
 

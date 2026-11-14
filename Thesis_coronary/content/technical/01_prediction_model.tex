@@ -1,10 +1,52 @@
-% NOTES ONLY, to be written. The one Technical Background file that describes the prediction model.
+% The one Technical Background file that describes the prediction model.
 % Trimmed 2026-11-07 from thesis/technical_background/01_risk_models.tex, 02_segment_glmm.tex and
 % the reserve 02_segment_glmm_long.tex (full drafts in git, commit e4eb857).
-% NOT YET CONFIRMED: the segment-level cloglog GLMM is expected but will be confirmed the week of
-% 2026-11-09. Write nothing model-specific before then. Added value (C, calibration, Brier, log
-% loss, NRI/IDI, internal validation; was 03_added_value.tex) and sample size (Riley criteria;
-% was 03b_sample_size.tex) are deliberately not written yet either.
+% 2026-11-13 (user: "use the pooled cloglog GLMM evaluation to write the technical section; style of
+%   fpca.tex first half; flow between the lines"). WRITTEN: the GLMM part only (scope chosen with the
+%   user; risk models, recalibration and the general bootstrap are still NOTES below, because the base
+%   choice, recalibrated vs refitted SCORE2, is open). 4 displayed equations (eq:tech-glmm,
+%   eq:tech-lr, eq:tech-agg-conditional, eq:tech-agg-marginal). Source: reports/Pooled cloglog GLMM
+%   evaluation.md, on top of the retired outdated/thesis_retired/technical_background/02_segment_glmm.tex.
+%   Argument changed from the retired draft: the random intercept is justified by valid standard errors
+%   and a joint distribution, NOT by better prediction; "slope 0.79 vs 0.98" dropped (logit, ICC 0.30,
+%   not the size here); cloglog is the grouped-time form of a PH frailty model; log exposure with a
+%   free coefficient and the offset as the special case; variance weakly identified in small binary
+%   clusters; LR test needs the random intercept to capture the dependence; the independence product
+%   overstates the cluster risk. Generic wording on purpose ("unit", "cluster", "exposure"): the
+%   segments, persons, log length and the nine segments are Methodology. Notation: H_i (summed
+%   hazard, not S_i, taken by the shrinkage in 01b_sample_size.tex), q (block size, not k), f(b;
+%   sigma^2) for the normal density (phi is the FPCA eigenfunction).
+%   Not cited on purpose (individual studies, Lit. Review or Discussion): Lingsma 2013, Bouwmeester
+%   2013, Falconieri 2020, TRIPOD-Cluster, the coronary cohort papers, Riley.
+%   2026-11-13 (counterfactual rule): GEE cut from the opener. Removed: "Marginal models such as GEE
+%     estimate the average effect across clusters and correct the SEs without describing the
+%     correlation (liang1986gee)" and "for a new cluster, predictions about as accurate as a marginal
+%     model once b is integrated out (pavlou2015marginal)". The real case for GLMM over GEE is the
+%     joint distribution needed for the cluster risk (sec:tech-aggregation); GEE SEs survive a wrong
+%     working correlation, GLMM SEs and the LR test do not. For the examiner and, if the artery-level
+%     dependence is raised, one line in the Discussion. liang1986gee is now uncited.
+%   CHECK: pavlou2015marginal is cited for "predictions about as accurate as a marginal model once
+%     integrated" (report: opened via a summarising tool, logit simulations); confirm in the PDF.
+%   CHECK: moineddin2007multilevel and austin2010clusters, same (poor variance estimates, small
+%     binary clusters; regimes are 5-100 clusters, not ~1000 clusters of nine).
+%   CHECK: prentice1978grouped, duchateau2008frailty (chapter and page), liu1994gausshermite,
+%     pinheiro1995approximations, joe2008laplace were not read in full; the unread ones are cited for
+%     standard results (grouped PH gives cloglog; shared frailty; adaptive quadrature; Laplace bias).
+%   CHECK: "the test then rejects too often" and "the independence product overstates" are reasoning,
+%     uncited; the report grades them as inference.
+%   Pointed back to (labels): sec:tech-segment-glmm, sec:tech-glmm-likelihood, sec:tech-aggregation,
+%     eq:tech-lr, sec:tech-nested (methodology/03_prediction_model.tex notes).
+% 2026-11-13: added sec:tech-nested (nested random intercepts, eq:tech-nested, eq:tech-nested-icc) for
+%   the three-level sensitivity analysis (person + artery within person; mapping is Methodology).
+%   Notation: subgroup g(j) keeps y_ij/eta_ij; omega^2 (tau is the taper, k the coefficient index).
+%   Boundary LR test cites self1987boundary, stram1994variance [TO VERIFY]. Latent variance pi^2/6
+%   has a \todonote until a source is read. sec:tech-aggregation still assumes one intercept: fine
+%   while the sensitivity analysis reports only variances, LR test and hazard ratios; extend it only
+%   if person risk is computed under the nested model.
+%   CHECK: file spelling is American (summarized, neighboring) against the British rule in CLAUDE.md;
+%   new text follows the file ("unmodelled" is the one British form); sweep later.
+% Added value (C, calibration, Brier, log loss, NRI/IDI, internal validation; was 03_added_value.tex)
+%   is deliberately not written yet.
 % Pointed back to by: content/methodology/03_prediction_model.tex (sec:method-models).
 % Rule: general methods only, present tense; settings, covariates, software and node counts are
 % Methodology.
@@ -31,22 +73,277 @@
 %   1993, An Introduction to the Bootstrap); not yet in refs.bib, add and check before citing.
 %
 % If the cloglog GLMM is confirmed, it should also contain:
+% (Updated 2026-11-11 from reports/Pooled cloglog GLMM evaluation.md. Its verdict: keep the model,
+% change the argument for it. No non-ML alternative was found that is clearly better.)
 % - Clustered binary outcomes (segments within persons); correlated outcomes make naive standard
-%   errors too small; GLMM adds a random person effect (statacorp2025mecloglog).
+%   errors too small; GLMM adds a random person effect (statacorp2025mecloglog). Practice: only
+%   5 of 15 intracoronary imaging studies with several observations per patient handled clustering
+%   (Lingsma 2013 EuroIntervention, NOT IN refs.bib); coronary cohort papers mostly use GEE or
+%   marginal Cox with robust variance, so say why a GLMM rather than GEE (see "why a GLMM" below).
+% - WHY A GLMM (the justification to write; replaces any "predicts better" claim): a random
+%   intercept does NOT predict better for a new person. Integrated predictions tie with GEE and
+%   standard logistic (calibration slopes 0.97-0.98, pavlou2015marginal); b = 0 is worse
+%   (Bouwmeester 2013, NOT IN refs.bib). The model earns its place for two other reasons: (1)
+%   honest standard errors, so a valid LR test of the geometry block; (2) a joint model of the
+%   segments, which is what lets segment risks be combined into a person risk. GEE gives only
+%   marginal segment risks, and the independence product 1 - prod(1 - p) overstates the person
+%   risk under positive within-person correlation.
 % - Cloglog link: proportional hazards over the window give hazard ratios independent of window
-%   length (prentice1978grouped); logit gives odds ratios, close at low risk. Exposure such as
-%   segment length: log length as an offset (coefficient 1) or with a free coefficient.
+%   length (prentice1978grouped); logit gives odds ratios, close at low risk. Say honestly that fit
+%   cannot tell the links apart at segment level; the reason for cloglog is interpretive (hazard
+%   ratios, segment hazards add to a person hazard). The link does matter for the person risk,
+%   which is not small (check the event rate, see below).
+% - Survival reading (use as justification): with two scans each segment has one interval, so an
+%   interval-censored shared-frailty PH model collapses to this GLMM: the two-scan, discrete-time
+%   counterpart of the shared-frailty Cox model that lesion-level studies already accept. Log
+%   follow-up as an offset = constant baseline hazard; free coefficient = Weibull baseline
+%   (standard result, VERIFY in prentice1978grouped before writing). PH cannot be tested with one
+%   follow-up scan; say so.
+% - Exposure such as segment length: log length as an offset (coefficient 1) assumes hazard
+%   proportional to length, with no coronary precedent found. Present the free coefficient as the
+%   default (1 df, interval reported against 1) and the offset as the special case. Curvature and
+%   taper are computed per segment and depend on length, so a wrong offset can leak into the
+%   tested block.
 % - Random intercept: shared frailty multiplying all segment hazards (duchateau2008frailty, page
 %   still to verify), summarised by sigma^2; conditional versus marginal effects
-%   (pavlou2015marginal); median hazard ratio (austin2017mhr).
+%   (pavlou2015marginal); median hazard ratio (austin2017mhr). Weak point to state: sigma^2 is
+%   informed almost only by persons with two or more positive segments, and small binary clusters
+%   bias variance estimates (Moineddin 2007, Austin 2010, NOT IN refs.bib; their regimes are 5-100
+%   clusters, not ~1000 clusters of nine, so the size of the bias here is unknown). Robustness to
+%   a non-normal random effect holds for slopes, not for variance components or the person risk.
 % - Fitting and testing: integration over the random intercept by adaptive Gauss-Hermite quadrature
-%   (liu1994gausshermite); Laplace bias in small binary clusters (joe2008laplace); LR test of a
-%   block of k coefficients against chi^2_k, both models on the same rows and settings.
+%   (liu1994gausshermite); Laplace bias in small binary clusters (joe2008laplace), so Laplace is
+%   never the primary fit; LR test of a block of k coefficients against chi^2_k, both models on
+%   the same rows and settings. The chi^2 reference is asymptotic; a parametric bootstrap of the
+%   LR statistic checks it, but only under the fitted model (it does not protect against
+%   dependence beyond one shared intercept; a person-cluster bootstrap or robust Wald test does).
 % - Segment risk to person risk: given b_i the segment hazards add (S_i), and the person risk
-%   integrates over b; b_i = 0 gives the median person and is miscalibrated (pavlou2015marginal,
-%   slope 0.79 vs 0.98). An effect on one segment is diluted in S_i, so a rejected LR test need not
-%   change the person risk.
-\section{Prediction Model}
+%   integrates over b; b_i = 0 gives the median person and is miscalibrated. Do NOT quote
+%   pavlou2015marginal's "slope 0.79 vs 0.98" as the expected size here: it is a logit result for
+%   individual predictions at ICC 0.30. Use it for the direction only; the size is computed in the
+%   cohort (Methods). The person risk depends on sigma^2 and on the assumed normal shape, which
+%   segment-level fit and the C-statistic cannot see; only person-level calibration can. An effect
+%   on one segment is diluted in S_i, so a rejected LR test need not change the person risk.
+% - Sample size: Riley criteria (riley2019) assume independent observations and are silent on
+%   clustering. Count persons and person-level events, never segment rows (three of the five
+%   geometry features are person-level constants, so segment rows are pseudo-replicates for
+%   them). Shrinkage of the pooled model is estimated by resampling, not asserted from the formula.
+% - TRIPOD-Cluster (Debray 2023, NOT IN refs.bib) explicitly puts clustering within individuals
+%   out of scope; cite it by analogy only: state how clustering was handled, which intercept the
+%   predictions use, and keep every model-building step inside the resampling.
+%
+% Belongs in Methodology 03, not here (recorded so it is not lost; general method only above):
+% - Base model: free coefficient on log length; integrated person risk stated explicitly, b = 0 and
+%   the independence product not used; the b = 0 error computed in the cohort.
+% - Decide which rows carry the three left-main features (now pLAD and pLCx, adjacent rows) before
+%   the test is locked; put a person-level test of those three features beside the block test.
+% - Before locking: tabulate the segment-level event rate and the number of persons with two or
+%   more positive segments (they decide how well sigma^2 is identified). The research notes
+%   assumed rare events; the earlier report gives ~452 of 1,076 persons with new plaque (~42%),
+%   NOT verified against current data.
+% - Prespecified sensitivity analyses, in order of value: (1) person-level cloglog on per-person
+%   geometry summaries (benchmark; tests "who"); (2) working-independence cloglog GEE with a
+%   robust 5-df Wald test plus person-cluster bootstrap; (3) parametric bootstrap of the LR
+%   statistic; (4) gamma-frailty refit (closed-form person risk); (5) fold-wise sigma-hat from
+%   several starts, boundary estimates reported; (6) logit refit and fixed-offset length; (7)
+%   person means of curvature and taper (+2 df, between-within); (8) number of evaluable segments
+%   as covariate, calibration by segment count; (9) observed vs model-implied plaque
+%   co-occurrence in adjacent and non-adjacent segment pairs; (10) vessel-within-person intercept.
+% - Dependence beyond one shared intercept (added 2026-11-11, from talk prep). The single b_i
+%   gives every pair of segments the same latent dependence, but real dependence likely follows
+%   the tree: parent-child along a vessel (proximal -> mid -> distal) and the two left-main
+%   daughters (pLAD-pLCx), which also carry the same left-main feature values. If so, those rows
+%   count as more independent evidence than they are and the LR test is anticonservative. Do NOT
+%   add the vessel intercept (10) to the primary model: it is a second variance, informed only by
+%   persons with >= 2 positives in the same vessel, so it will likely sit at the boundary; keep
+%   it as a sensitivity fit. Check the assumption without spending parameters instead:
+%   (a) Co-occurrence check (9): compare how often a pair of segments is both positive in the
+%       data with how often the fitted model predicts it, separately for parent-child pairs, the
+%       pLAD-pLCx siblings and pairs in different vessels. Uses b: the model-implied joint
+%       probability is P(Y_j = 1, Y_k = 1) = integral of p_j(b) p_k(b) N(b; 0, sigma^2) db, the
+%       segments being independent only given b. If observed and predicted agree, the single
+%       sigma^2 is adequate.
+%   (b) Person-cluster bootstrap or GEE robust Wald test (2): valid for the geometry block
+%       whatever the true dependence (tree-shaped, sibling or other), without modelling it. If
+%       they agree with the LR test, the result holds. The cluster bootstrap resamples whole
+%       persons and refits the GLMM, so it still uses b. The GEE has no b: it is a marginal
+%       (population-averaged) model with working independence and sandwich standard errors, so
+%       its coefficients are on a different (attenuated) scale from the GLMM's conditional ones;
+%       compare the tests (geometry block = 0), not the coefficient sizes.
+% - Optional: a short simulation at the fitted base-model parameters (sigma-hat = 0 rate, type I
+%   error of LR and robust Wald for a 5-df block, person-level calibration under normal and
+%   non-normal frailty). No published simulation covers this data shape.
+% - Rejected alternatives, one line each in the Discussion: penalised (ridge/lasso/Firth) GLMM
+%   (unreliable at small effective n, loses the LR test; Riley 2021), Bayesian GLMM (equal at
+%   best), beta-binomial (cannot hold segment covariates), conditional logistic (drops persons
+%   without events and all person-level features), random slopes and spatial effects (not
+%   estimable with nine rows).
+% - Examiner checklist: GLMM vs GEE; cloglog vs logit; length as exposure and whether fixed;
+%   conditional vs marginal and which prediction is evaluated; the aggregation assumption;
+%   resampling by person including every estimated quantity; quadrature settings; how a sample-size
+%   criterion for independent persons was applied to a model fitted on segment rows.
+% - CHECK BEFORE CITING: every number above was relayed by a summarising tool; check against the
+%   PDFs. Full list of abstract-only and snippet-only sources in the report's last section.
+% 2026-11-13 (user: "only the most important, 2-3 pages; human phrasing after the Aida style guide,
+%   not a math book; easy on the first read; concise"). Rewritten from about 1,500 to about 900 prose
+%   words, 6 to 5 displayed equations, 4 to 3 subsections. Copy before this pass: scratchpad
+%   01_prediction_model_before_short.tex (not in the repo). Claims, cite keys and kept labels unchanged.
+%   - FOLDED (user): sec:tech-nested is now one paragraph inside sec:tech-segment-glmm (label kept on
+%     the paragraph, so a reference gives that subsection's number). eq:tech-nested kept.
+%   - CUT: eq:tech-nested-icc (latent correlations rho_same, rho_different) and its pi^2/6 todonote
+%     (no source read); nothing referenced the label. Restore from git if the Methodology needs ICCs.
+%   - CUT: "the logit odds ratios change with the baseline risk"; the cost of nested quadrature
+%     ("grows with the square of the number of nodes"); the dilution algebra (H_i multiplied by
+%     (1 - w) + wh, w the unit's share), now said in words; "attenuated toward zero" -> "smaller".
+%   - Boundary test reduced to one sentence (self1987boundary, stram1994variance [TO VERIFY]).
+%   - Spelling now British in the prose (generalised, summarised, maximised); heading kept as
+%     "Generalized" until the whole-thesis spelling sweep.
+% 2026-11-13 (second pass, user: "look at how Aida explains mathematical components; not static and
+%   academic; human-written; go through the entire text"). Aida's pattern applied: assumptions in
+%   words first ("Under these assumptions, ..."), then the equation, then the symbols in a "where"
+%   clause after it; no symbol defined before the reader knows why it is needed (the opening "Let
+%   y_ij be 1 if ... and let eta_ij be ..." is gone). Each step of the chain says what it adds ("So
+%   far the units are treated as independent"). NEW: one unnumbered display for the model without
+%   the cluster effect, so eq:tech-glmm reads as one added term. y_ij no longer named in the text;
+%   A_i is defined in words in sec:tech-aggregation. Claims, cites and labels unchanged.
+% 2026-11-13 (third pass, user: "make the technical background more human"): light touch only, the
+%   section was already rewritten for tone twice today. "Its main appeal is the reading of" -> "that
+%   the coefficients are easy to read:"; "fit nearly alike" -> "give nearly the same fit"; "Since"
+%   opener removed; ambiguous "It ranks" -> "This shortcut ranks"; dilution closer reworded.
+% 2026-11-13 (user): first display rewritten so the hazard ratio is visible in it: Lambda_ij (hazard
+%   accumulated over the window) = exp(eta_ij), eta_ij = beta_0 + sum_k beta_k x_ijk (was x^T beta,
+%   with beta_k never defined). Link written out; why window-independence matters added. Later
+%   displays unchanged: exp(eta_ij + b_i) is Lambda with the cluster effect, and H_i in
+%   sec:tech-aggregation is the sum of the Lambda_ij.
+% 2026-11-13 (user: better openings, collapse sections): subsection "The Complementary Log-Log Model"
+%   removed, so the section runs from the clustering problem straight into the model; its label
+%   sec:tech-segment-glmm now sits on the paragraph (nothing outside this file references it).
+%   Openers: "Some units have more room ..." -> "Units also differ in how much opportunity ...";
+%   "So far the units are treated as independent." -> "The model above still treats every unit on
+%   its own. To let the units of a cluster share their risk, ..." (", shared by all units of
+%   cluster i," inserted clause removed). Two subsections remain: Fitting and Testing; From Unit
+%   Risk to Cluster Risk.
+% 2026-11-13 (user, /plan: "The Complementary Log-Log Model more concise, not as deep where not
+%   necessary"): subsection is back in the text and shortened by about a third. CUT: "This matters when
+%   the windows differ in length"; the full median-hazard-ratio definition; "b_i not estimated one by
+%   one" (merged with sigma^2 = 0); "units in the same subgroup share both effects" (follows from
+%   eq:tech-nested); "hazard grows as E^gamma". Claims, cites, equations and labels unchanged.
+% 2026-11-13 (user: "infer aida styleguide over the section"; outdated/thesis_retired/
+%   style_guide_technical_aida.md + style_guide_aida.md): assumptions named before the first display
+%   ("Under the assumptions that ..."); symbols in "where" clauses (sigma^2, omega^2 back there);
+%   "event rate, or hazard" synonym pattern; "A key characteristic of this link"; random effect and
+%   nested effect open on the limitation they address ("While ...", "A single random effect makes
+%   ..."); inserted glosses removed (", the hazard, which", ", an offset,"); participial tail on
+%   exposure; sigma^2 hazard closer split into fact + "therefore". Slightly longer than the concise
+%   pass, still shorter than the original. Claims, cites, equations and labels unchanged.
+% 2026-11-13 (user: "the prediction model cannot be longer than Aida's longest section"): Aida's
+%   longest is 3.2 U-Net + 3.2.1 nnU-Net, about 735 words incl. equation fragments (3.3 + 3.3.1
+%   about 730). Whole section cut from about 1,260 to under 735 on the same basis. Labels, cites
+%   and numbered equations kept. [2026-11-13 later, user: "more academic, keep tone": cloglog opening
+%   reworded; assumption named (proportional hazards); "hazard accumulated" -> "cumulative hazard";
+%   link written as log{-log(1-p)} = eta; "A key property of this link". Claims and cites unchanged.
+%   Then (user: "more human and direct, optimise flow"): plain opener ("either has an event ... or it
+%   does not"); assumption as a colon statement; "Rearranging gives"; "Its main advantage";
+%   exposure introduced by its reason ("Units also differ in how much opportunity ...").
+%   Then (user: "concise, Aida style, no repetition"): "A key characteristic of this link" (Aida 3.3);
+%   HR defined per unit increase; exposure via "commonly referred to as"; gamma's role stated as
+%   hazard ~ E^gamma; example "such as the size of the unit" dropped (inserted gloss, and the chapter
+%   stays generic). No re-mention of cloglog name, PH or window definition.]
+%   CUT: logit comparison (counterfactual rule; one line for the
+%   Discussion: logit gives odds ratios, near-identical fit when events are rare); exposure as
+%   E^gamma; sigma^2 = 0 'no clustering'; 'effects averaged over clusters are smaller'; nested
+%   'informed only by subgroups with > 1 event, can come out as zero'; 'more nodes ... closer';
+%   'same settings, so the difference comes from the block'; 'nodes raised until estimates stop
+%   changing' (a setting, Methodology); nested quadrature sentence; 'integral
+%   stays one-dimensional'; 'only calibration can tell them apart' (folded); dilution closer
+%   shortened to one sentence; eq:tech-nested display made inline (label dropped, nothing cited it;
+%   sec:tech-nested kept). Backup of the pre-cut file: scratchpad 01_prediction_model_before_735.tex.
+\section{Generalized Linear Mixed Model}
 \label{sec:tech-model}
 
-\todonote{To be written once the model is confirmed (week of 2026-11-09): risk prediction models, recalibration of a published score and, if confirmed, the segment-level cloglog GLMM and its pooling into a person risk. See the notes in the source.}
+A generalised linear mixed model (GLMM) is a regression model designed for outcomes observed in clusters, where several units belong to the same cluster.
+Units of one cluster share unmeasured traits, so their outcomes tend to occur together, and ignoring this gives standard errors that are too small.
+A GLMM adds a random effect for each cluster, keeping the standard errors valid and modelling the dependence within a cluster \cite{statacorp2025mecloglog}.
+
+\subsection{The Complementary Log-Log Model}
+\label{sec:tech-segment-glmm}
+Each unit is followed over an observation window, and the outcome is whether it has an event.
+To link this outcome to the covariates, the model assumes proportional hazards: each covariate scales the event rate by a constant factor throughout the window.
+The probability that unit $j$ of cluster $i$ has an event is then given by 
+\[
+  p_{ij} = 1 - \exp\!\left(-\Lambda_{ij}\right),
+  \qquad
+  \Lambda_{ij} = \exp(\eta_{ij}),
+  \qquad
+  \eta_{ij} = \beta_0 + \sum_{k} \beta_k\, x_{ijk},
+\]
+where $\Lambda_{ij}$ is the hazard summed over the whole window, known as the cumulative hazard, and $\beta_k$ is the coefficient of covariate $x_{ijk}$.
+Rearranging shows that the model is linear in the covariates on a transformed scale,
+\[
+  \log\{-\log(1 - p_{ij})\} = \eta_{ij},
+\]
+where the left-hand side is the complementary log-log (cloglog) of the event probability.
+Increasing $x_{ijk}$ by one unit multiplies the hazard by $\exp(\beta_k)$, which is therefore the hazard ratio of covariate $k$.
+The factor applies equally at every moment of the window, so the hazard ratio does not depend on how long the window is \cite{prentice1978grouped}.
+Units may also differ in how much opportunity they have for an event, for example because some units are larger than others.
+This opportunity is called the exposure, $E_{ij}$, and it enters $\eta_{ij}$ as an additional term $\gamma \log E_{ij}$.
+The hazard then grows in proportion to $E_{ij}^{\gamma}$, so that with $\gamma = 1$ doubling the exposure doubles the hazard.
+When $\gamma$ is fixed at 1 instead of being estimated, the term is called an offset.
+
+While this model treats every unit on its own, the units of a cluster share part of their risk.
+The GLMM captures this by adding a random effect $b_i$ to every unit in cluster $i$,
+\begin{equation}
+  p_{ij}(b_i) = 1 - \exp\!\left\{-\exp(\eta_{ij} + b_i)\right\},
+  \qquad
+  b_i \sim \mathcal{N}(0, \sigma^2),
+  \label{eq:tech-glmm}
+\end{equation}
+where $\sigma^2$ is the variance of the cluster effects, often reported as a median hazard ratio \cite{austin2017mhr}.
+Given $b_i$ the units are assumed independent, and $e^{b_i}$ multiplies the hazard of every unit in the cluster by the same factor, known as a shared frailty \cite{duchateau2008frailty}.
+The coefficients are therefore conditional, comparing two units of the same cluster \cite{pavlou2015marginal}.
+Most of the information about $\sigma^2$ comes from clusters with more than one event, so it is estimated poorly when clusters are small and events are few \cite{moineddin2007multilevel, austin2010clusters}.
+
+\label{sec:tech-nested}%
+When the units fall into subgroups that share more than the cluster as a whole, a nested random intercept adds a second effect $c_{ig(j)} \sim \mathcal{N}(0, \omega^2)$ for the subgroup $g(j)$ of unit $j$ next to $b_i$ in Eq.~\eqref{eq:tech-glmm}.
+Setting $\omega^2 = 0$ gives back the single intercept, and $\omega^2$ is even harder to estimate than $\sigma^2$.
+
+\subsection{Fitting and Testing}
+\label{sec:tech-glmm-likelihood}
+
+The cluster effects are not observed, so the likelihood averages over $b_i$, an integral with no closed form.
+Adaptive Gauss--Hermite quadrature approximates it by a weighted sum over a few nodes placed around the most likely value of $b_i$ \cite{liu1994gausshermite, pinheiro1995approximations}.
+With a single node it reduces to the Laplace approximation, which is biased for binary outcomes in small clusters \cite{joe2008laplace, statacorp2025mecloglog}.
+
+To test whether a block of $q$ covariates adds anything, the model is fitted with and without the block on the same rows,
+\begin{equation}
+  \mathrm{LR} = 2\left(\ell_1 - \ell_0\right) \;\overset{H_0}{\sim}\; \chi^2_q ,
+  \label{eq:tech-lr}
+\end{equation}
+where $\ell_1$ and $\ell_0$ are the maximised log-likelihoods.
+The $\chi^2$ reference holds only if the random effects capture the dependence within a cluster, and otherwise the test rejects too often.
+For $\omega^2 = 0$ the p-value of the $\chi^2_1$ test is halved, as a variance cannot be negative \cite{self1987boundary, stram1994variance}.
+
+\subsection{From Unit Risk to Cluster Risk}
+\label{sec:tech-aggregation}
+
+The question of interest can be whether any unit of a cluster has an event, written $A_i = 1$.
+Given $b_i$ the units are independent, and under the cloglog model the product of their probabilities collapses to a single exponential,
+\begin{equation}
+  P(A_i = 0 \mid b_i) = \prod_{j=1}^{n_i} \exp\!\left(-e^{\eta_{ij} + b_i}\right)
+  = \exp\!\left(-e^{b_i} H_i\right),
+  \qquad
+  H_i = \sum_{j=1}^{n_i} e^{\eta_{ij}} ,
+  \label{eq:tech-agg-conditional}
+\end{equation}
+where $n_i$ is the number of units and $H_i$ is their summed hazard.
+For a new cluster $b_i$ is unknown, so the risk is averaged over its distribution,
+\begin{equation}
+  P_i = P(A_i = 1) = 1 - \int \exp\!\left(-e^{b} H_i\right) f(b;\sigma^2)\,\mathrm{d}b ,
+  \label{eq:tech-agg-marginal}
+\end{equation}
+where $f(b;\sigma^2)$ is the normal density with mean 0 and variance $\sigma^2$.
+
+Setting $b_i = 0$ instead gives the risk of the median cluster, which ranks the clusters identically but is miscalibrated \cite{pavlou2015marginal, skrondal2009prediction}.
+Multiplying the unit risks as if the units were independent overstates the cluster risk when outcomes occur together.
+It also depends on $\sigma^2$ and the normal shape of $b_i$, so it is judged by calibration at the cluster level.
+An effect on a single unit is diluted in $H_i$, so a block that is significant in Eq.~\eqref{eq:tech-lr} may barely change the cluster risk.

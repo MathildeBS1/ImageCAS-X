@@ -319,21 +319,27 @@
 %   measure, cut-off) belongs in Methods 07 once the code is in thesis_final/.
 %   CHECK: song2018stability may be about subspace stability of the first K components in ordinary
 %   PCA, not of a single functional component.
+% 2026-11-13 (user: technical background more human): light pass. "Let x_i(t) ... denote" opener
+%   replaced (domain first, then the symbol, as in the GLMM second pass); British spelling
+%   (neighbouring x2, coloured x2 in captions); "Instead, K can be chosen by" -> "A less arbitrary
+%   guide is". Claims, cites, labels and equations unchanged.
+% 2026-11-13 (user: collapse sections): both subsections ("Components and Scores", "Choosing the
+%   Number of Components") removed; FPCA is one section (~900 words, three figures), as Aida's 3.1.
+%   Labels sec:tech-fpca-components and sec:tech-fpca-k kept on their paragraphs (no references
+%   outside this file). Bridge "This leaves the question of how many components to keep." added.
 
 \section{Functional Principal Component Analysis}
 \label{sec:tech-fpca}
 
 Functional principal component analysis (FPCA) is a dimension reduction method designed for functional data, where each observation is a whole function, referred to as a curve.
-A curve is recorded at many positions whose neighboring values are strongly correlated, so entering the values one by one would give a regression model many covariates that largely repeat each other.
+A curve is recorded at many positions whose neighbouring values are strongly correlated, so entering the values one by one would give a regression model many covariates that largely repeat each other.
 FPCA extends principal component analysis from vectors to functions and describes the curves by the few shapes along which they differ most.
 These shapes are the components.
 How strongly a curve shows each of them is given by its scores, which are uncorrelated and can replace the values of the curve as covariates \cite{wang2016fda}.
 
-\subsection{Components and Scores}
-\label{sec:tech-fpca-components}
-
-Let $x_i(t)$, $i = 1, \dots, N$, denote curve $i$ at position $t \in [0, 1]$, where $t = 0$ is the start and $t = 1$ the end of a domain common to all curves.
-The average of the curves at each position is the mean function $\mu(t)$.
+\label{sec:tech-fpca-components}%
+The curves are compared along a domain common to all of them, with the position $t$ running from the start ($t = 0$) to the end ($t = 1$).
+Curve $i$ of the $N$ curves is written $x_i(t)$, and the average of the curves at each position is the mean function $\mu(t)$.
 FPCA finds patterns in how the curves deviate from the mean, so the mean is first subtracted at each position (Figure~\ref{fig:tech-fpca-mean}).
 The deviation that is left shows how much and where a curve lies above or below the average curve \cite{hershjmpfpca}.
 
@@ -344,7 +350,7 @@ The deviation that is left shows how much and where a curve lies above or below 
   \label{fig:tech-fpca-mean}
 \end{figure}
 
-Neighboring positions tend to rise and fall together across curves, and so can positions far apart, for example when a curve lies above the mean along its whole length.
+Neighbouring positions tend to rise and fall together across curves, and so can positions far apart, for example when a curve lies above the mean along its whole length.
 How the deviations at two positions vary together is described by their covariance, and FPCA breaks this covariance down into shapes.
 Formally, the shapes are the eigenfunctions $\phi_k$ of the covariance, and the variance of the curves along each shape is its eigenvalue $\lambda_k$ \cite{wang2016fda}.
 
@@ -355,7 +361,7 @@ Each shape describes only what a pattern looks like, and no two shapes describe 
 \begin{figure}[tbp]
   \centering
   \includegraphics[width=\textwidth]{content/technical/figures/fpca_steps.pdf}
-  \caption{The components found one at a time. Left: the deviations from the mean still unexplained before each step (grey), with $\pm 2\sqrt{\lambda_k}\,\phi_k$ (colored). Right: the same curves after the part along $\phi_k$ is removed from each, with the share of the total variance left in the title. The curves are those of Figure~\ref{fig:tech-fpca-mean}, simulated and not data from any cohort.}
+  \caption{The components found one at a time. Left: the deviations from the mean still unexplained before each step (grey), with $\pm 2\sqrt{\lambda_k}\,\phi_k$ (coloured). Right: the same curves after the part along $\phi_k$ is removed from each, with the share of the total variance left in the title. The curves are those of Figure~\ref{fig:tech-fpca-mean}, simulated and not data from any cohort.}
   \label{fig:tech-fpca-steps}
 \end{figure}
 
@@ -384,19 +390,18 @@ A convention fixes the sign, and components estimated more than once are aligned
 \begin{figure}[tbp]
   \centering
   \includegraphics[width=\textwidth]{content/technical/figures/fpca_modes.pdf}
-  \caption{Modes of variation of the first two components, with the mean (black) and $\mu(t) \pm 2\sqrt{\lambda_k}\,\phi_k(t)$ (colored). Right: the share of the variance per component (bars) and its cumulative sum (line). The curves are simulated and are not data from any cohort.}
+  \caption{Modes of variation of the first two components, with the mean (black) and $\mu(t) \pm 2\sqrt{\lambda_k}\,\phi_k(t)$ (coloured). Right: the share of the variance per component (bars) and its cumulative sum (line). The curves are simulated and are not data from any cohort.}
   \label{fig:tech-fpca-modes}
 \end{figure}
 
-\subsection{Choosing the Number of Components}
-\label{sec:tech-fpca-k}
-
+\label{sec:tech-fpca-k}%
+This leaves the question of how many components to keep.
 The share of the total variance that the first $K$ components explain is referred to as the fraction of variance explained (FVE) (Figure~\ref{fig:tech-fpca-modes}, right).
 Keeping more components describes the curves more closely, but each added component brings its own estimation error.
 The aim is therefore to keep the main shape patterns and leave out the components that mostly describe noise \cite{hershjmpfpca}.
 
 A threshold on the FVE can set this balance, but the threshold itself is an ad hoc choice \cite{wang2016fda}.
-Instead, $K$ can be chosen by how stable the components are when the sample changes \cite{song2018stability}.
+A less arbitrary guide is how stable the components are when the sample changes \cite{song2018stability}.
 FPCA is repeated on many random subsamples of the curves, and for each candidate $K$ the first $K$ shapes are compared between the subsamples.
 Shapes that describe a pattern shared by the curves come back in every subsample, whereas shapes that describe noise change from one subsample to the next.
 $K$ is set to the number of components whose shapes stay most stable \cite{song2018stability}.
