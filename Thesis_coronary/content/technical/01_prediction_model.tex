@@ -45,6 +45,10 @@
 %   if person risk is computed under the nested model.
 %   CHECK: file spelling is American (summarized, neighboring) against the British rule in CLAUDE.md;
 %   new text follows the file ("unmodelled" is the one British form); sweep later.
+% 2026-11-14: sec:tech-segment-glmm shortened for first-read clarity (user). Opener now names the
+%   cloglog as the single-unit model the GLMM is built on; Lambda_ij symbol dropped (unused
+%   downstream, H_i is the aggregation symbol); link equation inline; exposure paragraph halved;
+%   "known as" -> "referred to as". Labels, terms and citations unchanged.
 % Added value (C, calibration, Brier, log loss, NRI/IDI, internal validation; was 03_added_value.tex)
 %   is deliberately not written yet.
 % Pointed back to by: content/methodology/03_prediction_model.tex (sec:method-models).
@@ -258,54 +262,162 @@
 %   stays one-dimensional'; 'only calibration can tell them apart' (folded); dilution closer
 %   shortened to one sentence; eq:tech-nested display made inline (label dropped, nothing cited it;
 %   sec:tech-nested kept). Backup of the pre-cut file: scratchpad 01_prediction_model_before_735.tex.
+% 2026-11-14 (user /plan: "use the 3 simple pdfs to make a new attempt; more concise, remove the
+%   examples, general so it fits a technical section, max one page"). Sources: reports/glm_simple,
+%   reports/cloglog_simple, reports/random_intercept_simple. Rebuilt in their order: GLM -> cloglog
+%   link from the cumulative hazard -> random intercept -> fitting and LR test -> cluster risk.
+%   Backup of the version before: scratchpad 01_prediction_model_before_onepage.tex.
+% 2026-11-14 (user: "rewrite the prediction_model, it can fill 2 pages"). Same order as the one-page
+%   attempt, with its subsections back and the material it cut restored: sec:tech-nested paragraph
+%   (omega^2, boundary test), median hazard ratio, Laplace bias, sigma^2 poorly estimated in small
+%   clusters, b = 0 as the median cluster, independence product, dilution. NEW against the version
+%   before: GLM opener (linear predictor, distribution, link; "the choice of link sets what the
+%   coefficients mean"); hazard defined as the instantaneous rate; Lambda_ij (cumulative hazard) back,
+%   so H_i is the sum of the Lambda_ij; exposure gives Lambda proportional to E^gamma, and for the
+%   window length gamma = 1 is a constant and gamma > 1 a rising hazard (algebra, uncited); "the
+%   cluster risk keeps the cloglog form". Not added (Discussion, not general method): non-proportional
+%   hazards as a weighted average of the hazard ratio (stensrud2020, not in refs.bib), logit vs
+%   cloglog. Why this thesis uses cloglog is Methodology (03_prediction_model.tex), not here.
+%   CHECK items above still apply (prentice1978grouped, duchateau2008frailty, pavlou2015marginal,
+%   moineddin2007multilevel, austin2010clusters, joe2008laplace, self1987boundary,
+%   stram1994variance [TO VERIFY]).
+%   Trimmed to two pages: GLM and cloglog-link displays made inline, product form of
+%   eq:tech-agg-conditional dropped (the sum H_i kept), "b_i not estimated" and the GLM standard-error
+%   sentences merged; cut "the choice of link sets what the coefficients mean", "omega^2 informed only by
+%   subgroups with more than one event" and the independence-product sentence (again). Version before this rewrite (one page): scratchpad 01_prediction_model_onepage.tex.
+% 2026-11-14 (user /plan: "rewrite the opener so it works for a technical section; general; good
+%   citations"). Old first sentence "extends linear regression to outcomes that are not continuous
+%   measurements" was wrong (linear regression is itself a GLM; GLMs also cover continuous non-normal
+%   outcomes). Opener now: linear regression's normal assumption -> GLM keeps the linear predictor,
+%   exponential-family outcome (nelder1972glm) -> link on a generic mean mu_ij -> Bernoulli case,
+%   mean p_ij -> GLMM (breslow1993glmm). CHECK: neither paper opened; details verified on Crossref.
+%   Then (user: "easier to understand, the input was better"): back to the user's input wording;
+%   exponential family and the generic mean mu_ij dropped, link written on p_ij; long second sentence
+%   split (GLM idea, then the linear predictor). Citations kept.
+%   Then (user: "better for a technical section without losing the easy understanding"): noise
+%   stated as normal; linear regression named as the special case; interval (0, 1); "the choice of
+%   link determines how the coefficients are interpreted" (leads into sec:tech-segment-glmm); GLMM
+%   random effects now say what they do (dependence within a cluster).
+%   Then (user: "write a little more on glmm", pasting the 2026-11-13 opener): clusters, shared
+%   unmeasured traits and too-small GLM standard errors moved INTO the opener from the start of the
+%   random-intercept subsection, which now opens on the intercept itself (no repetition).
+%   Cited to breslow1993glmm only; statacorp2025mecloglog from the pasted text not re-added (one
+%   source per point; it stays cited for the Laplace bias).
+%   Then (user: "warmer tone, more understandable"): user's "relates ... normally distributed" kept,
+%   with "around it" added for accuracy; the link motivated first ("a probability must lie between 0
+%   and 1, while the linear predictor can take any value"), then "bridges the two"; long sentences
+%   split; GLM and GLMM now two paragraphs; "solves this by adding".
+%   Then (user edit): "so that linear regression becomes the special case" clause and its cite removed
+%   by the user. GLM sentence now cites the textbook dobson2018glm (user's choice; easier for a reader
+%   to check). nelder1972glm stays in refs.bib, uncited.
+%   Then (user: "is it too soon to write about clusters?"): GLM paragraph uses a single index (eta_i,
+%   x_ik, p_i, unit i); the cluster paragraph switches to unit j in cluster i (x_ijk, eta_ij, p_ij),
+%   which the rest of the section keeps.
+%   Then (user: "cite the Dobson PDF and use her phrasing"): the PDF in the repo root is Dobson 2002,
+%   2nd edition (sole author), not the 2018 4th edition with Barnett, so dobson2018glm was replaced by
+%   dobson2002glm (READ). Phrasing from Section 3.4 ("distributions other than the Normal
+%   distribution", "monotone ... link function", g(mu_i) = x_i^T beta) and Section 7.2 ("although pi
+%   is a probability, the fitted values x^T b may be less than zero or greater than one. To ensure
+%   that pi is restricted to the interval [0,1] ..."). "Whole real line" dropped. Dobson writes
+%   "linear component"; the thesis keeps "linear predictor" (also used by Dobson in later chapters).
+%   Then (user): cluster paragraph in the phrasing of the 2026-11-13 opener ("share unmeasured traits",
+%   "outcomes tend to occur together", "designed for", "keeping the standard errors valid and modelling
+%   the dependence within a cluster"), cited to dobson2002glm Section 11.1 (read: clusters, shared
+%   conditions make outcomes more similar, correlation needed for valid inference and correct standard
+%   errors, "the correlation between observations is due to the random effects"). breslow1993glmm
+%   replaced (stays in refs.bib, uncited). CAREFUL: "too small" changed to "incorrect": Dobson 11.1
+%   shows naive SEs over-estimated in a clustered comparison and too small in the stroke example;
+%   too small holds for covariates constant within a cluster (SCORE2, LM features), not for
+%   within-cluster covariates (curvature, taper vary by segment).
+%   Then (user: "does the flow work between the sections", two changes approved): cluster paragraph
+%   moved from the opener to the start of The Random Intercept, so the opener ends on "the choice of
+%   link ..." and leads straight into the cloglog subsection; opener keeps one GLMM sentence ("extends
+%   the GLM to units observed in clusters"); the moved paragraph now says "The GLMM" (abbreviation
+%   defined once) and adds cumulative hazard Lambda_ij to the two-index list. The cloglog subsection
+%   now uses the single index (Lambda_i, p_i, eta_i, x_ik, E_i), as it describes one unit. Aggregation
+%   opener: "The probability that at least one unit of a cluster has an event". Backup before:
+%   scratchpad 01_prediction_model_before_flow.tex.
+%   Then (user: "shorten the exposure paragraph; don't sound so definitive, there are other links"):
+%   "the link follows from the hazard" -> "one way to derive the link is from the hazard"; proportional
+%   hazards stated as an assumption ("If ... are assumed", "Under this assumption") with "other
+%   assumptions about how the covariates act lead to other links" (uncited; e.g. proportional odds ->
+%   logit, deliberately not named). Exposure paragraph cut from four sentences to two.
+%   Then (user: "have the important equations in the middle of the page"): linear predictor
+%   (eq:tech-lp), link (eq:tech-link) and cloglog link (eq:tech-cloglog) now numbered displays, so
+%   eq:tech-glmm etc. are renumbered (labels unchanged). Backup: scratchpad
+%   01_prediction_model_before_displays.tex.
+%   Then (user: "add all of this to the appendix so the technical background just focuses on the
+%   cloglog"): cloglog vs logit (proportional odds, figure, rare vs common events, additivity) moved to
+%   content/appendix/link_choice.tex (app:link); 4.1.1 keeps only a pointer sentence.
+%   Then (user: "cite exactly"): cloglog paragraph cited by location. Hazard: dobson2002glm Section 10.2;
+%   1 - p = exp(-Lambda): Section 10.2, Eq. 10.4; PH: Section 10.2.2; cloglog form: prentice1978grouped
+%   pp. 58-59, Eqs. 2-5 (now READ); hazard ratio: Dobson Section 10.2.2, Eqs. 10.7-10.9; window
+%   independence: Prentice p. 66. Typo in the hazard definition fixed ("an event happens at a given
+%   moment"). Appendix pointer moved to the end of the paragraph, so "Under this assumption" again
+%   follows the proportional-hazards sentence directly.
 \section{Generalized Linear Mixed Model}
 \label{sec:tech-model}
 
-A generalised linear mixed model (GLMM) is a regression model designed for outcomes observed in clusters, where several units belong to the same cluster.
-Units of one cluster share unmeasured traits, so their outcomes tend to occur together, and ignoring this gives standard errors that are too small.
-A GLMM adds a random effect for each cluster, keeping the standard errors valid and modelling the dependence within a cluster \cite{statacorp2025mecloglog}.
+Linear regression relates an outcome to a weighted sum of covariates and assumes that the outcome is normally distributed around it.
+A generalised linear model (GLM) keeps the weighted sum but allows the outcome to have a distribution other than the normal distribution \cite[Section~3.4]{dobson2002glm}.
+For an outcome that records whether a unit has an event during an observation window, this is a Bernoulli distribution with event probability $p_i$.
+The weighted sum is referred to as the linear predictor,
+\begin{equation}
+  \eta_i = \beta_0 + \sum_{k} \beta_k x_{ik},
+  \label{eq:tech-lp}
+\end{equation}
+where $\beta_k$ denotes the coefficient of covariate $x_{ik}$ for unit $i$.
+$p_i$ is a probability, but the linear predictor is unbounded and can take any value. 
+To constrain $p_i$ to the interval $[0, 1]$, the probability is related to the linear predictor through a monotone function $g$, referred to as the link function \cite[Sections~3.4 and~7.2]{dobson2002glm},
+\begin{equation}
+  g(p_i) = \eta_i .
+  \label{eq:tech-link}
+\end{equation}
+The choice of link function determines the interpretation of the regression coefficients.
 
-\subsection{The Complementary Log-Log Model}
+\subsection{The Complementary Log-Log Link}
 \label{sec:tech-segment-glmm}
-Each unit is followed over an observation window, and the outcome is whether it has an event.
-To link this outcome to the covariates, the model assumes proportional hazards: each covariate scales the event rate by a constant factor throughout the window.
-The probability that unit $j$ of cluster $i$ has an event is then given by 
-\[
-  p_{ij} = 1 - \exp\!\left(-\Lambda_{ij}\right),
-  \qquad
-  \Lambda_{ij} = \exp(\eta_{ij}),
-  \qquad
-  \eta_{ij} = \beta_0 + \sum_{k} \beta_k\, x_{ijk},
-\]
-where $\Lambda_{ij}$ is the hazard summed over the whole window, known as the cumulative hazard, and $\beta_k$ is the coefficient of covariate $x_{ijk}$.
-Rearranging shows that the model is linear in the covariates on a transformed scale,
-\[
-  \log\{-\log(1 - p_{ij})\} = \eta_{ij},
-\]
-where the left-hand side is the complementary log-log (cloglog) of the event probability.
-Increasing $x_{ijk}$ by one unit multiplies the hazard by $\exp(\beta_k)$, which is therefore the hazard ratio of covariate $k$.
-The factor applies equally at every moment of the window, so the hazard ratio does not depend on how long the window is \cite{prentice1978grouped}.
-Units may also differ in how much opportunity they have for an event, for example because some units are larger than others.
-This opportunity is called the exposure, $E_{ij}$, and it enters $\eta_{ij}$ as an additional term $\gamma \log E_{ij}$.
-The hazard then grows in proportion to $E_{ij}^{\gamma}$, so that with $\gamma = 1$ doubling the exposure doubles the hazard.
-When $\gamma$ is fixed at 1 instead of being estimated, the term is called an offset.
 
-While this model treats every unit on its own, the units of a cluster share part of their risk.
-The GLMM captures this by adding a random effect $b_i$ to every unit in cluster $i$,
+The complementary log-log (cloglog) link can be used when an outcome records an event that can happen at any time during the window but is only seen at its end.
+Its derivation starts from the hazard, the rate at which the event occurs at each moment among units that have not yet had it \cite[Section~10.2]{dobson2002glm}.
+Summed over the window, the hazard gives the cumulative hazard $\Lambda_i$.
+The probability that a unit has not had the event by the end of the window is then $1 - p_i = \exp(-\Lambda_i)$ \cite[Section~10.2, Eq.~10.4]{dobson2002glm}.
+In cloglog, the covariates are tied to the hazard by assuming proportional hazards, meaning that each covariate multiplies the hazard by the same factor throughout the window \cite[Section~10.2.2]{dobson2002glm}.
+The cumulative hazard is then $\Lambda_i = \exp(\eta_i)$.
+Inserting this into the probability above gives the link \cite[Section~7.3]{dobson2002glm}, \cite[pp.~58--59, Eqs.~2--5]{prentice1978grouped},
+\begin{equation}
+  \log\{-\log(1 - p_i)\} = \eta_i .
+  \label{eq:tech-cloglog}
+\end{equation}
+The linear predictor is then the log cumulative hazard, and $\exp(\beta_k)$ says how many times higher the hazard is for each one-unit increase in $x_{ik}$, referred to as the hazard ratio \cite[Section~10.2.2, Eqs.~10.7--10.9]{dobson2002glm}.
+As the factor stays the same throughout the window, the hazard ratio does not depend on how long the window is \cite[p.~66]{prentice1978grouped}; Appendix~\ref{app:link} compares the cloglog with the logit link.
+
+Units also differ in how long, or over how large an extent, they are at risk of the event, referred to as their exposure $E_i$.
+It enters $\eta_i$ as $\gamma \log E_i$, so that the cumulative hazard grows in proportion to $E_i^{\gamma}$.
+When $\gamma$ is fixed at 1 instead of estimated, the term is referred to as an offset \cite[Section~9.2, Eq.~9.3]{dobson2002glm}.
+With the length of the window as exposure, $\gamma = 1$ means that the hazard stays constant over time, and $\gamma > 1$ that it rises \cite[Section~10.2.3, Eqs.~10.12--10.13]{dobson2002glm}.
+
+\subsection{The Random Intercept}
+
+When outcomes are observed in units that belong to the same cluster, unit $j$ in cluster $i$ has covariates $x_{ijk}$, linear predictor $\eta_{ij}$, cumulative hazard $\Lambda_{ij}$ and event probability $p_{ij}$.
+Units of one cluster share unmeasured traits, so their outcomes tend to occur together, and ignoring this gives incorrect standard errors \cite[Section~11.1]{dobson2002glm}.
+The GLMM is designed for such outcomes and adds a random effect for each cluster to the linear predictor, modelling the dependence within a cluster and keeping the standard errors valid \cite[Section~11.1]{dobson2002glm}.
+In its simplest form the random effect is an intercept $b_i$ shared by every unit in cluster $i$,
 \begin{equation}
   p_{ij}(b_i) = 1 - \exp\!\left\{-\exp(\eta_{ij} + b_i)\right\},
   \qquad
   b_i \sim \mathcal{N}(0, \sigma^2),
   \label{eq:tech-glmm}
 \end{equation}
-where $\sigma^2$ is the variance of the cluster effects, often reported as a median hazard ratio \cite{austin2017mhr}.
-Given $b_i$ the units are assumed independent, and $e^{b_i}$ multiplies the hazard of every unit in the cluster by the same factor, known as a shared frailty \cite{duchateau2008frailty}.
-The coefficients are therefore conditional, comparing two units of the same cluster \cite{pavlou2015marginal}.
+where $\sigma^2$ is the variance of the cluster effects.
+The $b_i$ are not estimated as parameters; only their variance $\sigma^2$ is, and $\sigma^2 = 0$ returns the GLM.
+Given $b_i$ the units are independent, and $\exp(b_i)$ multiplies the hazard of every unit in the cluster by the same factor, referred to as a shared frailty \cite{duchateau2008frailty}, with $\sigma^2$ often reported as a median hazard ratio \cite{austin2017mhr}.
+The coefficients $\beta_k$ therefore compare units with the same frailty, and their effect averaged over clusters is smaller \cite{pavlou2015marginal}.
 Most of the information about $\sigma^2$ comes from clusters with more than one event, so it is estimated poorly when clusters are small and events are few \cite{moineddin2007multilevel, austin2010clusters}.
 
 \label{sec:tech-nested}%
-When the units fall into subgroups that share more than the cluster as a whole, a nested random intercept adds a second effect $c_{ig(j)} \sim \mathcal{N}(0, \omega^2)$ for the subgroup $g(j)$ of unit $j$ next to $b_i$ in Eq.~\eqref{eq:tech-glmm}.
-Setting $\omega^2 = 0$ gives back the single intercept, and $\omega^2$ is even harder to estimate than $\sigma^2$.
+When some units of a cluster share more than the cluster as a whole, a second random effect $c_{ig(j)} \sim \mathcal{N}(0, \omega^2)$ for the subgroup $g(j)$ of unit $j$ is added next to $b_i$ in Eq.~\eqref{eq:tech-glmm}.
+With $\omega^2 = 0$ the model returns to the single intercept, and $\omega^2$ is even harder to estimate than $\sigma^2$.
 
 \subsection{Fitting and Testing}
 \label{sec:tech-glmm-likelihood}
@@ -326,24 +438,20 @@ For $\omega^2 = 0$ the p-value of the $\chi^2_1$ test is halved, as a variance c
 \subsection{From Unit Risk to Cluster Risk}
 \label{sec:tech-aggregation}
 
-The question of interest can be whether any unit of a cluster has an event, written $A_i = 1$.
-Given $b_i$ the units are independent, and under the cloglog model the product of their probabilities collapses to a single exponential,
+The probability that at least one unit of a cluster has an event, written $A_i = 1$, follows from the units being independent given $b_i$, and under the cloglog link their hazards add,
 \begin{equation}
-  P(A_i = 0 \mid b_i) = \prod_{j=1}^{n_i} \exp\!\left(-e^{\eta_{ij} + b_i}\right)
-  = \exp\!\left(-e^{b_i} H_i\right),
+  P(A_i = 0 \mid b_i) = \exp\!\left(-e^{b_i} H_i\right),
   \qquad
-  H_i = \sum_{j=1}^{n_i} e^{\eta_{ij}} ,
+  H_i = \sum_{j=1}^{n_i} \Lambda_{ij} ,
   \label{eq:tech-agg-conditional}
 \end{equation}
-where $n_i$ is the number of units and $H_i$ is their summed hazard.
+where $H_i$ is the summed hazard of the $n_i$ units, so the cluster risk keeps the cloglog form.
 For a new cluster $b_i$ is unknown, so the risk is averaged over its distribution,
 \begin{equation}
   P_i = P(A_i = 1) = 1 - \int \exp\!\left(-e^{b} H_i\right) f(b;\sigma^2)\,\mathrm{d}b ,
   \label{eq:tech-agg-marginal}
 \end{equation}
-where $f(b;\sigma^2)$ is the normal density with mean 0 and variance $\sigma^2$.
-
+where $f(b;\sigma^2)$ is the density of $b_i$.
 Setting $b_i = 0$ instead gives the risk of the median cluster, which ranks the clusters identically but is miscalibrated \cite{pavlou2015marginal, skrondal2009prediction}.
-Multiplying the unit risks as if the units were independent overstates the cluster risk when outcomes occur together.
-It also depends on $\sigma^2$ and the normal shape of $b_i$, so it is judged by calibration at the cluster level.
+The cluster risk also depends on $\sigma^2$ and on the normal shape of $b_i$, which the fit at the unit level cannot check, so it is judged by calibration at the cluster level.
 An effect on a single unit is diluted in $H_i$, so a block that is significant in Eq.~\eqref{eq:tech-lr} may barely change the cluster risk.
