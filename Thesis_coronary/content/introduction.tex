@@ -12,6 +12,40 @@
 % 2026-10-05: paragraph 4 reordered to match the review (measurement = Sec. 2, timing = Sec. 3);
 % zebicmihic2024index swapped for cui2017bifurcation so every cited study is discussed in the review.
 % No forward references in this chapter (user).
+% 2026-11-14 (user): paragraph 3 names SCORE2 and that it gives the 10-year risk of fatal and non-fatal
+%   CVD (score2_2021, Methods and Supplementary Box 1), so the reader knows it is a 10-year probability
+%   before sec:tech-recalibration.
+% 2026-11-15 (user): paragraphs 5 and 6 rewritten to the current design and the prognostic factor
+%   framing (root CLAUDE.md): association beyond the SCORE2 risk factors, plaque-free baseline,
+%   in-house tracer, four features, one pooled segment-level model, one test, prediction secondary.
+%   Four features, not the five of the root CLAUDE.md: the Methods notes (04_model_size.tex,
+%   05c_daughter_ratio.tex, 2026-11-13) replaced the LM->LAD and LM->LCx ratios by the daughter
+%   asymmetry ln(D_LCx/D_LAD) and dropped Finet's ratio.
+%   Cut: own segmentation pipeline, logistic regression + transformer, per-artery models, "new
+%   plaque", "identify individuals at increased risk" (a risk-model claim).
+%   The words "prognostic factor" are deliberately not used: the term is open (ask supervisor).
+%   The model is not named (cloglog GLMM, LR test); that is left to the Technical Background and
+%   the Methods. CHECK once progression_who_pooled.py is in thesis_final/: the model and test
+%   sentences still match the code.
+%   CHECK: "four features" and "narrowing of their lumen" (taper per artery or per segment is
+%   unresolved in 05d_taper.tex).
+% 2026-11-15 (user): the association is the objective from the start, not a change of plan.
+%   Paragraph 4: the gap is stated as the association beyond the risk factors, not "adds to such a
+%   score" (a risk-model question); "a consequence of the disease rather than its cause" replaced by
+%   "the disease may have altered the geometry that was measured" (no causal wording).
+%   Paragraph 6: the opener "not as a risk model for clinical use and not as a cause of plaque" cut;
+%   the causal limit is now its own sentence with its reason (adjustment only for the risk factors).
+% 2026-11-15 (user): base decided (root CLAUDE.md): the six SCORE2 risk factors as separate
+%   covariates, SCORE2 only as the reason for the set. The chapter is no longer centred on the score.
+%   Paragraph 3: "combining ... into a single score such as SCORE2, which gives the 10-year risk of
+%   fatal and non-fatal cardiovascular disease" replaced by "Risk scores such as SCORE2 are built
+%   from age, sex, smoking, blood pressure and cholesterol"; SCORE2 is now named once, as the source
+%   of the factors. Cut: the 10-year meaning of the score (added 2026-11-14). It is owed to where the
+%   recalibrated score is described as a sensitivity analysis (appendix/score2_recalibration.tex).
+%   Paragraph 5: "and to the risk factors of SCORE2" -> "and to the established risk factors", as in
+%   the aim sentence; the TODO on the open base removed. The sentence does not say how the factors
+%   enter the model, so it holds while progression_who_pooled.py still defaults to log SCORE2.
+%   CHECK: once that code is in thesis_final/ with the six factors as its default.
 
 \chapter{Introduction}
 \label{ch:introduction}
@@ -33,40 +67,38 @@ bifurcation and on the inner wall of a bend \cite{asakura1990flow}.
 Where plaque forms is therefore tied to the geometry of the tree, which, unlike shear, can be
 measured directly from an image.
 
-Coronary geometry varies considerably between individuals \cite{temov2016bifurcation}, so some
+Coronary geometry varies considerably between individuals \cite{temov2016bifurcation}, therefore some
 trees contain more extensive low-shear regions than others.
 Predisposition to plaque may therefore depend not only on systemic risk factors but also on the
 anatomy of the individual's own arteries.
-Standard risk assessment, however, rests on the former, combining age, sex, smoking, blood
-pressure and cholesterol into a single score \cite{score2_2021}.
+Standard risk assessment, however, rests only on the former.
+Risk scores such as SCORE2 are built from age, sex, smoking, blood pressure and cholesterol
+\cite{score2_2021}.
 
-Whether geometry adds to such a score remains unknown.
+Whether geometry is associated with developing plaque beyond these risk factors remains unknown.
 Studies relating geometry to plaque have defined geometry inconsistently, and the definition can
 decide whether a relationship is found \cite{cui2017bifurcation,kashyap2022tortuosity}.
-Most also measured geometry in referred patients whose plaque was already present, so the geometry
-may be a consequence of the disease rather than its cause \cite{han2022plaque}.
+Most also measured geometry in referred patients whose plaque was already present, so the disease
+may have altered the geometry that was quantified \cite{han2022plaque}.
 
-The aim of this thesis is to test whether coronary geometry, measured before any symptoms of heart
-disease, can categorize individuals by their risk of developing plaque.
+The aim of this thesis is to test whether coronary geometry, measured before any plaque is visible,
+is associated with developing plaque beyond the established risk factors.
 Rather than referred patients, this work uses adults selected at random from the population of
 greater Copenhagen by the Copenhagen General Population Study (CGPS) and scanned for research with
 coronary computed tomography angiography (CCTA) \cite{fuchs2023cgps}.
-A longitudinal subset of these individuals was scanned a second time 10 years later.
-The work proceeds in two stages.
-First, an automatic pipeline is developed that segments the coronary tree, assigns each vessel to
-its coronary artery and computes branching angles, branch radius ratios and vessel curvature.
-Second, these features are used to predict which individuals develop new plaque at a second scan.
-Two risk models are compared: a logistic regression on summary features and a transformer that reads
-the full curvature profile along each artery.
-% TODO (author): baseline open until the CGPS variables are checked. If every SCORE2 marker is
-% available the baseline is all of them; otherwise name the subset used.
-Both are judged by how much they improve on a baseline model of conventional risk factors, and both are fitted
-separately for each coronary artery, since shear acts locally.
+A longitudinal subset of these individuals was scanned a second time about 10 years later.
+In these scans, the centerline and the lumen of the three main coronary arteries are extracted with
+an in-house tracer, and four features are computed from them: the curvature of the arteries, the
+narrowing of their lumen along their length, the angle at which the left main artery divides, and
+the difference in diameter between its two daughter arteries.
+A single regression model then relates plaque development in each artery segment to these features
+and to the risk factors, with all segments of an individual analysed together.
+The association is tested once, by comparing this model with the same model without the geometry.
+How much geometry adds to the prediction of who develops plaque is estimated as a secondary result.
 
-Together, these stages establish an automated workflow that measures coronary geometry at population
-scale and tests its link to plaque.
-If geometry does carry risk, the workflow can identify individuals at increased risk from CCTA scans
-that are already acquired.
-If it does not, the result indicates that the localization of plaque within a tree does not translate
-into a difference in risk between individuals, and the workflow remains a tool for research on
-coronary anatomy and CAD.
+An association would indicate that the anatomy of an individual's arteries carries information
+about who develops plaque that the established risk factors do not.
+It would not show that geometry causes plaque, since the analysis adjusts only for these
+factors.
+The absence of an association would suggest that geometry, as it can be measured from CCTA, adds
+little to them, even though the location of plaque within a tree follows the geometry.

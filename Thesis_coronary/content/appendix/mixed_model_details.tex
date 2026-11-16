@@ -1,0 +1,53 @@
+% Appendix to sec:tech-model (content/technical/01_mixed_model.tex): the technical parts of the mixed model.
+% Written 2026-11-15 (user: "keep the most technical part in appendix so we optimise for easy understanding on
+%   the first read through"). The text is MOVED from the technical section as it stood on 2026-11-14, changed only
+%   where a sentence had to be joined to its new neighbours; claims and citations are unchanged:
+%   app:glmm-fitting   from sec:tech-glmm-likelihood (quadrature, Laplace);
+%   app:glmm-variance  from the frailty paragraph (information on sigma^2), the nested random effect (label
+%                      sec:tech-nested moved here) and the halved p-value of sec:tech-glmm-likelihood;
+%   app:glmm-risk      from sec:tech-aggregation (eq:tech-agg-marginal moved here with its label, b = 0 risk,
+%                      dependence on sigma^2 and normality).
+% General method only, present tense; node count, software and the open random-effects structure belong to
+%   Methodology 03 (notes there), the limitation to the Discussion.
+% Sentence added as a join, uncited: "Eq. tech-lr with q = 1" for the test of a variance.
+% 2026-11-16 (user: "make it more concise ... if further details are needed put in the appendix"): MHR formula
+%   (eq:tech-mhr, Austin 2017, full text read) moved here from the frailty paragraph of sec:tech-random-intercept.
+\chapter{Details of the Mixed Model}
+\label{app:glmm}
+
+\section{Fitting by Quadrature}
+\label{app:glmm-fitting}
+
+The cluster effects $b_i$ of Eq.~\eqref{eq:tech-glmm} are not observed, so the likelihood averages over them.
+This average is an integral without a closed form, which adaptive Gauss--Hermite quadrature approximates by a weighted sum over a few values of $b_i$ around its most likely value \cite{liu1994gausshermite, pinheiro1995approximations}.
+With a single value this reduces to the Laplace approximation, which is biased for binary outcomes in small clusters \cite{joe2008laplace, statacorp2025mecloglog}.
+
+\section{The Variance of the Random Intercept}
+\label{app:glmm-variance}
+
+The median hazard ratio of Section~\ref{sec:tech-random-intercept} follows from the variance of the random intercept \cite{austin2017mhr},
+\begin{equation}
+  \mathrm{MHR} = \exp\!\left\{\sqrt{2\sigma^2}\,\Phi^{-1}(0.75)\right\} \approx \exp(0.954\,\sigma),
+  \label{eq:tech-mhr}
+\end{equation}
+where $\Phi^{-1}$ is the quantile function of the standard normal distribution.
+An MHR of 1 means that the clusters do not differ, and the MHR can be compared directly with the hazard ratios of the covariates.
+
+Most information on $\sigma^2$ comes from clusters with more than one event, so it is estimated poorly when clusters are small and events are rare \cite{moineddin2007multilevel, austin2010clusters}.
+
+\label{sec:tech-nested}%
+When some units of a cluster share more than the cluster as a whole, a second random effect $c_{ig(j)} \sim \mathcal{N}(0, \omega^2)$ can be added for the subgroup $g(j)$ of unit $j$, although $\omega^2$ is even harder to estimate than $\sigma^2$.
+For a likelihood ratio test of $\omega^2 = 0$, which is Eq.~\eqref{eq:tech-lr} with $q = 1$, the p-value is halved, as a variance cannot be negative \cite{self1987boundary, stram1994variance}.
+
+\section{The Marginal Cluster Risk}
+\label{app:glmm-risk}
+
+Given $b_i$, the probability that no unit of cluster $i$ has the event is $\exp(-e^{b_i} H_i)$ (Eq.~\eqref{eq:tech-agg-conditional}).
+For a new cluster $b_i$ is unknown, so the risk is averaged over its distribution,
+\begin{equation}
+  P_i = P(A_i = 1) = 1 - \int \exp\!\left(-e^{b} H_i\right) f(b;\sigma^2)\,\mathrm{d}b ,
+  \label{eq:tech-agg-marginal}
+\end{equation}
+where $f(b;\sigma^2)$ is the normal density of $b_i$.
+Setting $b_i = 0$ instead gives the risk of the median cluster, which ranks the clusters identically but is miscalibrated \cite{pavlou2015marginal, skrondal2009prediction}.
+The cluster risk also depends on $\sigma^2$ and on the normal shape of $b_i$, which the fit at the unit level cannot check, so it is judged by calibration at the cluster level.

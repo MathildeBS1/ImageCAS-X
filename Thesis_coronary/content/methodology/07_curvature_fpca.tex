@@ -82,6 +82,31 @@
 % - Per segment a cloglog model with the base and K scores, one row per participant, estimates with
 %   intervals, not tested. Open: the base (1 df, recalibrated SCORE2, in segment_k_budget.py) and
 %   the interval method.
+% - Reconstructed coefficient function beta(t) (added 2026-11-16, user). The cloglog model with the
+%   K scores implies one coefficient function along the segment,
+%     beta_hat(t) = sum_{k=1}^{K} gamma_hat_k phi_hat_k(t),
+%   because sum_k gamma_k xi_ik = integral of (x_i(t) - mu(t)) beta(t) dt. This is functional
+%   principal component regression: the FPCA version of a scalar-on-function model.
+%   Report it per segment as a curve with a band, next to the gamma_k (hazard ratio per SD of each
+%   score). It shows where along the segment higher curvature goes with a higher hazard, on the
+%   same hazard scale as the main model.
+%   Reason (2026-11-16): the components are chosen for variance, not for their relation to plaque,
+%   so a single gamma_k can be hard to read; beta(t) sums them into one location answer.
+%   Function-on-scalar (curvature profile as response, plaque as predictor) was considered and not
+%   chosen: it reverses the direction and leaves the hazard scale of the main model.
+%   Details to state when written:
+%   - Units: if the scores enter standardised (per SD), use gamma_k / SD(xi_k) in the sum. beta(t)
+%     is then a log hazard ratio per mm^-1 of curvature per unit of normalised position; the
+%     integral is computed with the rectangle rule (w = 1/G), as the scores are.
+%   - Sign: a sign flip of phi_k flips xi_k and gamma_k together, so beta(t) does not depend on the
+%     sign convention.
+%   - beta(t) lies in the span of the first K eigenfunctions, so it is as smooth as the components
+%     and cannot show a shape the kept components miss.
+%   - Band: bootstrap over participants (refit FPCA and cloglog in each sample, or keep the
+%     eigenfunctions fixed; choose and state which), pointwise percentile band plus a simultaneous
+%     band, since 50 grid points invite reading local significance. Descriptive, not tested.
+%   CHECK: a source for functional principal component regression (wang2016fda may cover functional
+%   linear models; verify the section before citing).
 \section{Secondary Analysis of Curvature Shape}
 \label{sec:method-fpca}
 

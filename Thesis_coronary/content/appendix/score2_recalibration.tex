@@ -1,0 +1,55 @@
+% Appendix to sec:method-recalibration (content/methodology/03_prediction_model.tex; moved there from the technical section 2026-11-14): SCORE2's own
+%   recalibration as a worked example, and the same formula with a new outcome.
+% Written 2026-11-14 (user: "put additional information in appendix like an example of how score2
+%   recalibrate itself, as we recalibrate"), from score2_loglog_explainer.tex (study note).
+% Source: score2_2021, SCORE2 Updated Supplementary Material (project root, .docx, read 2026-11-14):
+%   Box 1 (Fine and Gray models, stratified by cohort); Box 6 (expected vs predicted risk across age
+%   groups, intercept and slope of the regression line as recalibration factors); Supplementary Methods
+%   Table 2 (baseline survival 0.9605 men, 0.9776 women; centring: age 60, SBP 120, TC 6, HDL 1.3);
+%   Table 3 (scale1, scale2 per region and sex); Table 4 (worked example, all numbers below).
+% Recomputed in Python 2026-11-14: 1 - 0.9605^exp(0.3221) = 0.0541; ln(-ln(1 - 0.0541)) = -2.889;
+%   log(-log 0.9605) + 0.3221 = -2.889; -0.5699 + 0.7476 x (-2.889) = -2.730; exp = 0.0652;
+%   1 - exp(-0.0652) = 0.0631 (supplement: 0.0631).
+% CAREFUL: the low-risk region is SCORE2's group for Denmark; no CGPS estimate (alpha, gamma) here,
+%   those belong to Results.
+\chapter{Recalibration of SCORE2}
+\label{app:score2-recal}
+
+SCORE2 estimates the 10-year risk of fatal and non-fatal cardiovascular disease from age, smoking, systolic blood pressure, and total and HDL cholesterol, together with the interaction of each factor with age \cite{score2_2021}.
+Its coefficients were estimated with sex-specific Fine and Gray models, so its hazard is a subdistribution hazard that accounts for death from other causes, not the hazard of a model without competing events, and its risk is recalibrated to each European region on the cloglog scale \cite[Supplementary Methods, Box~1 and Box~6]{score2_2021}.
+This appendix follows the worked example of the SCORE2 supplement, a 50-year-old man who smokes, with a systolic blood pressure of 140\,mmHg, a total cholesterol of 6.3\,mmol/L and an HDL cholesterol of 1.4\,mmol/L, living in the low-risk region \cite[Supplementary Methods, Table~4]{score2_2021}.
+
+The centred risk factors and their coefficients sum to a linear predictor of $\mathrm{LP} = 0.3221$.
+With the baseline 10-year survival of men, $S_0 = 0.9605$, the uncalibrated risk is
+\begin{equation*}
+  r = 1 - S_0^{\exp(\mathrm{LP})} = 1 - 0.9605^{\exp(0.3221)} = 0.0541 .
+\end{equation*}
+Taken to the cloglog scale, this risk is $\log\{-\log(1 - 0.0541)\} = -2.889$, which equals $\log(-\log 0.9605) + 0.3221$, the constant of the baseline survival plus the linear predictor.
+The regional recalibration then applies an intercept and a slope on this scale and returns the result to a risk,
+\begin{equation*}
+  \text{calibrated risk} = 1 - \exp\Bigl[-\exp\bigl(\mathrm{scale}_1 + \mathrm{scale}_2 \log\{-\log(1 - r)\}\bigr)\Bigr],
+\end{equation*}
+with $\mathrm{scale}_1 = -0.5699$ and $\mathrm{scale}_2 = 0.7476$ for men in the low-risk region \cite[Supplementary Methods, Table~3]{score2_2021}.
+Table~\ref{tab:app-score2-recal} follows the calculation step by step: the logarithm is taken twice to reach the cloglog scale, the straight line is applied there, and the exponential function is applied twice to return to a risk of 6.3\%.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Recalibration of the SCORE2 risk for the worked example of the SCORE2 supplement \cite[Supplementary Methods, Table~4]{score2_2021}: a 50-year-old male smoker in the low-risk region.}
+  \label{tab:app-score2-recal}
+  \begin{tabular}{lll}
+    \toprule
+    Step & Calculation & Value \\
+    \midrule
+    Linear predictor & sum of the centred terms & $0.3221$ \\
+    Uncalibrated risk & $1 - 0.9605^{\exp(0.3221)}$ & $0.0541$ \\
+    Cloglog scale & $\log\{-\log(1 - 0.0541)\}$ & $-2.889$ \\
+    Intercept and slope & $-0.5699 + 0.7476 \times (-2.889)$ & $-2.730$ \\
+    Cumulative hazard & $\exp(-2.730)$ & $0.0652$ \\
+    Calibrated risk & $1 - \exp(-0.0652)$ & $0.0631$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Recalibrating SCORE2 to another outcome follows the same steps, with the intercept $\alpha$ and slope $\delta$ of Eq.~\eqref{eq:method-recal} estimated for the new outcome in place of $\mathrm{scale}_1$ and $\mathrm{scale}_2$.
+The slope $\mathrm{scale}_2 = 0.7476$ of the example shows how such a slope reads: a man in the low-risk region whose uncalibrated SCORE2 hazard is twice that of another has a calibrated hazard $2^{0.7476} = 1.68$ times as high, so the recalibration narrows the differences between persons while keeping their order.
+In the same way, a slope $\delta$ below 1 for a new outcome means that the score separates persons more than their risk of the new outcome differs.

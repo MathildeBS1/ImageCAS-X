@@ -45,4 +45,12 @@
 %   therefore mixes the opening of the bifurcation with the early curvature of the arteries. Cardiac
 %   phase also matters: the left main angle varies by about 11 deg between systole and diastole
 %   (Girasis et al. 2010, SYNTAX substudy, 3D QCA; CITATION WANTED, not in refs.bib, full text not read).
+% - Random slopes (added 2026-11-14 as prose, user: "add that sentence to the discussion"; from the rejected
+%   alternatives in the notes of technical/01_mixed_model.tex, renamed 2026-11-15): uncited reasoning. Three of the five features
+%   (LM angle, LM->LAD and LM->LCx ratios) and SCORE2 are constant within a participant, so a random slope for them
+%   is not separable from the random intercept; curvature and taper vary by segment, but nine binary outcomes per
+%   participant do not identify a slope variance. Check that the final model in thesis_final/ still has one random
+%   intercept and no slopes before submission.
+Random slopes were not considered, as three of the five features are constant within a participant and nine binary segment outcomes per participant do not identify a slope variance.
+
 \section{Future work}

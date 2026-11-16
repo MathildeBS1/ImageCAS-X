@@ -28,3 +28,6 @@
 \newif\ifdraftnotes
 \draftnotestrue
 \newcommand{\todonote}[1]{\ifdraftnotes\textcolor{orange}{[TODO: #1]}\fi}
+% Red note for an open question in the text. Defined here so it works in every chapter; the
+% \providecommand copies in the section files are then skipped.
+\newcommand{\clarify}[1]{\textcolor{red}{\textbf{Clarification needed:} #1}}

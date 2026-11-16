@@ -1,0 +1,392 @@
+% Study note (not thesis text): the easy parts behind Section 4.1 (Generalised Linear Mixed Model),
+% Thesis_coronary/content/technical/01_mixed_model.tex.
+% Written 2026-11-16 on request ("for the easy stuff place it into a .tex for my understanding"), after
+% the review that cut the elementary explanations from the thesis section.
+% Sources: Dobson and Barnett, An Introduction to Generalized Linear Models (PDF in the repository
+%   root; Sections 3.4, 5.7, 7.2, 7.3, 9.2, 10.2, 11.1, 11.5, 11.7) and Austin et al. 2017 (PMC5299617,
+%   Section 2.2). Everything in a "My reasoning" box is algebra or interpretation that these two
+%   sources do not state; do not cite it to them.
+% All numbers are made up for illustration and were computed by hand on 2026-11-16.
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage[hidelinks]{hyperref}
+\usepackage{parskip}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\newtcolorbox{thesisline}{colback=blue!4,colframe=blue!40!black,boxrule=0.4pt,left=4pt,right=4pt,top=3pt,bottom=3pt,title={Thesis sentence this explains},fonttitle=\small\bfseries}
+\newtcolorbox{mine}{colback=orange!6,colframe=orange!60!black,boxrule=0.4pt,left=4pt,right=4pt,top=3pt,bottom=3pt,title={My reasoning (not in Dobson or Austin)},fonttitle=\small\bfseries}
+
+\title{The mixed model of Section 4.1, the easy way\\[2pt]\large What each sentence means, with numbers}
+\author{Study note, 16 November 2026}
+\date{}
+
+\begin{document}
+\maketitle
+
+This note follows the thesis section in order. Each part starts with the thesis sentence and then
+explains it slowly. All numbers are invented.
+
+In the thesis, a \emph{unit} is a coronary segment and a \emph{cluster} is a person. The technical
+background says unit and cluster on purpose, since it describes the general method.
+
+\section{Why a link is needed, and $g$ versus $g^{-1}$}
+
+\begin{thesisline}
+The two are therefore connected by a monotone link function $g$, whose inverse maps the linear
+predictor to a risk: $p_i = g^{-1}(\eta_i)$.
+\end{thesisline}
+
+The linear predictor $\eta$ is a sum, so it can be any number. The risk $p$ must lie between 0 and 1.
+The link is the translator between the two scales.
+
+\begin{itemize}
+  \item $g$ goes \textbf{up}: from the risk to the unbounded scale, $\eta = g(p)$.
+  \item $g^{-1}$ goes \textbf{down}: from the linear predictor back to a risk, $p = g^{-1}(\eta)$.
+\end{itemize}
+
+The old sentence said that $g$ transforms the predictor into a number between 0 and 1. That is the
+job of $g^{-1}$, and the equation printed $g^{-1}$, so text and equation disagreed. Monotone means
+that a higher $\eta$ always gives a higher $p$, so the order of the units is kept.
+
+\section{The hazard in three steps}
+
+\begin{thesisline}
+The link arises when the event is described through its hazard, which is the rate at which the event
+occurs among the units that are still event-free. Summed over the window, the hazard gives the
+cumulative hazard $\Lambda_i$, and the probability of no event by the end of the window is
+$\exp(-\Lambda_i)$.
+\end{thesisline}
+
+\textbf{Step 1, the hazard.} Take segments without plaque. If 1\% of those still plaque-free develop
+plaque each year, the hazard is 0.01 per year. It is a rate among those who have not yet had the
+event.
+
+\textbf{Step 2, the cumulative hazard.} Add the hazard up over the window. With 0.01 per year for
+10 years, $\Lambda = 0.10$.
+
+\textbf{Step 3, the probability of no event.} Staying event-free for 10 years means staying
+event-free every single year, so the yearly probabilities multiply. A product of many small steps
+turns into an exponential of the sum:
+\[
+  P(\text{no event}) = \exp(-\Lambda) = \exp(-0.10) = 0.905,
+  \qquad
+  p = 1 - 0.905 = 0.095 .
+\]
+The risk (0.095) is a little below the cumulative hazard (0.10). When events are rare the two are
+close, which is why a cumulative hazard can loosely be read as a risk.
+
+\section{Proportional hazards, and why the link does not ``assume'' it}
+
+\begin{thesisline}
+Under proportional hazards, a covariate multiplies the hazard by the same factor throughout the
+window. The linear predictor is then the logarithm of the cumulative hazard, in which the intercept
+holds the cumulative hazard of a unit whose covariates are all zero.
+\end{thesisline}
+
+Proportional hazards says: if a covariate raises the hazard by 50\%, it does so in year 1, in year 5
+and in year 10 alike. Then the whole cumulative hazard is also 50\% higher:
+\[
+  \Lambda_i = \Lambda_0 \times \exp(\beta_1 x_{i1} + \beta_2 x_{i2} + \dots) .
+\]
+$\Lambda_0$ is the cumulative hazard of a unit with all covariates at zero, the baseline. Take the
+logarithm:
+\[
+  \log \Lambda_i = \underbrace{\log \Lambda_0}_{\beta_0} + \beta_1 x_{i1} + \beta_2 x_{i2} + \dots = \eta_i .
+\]
+So the intercept $\beta_0$ \emph{is} the log baseline cumulative hazard. This was the unstated step
+in the old text. Insert $\Lambda_i = \exp(\eta_i)$ into Step 3 and the cloglog risk appears:
+\[
+  p_i = 1 - \exp\{-\exp(\eta_i)\} .
+\]
+
+\begin{mine}
+Why the old sentence ``the cloglog link assumes proportional hazards'' was not accurate: a link is
+only a function. One can fit a cloglog model to any yes/no outcome and it will run. Proportional
+hazards is the condition under which the coefficients may be \emph{read} as log hazard ratios.
+Dobson introduces the cloglog link in Section 7.3 from a different story altogether (a dose-response
+model), with no hazards in it. The route from grouped proportional hazards to the cloglog risk is
+Prentice and Gloeckler 1978, which still needs to be opened (CHECK in the header).
+
+With one follow-up scan, proportional hazards cannot be tested. That belongs in the Discussion.
+\end{mine}
+
+\section{The hazard ratio and its unit}
+
+\begin{thesisline}
+An increase of one in $x_{ik}$ with the other covariates held fixed multiplies the hazard by
+$\exp(\beta_k)$, referred to as the hazard ratio. Since the other covariates are held fixed, the
+hazard ratio is adjusted for them. A hazard ratio refers to one unit of its covariate and is read
+together with that unit.
+\end{thesisline}
+
+If $\beta_k = 0.405$, then $\exp(0.405) = 1.5$: one step up in the covariate gives 1.5 times the
+hazard. What ``one step'' is depends on how the covariate is scaled:
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+Covariate scaled as & One step is & Hazard ratio 1.5 means \\
+\midrule
+per year of age & 1 year & 50\% higher hazard per year older \\
+per mm & 1 mm & 50\% higher hazard per mm \\
+per SD & 1 standard deviation & 50\% higher hazard per SD \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The same association gives very different numbers on different scales, so a hazard ratio without
+its unit says nothing. The thesis reports the geometry hazard ratios per SD.
+
+\textbf{Hazard ratio is not risk ratio.} With the numbers of Section 2: the hazard ratio 1.5 moves
+$\Lambda$ from 0.10 to 0.15, and the risk from 0.095 to $1 - \exp(-0.15) = 0.139$. The risk ratio is
+$0.139 / 0.095 = 1.46$, a little below 1.5.
+
+\textbf{Adjusted.} ``Held fixed'' and ``adjusted'' are the same thing said twice: the comparison is
+between two units that are alike in every other covariate of the model. The old text said it in two
+subsections; now it is said once.
+
+\begin{mine}
+Why the sentence ``an adjusted hazard ratio different from 1 indicates an association'' was cut: an
+\emph{estimated} hazard ratio is never exactly 1. 1.02 is ``different from 1'' and means nothing.
+Whether there is an association is judged by the test and the confidence interval, not by the
+estimate being unequal to 1. Adjusted for the six risk factors also does not mean adjusted for
+everything, so it is an association and not a cause (root \texttt{CLAUDE.md}, prognostic factor
+framing).
+\end{mine}
+
+\section{Exposure: offset or estimated $\gamma$}
+
+\begin{thesisline}
+The exposure enters the linear predictor as $\gamma \log E_i$, so it multiplies the cumulative
+hazard by $E_i^{\gamma}$. When $\gamma$ is fixed at 1, the cumulative hazard is proportional to the
+exposure and the term is referred to as an offset.
+\end{thesisline}
+
+Exposure is how much opportunity a unit has for the event: a longer follow-up, or a longer segment.
+Since $\exp(\gamma \log E) = E^{\gamma}$, the term multiplies the cumulative hazard by $E^\gamma$.
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+$\gamma$ & Doubling $E$ multiplies $\Lambda$ by & Reading \\
+\midrule
+1 (offset) & $2^1 = 2$ & twice the length, twice the hazard \\
+0.5 (estimated) & $2^{0.5} = 1.41$ & hazard grows slower than the exposure \\
+0 & $2^0 = 1$ & exposure does not matter \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+An offset is a belief built into the model (hazard exactly proportional to exposure). Estimating
+$\gamma$ lets the data decide, at the price of one parameter. Dobson defines the offset for Poisson
+regression (Section 9.2), where the same $\log$ term appears; the estimated $\gamma$ is not in
+Dobson.
+
+\section{Why ``mixed'': fixed and random effects}
+
+\begin{thesisline}
+The coefficients $\beta_k$ are the same for all clusters and are referred to as fixed effects, while
+$b_i$ differs between clusters, and a model with both is a mixed model.
+\end{thesisline}
+
+Nine segments of one person share that person's genes, diet and everything else that is not
+measured. Their outcomes are therefore alike, and a model that treats 9 segments from 1,000 people
+as 9,000 independent observations believes it has more information than it has.
+
+\begin{itemize}
+  \item \textbf{Fixed effects} $\beta_k$: one number each, the same for everybody (the effect of age,
+        of curvature, \dots).
+  \item \textbf{Random effect} $b_i$: one number per person, shifting all nine of that person's
+        segments up or down together. The model does not report 1,000 separate $b_i$; it summarises
+        them by their spread $\sigma^2$.
+  \item \textbf{Mixed} = both kinds in one model. These are Dobson's words (Section 11.5).
+\end{itemize}
+
+\textbf{The index change.} Before Eq.~4.4, $i$ is a unit. From Eq.~4.4 on, $i$ is the cluster
+(person) and $j$ the unit (segment) inside it, so $p_{ij}$ is the risk of segment $j$ in person $i$.
+The thesis now says this in one sentence.
+
+\textbf{What was weakened.} The old text said that ignoring clustering makes standard errors too
+small between clusters and too large within. Dobson only shows that in one table as an example and
+states no general rule, so the thesis now says what Section 11.1 does state: inference from such a
+model is not valid.
+
+\section{Frailty and the median hazard ratio}
+
+\begin{thesisline}
+Adding $b_i$ to the linear predictor multiplies the hazard of every unit in cluster $i$ by
+$\exp(b_i)$, referred to as the frailty of the cluster. The MHR is the median ratio between the
+hazards of two units with the same covariates from two randomly chosen clusters, with the higher
+hazard divided by the lower.
+\end{thesisline}
+
+\textbf{Frailty.} $b_i = 0.4$ gives a frailty of $\exp(0.4) = 1.49$: every segment of this person
+has about 1.5 times the hazard its covariates predict. $b_i = -0.4$ gives $0.67$. A frailty of 1 is
+the typical person.
+
+\textbf{The MHR, slowly.} $\sigma^2$ is hard to read, so it is translated to the hazard-ratio scale.
+Pick two people at random. Take one segment from each, with identical covariates. Divide the higher
+hazard by the lower. Do this for all possible pairs and take the median:
+\[
+  \mathrm{MHR} = \exp\!\left\{\sqrt{2\sigma^2}\;\Phi^{-1}(0.75)\right\} \approx \exp(0.954\,\sigma) .
+\]
+
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+$\sigma$ & MHR \\
+\midrule
+0 & 1.00 (people do not differ beyond their covariates) \\
+0.5 & 1.61 \\
+0.73 & 2.00 \\
+1.0 & 2.60 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+``Median'' is why the thesis no longer says ``typically twice the hazard''. An MHR of 2 says: in
+half of the pairs the two hazards differ by a factor of 2 or more, in the other half by less. The
+MHR sits on the same scale as the covariate hazard ratios, so the two can be compared: an MHR of 2
+next to a curvature hazard ratio of 1.2 per SD says that unmeasured differences between people
+matter more than one SD of curvature. Austin's formula is for a Cox model with log-normal frailty;
+the thesis model is a cloglog GLMM with the same normal $b_i$.
+
+\section{Conditional hazard ratios}
+
+\begin{thesisline}
+The hazard ratio $\exp(\beta_k)$ is conditional on $b_i$, so it compares units with the same
+frailty. For a covariate that varies between the units of a cluster, this is a comparison within a
+cluster. For a covariate that is the same for all units of a cluster, it is a comparison between two
+clusters with the same frailty.
+\end{thesisline}
+
+\begin{mine}
+In the thesis this splits the covariates in two groups.
+\begin{itemize}
+  \item \textbf{Geometry} (curvature, taper per segment) varies within a person. Its hazard ratio
+        can be read as: two segments of the same person, one SD apart in curvature.
+  \item \textbf{The six risk factors} (and the LM angle and diameter ratios, if they are one value
+        per person) are the same for all nine segments. Nobody has two ages. Their hazard ratio
+        compares two people who are equally frail, which is a comparison nobody can observe
+        directly.
+\end{itemize}
+A hazard ratio averaged over all people (a marginal one) is in general closer to 1 than the
+conditional one, and more so the larger $\sigma^2$ is. The thesis has no opened source for this, so
+the claim is not in the text. It is a point for the Discussion, with a source.
+
+Root \texttt{CLAUDE.md} also notes that $\beta$ mixes between-person and within-person information
+for the segment-level features. The clean ``within a person'' reading above is the reading of the
+model, not a guarantee about where the information came from.
+\end{mine}
+
+\section{The likelihood ratio test, step by step}
+
+\begin{thesisline}
+The parameters of the GLMM are estimated by maximum likelihood. The random intercepts are not
+observed, so the likelihood is averaged over their distribution. The model is fitted with and
+without the set on the same units, and the two fits are compared through
+$\mathrm{LR} = 2(\ell_1 - \ell_0)$.
+\end{thesisline}
+
+\textbf{Likelihood.} For given parameter values, how probable were the outcomes that were actually
+seen? Maximum likelihood picks the parameters that make them most probable. $\ell$ is the logarithm
+of that maximum. Since $b_i$ is unknown for every person, the program tries a handful of values of
+$b_i$ and takes a weighted average (quadrature, in the appendix).
+
+\textbf{The test.} Fit the model twice on exactly the same segments:
+\begin{itemize}
+  \item without geometry: $\ell_0 = -1250.0$
+  \item with the 4 geometry covariates: $\ell_1 = -1243.0$
+\end{itemize}
+More covariates never fit worse, so $\ell_1 \geq \ell_0$ always. The question is whether the gain is
+larger than chance would give.
+\[
+  \mathrm{LR} = 2 \times (-1243.0 - (-1250.0)) = 14.0, \qquad q = 4 .
+\]
+If geometry added nothing, LR would behave like a $\chi^2$ variable with 4 degrees of freedom, which
+exceeds 9.49 only 5\% of the time. Here $14.0 > 9.49$, and $p = 0.007$. One test, for the whole set
+at once: this is the main result of the thesis.
+
+\textbf{Careful with $q$.} In Dobson Section 5.7, $q$ is the number of parameters of the smaller
+model and the degrees of freedom are $p - q$. In the thesis $q$ is the number of added covariates.
+
+\textbf{The caveat sentence.} ``This reference distribution assumes that the random effects capture
+the dependence within clusters'': if segments of one artery are more alike than segments of
+different arteries in the same person, the single person intercept does not capture all dependence,
+and the $\chi^2$ reference is too optimistic.
+
+\section{From segment hazards to a person risk, and dilution}
+
+\begin{thesisline}
+The cumulative hazard of a single unit is only one of the $n_i$ terms of $H_i$, so the association
+of a covariate with the event in that unit is diluted in the cluster hazard.
+\end{thesisline}
+
+A person is event-free only if all nine segments are. Probabilities of ``no event'' multiply, and
+with the cloglog form the product of exponentials is the exponential of a sum:
+\[
+  \exp(-\Lambda_{i1}) \times \dots \times \exp(-\Lambda_{i9}) = \exp\{-(\Lambda_{i1} + \dots + \Lambda_{i9})\} = \exp(-H_i) .
+\]
+(The frailty $e^{b_i}$ multiplies every term, so it comes out in front: $\exp(-e^{b_i} H_i)$.)
+
+\textbf{Dilution with numbers.} Nine segments, each with $\Lambda = 0.02$, and frailty 1:
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+ & Before & One segment gets hazard ratio 1.5 \\
+\midrule
+That segment's $\Lambda$ & 0.020 & 0.030 \\
+That segment's risk & 1.98\% & 2.96\% \;(+49\%) \\
+Person hazard $H_i$ & 0.180 & 0.190 \\
+Person risk $1 - \exp(-H_i)$ & 16.5\% & 17.3\% \;(+5\%) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+A clear change in one segment barely moves the person risk. This is why the thesis judges geometry
+by the LR test and the hazard ratios, and treats the change in C as secondary: a real association at
+the segment level can leave the person-level ranking almost unchanged.
+
+\textbf{``Before the frailty is applied.''} $\Lambda_{ij} = \exp(\eta_{ij})$ is the cumulative
+hazard a segment would have in a person with frailty 1. The actual one is $e^{b_i}\Lambda_{ij}$.
+
+\textbf{New person.} For somebody outside the data, $b_i$ is unknown, so the risk is averaged over
+all possible frailties (appendix). Plugging in $b_i = 0$ instead gives the risk of the median
+person, which is not the average risk.
+
+\section{Questions an examiner could ask about this section}
+
+\textbf{Why cloglog and not logistic regression?} Plaque is seen only at the follow-up scan, not
+when it formed. Under proportional hazards the cloglog coefficients are log hazard ratios, and the
+segment hazards add to a person hazard. The logit link has neither property. At low event rates
+the two links fit almost equally well (appendix on the link choice).
+
+\textbf{Can you check proportional hazards?} No, not with one follow-up scan. It is an assumption
+of the reading, stated as such.
+
+\textbf{What does your hazard ratio for curvature compare?} Two segments with the same risk factors
+and the same person frailty, one SD apart in curvature. It is conditional on the random intercept.
+
+\textbf{Why a random intercept and not robust standard errors?} The intercept gives a joint model
+of the nine segments, which is needed to pool them into one person risk. Robust standard errors fix
+the uncertainty only.
+
+\textbf{Is one random intercept enough?} It assumes all nine segments of a person are equally
+alike. Segments of the same artery may be more alike. A nested effect is described in the appendix
+and is hard to estimate with few events.
+
+\textbf{How well is $\sigma^2$ estimated?} Poorly when clusters are small and events rare, since
+most information comes from people with more than one segment with plaque (appendix).
+
+\textbf{Is the LR test valid in a mixed model?} Yes for fixed effects fitted by maximum likelihood
+on the same data, given that the random-effects structure is right (Dobson 11.7). A test of a
+variance being zero is different: the p-value is halved (appendix).
+
+\textbf{Does a significant LR test mean geometry improves prediction?} No. See the dilution table.
+The test says geometry carries information; how much it adds to the person risk is estimated
+separately and may be small.
+
+\end{document}
