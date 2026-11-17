@@ -2,7 +2,7 @@
 
 ## Context
 
-`05b_bifurcation_angle.tex` carries a note asking whether the model should use two angles
+`03b_bifurcation_angle.tex` carries a note asking whether the model should use two angles
 (left main to side branch, left main to distal main vessel) instead of one, and whether the inflow
 angle belongs in it. The current feature is the LAD–LCx angle, taken between lines from the
 bifurcation point O to the points at 5–10 mm on each artery and averaged over eleven depths.
@@ -57,7 +57,7 @@ New `Thesis_coronary/content/methodology/figures/bifurcation_angle_figure.py`, i
 - **B**: the same points with the two fitted lines, their directions and the angle θ between
   them, with its value.
 
-### 3. `Thesis_coronary/content/methodology/05b_bifurcation_angle.tex`
+### 3. `Thesis_coronary/content/methodology/03b_bifurcation_angle.tex`
 
 `thesis-style` skill loaded before writing. The Note line is removed. Shape as in 05a: opener
 naming the feature and its source with the figure, First / Subsequently steps citing panels A and

@@ -1,3 +1,8 @@
+% RENUMBERED 2026-11-16 (user: "rename the files also"): methodology files follow the reading order.
+%   Old -> new: 05 features -> 03 (05a/05b/05c -> 03a/03b/03c), 06 feature validity -> 04,
+%   03 statistical model (before that 03_prediction_model) -> 05, 04 model size -> 06; 07 unchanged.
+%   File names in the comments below were updated; bare numbers in comments dated before this entry
+%   ("Methods 03", "05a header", "05d") are the OLD numbers.
 \chapter{Discussion}
 \label{ch:discussion}
 
@@ -5,7 +10,7 @@
 % NOTES, to be written (moved 2026-11-09 from Technical sec:tech-fpca, where they were general
 % statements; here they become limitations of the descriptive FPCA, Methods sec:method-fpca):
 % - Components are built from the curves alone and ranked by variance (wang2016fda, p. 26), and K
-%   keeps only the leading, bootstrap-stable components within the Riley budget. A low-variance
+%   keeps only the leading, bootstrap-stable components. A low-variance
 %   shape that relates to plaque could therefore be left out, so a null association of the scores
 %   does not show that profile shape is irrelevant.
 % - The components rest on the covariance, a second moment, so a few outlying curves can shift
@@ -19,7 +24,7 @@
 %   5 mm chord, the segment division or the grid would change the shapes. Components from another
 %   cohort or study are therefore not directly comparable.
 % - Position error in the tortuosity feature (moved 2026-11-09 from Methods sec:method-curvature,
-%   05a_curvature.tex). Methods keeps only the reason for the 5 mm chord and its cost. Here: the
+%   03a_curvature.tex). Methods keeps only the reason for the 5 mm chord and its cost. Here: the
 %   errors in the tracer point positions are likely of the order of the voxel size
 %   \clarify{voxel size of the CGPS scans and the position precision of the tracer points}. In the
 %   sliding window an error at the centre point tilts both of its chords at once, and since every
@@ -51,6 +56,21 @@
 %   is not separable from the random intercept; curvature and taper vary by segment, but nine binary outcomes per
 %   participant do not identify a slope variance. Check that the final model in thesis_final/ still has one random
 %   intercept and no slopes before submission.
-Random slopes were not considered, as three of the five features are constant within a participant and nine binary segment outcomes per participant do not identify a slope variance.
+%   2026-11-16 (user): taper dropped, three features (root CLAUDE.md). Two of the three (LM angle and daughter
+%   asymmetry) are constant within a participant; curvature alone varies by segment. "three of the five"
+%   -> "two of the three"; the feature list in the note above is history.
+Random slopes were not considered, as two of the three features are constant within a participant and nine binary segment outcomes per participant do not identify a slope variance.
+
+% - Irreversible outcome (added 2026-11-16 as prose, user: "add the irreversibility point to the discussion"; from
+%   app:link-derivation, where exp(-Lambda) covers every event time in the window). Uncited reasoning apart from the
+%   pointer. CITATION WANTED: that coronary plaque can regress, e.g. under statins, and how far (below CCTA
+%   detection or only in volume); do not state a frequency without a source. The direction of any bias in the
+%   hazard ratios is deliberately not stated: with 40% or more of participants developing plaque, the outcome is
+%   not rare, and the effect of missed events on a cloglog hazard ratio needs a source or a simulation.
+%   The FU medication columns (med_* incl. statin and statin duration > 2 y) could support a sensitivity analysis;
+%   not planned.
+The model treats incident coronary plaque as irreversible, so a participant without plaque at follow-up is taken to have been free of plaque throughout the observation window (Appendix~\ref{app:link-derivation}).
+Plaque that formed during the window and then regressed below the detection limit of CCTA, for example under lipid-lowering treatment, would therefore be counted as no event \clarify{CITATION WANTED: plaque regression on serial CCTA}.
+Minimal plaque, which the outcome includes, is the grade most likely to fall below this limit, so the observed risk of the outcome may be lower than the risk of developing plaque during the window.
 
 \section{Future work}

@@ -1,0 +1,274 @@
+% Decision note (not thesis text): why the Riley sample-size criteria were taken out of the thesis.
+% Written 2026-11-16 on request ("record the reason behind the changes in a .tex and compiled pdf").
+% Sources of the numbers:
+%   reports/Geometry feature budget cloglog GLMM.md (P_max table, own calculation of 2026-11-02, not
+%     checked against pmsampsize; n = 1,076 participants, 452 events);
+%   CGPS_data/saved.md (segment events, output of segment_k_budget.py, 4 November 2026);
+%   root CLAUDE.md (the model: six risk factors, three geometric features, eight segment intercepts).
+% The description of the Riley criteria is taken from the retired thesis section
+%   (outdated/thesis_retired/technical_background/retired/01b_sample_size_2026-11-16.tex), whose
+%   header says that Riley et al. 2020 was NOT opened in full. It is not verified against the paper.
+% Everything in a "My reasoning" box is argument made for this project, not a sourced claim.
+% All counts are from the 1,801 table, before image-quality exclusions and before the tracer cohort
+%   is linked. They are preliminary.
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs,array}
+\usepackage[hidelinks]{hyperref}
+\usepackage{parskip}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\newtcolorbox{decision}{colback=blue!4,colframe=blue!40!black,boxrule=0.4pt,left=4pt,right=4pt,top=3pt,bottom=3pt,title={Decision},fonttitle=\small\bfseries}
+\newtcolorbox{mine}{colback=orange!6,colframe=orange!60!black,boxrule=0.4pt,left=4pt,right=4pt,top=3pt,bottom=3pt,title={My reasoning (not a sourced claim)},fonttitle=\small\bfseries}
+\newtcolorbox{caution}{colback=red!4,colframe=red!55!black,boxrule=0.4pt,left=4pt,right=4pt,top=3pt,bottom=3pt,title={To be open about},fonttitle=\small\bfseries}
+
+\title{Why the Riley sample-size criteria left the thesis}
+\author{Decision note, 16 November 2026}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{decision}
+The Riley criteria are not used in the thesis, in the main text or in an appendix.
+The section \emph{Sample Size for Prediction Models} of the Technical Background is retired.
+The Methodology states the number of parameters of the model and the participants and events behind
+them, and claims no threshold.
+The decision was made on 16 November 2026, without the supervisor.
+\end{decision}
+
+\section{What the criteria are}
+
+The retired section described them as follows.
+Riley et al.\ (2020) give the sample size needed to develop a prediction model for a binary
+outcome from three criteria.
+The coefficients should need to be shrunk by no more than 10\,\%, so the expected shrinkage $S$ is at
+least 0.9.
+The Nagelkerke $R^2$ in the development data should be at most 0.05 above its optimism-adjusted value.
+The overall proportion with the outcome should be estimated to within $\pm 0.05$.
+Turned around, the first criterion gives the largest number of parameters a fixed sample supports,
+\[
+  P_{\max} = n\,(S-1)\,\ln\!\left(1 - \frac{R^2_{\mathrm{CS}}}{S}\right),
+\]
+where $R^2_{\mathrm{CS}}$ is the Cox--Snell $R^2$ the model is anticipated to reach, derived from an
+anticipated C-statistic.
+
+This description has not been verified against the paper.
+The header of the retired section records that the paper could not be opened in full.
+
+\section{The reasons}
+
+\subsection*{1. The criteria protect predicted risks, and the main result is not a predicted risk}
+
+Since 15 November 2026 the thesis is a prognostic factor study.
+Its main result is one likelihood ratio test of three prespecified geometric terms, and the hazard
+ratios of those terms.
+All three criteria concern a model that will be used to predict: how extreme its predicted risks
+are in new persons, how optimistic its apparent performance is, and how precisely it estimates the
+average risk.
+
+\begin{mine}
+A test and hazard ratios depend on power and precision.
+The number of events and the spread of each feature set these, and the confidence intervals in the
+Results show them directly.
+The covariates were fixed in advance and none is selected using the outcome, so the test does not
+rest on the model being free of overfitting in Riley's sense.
+\end{mine}
+
+\subsection*{2. The secondary estimates are already cross-validated}
+
+The change in C and the calibration are prediction quantities, and overfitting does matter for them.
+They are estimated by cross-validation split by person.
+
+\begin{mine}
+Cross-validation measures the optimism of these estimates in the data.
+A criterion that bounds the expected optimism in advance adds nothing once the optimism is measured.
+The cross-validated calibration slope is the empirical counterpart of the shrinkage $S$ that the
+first criterion tries to keep above 0.9.
+\end{mine}
+
+\subsection*{3. The criteria are derived for another setting}
+
+The criteria assume independent persons with one binary outcome each.
+The model is a segment-level complementary log-log mixed model: nine segments per participant, eight
+segment intercepts and a random intercept per participant.
+The earlier report found no published extension of the criteria to clustered data, so applying them
+required a counting rule made for this project (which parameters count against the person-level
+sample size).
+The answer depended almost entirely on that rule and on the anticipated C, as the next section shows.
+
+\subsection*{4. The criteria did not decide anything}
+
+The three geometric features were chosen from the literature, and the six risk factors are the ones
+SCORE2 uses.
+The cohort size is fixed.
+A ``parameter budget'' in the Methodology would therefore describe a decision process that did not
+take place, as a check made after the model was already set.
+
+\subsection*{5. The sources were not verified}
+
+Riley et al.\ 2020 was not opened in full, and the paper behind the conversion from the C-statistic
+(Riley, Van Calster and Collins 2021) is not in \texttt{refs.bib} and was not read.
+The \texttt{pmsampsize} package was never run, because R is not installed.
+The citation rules of the project do not allow a section to rest on sources in that state.
+This reason alone would not justify the decision, since the papers could be obtained.
+It is the cost of keeping a section that reasons 1 to 4 make unnecessary.
+
+\section{What the criteria said about this model}
+
+The table is copied from the report \emph{Geometry feature budget cloglog GLMM} (2 November 2026).
+It is an own calculation of the first criterion at $S = 0.9$ for $n = 1{,}076$ participants and 452
+events, and it was not checked against \texttt{pmsampsize}.
+
+\begin{center}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+Anticipated C & $R^2_{\mathrm{CS}}$ & $P_{\max}$ \\
+\midrule
+0.65 & 0.068 & 8.4 \\
+0.68 & 0.096 & 12.2 \\
+0.70 & 0.118 & 15.1 \\
+0.72 & 0.142 & 18.5 \\
+0.75 & 0.181 & 24.2 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The model has 9 covariates (six risk factors and three geometric features) and 8 segment intercepts,
+17 fixed parameters in all.
+If log follow-up, dominance and log segment length stay in the base, which is still open, it has 20.
+
+\begin{center}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+What is counted & Parameters & Fits at C = 0.65 & Fits at C = 0.70 \\
+\midrule
+Covariates only & 9 & no (8.4) & yes (15.1) \\
+Covariates and segment intercepts & 17 & no & no \\
+All, with the three open base terms & 20 & no & no \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{caution}
+By the strict count the model is over the Riley limit even at an anticipated C of 0.70, and by the
+most lenient count it is just over the limit at 0.65.
+The line ``at the edge of the Riley criteria at C = 0.65'' in the project instructions was the lenient
+count.
+The decision was made knowing these numbers, so it sets aside a check that the model does not pass
+on the strict count.
+It is defensible only if reasons 1 to 4 hold on their own, and they do not depend on the outcome of
+the check.
+The decision is not a claim that the model is small enough by Riley's standard.
+\end{caution}
+
+The same report explains why the two counts differ.
+The segment intercepts are estimated from where the events fall within a participant, about 970
+segment events, and not from who has them.
+Its simulation of the actual pooled model agreed with the count that leaves the segment intercepts out.
+The project's own base model had an out-of-fold C of 0.687, between the two columns.
+That figure comes from the person-level run, which is not the pooled model, so it is only an
+indication.
+
+\section{What the thesis says instead}
+
+The section \emph{Parameter Budget and Feature Selection} of the Methodology is renamed
+\emph{Model Size and Feature Selection}.
+Its first subsection will state that the covariates were fixed before the geometric features were
+related to the outcome, give the number of fixed parameters, and give the participants and events
+behind them.
+With the preliminary counts this is 452 participants who developed plaque in an analysed segment
+among 1,076, and about 970 segment events.
+
+\begin{center}
+{\small\begin{tabular}{@{}lcc@{}}
+\toprule
+Parameters & Participants with the outcome, per parameter & Segment events, per parameter \\
+\midrule
+9 & 50 & 108 \\
+17 & 27 & 57 \\
+20 & 23 & 49 \\
+\bottomrule
+\end{tabular}}
+\end{center}
+
+The thesis gives the counts and no threshold such as ``10 events per parameter''.
+A threshold would need a source that has been opened and that covers a clustered model.
+The segment events are not independent, so the right-hand column overstates the information: the
+earlier report estimated a design effect of about 3 at the within-person correlation it found most
+plausible.
+
+The precision of the hazard ratios is shown by their confidence intervals in the Results.
+The bifurcation angle and the daughter asymmetry enter only the proximal LAD and proximal LCx rows,
+so their intervals rest on fewer events than the interval for curvature.
+This belongs in the Discussion.
+
+\section{A second analysis that changes}
+
+The secondary analysis of curvature shape planned the number of components $K$ as the smaller of the
+number of components stable under bootstrap and the Riley limit of the segment.
+The cap is removed, and $K$ is set by bootstrap stability alone.
+The analysis is descriptive and restricted to the proximal and mid LAD, which had 275 and 201 events.
+At an anticipated C of 0.65 the removed cap allowed 5 and 4 components there, and 10 and 8 at 0.70,
+so it is unlikely to have been the binding limit.
+If more components than that turn out to be stable, the events per parameter are stated next to $K$.
+
+\section{What was changed}
+
+{\small
+\begin{center}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.44\linewidth}>{\raggedright\arraybackslash}p{0.50\linewidth}@{}}
+\toprule
+File & Change \\
+\midrule
+\path{content/technical/01b_sample_size.tex} & Moved to \path{outdated/thesis_retired/technical_background/retired/01b_sample_size_2026-11-16.tex} \\
+\path{content/background.tex} & Input line removed \\
+\path{content/technical/00_chapter_intro.tex} & Header comment updated \\
+\path{content/methodology/04_model_size.tex} & Titles, notes and header: model size without Riley \\
+\path{content/methodology/00_chapter_intro.tex} & Stage (6) reworded \\
+\path{content/methodology/07_curvature_fpca.tex} & Header notes: $K$ by bootstrap stability alone \\
+\path{content/discussion.tex} & Header comment: ``within the Riley budget'' removed \\
+Root \path{CLAUDE.md} and the plan in \path{CGPS_statistics-/CLAUDE.md} & Decision recorded \\
+\bottomrule
+\end{tabular}
+\end{center}
+}
+
+All thesis paths are under \texttt{Thesis\_coronary/}.
+Three scripts still compute budgets and are left unchanged and unused:
+\path{segment_k_budget.py}, \path{who_where_readiness.py} and \path{thesis_data.py}.
+The entry \path{riley2020samplesize} stays in \path{refs.bib}, uncited.
+To restore the section, move the retired file back and add its input line to
+\texttt{content/background.tex}.
+
+\section{Questions an examiner may ask}
+
+\emph{How was the size of the model decided?}
+The covariates were fixed before the geometric features were related to the outcome: the risk
+factors are those of SCORE2 and the features are those the literature ties to low wall shear stress.
+The size follows from that choice.
+
+\emph{Is the model overfitted?}
+The secondary performance estimates are cross-validated by person, and the cross-validated
+calibration slope shows how much the predicted risks would need to be shrunk.
+The thesis does not present the model as a tool for prediction.
+
+\emph{Why no formal sample-size calculation?}
+The cohort is fixed, so no calculation could change it.
+The available criteria are for developing a prediction model from independent persons, and by the
+strict count this model would not meet them, which the Discussion can state as a limit on how far
+the secondary estimates can be trusted.
+
+\section{Still open}
+
+The counts must be replaced by those of the tracer cohort after the image-quality exclusions.
+Whether log follow-up, dominance and log segment length stay in the base decides between 17 and 20
+parameters.
+Whether the Discussion states the strict Riley count as a limitation, as the last answer above
+suggests, has not been decided.
+It would bring one citation of Riley et al.\ 2020 back, and the paper would have to be read first.
+
+\end{document}

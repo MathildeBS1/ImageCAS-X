@@ -1,22 +1,27 @@
 % Chapter opener (rewritten 2026-10-31, Aida-style single paragraph; refactored 2026-11-06 to nine
 % stages, one per section, in \input order). Moved from thesis/methodology/00_chapter_intro.tex
 % on 2026-11-07. \input order is in content/methods.tex:
-%   01a-02b   full text
-%   03-07     notes only, to be written
+%   (the old status lines "01a-02b full text, 03-07 notes only" are out of date)
+% 2026-11-16 (user: "move it up"): stages reordered with content/methods.tex; the features and their
+%   measurement properties are now stages 5 and 6, the statistical model and the model size stages 7
+%   and 8. The files were renamed to match (03_features, 04_feature_validity, 05_statistical_model,
+%   06_model_size). The overview figure must follow this order.
+% 2026-11-16 (user: "yes"): nine stages -> eight; the stage "size of the model and the choice of
+%   geometric features" went with its section (06_model_size.tex retired; the number of fixed effects is
+%   now in sec:method-model-spec, the choice of features in sec:method-features).
 % Overview figure still to make (style guide: an overview figure opens the methods).
 \providecommand{\clarify}[1]{\textcolor{red}{\textbf{Clarification needed:} #1}}
 \chapter{Methodology}
 \label{ch:methodology}
 
-The methodology followed in this thesis is summarized in Figure~\ref{fig:method-overview} and consists of nine main stages:
+The methodology followed in this thesis is summarized in Figure~\ref{fig:method-overview} and consists of eight main stages:
 (1) extraction of the coronary centerlines and lumen contours from all baseline scans with an in-house tracer;
 (2) comparison of the extracted centerlines and lumen with Medis as a reference, as no ground truth was available;
 (3) selection of the plaque-free baseline cohort and definition of the outcome from the visual analysis;
 (4) division of the traced arteries into the segments of the visual analysis;
-(5) the statistical model relating the geometric features to the outcome, and its cross-validation;
-(6) the number of parameters the cohort can support and the choice of geometric features within it;
-(7) definition of the geometric features;
-(8) assessment of their measurement properties, against synthetic shapes and known groups, and of the variance explained by known risk factors;
-and (9) a secondary, descriptive analysis of the shape of the curvature profile.
+(5) definition of the geometric features;
+(6) assessment of their measurement properties, against synthetic shapes and known groups, and of the variance explained by known risk factors;
+(7) the statistical model relating the geometric features to the outcome, and its cross-validation;
+and (8) a secondary, descriptive analysis of the shape of the curvature profile.
 
 \clarify{overview figure of the nine stages (label fig:method-overview).}

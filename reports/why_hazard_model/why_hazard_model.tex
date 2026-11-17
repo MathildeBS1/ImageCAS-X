@@ -1,0 +1,134 @@
+\documentclass[11pt]{article}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{parskip}
+
+\title{Why a hazard model for incident plaque}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{In one paragraph}
+
+The model is still a binary regression: did a segment develop plaque between
+the baseline and the follow-up scan, yes or no. ``Hazard model'' means only
+that the link function, the complementary log-log (cloglog), comes from
+describing plaque as something that can start at any moment during the
+window at some rate, the hazard. It was not chosen because it fits better; a
+logit link would fit the segment data about as well, and the likelihood-ratio
+(LR) test of the geometry block works under either. It was chosen because of
+how the outcome arises and what the model is used for afterwards.
+
+\section*{Reason 1: segment risks combine into one person risk}
+
+This is the reason that decided it. The question is about people, but the
+model is fitted on nine segments per person. A person is free of plaque only
+if every segment is. Under cloglog each segment has
+$1-p_s = \exp(-e^{b}\Lambda_s)$, where $\Lambda_s$ is its cumulative hazard and
+$b$ the person random intercept, so
+\[
+  P(\text{no plaque} \mid b) = \prod_{s=1}^{9} e^{-e^{b}\Lambda_s}
+  = \exp\!\Big(-e^{b}\sum_{s}\Lambda_s\Big).
+\]
+The segment hazards simply add up to one person hazard, and the person risk
+is one integral over $b$. A product of logistic terms has no such form. The
+project record shows the switch: the earlier plan used a person-level
+logistic regression, and cloglog became the main link when the pooled
+segment model was adopted.
+
+\section*{Reason 2: it matches how the outcome is produced and observed}
+
+Plaque can start at any time during the roughly ten years, but it is only
+seen at the follow-up scan. If risk accumulates at a rate $\lambda(t)$, the
+chance of still being free of plaque at time $t$ is
+$\exp\{-\Lambda(t)\}$, with $\Lambda(t)$ the hazard summed up to $t$. Under
+proportional hazards, $\Lambda = \Lambda_0(t)\,e^{\eta}$, and
+\[
+  \log\{-\log(1-p)\} = \log\Lambda_0(t) + \eta .
+\]
+This is the cloglog link, derived rather than chosen (Prentice and Gloeckler
+1978). Logit has no such derivation for this design.
+
+\section*{Reason 3: follow-up length gets a meaning}
+
+Follow-up varies (interquartile range 9.7 to 12.2 years). On the cloglog
+scale, log follow-up enters with a coefficient $\gamma$, giving
+$\Lambda_0(t) \propto t^{\gamma}$. A value of $\gamma = 1$ means a constant
+hazard over time, and $\gamma > 1$ means the hazard rises over time. In the
+current code $\gamma$ is estimated, not fixed at 1, so a rising baseline risk
+is allowed for.
+
+\section*{Reason 4: the same scale as SCORE2}
+
+SCORE2 is a ten-year risk. Transformed by the cloglog link it becomes a log
+cumulative hazard, so it enters the model on the same scale as the other
+terms. The fitted SCORE2 slope is 0.722.
+
+\section*{Reason 5: hazard ratios instead of odds ratios}
+
+$\exp(\beta)$ is a hazard ratio per unit of a feature. Odds ratios overstate
+effects when the outcome is common. For a hazard ratio of 1.5:
+
+\begin{center}
+\begin{tabular}{lcc}
+\toprule
+Risk in the reference group & Odds ratio & Level \\
+\midrule
+2\%  & 1.51 & segment \\
+15\% & 1.56 & segment \\
+42\% & 1.75 & person \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+At segment level the two links nearly agree; they part at the person level,
+where about 42\% developed plaque.
+
+\section*{What if the risk is higher in the last years?}
+
+Two cases need to be kept apart.
+
+If everyone's risk rises over time, for example with ageing, only the
+baseline hazard $\lambda_0(t)$ changes shape. This is not a breach of
+proportional hazards, which only require the ratio between people to stay
+constant. It is absorbed by the intercept and by $\gamma > 1$.
+
+If instead the effect of geometry itself grows over time, hazards are not
+proportional. The model still estimates a well-defined quantity, the ratio of
+the cumulative hazards over the window,
+\[
+  e^{\beta} = \frac{\Lambda_1(t)}{\Lambda_0(t)}
+  = \frac{\int_0^t \mathrm{HR}(s)\,\lambda_0(s)\,\mathrm{d}s}
+         {\int_0^t \lambda_0(s)\,\mathrm{d}s},
+\]
+a weighted average of the hazard ratio over time, weighted by when plaque
+develops. If most plaque develops late, the late years dominate. Only the
+claim that the hazard ratio does not depend on the length of the window is
+lost, and with follow-up varying by about $\pm$12\% the effect is small. The
+two cases cannot be told apart, since one follow-up scan does not show when
+the plaque started.
+
+\section*{What does not depend on any of this}
+
+The LR test of the geometry block, the change in C and the calibration of
+the person risk compare fits of the binary ten-year outcome. They need no
+assumption about when within the window the plaque started.
+
+\section*{What to state in the thesis}
+
+The hazard ratios rest on proportional hazards, which cannot be tested with
+one follow-up scan; without them each is a weighted average over the window.
+They are conditional on the person random intercept, not averaged over the
+population, and they should not be compared with odds ratios from other
+studies. One sentence carries the choice:
+
+\begin{quote}
+The cloglog link was used as the form a proportional-hazards model takes when
+an event is known only to have occurred between two scans, and under it the
+segment hazards of a person add to one person hazard, so the segment risks
+combine into a single person risk.
+\end{quote}
+
+\end{document}

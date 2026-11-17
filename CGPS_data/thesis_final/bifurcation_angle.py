@@ -1,4 +1,4 @@
-"""Left main bifurcation angle: the bifurcation feature of the who model (sec:method-angle, 05b_bifurcation_angle.tex).
+"""Left main bifurcation angle: the bifurcation feature of the who model (sec:method-angle, 03b_bifurcation_angle.tex).
 
     from bifurcation_angle import tree_angle
     tree_angle(tree)  # degrees, or nan

@@ -19,7 +19,9 @@ import figure_colours  # noqa: E402
 SCRIPTS = (
     "content/methodology/figures/turning_angle_3d.py",
     "content/methodology/figures/turning_feature_schematic.py",
+    "content/methodology/figures/curvature_shape_figure.py",
     "content/technical/figures/fpca_figures.py",
+    "content/technical/figures/mixed_model_figures.py",
     "content/appendix/figures/link_ratios.py",
 )
 

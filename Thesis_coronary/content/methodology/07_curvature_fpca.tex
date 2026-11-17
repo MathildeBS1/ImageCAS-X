@@ -1,113 +1,119 @@
-% NOTES ONLY, to be written. Trimmed 2026-11-07 from thesis/methodology/07_curvature_fpca.tex
-% (full draft in git, commit e4eb857). Decision 2026-11-04: main model uses mean curvature; FPCA
-% shape scores only in pLAD and mLAD, each its own descriptive cloglog model, not pooled, not part
-% of the LR test. Theory: sec:tech-fpca (its grid and registration subsections were removed 2026-11-09; both topics
-% are now only in these notes and must be written here).
-% Settings: CGPS_data/turning_profile_shapes.py and segment_k_budget.py, neither in thesis_final;
-% turning_profile_shapes still runs on the Medis trees.
+% Methods, last section: secondary, descriptive FPCA of the curvature profile in the proximal and mid LAD.
+% 2026-11-16: WRITTEN as prose from the notes (plan sunny-sleeping-thimble.md, decided with the user: the full
+%   decided design in the past tense, including the per-segment model and the coefficient function; gaps to the
+%   code as CHECK below, undecided settings as red \clarify; one figure). The full notes this replaces are in git
+%   (the version of this file before 2026-11-16 evening, and commit e4eb857 for the older draft).
+% RENUMBERED 2026-11-16: methodology files follow the reading order (05 -> 03 features, 06 -> 04 validity,
+%   03 -> 05 statistical model, 04 model size retired); 07 unchanged.
 %
-% The section should contain:
-% - Why: mean curvature gives the same value to one sharp bend and to even turning; FPCA of the
-%   profile describes where along the segment the turning lies. Secondary, descriptive, outside the
-%   test of the geometry block (sec:method-models). Restricted to pLAD and mLAD for events ([..]).
-% - The curve: sec:tech-fpca keeps "curve" general (x_i(t), t in [0, 1]). Here the curve x_i(t)
-%   is the curvature profile of participant i in one segment, kappa by Menger's formula in mm^-1
-%   (eq:method-profile, sec:method-curvature; theta / l in rad/mm until 2026-11-10), at normalised
-%   position t along the segment. CHECK: turning_profile_shapes.py still uses profile_thesis
-%   (theta / l); switch it to curvature_feature.curvature_profile before it moves to thesis_final/. State
-%   this in one sentence when the prose is written, so the reader maps x_i(t) onto the profile.
-% - Profile (eq:method-profile) on 50 equally spaced points of normalised position, linear
-%   interpolation; FPCA per segment by SVD of the centred participant x grid matrix; no registration,
-%   so a component can also be a shift of a bend.
-% - MOVED HERE 2026-11-09 from sec:tech-fpca (project-specific; the Technical Background now holds
-%   only general FPCA and points here for curves at unequal positions):
-%   - Respacing onto the grid. The profile values sit at the centerline points, which are not
-%     evenly spaced along the artery, so they cannot enter the grid of sec:tech-fpca-grid directly.
-%     Code (CGPS_data/turning_profile_shapes.py, on_grid): the profile points with lo <= pos < hi
-%     are kept (segments with fewer than MIN_PTS points are dropped), arc-length position is
-%     normalised to [0, 1] by the first and last kept point, and the profile is linearly
-%     interpolated onto G = 50 MIDPOINT positions t_g = (g - 0.5)/G. Midpoints match w = 1/G and the
-%     rectangle rule of the grid derivation below. The interpolation is in arc length, so unevenly spaced
-%     points do not weight any part of the segment more than another.
-%   - Segment ends as landmarks (former last paragraph of sec:tech-fpca-registration): mapping a
-%     segment onto [0, 1] by its two ends is a landmark registration with the ends as the only
-%     landmarks and a linear warp between them (Wang p. 28: landmark method is the reference when
-%     all landmarks are present and identifiable, which segment ends are by construction). The
-%     ends exist in every segment, and the length of the segment is removed. A bend between the
-%     ends still lies at different relative positions in different curves, and its distance in mm
-%     from a landmark is lost, so a shift in where a bend lies may be read as a change in how
-%     sharply the vessel bends.
-%   - Write both as prose only once the FPCA code is in CGPS_data/thesis_final/ (turning_profile_
-%     shapes.py is not there yet and still runs on the Medis trees), per root CLAUDE.md.
-% - Grid derivation (MOVED HERE 2026-11-09 from sec:tech-fpca-grid, which now says it in words
-%   only; formerly eq:tech-fpca-grid). D = N x G matrix of deviations, rows d_i, entries
-%   d_ig = x_i(t_g) - mu_hat(t_g). Equal spacing w = 1/G; rectangle rule: each integral = w times
-%   the sum over the grid. The eigenproblem reduces to that of N^-1 D'D, unit-length eigenvectors
-%   v_k, eigenvalues lambda_tilde_k; then lambda_hat_k = w lambda_tilde_k, phi_hat_k(t_g) =
-%   w^-1/2 v_kg, xi_hat_ik = w^1/2 v_k' d_i (the score by the rectangle rule). w^-1/2 keeps the unit
-%   norm: squared entries of v_k sum to 1, the integral of phi_hat^2 is w times that sum. Computed
-%   by SVD of D (warmenhoven2021pca). State the scaling used, since it sets the units of the scores.
-%   Uncited (derivation). Write as prose with the settings once the FPCA code is in thesis_final/.
-% - From sec:tech-fpca (fourteenth pass, 2026-11-09, JMP level): the Technical Background no longer
-%   gives the score integral, the eigen equation or the covariance formula, only the truncated
-%   expansion (eq:tech-fpca-kl) and the modes (eq:tech-fpca-mode). State here how the scores are
-%   computed (grid derivation above) and that the scaling sets the units of the scores, so the
-%   scaling used must be stated for the scores to be interpretable.
-% - Alignment (2026-11-09; the registration subsection of sec:tech-fpca was removed). Draft prose:
-%   "Each segment was mapped onto [0, 1] by its two ends, and the curves were not aligned further,
-%   so that where along the segment the turning lies stays in the profiles. A component can
-%   therefore describe both how much and where the turning lies \cite{marron2015amplitude}."
-%   Reason (user, 2026-11-09): whether the location of the deviation matters is part of what the
-%   descriptive FPCA looks at; the main model's mean turning already covers the amount regardless
-%   of location, so registering away the location would leave FPCA little to add. Cost: location
-%   variation spreads over extra components (tight Riley budget in pLAD/mLAD).
-% - Grid in words (2026-11-09; sec:tech-fpca-grid was removed): curves are observed at points, so
-%   FPCA is computed as ordinary PCA on the curves sampled on one common grid
-%   (warmenhoven2021pca); unevenly spaced curves are first brought onto it (respacing note above).
-% - K fixed before outcome linkage: smaller of [rule] and the Riley budget of the segment less the
-%   base. The rule is bootstrap stability (song2018stability for the principle): K = the smaller of
-%   the number of components stable under bootstrap and the Riley budget of the segment less the
-%   base.
-%   Reason: the FPCA is descriptive and its components are named, so they must be reproducible.
-%   Draft prose (moved 2026-11-09 from sec:tech-fpca): "FPCA was repeated on each bootstrap
-%   sample, the sign of each eigenfunction was aligned to the full-sample eigenfunction, and a
-%   component counted as stable when [summary of |cos| over samples] was at least [threshold].
-%   Keeping only the stable components fixed K from the curves alone, before the scores were
-%   related to the outcome." Point back to sec:tech-fpca-components for the idea.
-%   Still to set before outcome linkage: the stability threshold (|cos| >= 0.9 between bootstrap
-%   and full-sample eigenfunction, after sign alignment, was the earlier draft), the number of
-%   bootstrap samples, and the summary (median |cos|). Compute on the plaque-free tracer cohort,
-%   not the Medis trees. General description in sec:tech-fpca-components.
-%   (Considered and not chosen: 80/90% variance, Horn, circular-shift null, 5-fold CV error.)
-% - Per segment a cloglog model with the base and K scores, one row per participant, estimates with
-%   intervals, not tested. Open: the base (1 df, recalibrated SCORE2, in segment_k_budget.py) and
-%   the interval method.
-% - Reconstructed coefficient function beta(t) (added 2026-11-16, user). The cloglog model with the
-%   K scores implies one coefficient function along the segment,
-%     beta_hat(t) = sum_{k=1}^{K} gamma_hat_k phi_hat_k(t),
-%   because sum_k gamma_k xi_ik = integral of (x_i(t) - mu(t)) beta(t) dt. This is functional
-%   principal component regression: the FPCA version of a scalar-on-function model.
-%   Report it per segment as a curve with a band, next to the gamma_k (hazard ratio per SD of each
-%   score). It shows where along the segment higher curvature goes with a higher hazard, on the
-%   same hazard scale as the main model.
-%   Reason (2026-11-16): the components are chosen for variance, not for their relation to plaque,
-%   so a single gamma_k can be hard to read; beta(t) sums them into one location answer.
-%   Function-on-scalar (curvature profile as response, plaque as predictor) was considered and not
-%   chosen: it reverses the direction and leaves the hazard scale of the main model.
-%   Details to state when written:
-%   - Units: if the scores enter standardised (per SD), use gamma_k / SD(xi_k) in the sum. beta(t)
-%     is then a log hazard ratio per mm^-1 of curvature per unit of normalised position; the
-%     integral is computed with the rectangle rule (w = 1/G), as the scores are.
-%   - Sign: a sign flip of phi_k flips xi_k and gamma_k together, so beta(t) does not depend on the
-%     sign convention.
-%   - beta(t) lies in the span of the first K eigenfunctions, so it is as smooth as the components
-%     and cannot show a shape the kept components miss.
-%   - Band: bootstrap over participants (refit FPCA and cloglog in each sample, or keep the
-%     eigenfunctions fixed; choose and state which), pointwise percentile band plus a simultaneous
-%     band, since 50 grid points invite reading local significance. Descriptive, not tested.
-%   CHECK: a source for functional principal component regression (wang2016fda may cover functional
-%   linear models; verify the section before citing).
+% Decisions behind the text: main model uses average curvature; FPCA shape scores only in pLAD and mLAD (decided
+%   2026-11-04), each its own descriptive cloglog model, not pooled, outside the LR test of the geometry block.
+%   K by bootstrap stability alone (Riley cap removed 2026-11-16, see 06_model_size history and
+%   research_notes/Sample size criteria decision/riley_decision.pdf); segment_k_budget.py is no longer a setting.
+%   Ends of the segment as the only landmarks, no further registration (user, 2026-11-09): the main model's average
+%   curvature covers the amount regardless of location, so registering the location away would leave FPCA little to
+%   add. Cost: location variation spreads over extra components.
+%   Coefficient function beta(t) (user, 2026-11-16): the components are chosen for variance, not for their relation
+%   to plaque, so a single coefficient can be hard to read. Function-on-scalar (profile as response, plaque as
+%   predictor) was considered and not chosen: it reverses the direction and leaves the hazard scale of the main model.
+% K rules considered and not chosen (stay out of the text): 80/90% FVE, Horn's parallel analysis, circular-shift
+%   null, 5-fold person-split CV error. turning_profile_shapes.py computes all six; only "boot" is described.
+%
+% Code: CGPS_data/turning_profile_shapes.py (on_grid, matrices, pca, shape_count). Settings in the text that match
+%   it: G = 50 midpoint positions (g - 0.5)/G, linear interpolation in arc length, position normalised by the first
+%   and last profile point inside [lo, hi); segment kept when hi - lo >= 2 * chord = 10 mm and >= MIN_PTS = 5
+%   profile points; FPCA by SVD of the centred participant x grid matrix; sign: each eigenvector sums to >= 0;
+%   200 bootstrap resamples of people; stable = median over resamples of |cos| with the best-matching resampled
+%   component >= STABLE = 0.9; K = leading stable components ("boot").
+% CHECK (text ahead of the code; root CLAUDE.md requires the code in thesis_final/ before the text is final):
+%   - turning_profile_shapes.py is not in CGPS_data/thesis_final/ and still runs on the Medis trees (people with
+%     plaque at baseline), not on the plaque-free tracer cohort. K must be computed on the tracer cohort.
+%   - It uses tortuosity.curvature.profile_thesis (turning angle / length, rad/mm), not
+%     thesis_final/curvature_feature.curvature_profile (Menger, mm^-1, eq:method-profile). Switch before use.
+%   - "Most similar shape of each bootstrap sample": the code searches only the leading kmax + 3 bootstrap
+%     components (kmax = min(15, ...)). Detail left out of the text.
+%   - Scores in the code are (M - mean) @ Vt, i.e. without the grid weight w^1/2 (see the derivation below). This
+%     does not change a hazard ratio per SD, but beta(t) must use eigenfunctions scaled to unit integral
+%     (phi = w^-1/2 v) and the SD of the scores on the same scale.
+%   - No script fits the per-segment cloglog model, computes beta(t) or its band. Write one in thesis_final/.
+% Grid derivation (kept here, not in the text; uncited derivation): D = N x G matrix of deviations
+%   d_ig = x_i(t_g) - mu_hat(t_g); w = 1/G; rectangle rule. The eigenproblem reduces to that of N^-1 D'D with
+%   unit-length eigenvectors v_k and eigenvalues lambda_tilde_k; then lambda_hat_k = w lambda_tilde_k,
+%   phi_hat_k(t_g) = w^-1/2 v_kg, xi_hat_ik = w^1/2 v_k' d_i. Computed by SVD of D (warmenhoven2021pca, not cited
+%   here). The integral of beta(t) times the deviation is computed with the same rectangle rule.
+% beta(t) facts not in the text: a sign flip of phi_k flips xi_k and psi_k together, so beta(t) does not depend on
+%   the sign convention. Units: log hazard ratio per mm^-1 of curvature per unit of normalised position.
+%
+% Citations:
+%   - wang2016fda, read 2026-11-16 in full text (arXiv:1507.05135v1, opened again this session), pp. 14-15
+%     (arXiv pages), Eqs. (9)-(12): the functional linear model with coefficient function beta(t) (Eq. 9); expanding
+%     X and beta in the eigenbasis and truncating at K gives a linear model in the scores, "equivalent to conducting
+%     a principal component regression" (Eq. 10, p. 15); vector covariates added (Eq. 11); a link function g added
+%     gives "a functional generalized linear model ... within the exponential family" (Eq. 12, p. 15). Setting:
+%     general known link, covers a binary outcome with the cloglog link. Wang's notation: X^c, beta(t), beta_k, A_k;
+%     here deviations, beta(t), psi_k, xi_ik. "Functional generalised linear model" is Wang's term (British spelling).
+%     Wang does not divide by sqrt(lambda_k): that factor comes from the standardised scores (own derivation).
+%   - No citation in the alignment paragraph: it points back to sec:tech-fpca-domain, which carries wang2016fda for
+%     landmarks (p. 28). marron2015amplitude not cited (not opened this session).
+%   - song2018stability: cited only in sec:tech-fpca-k (NOT opened, CHECK there); this section points back to it.
+% FORWARD REFERENCE: sec:results-cohort (counts of incident plaque per segment) does not exist yet.
+% Figure: figures/curvature_shape_figure.py (made-up arteries, real curvature_profile; its on_grid copies the code's).
 \section{Secondary Analysis of Curvature Shape}
 \label{sec:method-fpca}
 
-\todonote{To be written: FPCA of the turning-angle profile in the proximal and mid LAD as a descriptive secondary analysis.}
+The average curvature of the main model gives the same value to a segment with one sharp bend as to a segment that bends evenly along its length (Section~\ref{sec:method-curvature}).
+To describe where along a segment the bending lies, the shape of the curvature profile was analysed with FPCA (Section~\ref{sec:tech-fpca}).
+This analysis was secondary and descriptive, and it lay outside the likelihood ratio test of the geometric features (Section~\ref{sec:method-test}).
+It was restricted to the proximal and the mid LAD, where plaque developed most often (Section~\ref{sec:results-cohort}), so that each of the two segments had enough events for a model of its own.
+
+\subsection{Curvature Profiles as Curves}
+
+Following the computation of the curvature profile (Eq.~\eqref{eq:method-profile}), the part of the profile inside the proximal or the mid LAD of participant $i$ formed the curve $x_i(t)$ of Section~\ref{sec:tech-fpca}.
+The position $t$ ran from 0 at the first to 1 at the last profile point of the segment, which removed the length of the segment from the curve.
+The profile values sit at the centerline points, which are unevenly spaced, so each curve was linearly interpolated along the centerline onto 50 equally spaced positions (Figure~\ref{fig:method-fpca}).
+Segments shorter than 10\,mm or with fewer than five profile points were left out.
+FPCA was then run separately in each of the two segments, which gave each segment its own mean, eigenfunctions and scores.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{content/methodology/figures/curvature_shape_figure.pdf}
+  \caption{From the curvature profile of an artery to a curve on the positions from 0 to 1, on made-up arteries computed with the thesis code. The proximal segment (shaded) runs from its first (0) to its last (1) profile point before the segment boundary (dotted) (A). On the 50 positions (dots), the bend of this segment lies at a different position than in the same segment of eleven other made-up arteries (grey), which flattens the mean of all twelve (dashed) (B).}
+  \label{fig:method-fpca}
+\end{figure}
+
+The two ends of a segment can be identified on every curve, so they served as landmarks when each segment was mapped onto the positions from 0 to 1 (Section~\ref{sec:tech-fpca-domain}).
+The average curvature of the main model already describes how much a segment bends, so the curves were not aligned any further and kept the position of their bends.
+A bend between the two ends can therefore lie at different positions on different curves.
+A component can then describe a shift in where a bend lies as well as a change in how sharply the artery bends.
+
+\subsection{Number of Components}
+
+The number of components $K$ was fixed from the curves alone, before the scores were related to the outcome.
+Following Section~\ref{sec:tech-fpca-k}, $K$ was chosen by how stable the components were when the sample changed.
+FPCA was repeated on 200 bootstrap samples, each drawn with replacement from the participants with a curve in the segment.
+Each component of the full sample was compared with the most similar shape of each bootstrap sample.
+The similarity was the absolute cosine between the two shapes, taken as vectors over the 50 positions, which is 1 when they agree up to their sign.
+A component counted as stable when the median of this value over the 200 samples was at least 0.9, and $K$ was the number of stable components before the first unstable one.
+
+The FVE of the $K$ components was reported beside $K$, and each component was read from its mode of variation (Eq.~\eqref{eq:tech-fpca-mode}).
+To make the components comparable between the two segments, the sign of each eigenfunction was fixed so that its values over the 50 positions summed to a positive number.
+
+\subsection{Relation to Incident Coronary Plaque}
+
+Following the choice of $K$, the scores were related to incident coronary plaque by a separate model in each of the two segments.
+Each model had one row per participant, with incident coronary plaque in that segment as the outcome, and used the complementary log-log link of Section~\ref{sec:tech-segment-glmm} without a participant intercept.
+The $K$ scores were standardised to a standard deviation of one and entered as linear terms with coefficients $\psi_k$, so that $\exp(\psi_k)$ is a hazard ratio per standard deviation of the score.
+Each hazard ratio was reported with a 95\% confidence interval, which describes its direction and size.
+\clarify{the risk factors enter as one summary term, since six separate terms are too many for the events of one segment; which summary, whether the follow-up time enters, and how the interval is computed are not yet decided.}
+
+The components are ordered by how much the curves vary along them and not by how they relate to plaque, so a single $\psi_k$ can be hard to read.
+The $K$ terms were therefore combined into one coefficient function along the segment,
+\begin{equation}
+  \beta(t) = \sum_{k=1}^{K} \frac{\psi_k}{\sqrt{\lambda_k}}\, \phi_k(t) ,
+  \label{eq:method-fpca-beta}
+\end{equation}
+where $\sqrt{\lambda_k}$ is the standard deviation of the $k$th score, so the division returns $\psi_k$ to the scale of the curvature profile.
+The $K$ terms of the model then equal $\int_0^1 \{ x_i(t) - \mu(t) \}\, \beta(t)\, \mathrm{d}t$, which makes the model a functional generalised linear model whose coefficient function is expanded in the first $K$ eigenfunctions \cite{wang2016fda}.
+A positive $\beta(t)$ means that higher curvature at position $t$ went with a higher hazard of developing plaque in the segment.
+Since $\beta(t)$ is built from the $K$ eigenfunctions, it can only take shapes that these components describe.
+It was shown along the segment with a band \clarify{band method: bootstrap over participants, with FPCA refitted in each sample or the eigenfunctions kept fixed, and a pointwise or simultaneous band}.

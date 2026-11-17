@@ -1,5 +1,15 @@
-% Appendix to sec:method-recalibration (content/methodology/03_prediction_model.tex; moved there from the technical section 2026-11-14): SCORE2's own
-%   recalibration as a worked example, and the same formula with a new outcome.
+% Appendix to sec:method-sensitivity (content/methodology/05_statistical_model.tex): recalibration of a
+%   score on the cloglog scale, SCORE2's own recalibration as a worked example, and the same formula
+%   with a new outcome.
+% 2026-11-16 (user: "Shrink and move"): the general text of the former Methodology subsection
+%   "Recalibration of SCORE2" moved here as the first section, with its label sec:method-recalibration
+%   and eq:method-recal, since the recalibrated score is only a sensitivity analysis. Its first
+%   paragraph is unchanged. Of its second paragraph only the last sentence (relative weights) was
+%   kept; the sentences on how SCORE2 is built and regionally recalibrated repeated the worked
+%   example below. The worked example got its own section heading (app:score2-example).
+%   CITATION WANTED: a general recalibration source (e.g. Janssen 2008, Steyerberg 2019); none in
+%   refs.bib. CHECK: the model script enters standardised log(SCORE2), not cloglog(SCORE2)
+%   (progression_who_pooled.py, design); align it before the sensitivity analysis is run.
 % Written 2026-11-14 (user: "put additional information in appendix like an example of how score2
 %   recalibrate itself, as we recalibrate"), from score2_loglog_explainer.tex (study note).
 % Source: score2_2021, SCORE2 Updated Supplementary Material (project root, .docx, read 2026-11-14):
@@ -15,9 +25,25 @@
 \chapter{Recalibration of SCORE2}
 \label{app:score2-recal}
 
+\section{Recalibration on the Complementary Log-Log Scale}
+\label{sec:method-recalibration}
+
+A published risk score gives each person a risk $r_i$ of the outcome it was developed for, in the population it was developed in.
+To predict another outcome or another population, the score can be recalibrated by taking its risk to the cloglog scale and entering it in the linear predictor with an estimated intercept $\alpha$ and slope $\delta$,
+\begin{equation}
+  \log\{-\log(1 - p_i)\} = \alpha + \delta \log\{-\log(1 - r_i)\}.
+  \label{eq:method-recal}
+\end{equation}
+Fixing $\delta = 1$ and estimating only $\alpha$ adjusts the overall level of risk, referred to as calibration in the large.
+Both sides of Eq.~\eqref{eq:method-recal} are log cumulative hazards, so $\delta$ states how much of the differences between persons carries over to the new outcome: a person whose score hazard is twice that of another has $2^{\delta}$ times the hazard of the new outcome, so $\delta = 1$ keeps the differences and $\delta < 1$ shrinks them.
+Recalibration keeps the relative weights of the risk factors, so a new covariate correlated with a factor that the score weights wrongly for the new outcome can appear informative only by correcting that weight.
+
+\section{Worked Example of SCORE2}
+\label{app:score2-example}
+
 SCORE2 estimates the 10-year risk of fatal and non-fatal cardiovascular disease from age, smoking, systolic blood pressure, and total and HDL cholesterol, together with the interaction of each factor with age \cite{score2_2021}.
 Its coefficients were estimated with sex-specific Fine and Gray models, so its hazard is a subdistribution hazard that accounts for death from other causes, not the hazard of a model without competing events, and its risk is recalibrated to each European region on the cloglog scale \cite[Supplementary Methods, Box~1 and Box~6]{score2_2021}.
-This appendix follows the worked example of the SCORE2 supplement, a 50-year-old man who smokes, with a systolic blood pressure of 140\,mmHg, a total cholesterol of 6.3\,mmol/L and an HDL cholesterol of 1.4\,mmol/L, living in the low-risk region \cite[Supplementary Methods, Table~4]{score2_2021}.
+This section follows the worked example of the SCORE2 supplement, a 50-year-old man who smokes, with a systolic blood pressure of 140\,mmHg, a total cholesterol of 6.3\,mmol/L and an HDL cholesterol of 1.4\,mmol/L, living in the low-risk region \cite[Supplementary Methods, Table~4]{score2_2021}.
 
 The centred risk factors and their coefficients sum to a linear predictor of $\mathrm{LP} = 0.3221$.
 With the baseline 10-year survival of men, $S_0 = 0.9605$, the uncalibrated risk is

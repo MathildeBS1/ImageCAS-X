@@ -1,4 +1,4 @@
-"""Average curvature per segment: the curvature feature of the who model (sec:method-curvature, 05a_curvature.tex).
+"""Average curvature per segment: the curvature feature of the who model (sec:method-curvature, 03a_curvature.tex).
 
     from curvature_feature import segment_curvature
     segment_curvature(tree)  # {(artery, 0/1/2 for p/m/d): 1/mm or nan}

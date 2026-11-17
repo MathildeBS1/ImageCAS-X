@@ -1,0 +1,66 @@
+\documentclass[11pt]{article}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{amsmath}
+\usepackage{parskip}
+
+\title{Mixed models and the random intercept, simply}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{The problem: rows that belong together}
+
+In this thesis every person contributes nine rows, one per segment. Two
+segments of the same person are not independent. They share the same blood,
+blood pressure, genes and lifestyle, much of which the model does not
+measure. If one segment of a person developed plaque, the other eight are
+more likely to have done so too. A model that treats all rows as independent
+ignores this and believes it has more information than it has: its standard
+errors come out too small and its tests too optimistic.
+
+\section*{The idea: every person gets their own baseline}
+
+A random intercept gives each person $i$ their own shift $b_i$ of the risk
+scale, added to the usual linear predictor of segment $s$,
+\[
+  \eta_{is} = \beta_0 + \beta_1 x_{is,1} + \beta_2 x_{is,2} + \dots + b_i .
+\]
+A person with a positive $b_i$ has a higher risk in all nine segments than
+the features alone predict; a person with a negative $b_i$ has a lower risk
+in all nine. The shift is the same for every segment of that person, and this
+is what ties the segments of one person together. The $b_i$ soak up the
+unmeasured, person-wide part of the risk.
+
+\section*{Why ``random''}
+
+There are about a thousand people, and estimating a separate free intercept
+for each would cost a thousand parameters, most of them from only nine
+segments. Instead the model assumes that the shifts come from one common
+distribution,
+\[
+  b_i \sim N(0, \sigma^2),
+\]
+and estimates only its spread $\sigma$. A large $\sigma$ means people differ a
+lot in their overall plaque tendency beyond the measured features; $\sigma = 0$
+means they do not, and the model reduces to an ordinary GLM. The individual
+$b_i$ are not parameters of the model; they are averaged over.
+
+\section*{Why ``mixed''}
+
+The model mixes two kinds of effects. The \emph{fixed} effects, the $\beta$s,
+are the same for everyone: the effect of curvature, taper or SCORE2. The
+\emph{random} effects, the $b_i$, vary from person to person. A generalised
+linear mixed model (GLMM) is a GLM with such random effects added.
+
+\section*{What it means for the coefficients}
+
+Because $b_i$ is held fixed when reading a coefficient, $e^{\beta}$ compares
+two segments with the same person-level shift: it is a \emph{conditional}
+effect. Averaged over all people, the effect on the population risk is
+somewhat smaller. When a new person's risk is predicted, their own $b_i$ is
+unknown, so the model averages the risk over all possible values of $b$;
+the thesis model does this when it pools the nine segment risks into one
+person risk.
+
+\end{document}

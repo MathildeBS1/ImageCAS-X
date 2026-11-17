@@ -1,0 +1,94 @@
+\documentclass[11pt]{article}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{parskip}
+
+\title{The cloglog link, simply}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{The problem a link solves}
+
+The model has to give each segment a probability $p$ of developing plaque
+between the baseline and the follow-up scan. A probability must lie between
+0 and 1, but a regression $\eta = \beta_0 + \beta_1 x_1 + \dots$ can take any
+value. A link function turns $p$ into a number on the whole real line, so
+that the regression can be written on that scale and turned back into a
+probability afterwards.
+
+Logistic regression uses the logit link, $\log\{p/(1-p)\}$, the log odds.
+Its coefficients are odds ratios. The complementary log-log (cloglog) link is
+\[
+  \operatorname{cloglog}(p) = \log\{-\log(1-p)\} = \eta .
+\]
+
+\section*{Where cloglog comes from}
+
+Think of plaque as something that can start at any moment during the ten
+years, at some rate, the hazard. Adding the hazard up over the follow-up
+gives the cumulative hazard $H$. If the risk builds up this way, the chance
+of still being free of plaque at the follow-up scan is
+\[
+  1 - p = e^{-H}.
+\]
+Taking logs twice undoes this: $\log\{-\log(1-p)\} = \log H$. The cloglog
+link is therefore nothing more than the log of the cumulative hazard, and the
+model says
+\[
+  \log H = \beta_0 + \beta_1 x_1 + \dots
+\]
+Raising a feature by one unit multiplies $H$ by $e^{\beta_1}$. This is a
+hazard ratio, the same quantity a Cox model reports, even though we never see
+when the plaque started, only that it was absent at baseline and present at
+follow-up.
+
+\section*{Why it suits the segment model}
+
+A person is free of plaque only if all nine segments are. Under cloglog
+each segment has $1-p_s = e^{-H_s}$, so
+\[
+  P(\text{no plaque in any segment}) = e^{-H_1}\cdots e^{-H_9}
+  = e^{-(H_1+\dots+H_9)} .
+\]
+The segment hazards simply add up to one person hazard, and the person risk
+is one minus this. With the person random intercept $b$, every segment hazard
+is multiplied by the same $e^{b}$, and the person risk is found by averaging
+over $b$. The logit link has no such simple sum, which is the main reason
+cloglog was chosen.
+
+\section*{How different is it from logit?}
+
+When the risk is small, odds ratios and hazard ratios are almost equal, and
+the two links give nearly the same answer. They part when the risk is large.
+For a hazard ratio of 1.5:
+
+\begin{center}
+\begin{tabular}{lcc}
+\toprule
+Risk in the reference group & Odds ratio & Level \\
+\midrule
+2\%  & 1.51 & segment \\
+15\% & 1.56 & segment \\
+42\% & 1.75 & person \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+At segment level the choice therefore matters little for the coefficients,
+the likelihood-ratio test of the geometry block or the C-index. It matters
+mainly for the pooled person risk and its calibration.
+
+\section*{What to keep in mind}
+
+The hazard-ratio reading rests on proportional hazards, which cannot be
+tested with only one follow-up scan. The hazard ratios are conditional on the
+person random intercept, so they describe a change within the same person's
+risk level, not an average over the population. In the current code
+(\texttt{CGPS\_data/progression\_who\_pooled.py}) log follow-up time enters
+as a covariate with its own coefficient, not as a fixed offset; a coefficient
+of 1 would mean a constant hazard over time.
+
+\end{document}

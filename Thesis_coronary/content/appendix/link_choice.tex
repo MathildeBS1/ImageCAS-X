@@ -4,7 +4,7 @@
 %   (user: "use the best of score2_loglog_explainer.pdf and cloglog_vs_logit.md"): merged in the draft
 %   content/appendix/cloglog_rate.tex (deleted), i.e. the rate reading with a worked example, the
 %   odds-ratio numbers and the sentence on the risk rising toward 1. General method only, present tense;
-%   why this thesis uses cloglog is Methodology (03_prediction_model.tex), the caveats (PH untestable,
+%   why this thesis uses cloglog is Methodology (05_statistical_model.tex), the caveats (PH untestable,
 %   conditional hazard ratios) are Discussion.
 % Sources: dobson2002glm (PDF read 2026-11-14): Section 10.2 Eq. 10.4 S = exp(-H); 10.2.2 Eqs. 10.7-10.9
 %   proportional hazards, hazard ratio, log cumulative hazards differ by a constant; 10.2.3 Eq. 10.13
@@ -24,6 +24,13 @@
 % 2026-11-15 (user: move the technical math of sec:tech-segment-glmm here): new section app:link-derivation (rate
 %   example, 1 - p = exp(-Lambda), PH step eq:app-link-ph, link form eq:app-link-cloglog); the logit comparison is now
 %   section app:link-logit. CHECK: Dobson 10.2.3 Eq. 10.13 for "log cumulative hazards differ by beta" (was cited 10.2.2).
+% 2026-11-16 (user: "make an explanation of this in the appendix"): ADDED to app:link-derivation, after the
+%   rare/common paragraph, a paragraph on exp(-Lambda) as a probability over all event times, one observation at
+%   the end of the window, and Lambda (area) determined but not the shape of h_i(t). Uncited reasoning from
+%   eq:tech-cumhaz (Dobson 10.2, Eq. 10.4 is cited in the paragraph above). Uses h_i(t) from eq:tech-cumhaz.
+%   Overlaps with the last sentence of app:link-logit (time course of the ratios not observed): that sentence is
+%   about the ratios, this one about the hazard; keep both or merge if the appendix is shortened.
+%   Not added (offered to the user): the event must be irreversible, so no event at the end means none in the window.
 \chapter{Choice of Link Function}
 \label{app:link}
 
@@ -35,6 +42,11 @@ If a unit has a probability of 0.99 of staying event-free through each year of a
 Minus the logarithm of this product is the sum $10 \times (-\log 0.99) = 0.1005$, the hazard of each year added up over the window.
 In general, the probability of no event by the end of the window is $1 - p_i = \exp(-\Lambda_i)$, so $\Lambda_i = -\log(1 - p_i)$ is the cumulative hazard \cite[Section~10.2, Eq.~10.4]{dobson2002glm}.
 For a rare event the cumulative hazard is close to the probability, as a risk of 0.05 gives $\Lambda = 0.051$, while for a common event it grows faster, as a risk of 0.40 gives 0.51 and a risk of 0.90 gives 2.30.
+
+The probability $\exp(-\Lambda_i)$ is derived from the hazard $h_i(t)$ of Eq.~\eqref{eq:tech-cumhaz}, which at each time applies to the units that are still event-free.
+It therefore covers every time at which the event can occur within the window, and a unit needs to be observed only once, at the end of the window, to show whether it remained event-free.
+Such data determine the cumulative hazard $\Lambda_i$, which is the area under $h_i(t)$, but not the shape of $h_i(t)$ over the window.
+A hazard concentrated early in the window and a hazard concentrated late give the same risk when their areas are equal, so the data cannot distinguish them.
 
 Let $\Lambda_0$ be the cumulative hazard over the window of a reference unit with every covariate at zero.
 Under proportional hazards, the covariates of unit $i$ multiply its hazard at every time by the same factor, so they multiply its cumulative hazard by that factor too \cite[Section~10.2.2, Eqs.~10.7--10.9]{dobson2002glm},

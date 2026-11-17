@@ -1,3 +1,8 @@
+% RENUMBERED 2026-11-16 (user: "rename the files also"): methodology files follow the reading order.
+%   Old -> new: 05 features -> 03 (05a/05b/05c -> 03a/03b/03c), 06 feature validity -> 04,
+%   03 statistical model (before that 03_prediction_model) -> 05, 04 model size -> 06; 07 unchanged.
+%   File names in the comments below were updated; bare numbers in comments dated before this entry
+%   ("Methods 03", "05a header", "05d") are the OLD numbers.
 % Technical Background, section 1: the cloglog GLMM, its hazard ratios, the likelihood ratio test of a
 % set of covariates and the cluster risk. General method only, present tense; no cohort numbers,
 % settings or software (Methodology 03).
@@ -46,7 +51,41 @@
 %   of such pairs" (definition of a median); the conditional reading of exp(beta_k) for covariates that
 %   vary within or between clusters (follows from eq:tech-glmm; austin2017mhr does not discuss it);
 %   estimation by maximum likelihood with the likelihood averaged over b_i (sources are in
-%   app:glmm-fitting); the dilution of one unit in H_i.
+%   app:glmm-fitting); the dilution of one unit in H_i; "The link follows from an event that can occur
+%   at any time within the observation window but is observed only at its end" (2026-11-16; shown by
+%   the next sentences via Dobson Eq. 10.4; replaced "commonly used when the event is described through
+%   its hazard", which Dobson does not state). CHECK: suresh2022discrete (BMC Med Res Methodol 22:207,
+%   open access) calls the cloglog model the grouped proportional hazards model for continuous time
+%   divided into intervals; seen only as a web summary, not cited. Put the PDF in papers/ before use.
+% 2026-11-16 (user: "can the derivation be written out" -> "yes put it in"): "Summed over the window ..."
+%   replaced by eq:tech-cumhaz (Lambda_i as the integral of h_i(t) over [0, tau], 1 - p_i = exp(-Lambda_i)),
+%   Dobson 10.2 Eq. 10.4 (S(y) = exp[-H(y)], H(y) = integral of h). New notation: h_i(t), t, tau
+%   (tau, not T, which is the average curvature in Methods 05a).
+% 2026-11-16 (user: "should eta = log Lambda go into the thesis" -> "yes put it in"): the sentences "The linear
+%   predictor is then the logarithm ..." and "With Lambda_i = exp(eta_i), the risk becomes" replaced by
+%   eq:tech-logcumhaz (log Lambda_i = log Lambda_0 + sum beta_k x_ik = eta_i; beta_0 = log Lambda_0). Source:
+%   Dobson 10.2.2, unnumbered display before Eq. 10.9 (log H1 = log H0 + sum x_i beta_i, from
+%   H1 = H0 e^{x'beta}); beta_0 = log Lambda_0 is our step (Dobson keeps H0 as a baseline, no intercept).
+%   eq:tech-cloglog now follows by substitution from eq:tech-cumhaz and eq:tech-logcumhaz, so the
+%   prentice1978grouped cite was removed from this section. Its CHECK above still applies to Appendix B and
+%   Methods 03, which cite it.
+% 2026-11-16 (user: "rewrite ... to have the necessary equations and for them to come in the optimal order"):
+%   ADDED eq:tech-ph (h_i(t) = h_0(t) exp(sum beta_k x_ik), Dobson 10.2.2 Eq. 10.8; "baseline hazard" is Dobson's
+%   term) between eq:tech-cumhaz and eq:tech-logcumhaz, so the chain hazard -> cumulative hazard -> proportional
+%   hazards -> log cumulative hazard -> risk and link is complete. eq:tech-cloglog now also gives the link
+%   g(p) = log{-log(1 - p)} (Dobson 7.3: "log[-log(1 - pi)] ... is called the complementary log log function").
+%   The hazard-ratio sentence now starts from eq:tech-ph (Eq. 10.7 follows from 10.8) and says "at every time in
+%   the window"; the exposure sentence points to eq:tech-logcumhaz. All labels kept. Appendix B
+%   (eq:app-link-ph, eq:app-link-cloglog and the name sentence) now repeats this derivation; trim it to the worked
+%   example and the logit comparison when the appendix is next revised.
+% 2026-11-16 (user: "yes move the citation"): Dobson 7.3 moved from "solving for eta_i gives the link itself" to the
+%   naming sentence. 7.3 gives the form log[-log(1 - pi)] and the name, but reaches it from an extreme-value
+%   tolerance distribution, not from a hazard; the derivation here combines 10.2 (Eq. 10.4) and 10.2.2 and is
+%   uncited as a step.
+% 2026-11-16 (user: "write this more easily understandable"): "Since the other covariates are held fixed, the
+%   hazard ratio is adjusted for them. A hazard ratio refers to one unit of its covariate and is read together
+%   with that unit." -> units that agree on all other covariates; worked example 1.1 per year = 1.1^10 = 2.59,
+%   written 2.6, per ten years (made-up number, own computation).
 %
 % 2026-11-16 (user: "make the changes to the issues just identified"; review of the section against
 %   Aida's Chapter 3). CHANGED:
@@ -95,7 +134,15 @@
 %   FORWARD REFERENCE owed elsewhere: Appendix B (app:link, with app:link-derivation and app:link-logit) now has
 %   no pointer in running text; Methodology 03 must point to it where the cloglog link is chosen. The MHR
 %   formula (eq:tech-mhr in app:glmm-variance) is owed a pointer where the MHR is reported. Both are noted in
-%   the header of methodology/03_prediction_model.tex.
+%   the header of methodology/03_prediction_model.tex (renamed 05_statistical_model.tex on 2026-11-16;
+%   both pointers are in its text now).
+% 2026-11-16 (user: "write the best possible version in now"): the age example ("1.1 per year of age is
+%   1.1^10 = 2.6 per ten years") replaced by two sentences: the size depends on the scale of x_ik (degrees,
+%   millimetres), and hazard ratios of covariates on different scales can be compared per standard deviation.
+%   "scale" replaces "unit", which clashed with "two units" (observations) in the sentence before. General
+%   method only; which covariates are standardised and with which SD (across participants, or within segment
+%   type for curvature) belongs in Methodology 03, which must point back here.
+%   CITATION WANTED: a source for comparing hazard ratios per standard deviation. The sentence is uncited.
 % Left to the Discussion: proportional hazards cannot be tested with one follow-up scan; conditional
 %   versus averaged hazard ratios; the causal caveat.
 % Labels referenced elsewhere, all kept: sec:tech-model, sec:tech-segment-glmm,
@@ -126,23 +173,73 @@ The two are therefore connected by a monotone link function $g$, whose inverse m
 \label{sec:tech-segment-glmm}
 
 One choice of $g$ is the complementary log-log (cloglog) link \cite[Section~7.3]{dobson2002glm}.
-The link arises when the event is described through its hazard, which is the rate at which the event occurs among the units that are still event-free \cite[Section~10.2]{dobson2002glm}.
-Summed over the window, the hazard gives the cumulative hazard $\Lambda_i$, and the probability of no event by the end of the window is $\exp(-\Lambda_i)$ \cite[Section~10.2, Eq.~10.4]{dobson2002glm}.
-Under proportional hazards, a covariate multiplies the hazard by the same factor throughout the window \cite[Section~10.2.2, Eq.~10.8]{dobson2002glm}.
-The linear predictor is then the logarithm of the cumulative hazard, in which the intercept holds the cumulative hazard of a unit whose covariates are all zero.
-With $\Lambda_i = \exp(\eta_i)$, the risk becomes \cite[pp.~58--59, Eqs.~2--5]{prentice1978grouped}
+The link follows from an event that can occur at any time within the observation window but is observed only at its end.
+% STUDY NOTE (2026-11-16, not printed).
+%   Why cloglog, not logit: cloglog gives a hazard ratio that is the same over the whole window.
+%   Logit gives an odds ratio, which changes with the baseline risk and the window length (Appendix B).
+%   We never see when the event happened, only whether it had happened by the end. That is enough,
+%   as long as the event cannot be undone (plaque does not disappear again).
+Such an event is described through its hazard $h_i(t)$, which is the rate at which the event occurs at time $t$ among the units that are still event-free \cite[Section~10.2]{dobson2002glm}.
+% STUDY NOTE (not printed).
+%   The hazard acts only on the people who are still event-free, and that group shrinks.
+%   Example: hazard 0.2 per year. Each year about 18% of those left get the event:
+%   1000 -> 819 -> 670 ... The same percentage, but fewer people each year.
+Integrated over the window $[0, \tau]$, the hazard gives the cumulative hazard $\Lambda_i$, and the probability of no event by the end of the window follows from it \cite[Section~10.2, Eq.~10.4]{dobson2002glm},
 \begin{equation}
-  p_i = 1 - \exp\{-\exp(\eta_i)\}.
+  \Lambda_i = \int_0^{\tau} h_i(t)\,dt ,
+  \qquad
+  1 - p_i = \exp(-\Lambda_i) .
+  \label{eq:tech-cumhaz}
+\end{equation}
+% STUDY NOTE (not printed).
+%   Lambda_i is the area under the hazard curve. It is NOT the linear predictor (that is log Lambda_i).
+%   Why exp(-Lambda): staying event-free means getting through every small step of the window, so the
+%   probabilities multiply. The log turns that product into a sum (the area), and exp turns it back.
+%   Example: 0.99^10 = 0.904 = exp(-0.1005).
+%   Why not 1 - Lambda: that would count people who already had the event again, and can go below 0.
+%   The two are almost equal only when the event is rare.
+%   We only learn the area, not the shape of the hazard curve over the window.
+Under proportional hazards, the covariates multiply the hazard by the same factor throughout the window \cite[Section~10.2.2, Eq.~10.8]{dobson2002glm},
+\begin{equation}
+  h_i(t) = h_0(t) \exp\Bigl(\sum_k \beta_k x_{ik}\Bigr),
+  \label{eq:tech-ph}
+\end{equation}
+where $h_0(t)$ is the hazard of a unit whose covariates are all zero, referred to as the baseline hazard.
+% STUDY NOTE (not printed).
+%   Baseline hazard = the shared curve. The covariates move each unit's curve up or down, so the
+%   covariates are what make units differ. Hazard ratio 2 = twice as high at every time.
+%   What the covariates miss goes into the frailty exp(b_i) (eq:tech-glmm) or is chance.
+%   "All covariates zero" is an imaginary person unless the covariates are centred (then: an average person).
+Integrating Eq.~\eqref{eq:tech-ph} over the window multiplies the cumulative hazard $\Lambda_0$ of this unit by the same factor, so the logarithm of the cumulative hazard is linear in the covariates \cite[Section~10.2.2]{dobson2002glm},
+\begin{equation}
+  \log\Lambda_i = \log\Lambda_0 + \sum_k \beta_k x_{ik} = \eta_i ,
+  \label{eq:tech-logcumhaz}
+\end{equation}
+with the intercept of Eq.~\eqref{eq:tech-lp} equal to $\beta_0 = \log\Lambda_0$.
+% STUDY NOTE (not printed).
+%   Lambda_0 = area under the baseline hazard h_0(t).
+%   beta_0 = log Lambda_0: the intercept is the log of the baseline area. Example: beta_0 = -2 gives
+%   Lambda_0 = 0.135 and a baseline risk of 0.127.
+%   A longer window gives a larger area, so beta_0 depends on the window; the hazard ratios do not.
+%   Why log: Lambda cannot be negative, but a weighted sum can. The log fixes that.
+%   Chain: hazard -> area Lambda -> log Lambda = linear predictor -> risk = 1 - exp(-Lambda).
+Inserting $\Lambda_i = \exp(\eta_i)$ into Eq.~\eqref{eq:tech-cumhaz} gives the risk, and solving for $\eta_i$ gives the link itself,
+\begin{equation}
+  p_i = 1 - \exp\{-\exp(\eta_i)\},
+  \qquad
+  g(p_i) = \log\{-\log(1 - p_i)\} = \eta_i .
   \label{eq:tech-cloglog}
 \end{equation}
-This function is the inverse link $g^{-1}$ of Eq.~\eqref{eq:tech-link}.
+The first expression is the inverse link $g^{-1}$ of Eq.~\eqref{eq:tech-link}.
+The second takes the logarithm of minus the logarithm of the complement $1 - p_i$, which gives the link its name \cite[Section~7.3]{dobson2002glm}.
 
-Under the cloglog link, an increase of one in $x_{ik}$ with the other covariates held fixed multiplies the hazard by $\exp(\beta_k)$, referred to as the hazard ratio \cite[Section~10.2.2, Eq.~10.7]{dobson2002glm}.
-Since the other covariates are held fixed, the hazard ratio is adjusted for them.
-A hazard ratio refers to one unit of its covariate and is read together with that unit.
+By Eq.~\eqref{eq:tech-ph}, an increase of one in $x_{ik}$ with the other covariates held fixed multiplies the hazard by $\exp(\beta_k)$ at every time in the window, referred to as the hazard ratio \cite[Section~10.2.2, Eq.~10.7]{dobson2002glm}.
+The hazard ratio therefore compares two units that differ only in $x_{ik}$, and it is referred to as adjusted for the other covariates.
+Its size depends on the scale on which $x_{ik}$ is measured, such as degrees or millimetres.
+To compare covariates measured on different scales, each hazard ratio can be expressed per standard deviation of its covariate.
 
 Units can differ in the time or the extent over which they are at risk, and this amount is their exposure $E_i$.
-The exposure enters the linear predictor as $\gamma \log E_i$, so it multiplies the cumulative hazard by $E_i^{\gamma}$.
+The exposure enters the linear predictor of Eq.~\eqref{eq:tech-logcumhaz} as $\gamma \log E_i$, so it multiplies the cumulative hazard by $E_i^{\gamma}$.
 When $\gamma$ is fixed at 1, the cumulative hazard is proportional to the exposure and the term is referred to as an offset \cite[Section~9.2, Eq.~9.3]{dobson2002glm}.
 When $\gamma$ is estimated instead, the data decide how strongly the cumulative hazard grows with the exposure.
 

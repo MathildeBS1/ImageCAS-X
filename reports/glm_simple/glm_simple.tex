@@ -1,0 +1,84 @@
+\documentclass[11pt]{article}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{parskip}
+
+\title{Generalised linear models, simply}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Start from ordinary linear regression}
+
+Ordinary linear regression predicts a number as a weighted sum of the
+features,
+\[
+  y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \dots + \text{noise},
+\]
+with normally distributed noise. This works when $y$ can take any value, such
+as blood pressure. It breaks when $y$ is a yes/no outcome, such as whether a
+segment developed plaque: a weighted sum can give $-0.3$ or $1.4$, which is
+not a probability.
+
+\section*{The three parts of a GLM}
+
+A generalised linear model (GLM) keeps the weighted sum but changes the two
+things that broke. It has three parts.
+
+The \emph{linear predictor} is the same weighted sum as before,
+\[
+  \eta = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \dots ,
+\]
+and it may take any value.
+
+The \emph{distribution} describes what kind of outcome $y$ is. A yes/no
+outcome follows a Bernoulli distribution with probability $p$; a count
+follows a Poisson distribution with mean $\mu$; a measurement follows a
+normal distribution with mean $\mu$.
+
+The \emph{link function} $g$ connects the mean of $y$ to the linear
+predictor, $g(\text{mean}) = \eta$. It stretches the allowed range of the
+mean, for example 0 to 1 for a probability, onto the whole real line, so that
+any value of $\eta$ turns back into a valid mean.
+
+\begin{center}
+\begin{tabular}{llll}
+\toprule
+Outcome & Distribution & Link & $e^{\beta}$ is \\
+\midrule
+Measurement & Normal    & identity, $\mu$                & (no ratio; $\beta$ is a difference) \\
+Count       & Poisson   & log, $\log\mu$                 & a rate ratio \\
+Yes/no      & Bernoulli & logit, $\log\{p/(1-p)\}$       & an odds ratio \\
+Yes/no      & Bernoulli & cloglog, $\log\{-\log(1-p)\}$  & a hazard ratio \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Ordinary linear regression is the first row: a GLM with a normal
+distribution and the identity link. Logistic regression is the third row.
+
+\section*{How it is fitted}
+
+The coefficients are chosen by maximum likelihood: the values of $\beta$
+under which the observed outcomes are most probable. Two nested models, for
+example with and without the geometry features, are compared with a
+likelihood-ratio test, which asks whether the extra features make the data
+clearly more probable.
+
+\section*{From GLM to GLMM}
+
+A GLM treats every row as independent. In this thesis each person contributes
+nine segments, and segments of the same person share risk factors that the
+model does not measure. A generalised linear \emph{mixed} model (GLMM) adds a
+random intercept $b_i$ for each person,
+\[
+  \eta_{is} = \beta_0 + \beta_1 x_{is,1} + \dots + b_i ,
+  \qquad b_i \sim N(0, \sigma^2),
+\]
+so that a person with a high $b_i$ has a higher risk in all nine segments.
+The thesis model is such a GLMM: a Bernoulli outcome per segment, the cloglog
+link, and a person random intercept.
+
+\end{document}

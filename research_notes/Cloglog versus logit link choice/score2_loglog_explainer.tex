@@ -1,0 +1,312 @@
+% Study note (not thesis text): the log-log scale, SCORE2 and the plaque model, built up slowly.
+% Written 2026-11-14 on request ("explain it in the pdf very simply and slow build up").
+% Sources: SCORE2 Updated Supplementary Material.docx (project root), read 2026-11-14: Box 1 (Fine and
+%   Gray models), Box 6 (recalibration by intercept and slope), Supplementary Methods Tables 2-4
+%   (baseline survival 0.9605/0.9776, scale1/scale2, worked example). Slope 0.722 from
+%   CGPS_data/score2_honesty.md (person-level model, not the pooled GLMM).
+% Numbers in Sections 2 and 5 recomputed in Python 2026-11-14.
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage[hidelinks]{hyperref}
+\usepackage{parskip}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\newcommand{\up}{\textcolor{blue!70!black}}
+\newcommand{\down}{\textcolor{red!70!black}}
+
+\title{The log-log scale, SCORE2 and the plaque model\\[2pt]\large A slow explanation}
+\author{Study note, 14 November 2026}
+\date{}
+\usepackage{titling}
+\setlength{\droptitle}{-2.5cm}
+
+\begin{document}
+\maketitle
+
+\section{The problem: a risk is stuck between 0 and 1}
+
+Both SCORE2 and the plaque model predict a \emph{risk}: the probability $p$ that something happens
+within a time window (10 years for SCORE2, the time between the two scans for plaque).
+A risk is always between 0 and 1.
+
+A regression model, on the other hand, builds a \emph{linear predictor}
+\[
+  \eta = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \dots
+\]
+which is a sum of terms and can be any number, from $-\infty$ to $+\infty$.
+
+So we need a translation between the two: a way to turn a risk into a number that can be any
+value, and back again. The log-log transform is one such translation, and SCORE2 and the plaque
+model both use it.
+
+\section{Going up: from risk to the log-log scale, one step at a time}
+
+Start with a risk $p$. Apply three small steps.
+
+\textbf{Step 1: flip to survival.}
+\[
+  S = 1 - p .
+\]
+$S$ is the probability that the event has \emph{not} happened by the end of the window.
+Still between 0 and 1.
+
+\noindent
+\begin{minipage}[t]{0.38\textwidth}
+\textbf{Step 2: take minus the log. This gives the cumulative hazard.}
+\[
+  \Lambda = -\log S = -\log(1 - p).
+\]
+The hazard is the rate at which the event happens at each moment; $\Lambda$ is that rate summed
+over the whole window. It is between 0 and $+\infty$. One side is open now.
+
+\medskip
+See the red box for what ``minus the log'' does and why it means ``adding up risk''.
+\end{minipage}\hfill
+\begin{minipage}[t]{0.60\textwidth}
+\vspace{-1.2em}
+\begin{tcolorbox}[colback=red!4,colframe=red!70!black,boxrule=0.8pt,arc=2pt,
+  left=5pt,right=5pt,top=4pt,bottom=4pt,fontupper=\footnotesize,
+  title={\small What does ``take minus the log'' do?},fonttitle=\bfseries]
+\textbf{Mechanically.} $S$ is between 0 and 1, and the log of such a number is always
+negative: $\log 0.95 = -0.051$, $\log 0.60 = -0.511$. The minus flips it to positive. So
+$-\log S$ runs from 0 ($S=1$, nobody has had the event) to $+\infty$ ($S=0$, everybody has).
+
+\smallskip
+\textbf{Meaning: it adds up risk over time.} Cut the window into years. To stay event-free for
+10 years you must get through year 1, \emph{and} year 2, and so on, so the yearly survival
+probabilities multiply:
+\[
+  S = 0.99^{10} = 0.904 .
+\]
+The log turns that product into a sum:
+\[
+  -\log S = 10 \times (-\log 0.99) = 10 \times 0.01005 = 0.1005 .
+\]
+So $-\log S$ is the small yearly risks added up: the hazard piled up over the window, which is
+why $\Lambda$ is called \emph{cumulative}.
+
+\smallskip
+\textbf{Reading the number.} For small risks $\Lambda \approx p$ (risk 0.05 gives 0.051). For
+large risks $\Lambda$ grows faster than $p$ (0.40 gives 0.51; 0.90 gives 2.30), as each extra
+bit of risk is harder to reach when few are left event-free. $\Lambda = 1$ means
+$S = e^{-1} = 0.37$.
+
+\smallskip
+\textbf{Why bother.} On the survival scale things combine by \emph{multiplying}; after minus
+the log they combine by \emph{adding}, year 1 plus year 2, or segment 1 plus segment 2. That
+is what lets the nine segment hazards sum into one person hazard.
+\end{tcolorbox}
+\end{minipage}
+\medskip
+
+\textbf{Step 3: take the log again.}
+\[
+  \eta = \log \Lambda = \log\{-\log(1-p)\}.
+\]
+Now the value can be anything from $-\infty$ to $+\infty$. Both sides are open, so this is the
+number the linear predictor is allowed to be.
+
+That is all ``log-log'' means: \textbf{log, then log again}. (The full name, complementary
+log-log or cloglog, comes from the $1-p$ in step 1, the complement.)
+
+\begin{table}[h]
+\centering
+\begin{tabular}{rrrr}
+\toprule
+risk $p$ & survival $S = 1-p$ & cum.\ hazard $\Lambda = -\log S$ & log-log $\eta = \log\Lambda$ \\
+\midrule
+0.01 & 0.99 & 0.0101 & $-4.60$ \\
+0.05 & 0.95 & 0.0513 & $-2.97$ \\
+0.10 & 0.90 & 0.1054 & $-2.25$ \\
+0.40 & 0.60 & 0.5108 & $-0.67$ \\
+0.90 & 0.10 & 2.3026 & $0.83$ \\
+\bottomrule
+\end{tabular}
+\caption{The same five risks on each of the three scales. Notice that for small risks,
+$\Lambda \approx p$.}
+\end{table}
+
+\section{Going down: from the log-log scale back to risk}
+
+Every step can be undone. The opposite of $\log$ is $e^{(\cdot)}$, so going back means
+using $e$ twice, in the reverse order:
+\[
+  \eta
+  \;\xrightarrow{\ \ e^{\eta}\ \ }\;
+  \Lambda
+  \;\xrightarrow{\ \ e^{-\Lambda}\ \ }\;
+  S
+  \;\xrightarrow{\ \ 1 - S\ \ }\;
+  p .
+\]
+Written in one line:
+\[
+  p = 1 - \exp\{-\exp(\eta)\}.
+\]
+
+So the rule of direction is simple:
+\begin{center}
+\begin{tabular}{ll}
+\up{Going up} (risk $\to$ model scale): & $\log$, then $\log$ \quad $\eta = \log\{-\log(1-p)\}$ \\[3pt]
+\down{Going down} (model scale $\to$ risk): & $\exp$, then $\exp$ \quad $p = 1-\exp\{-\exp(\eta)\}$
+\end{tabular}
+\end{center}
+The model is \emph{fitted and added up} on the log-log scale (up). The \emph{answer you report}
+is a risk (down).
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}
+\begin{axis}[width=0.75\textwidth,height=6cm,xlabel={log-log value $\eta$},ylabel={risk $p$},
+  xmin=-6,xmax=2,ymin=0,ymax=1,grid=major,grid style={gray!20}]
+\addplot[very thick,blue!70!black,domain=-6:2,samples=200]{1-exp(-exp(x))};
+\addplot[only marks,mark=*,red!70!black] coordinates {(-2.97,0.05) (-0.672,0.40)};
+\node[anchor=west] at (axis cs:-2.8,0.09) {\small $p=0.05$, $\eta=-2.97$};
+\node[anchor=west] at (axis cs:-0.5,0.36) {\small $p=0.40$, $\eta=-0.67$};
+\end{axis}
+\end{tikzpicture}
+\caption{Going down: $p = 1-\exp\{-\exp(\eta)\}$. Any value of $\eta$ gives a risk between 0
+and 1.}
+\end{figure}
+
+\section{Why log twice? Each log turns a multiplication into an addition}
+
+The two logs are not arbitrary. Each one turns something that \emph{multiplies} into something
+that \emph{adds}, and regression is built on adding.
+
+\textbf{The first log} (survival $\to$ cumulative hazard).
+Surviving two things means multiplying their survival probabilities:
+$S = S_1 \times S_2$. After the minus-log, $\Lambda = \Lambda_1 + \Lambda_2$.
+Hazards \emph{add}. This is why the nine segment hazards of one person can simply be added into
+one person hazard.
+
+\textbf{The second log} (cumulative hazard $\to$ log-log).
+A risk factor such as smoking \emph{multiplies} the hazard, for example by 2:
+$\Lambda_{\text{smoker}} = 2 \times \Lambda_{\text{non-smoker}}$.
+After the log, $\log\Lambda_{\text{smoker}} = \log 2 + \log\Lambda_{\text{non-smoker}}$.
+The effect \emph{adds} a fixed amount, $\beta = \log 2 \approx 0.69$. Going down again,
+$e^{\beta} = 2$ is the hazard ratio.
+
+Example: a non-smoker with risk 0.05 has $\Lambda = 0.0513$. A smoker with hazard ratio 2 has
+$\Lambda = 0.1026$ and risk $1 - e^{-0.1026} = 0.098$. On the log-log scale this is just
+$-2.97 + 0.69 = -2.28$.
+
+So on the log-log scale every risk factor is one number that is added, and the same number
+holds for everyone.
+
+\section{What SCORE2 does}
+
+From the SCORE2 Supplementary Material (Box 1 and Supplementary Methods Tables 2--4):
+
+\textbf{The model.} SCORE2 was fitted with Fine and Gray models, a kind of proportional-hazards
+model that also accounts for people dying of other causes first. It produces a linear predictor
+LP from age, smoking, blood pressure, total and HDL cholesterol (and their interactions with
+age).
+
+\textbf{The uncalibrated risk} (Table 4, step 2):
+\[
+  \text{risk} = 1 - S_0^{\exp(\text{LP})},
+\]
+where $S_0$ is the baseline 10-year survival (0.9605 for men, 0.9776 for women).
+
+Go \up{up} with the log-log steps from Section 2:
+\[
+  \log\{-\log(1-\text{risk})\} = \underbrace{\log\{-\log S_0\}}_{\text{a constant}} + \text{LP}.
+\]
+So on the log-log scale, SCORE2 is a \emph{straight line}: a constant plus the linear predictor.
+SCORE2 lives on exactly the scale described above.
+
+\textbf{The recalibration} (Table 4, step 3). To fit each European region, SCORE2 goes up to
+the log-log scale, stretches and shifts the value with two numbers, and comes down again:
+\[
+  \text{calibrated risk} = 1 - \exp\Bigl[-\exp\bigl(\text{scale}_1 + \text{scale}_2 \times
+  \log\{-\log(1 - \text{uncalibrated risk})\}\bigr)\Bigr].
+\]
+Read it from the inside out: \up{log, log} (up), multiply by $\text{scale}_2$ and add
+$\text{scale}_1$ (a straight line), \down{exp, exp} (down).
+
+\textbf{Worked example from Table 4} (man, 50 years, smoker, systolic BP 140, total cholesterol
+6.3, HDL 1.4, low-risk region, as Denmark):
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+step & calculation & value \\
+\midrule
+linear predictor & sum of the terms in Table 4 & $0.3221$ \\
+uncalibrated risk & $1 - 0.9605^{\exp(0.3221)}$ & $0.0541$ \\
+\up{up}: log-log & $\log\{-\log(1-0.0541)\}$ & $-2.889$ \\
+straight line & $-0.5699 + 0.7476 \times (-2.889)$ & $-2.730$ \\
+\down{down}: $\exp$ & $\exp(-2.730)$ & $0.0652$ \\
+\down{down}: risk & $1 - \exp(-0.0652)$ & $0.0631$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+The calibrated 10-year risk is 6.3\%, as in the supplement.
+
+\section{What the plaque model does}
+
+The plaque model works on the same scale. For segment $j$ of person $i$,
+\[
+  \log\{-\log(1 - p_{ij})\} = \eta_{ij} + b_i ,
+\]
+where $p_{ij}$ is the risk that the segment has plaque at follow-up, $\eta_{ij}$ holds the
+covariates and $b_i$ is the person's own random level. Going \down{down} gives the segment
+risk, and adding the nine segment hazards (Section 4) gives the person risk.
+
+To use SCORE2 as the base, its risk is taken \up{up} to the log-log scale and put in as one
+covariate:
+\[
+  \log\{-\log(1 - p_{ij})\} = \alpha_j + \gamma \times \log\{-\log(1 - \text{SCORE2})\}
+  + \text{geometry terms} + b_i .
+\]
+Compare this with SCORE2's own recalibration in Section 5:
+$\alpha$ plays the role of $\text{scale}_1$ and $\gamma$ the role of $\text{scale}_2$.
+\textbf{The plaque model recalibrates SCORE2 to plaque in exactly the way SCORE2 recalibrates
+itself to each region.}
+
+\section{Why it is good to do it on the same scale}
+
+\textbf{The slope has a clear meaning.} Both sides are log cumulative hazards, so $\gamma$
+compares like with like.
+If $\gamma = 1$, a person whose SCORE2 hazard is twice as high also has a twice as high plaque
+hazard: SCORE2's differences carry over unchanged.
+If $\gamma < 1$, the differences shrink: twice the SCORE2 hazard means $2^{\gamma}$ times the
+plaque hazard. Your person-level estimate (\texttt{score2\_honesty.md}) is $\gamma = 0.722$
+(95\% CI 0.569 to 0.874), so twice the SCORE2 hazard gives about $2^{0.722} \approx 1.65$ times
+the plaque hazard. SCORE2 spreads people out a bit more than their plaque risk differs.
+
+\textbf{A straight line is enough.} SCORE2 is a straight line on the log-log scale, so a
+straight line (two numbers, $\alpha$ and $\gamma$) is the natural way to move it to a new
+outcome. Putting SCORE2 in as a raw percentage, or on the logit scale, would bend that
+relation, and the slope would no longer mean ``how much of SCORE2's hazard difference carries
+over''.
+
+\textbf{It follows the published method.} The intercept-and-slope recalibration is the one the
+SCORE2 authors use themselves (Box 6), so it can be cited directly.
+
+\textbf{Geometry adds on the same scale.} The geometry coefficients are added on the same
+log-log scale as SCORE2, so $e^{\beta}$ is a hazard ratio on top of SCORE2: how many times
+higher the plaque hazard is for one unit of geometry, at the same SCORE2 value.
+
+\section{What to be careful about}
+
+\begin{itemize}
+\item \textbf{A different kind of hazard.} SCORE2 is a Fine and Gray model, so its hazard is a
+  \emph{subdistribution} hazard, which accounts for death from other causes. The supplement
+  itself says its hazard ratios ``are relevant for risk estimation only''. The plaque model has
+  an ordinary hazard. The scale is the same in form, but the two hazards are not the same thing.
+\item \textbf{A different outcome.} SCORE2 predicts cardiovascular events, not plaque. A
+  $\gamma$ below 1 is expected for that reason alone.
+\item \textbf{A different model.} The 0.722 comes from the person-level model in
+  \texttt{score2\_honesty.md}. The decision on the base must be made in the pooled segment
+  model.
+\item \textbf{Which SCORE2 column.} The CGPS \texttt{score2} value is most likely the
+  region-calibrated risk. That does not change the argument: the calibration is itself a
+  straight line on the log-log scale, so the value is still a straight line in LP.
+\end{itemize}
+
+\end{document}

@@ -1,0 +1,73 @@
+% The who model, drawn component by component. Figures from make_figures.py (simulated numbers only).
+% Built from the decided model in the root CLAUDE.md, not from Thesis_coronary/content/technical/01_mixed_model.tex.
+% Person risk integrates over b as person_risk() in CGPS_data/progression_who_pooled.py.
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=2cm]{geometry}
+\usepackage{graphicx,amsmath,caption}
+\captionsetup{font=small,labelfont=bf}
+\setlength{\parindent}{0pt}
+\pagestyle{plain}
+
+\newcommand{\fig}[3]{%
+  \begin{figure}[!htbp]\centering
+  \includegraphics[width=#3\textwidth]{#1}
+  \caption{#2}
+  \end{figure}}
+
+\begin{document}
+\begin{center}
+{\Large\bfseries The who model in pictures}\\[4pt]
+{\small A cloglog mixed model over nine segments, one part per figure. All numbers are simulated.}
+\end{center}
+
+\vspace{6pt}
+\[
+\eta_{ij} \;=\; \underbrace{\alpha_j}_{\text{segment}} \;+\; \underbrace{x_i^\top\beta}_{\text{6 risk factors}}
+\;+\; \underbrace{g_{ij}^\top\gamma}_{\text{geometry}} \;+\; \underbrace{b_i}_{\text{person}},
+\qquad b_i \sim N(0,\sigma^2),
+\qquad p_{ij} = 1-\exp\!\left(-e^{\eta_{ij}}\right)
+\]
+\vspace{2pt}
+{\small Person $i$, segment $j \in \{$pLAD, mLAD, dLAD, pLCx, mLCx, dLCx, pRCA, mRCA, dRCA$\}$,
+$y_{ij}=1$ if person $i$ developed plaque in segment $j$.}
+
+\fig{fig01_data_layout}{Data layout. Each person contributes nine rows, one per segment, and the
+outcome is recorded per row.}{1.0}
+
+\fig{fig02_design_matrix}{Covariates of three people. The six risk factors repeat in all nine rows of a
+person and curvature changes from segment to segment. The LM angle and the daughter asymmetry are
+measured once per person and enter only the pLAD and pLCx rows (0 elsewhere).}{0.85}
+
+\fig{fig03_linear_predictor}{Linear predictor of one segment. The four parts add on the log-hazard scale,
+and the link turns the sum into a probability.}{1.0}
+
+\fig{fig04_segment_intercepts}{Segment intercepts. Each segment has its own baseline log hazard, the risk
+of a person at the reference value of every covariate with $b_i=0$. Nine levels are fitted as one
+intercept and eight contrasts.}{1.0}
+
+\fig{fig05_cloglog_link}{The cloglog link. $e^{\eta}$ is the cumulative hazard over follow-up, so
+$1-\exp(-e^{\eta})$ is the probability of at least one event. Where risk is low, cloglog and logit give
+almost the same probabilities.}{1.0}
+
+\fig{fig06_hazard_ratio}{Hazard ratio per SD. One SD more curvature adds $\gamma$ to the log hazard and
+multiplies the hazard by $e^{\gamma}$, the same at every starting point. On the probability scale the
+step grows with the baseline risk.}{1.0}
+
+\fig{fig07_random_intercept}{Person random intercept. Each person draws one $b_i$ (a), which raises or
+lowers all nine segments by the same amount on the log-hazard scale (b). Segments of the same person
+are therefore correlated: with $\sigma>0$ more people have no plaque and more have plaque in several
+segments than with independent segments at the same expected total (c).}{1.0}
+
+\fig{fig08_conditional_vs_average}{How the hazard ratios are read. Within a person (fixed $b_i$) the
+curvature effect is a hazard ratio of 1.60 per SD. Averaged over the spread of $b_i$, the same model
+gives a flatter curve. The reported hazard ratios are conditional on the person random intercept.}{1.0}
+
+\fig{fig09_pooling}{Pooling segment risks into one person risk. For a given $b$, the segment hazards add
+up and $1-\exp(-H)$ is the probability of plaque in at least one segment (a). The person risk is this
+probability averaged over the distribution of $b$ (b).}{1.0}
+
+\fig{fig10_lr_test}{Likelihood ratio test of the geometry block. The base model and the model with the
+three geometry terms are compared by twice their log-likelihood difference, referred to a $\chi^2$
+distribution with 3 degrees of freedom.}{1.0}
+
+\end{document}

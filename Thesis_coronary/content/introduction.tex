@@ -18,8 +18,8 @@
 % 2026-11-15 (user): paragraphs 5 and 6 rewritten to the current design and the prognostic factor
 %   framing (root CLAUDE.md): association beyond the SCORE2 risk factors, plaque-free baseline,
 %   in-house tracer, four features, one pooled segment-level model, one test, prediction secondary.
-%   Four features, not the five of the root CLAUDE.md: the Methods notes (04_model_size.tex,
-%   05c_daughter_ratio.tex, 2026-11-13) replaced the LM->LAD and LM->LCx ratios by the daughter
+%   Four features, not the five of the root CLAUDE.md: the Methods notes (06_model_size.tex,
+%   03c_daughter_ratio.tex, 2026-11-13) replaced the LM->LAD and LM->LCx ratios by the daughter
 %   asymmetry ln(D_LCx/D_LAD) and dropped Finet's ratio.
 %   Cut: own segmentation pipeline, logistic regression + transformer, per-artery models, "new
 %   plaque", "identify individuals at increased risk" (a risk-model claim).
@@ -46,6 +46,9 @@
 %   the aim sentence; the TODO on the open base removed. The sentence does not say how the factors
 %   enter the model, so it holds while progression_who_pooled.py still defaults to log SCORE2.
 %   CHECK: once that code is in thesis_final/ with the six factors as its default.
+% 2026-11-16 (user): lumen taper dropped as a model feature (root CLAUDE.md). Paragraph 5 now names
+%   three features; "the narrowing of their lumen along their length" cut. The CHECK of 2026-11-15
+%   on "four features" and taper per artery or per segment is resolved.
 
 \chapter{Introduction}
 \label{ch:introduction}
@@ -88,9 +91,9 @@ greater Copenhagen by the Copenhagen General Population Study (CGPS) and scanned
 coronary computed tomography angiography (CCTA) \cite{fuchs2023cgps}.
 A longitudinal subset of these individuals was scanned a second time about 10 years later.
 In these scans, the centerline and the lumen of the three main coronary arteries are extracted with
-an in-house tracer, and four features are computed from them: the curvature of the arteries, the
-narrowing of their lumen along their length, the angle at which the left main artery divides, and
-the difference in diameter between its two daughter arteries.
+an in-house tracer, and three features are computed from them: the curvature of the arteries, the
+angle at which the left main artery divides, and the difference in diameter between its two
+daughter arteries.
 A single regression model then relates plaque development in each artery segment to these features
 and to the risk factors, with all segments of an individual analysed together.
 The association is tested once, by comparing this model with the same model without the geometry.

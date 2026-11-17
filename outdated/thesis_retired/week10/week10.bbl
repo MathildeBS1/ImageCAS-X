@@ -1,0 +1,70 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.2 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated by
+% biber as required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+
+\refsection{0}
+  \datalist[entry]{none/global//global/global}
+    \entry{dodge1992diameter}{article}{}
+      \name{author}{4}{}{%
+        {{hash=31750702789fc480fba2c6e0d6a1dd29}{%
+           family={Dodge},
+           familyi={D\bibinitperiod},
+           given={J.\bibnamedelimi T.},
+           giveni={J\bibinitperiod\bibinitdelim T\bibinitperiod}}}%
+        {{hash=8e235951ea50630e28ae0004929ef8cb}{%
+           family={Brown},
+           familyi={B\bibinitperiod},
+           given={B.\bibnamedelimi G.},
+           giveni={B\bibinitperiod\bibinitdelim G\bibinitperiod}}}%
+        {{hash=68d68cb05d7923691246b65bcb9c4c66}{%
+           family={Bolson},
+           familyi={B\bibinitperiod},
+           given={E.\bibnamedelimi L.},
+           giveni={E\bibinitperiod\bibinitdelim L\bibinitperiod}}}%
+        {{hash=8876265c089644ba1fc7276d78fb152e}{%
+           family={Dodge},
+           familyi={D\bibinitperiod},
+           given={H.\bibnamedelimi T.},
+           giveni={H\bibinitperiod\bibinitdelim T\bibinitperiod}}}%
+      }
+      \strng{namehash}{4109436b154e45b6473e42bbd568816e}
+      \strng{fullhash}{be0f1d3173e489c1eb9ec7535f742e85}
+      \strng{bibnamehash}{be0f1d3173e489c1eb9ec7535f742e85}
+      \strng{authorbibnamehash}{be0f1d3173e489c1eb9ec7535f742e85}
+      \strng{authornamehash}{4109436b154e45b6473e42bbd568816e}
+      \strng{authorfullhash}{be0f1d3173e489c1eb9ec7535f742e85}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Circulation}
+      \field{number}{1}
+      \field{title}{Lumen diameter of normal human coronary arteries. Influence of age, sex, anatomic variation, and left ventricular hypertrophy or dilation}
+      \field{volume}{86}
+      \field{year}{1992}
+      \field{pages}{232\bibrangedash 246}
+      \range{pages}{15}
+      \verb{doi}
+      \verb 10.1161/01.CIR.86.1.232
+      \endverb
+    \endentry
+  \enddatalist
+  \missing{schaap2009cat08}
+\endrefsection
+\endinput
+

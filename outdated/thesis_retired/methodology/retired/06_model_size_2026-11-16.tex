@@ -1,0 +1,90 @@
+% RENUMBERED 2026-11-16 (user: "rename the files also"): methodology files follow the reading order.
+%   Old -> new: 05 features -> 03 (05a/05b/05c -> 03a/03b/03c), 06 feature validity -> 04,
+%   03 statistical model (before that 03_prediction_model) -> 05, 04 model size -> 06; 07 unchanged.
+%   File names in the comments below were updated; bare numbers in comments dated before this entry
+%   ("Methods 03", "05a header", "05d") are the OLD numbers.
+% NOTES ONLY, to be written. Trimmed 2026-11-07 from thesis/methodology/06_model_size.tex
+% (full draft in git, commit e4eb857).
+% 2026-11-15 (prognostic factor framing, root CLAUDE.md): the Riley criteria are sample-size
+%   criteria for developing a prediction model. The thesis no longer claims to develop one, so when
+%   this is written, present the budget as a guard against overfitting (it protects the hazard
+%   ratios and the secondary performance estimates), not as the sample size of a risk model.
+%   CHECK with the supervisor whether the Riley budget stays or a simpler events-per-parameter
+%   statement is enough; not decided.
+% Outcome-blind: the budget uses only participants and events, never geometry; the selection uses
+% only the literature and measurement properties, never association with plaque.
+% Numbers: CGPS_data/who_where_readiness.py still uses 10/20 events-per-parameter rules; switch it to
+% the Riley criteria (pmsampsize) first. Plan: ~/Desktop/Speciale/CGPS_statistics-/CLAUDE.md, open
+% decision 11 (about 15 to 20 parameters at C = 0.70).
+%
+% The section should contain:
+% - Opening: model size and features fixed before baseline geometry is linked to follow-up plaque,
+%   so the LR test tests geometry, not earlier choices. First the budget, then the selection.
+% - Subsection Parameter Budget (sec:method-size-budget): Riley criteria (sec:tech-sample-size),
+%   shrinkage S = 0.9, anticipated C = 0.70 (source needed, e.g. PARADIGM clinical-only 0.68), also
+%   0.65 and 0.75. Participants, events and P_max to fill in. Open: the criteria are for a binary
+%   person-level outcome; state that n and events are counted per participant.
+%   Degrees-of-freedom counting (linear 1, spline k-1, factor m-1, interaction >= 1), base first,
+%   geometry gets the rest, all geometric terms linear, part of the budget left unused on purpose.
+%   Table tab:method-size-budget (participants, events, P_max, base df, geometry 5, used, unused).
+%   Open: SCORE2 factor coding; whether an absent-left-main indicator joins the geometric block.
+% - Subsection Selection of Geometric Features (sec:method-selection): candidates are geometry the
+%   literature (ch:literature) ties to WSS or plaque location and the tracer output allows. One
+%   primary definition each, others to sensitivity (sec:method-validity-definitions). Candidates set
+%   aside for weaker literature support (tortuosity index, bend counts, side-branch bifurcations),
+%   [2026-11-07 CHECK: the Literature Review now supports tortuosity index (sec:lit-wss Kashyap,
+%   sec:lit-measure), bend counts (sec:lit-measure Li) and LM-daughter angles (sec:lit-wss Cui, moved 2026-11-07);
+%   "side-branch bifurcations" has no source in the review: find one or drop it.]
+%   measurement error on CCTA (torsion, eccentricity, local expansion, pointwise profiles, lumen
+%   volume to myocardial mass) or overlap with a retained feature (curvature x
+%   calibre, upstream curvature, distance from ostium, side-branch count). Prose only, no table.
+%   Four features remain: segment curvature and taper, LM angle, daughter asymmetry (2026-11-13:
+%   Finet's ratio dropped, no supporting literature and the only feature needing the LM diameter;
+%   see 05c header). Coverage [..]% of the cohort; the asymmetry is available whenever the angle is.
+%   Budget: geometry block 4 df, plus 1 for the secondary angle x
+%   asymmetry term outside the LR test. No ranking, screening, stepwise or penalised
+%   selection; the rest go to secondary analyses.
+% HONESTY CHECK: say the four were prioritised on these criteria, NOT that a longer list was ranked.
+% 2026-11-09: the shared reason for the five (shape disturbs flow and lowers WSS, one sentence per kind
+%   of feature, tied to low WSS in sec:lit-wss) is now stated once in 03_features.tex
+%   (sec:method-features). sec:method-selection should only say why these four were kept over the
+%   other candidates, and point to sec:method-features for the haemodynamic rationale.
+% 2026-11-16 (user): lumen taper dropped (root CLAUDE.md, Decided). Three features remain: segment
+%   curvature, LM angle, daughter asymmetry. Geometry block 3 df (+1 secondary angle x asymmetry);
+%   budget 6 risk factors + 3 geometry = 9 covariates. Whether sec:method-selection names taper as a
+%   set-aside candidate is open; the counterfactual rule (05c) says dropped features are not stated.
+%   The "four"/"five" counts above are history.
+% 2026-11-16 (user: "we can make the decision ourselves without the supervisor"): the Riley criteria
+%   are dropped from the thesis, with no appendix. sec:tech-sample-size is retired
+%   (outdated/thesis_retired/technical_background/retired/01b_sample_size_2026-11-16.tex). Reasons:
+%   research_notes/Sample size criteria decision/riley_decision.pdf. In short: the criteria bound
+%   overfitting of predicted risks, the main result is a test and hazard ratios of prespecified
+%   terms, the secondary estimates are cross-validated by person, the criteria assume independent
+%   persons, and they did not decide the model size (literature and SCORE2 did).
+%   This closes the supervisor CHECK above. Every Riley, pmsampsize, P_max, anticipated C and
+%   "budget" line above is history; so is the table tab:method-size-budget.
+%   Subsection Model Size (label sec:method-size-budget kept) now contains only:
+%   - the covariates were fixed before geometry was linked to the outcome: the six risk factors
+%     (sec:method-models) and the three features (sec:method-features);
+%   - the number of fixed parameters: 9 covariates plus 8 segment intercepts, and whichever of
+%     log follow-up, dominance and log(length) stay in the base (open, root CLAUDE.md);
+%   - participants and events, per participant and per segment, from the tracer cohort
+%     (preliminary, 1,801 table: 1,076 participants, 452 events; 970 segment events);
+%   - no threshold (no "10 events per parameter") and therefore no citation. If a threshold is ever
+%     claimed, it needs a source that has been opened.
+%   The opening no longer says "first the budget, then the selection": the model size is a
+%   consequence of the prespecified covariates, not a limit that the features were fitted into.
+\section{Model Size and Feature Selection}
+\label{sec:method-size}
+
+\todonote{To be written: the covariates fixed before the features were related to the outcome, the resulting model size and which geometric features were chosen. See the notes in the source.}
+
+\subsection{Model Size}
+\label{sec:method-size-budget}
+
+\todonote{To be written: the number of fixed parameters of the model and the participants and events behind them.}
+
+\subsection{Selection of Geometric Features}
+\label{sec:method-selection}
+
+\todonote{To be written: the candidates, why each set-aside one was set aside, and the three retained features.}

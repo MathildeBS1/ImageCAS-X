@@ -1,0 +1,336 @@
+# Change log of Thesis_coronary/content/technical/02_fpca.tex
+
+Moved out of the header comment of the .tex on 2026-11-16, unchanged. It records every dated edit up to
+the rework of 2026-11-16, whose changes are listed in the header of the .tex itself.
+
+```
+Technical Background, section 2 (drafted 2026-11-06 as 08_fpca.tex; moved 2026-11-07 from
+  thesis/technical_background/04_fpca.tex, text unchanged).
+2026-11-07: Sangalli's classification result (21.5% leave-one-out error, K chosen on the same
+  data) moved to the Literature Review (sec:lit-measure).
+2026-11-08: rewritten after wang2016fda, read in full as arXiv:1507.05135 (skill fpca-wang holds
+  the claim check). Single-source rule (root CLAUDE.md): every general FPCA statement cites
+  wang2016fda alone; ramsay2005fda is no longer cited in this file. Changes:
+  - CUT (user, 2026-11-08; thesis-style: no individual studies in the Technical Background): the
+    Sangalli 2009 AneuRisk paragraph (65 patients, 33.4% / 18.2%; it stays in sec:lit-measure) and
+    the Warmenhoven 2021 result (39 children, R^2 = 0.99). Replaced by the paragraph on mapping
+    each segment onto [0, 1] as a landmark registration.
+  - CUT: the sentence on nearly equal eigenvalues being unstable (no source found).
+  - FIXED against Wang: alpha "usually up to 2" (not "1 or 2"); no 80 or 90% thresholds (Wang
+    calls scree and FVE ad hoc, gives no numbers); "BIC selects fewer than AIC" (not "information
+    criteria select fewer"); grid estimation as sample mean, covariance and a matrix
+    eigenproblem (Wang pp. 5, 9).
+  - UNCITED on purpose, as derivation: the rectangle rule, the scaling factors in
+    eq:tech-fpca-grid, the sequential reading of the eigenfunctions, the sign argument, and
+    "specific to the sample, domain and preprocessing".
+  - NEW CITE: outcome-blind components (Wang p. 26).
+  - sangalli2009aneurisk dropped from the non-identifiability sentence (Wang covers it).
+2026-11-08 (second pass, after outdated/thesis_retired/style_guide_technical_aida.md): definition
+  opener restored ("FPCA is a ... designed for ..., where ..."); origin sentence added (1940s-50s,
+  inference framework 1970s; Wang p. 8, dates only, no names); "scores" glossed once, at
+  eq:tech-fpca-score (was glossed twice); appositive "each the pair of ..." made its own clause;
+  defining property stated as such; grid step phrased as a reduction under the rectangle rule;
+  hazard closer split into Aida's two sentences ("Correct ... depends on ... Otherwise, ...") and
+  made general ("a vessel segment"), so the Methodology makes the link. No tool paragraph: the
+  software is a setting and stays in Methods 07.
+2026-11-08 (third pass, user): opener rebuilt as a middle way between the problem-first and the
+  definition-first versions. "Samples of curves" now explained after Wang p. 2 ("for each subject
+  ... one or several functions are recorded"; "curve data"): one function per subject, the whole
+  function is the observation. Sentence 2 shortened (no repeated "regression model"); history cut
+  to one clause (1970s inference framework, Wang p. 8), the 1940s-50s origin dropped as unused.
+2026-11-08 (fourth pass, user: "optimise for easy understanding on the first read, less clunky"):
+  prose rewritten for readability, with claims, citations, equations and labels unchanged.
+  Long nominal sentences split; intuition before the formal statement (eigenfunctions read one
+  by one, scores read by sign, the expansion as "adding the shapes back"); the vascular sentence
+  moved up to the third sentence of the opener, so "curve" is concrete from the start.
+CHECK: warmenhoven2021pca is now cited only for "FPCA on an equal grid is PCA with the positions
+  as variables, by SVD"; confirm the primer states this (only its R^2 result was read).
+CHECK: marron2015amplitude full text not read; it carries amplitude/phase as terms and the
+  variance-inflation and shift-size mixing claim.
+2026-11-09 (fifth pass, user: "use the phrases and way of explaining in the JMP guide; plain
+  language to support the math; figures where the math is hard to picture; project-specific math
+  waits until the Methodology"). Style source: Hersh P., "Understanding functional principal
+  component analysis (FPCA)", JMP web guide (PDF in the repo root). It is used for the order of
+  explanation and plain wording only and is NOT cited (vendor page; single-source rule keeps every
+  general FPCA claim on wang2016fda). Taken from it: whole curve instead of isolated points; shape,
+  not just level; interpretation starts from the mean and the deviations from it; eigenfunctions
+  read as shapes and scores as how strongly a curve shows a shape; curve = mean + score x shape,
+  shown as a picture before the Karhunen-Loeve equation; mean +/- score x shape for reading a
+  component; the scree plot as where adding components stops paying. Not taken: "dynamic data"
+  (the profiles vary along a position, not over time), basis fitting as a required step, its
+  90-99% rule for K, its claim that smoothing is built in.
+  - MERGED: the two duplicate opener paragraphs (one with a stray character) into one.
+  - MOVED to Methods 07 (sec:method-fpca, as notes): the paragraph on mapping a vessel segment
+    onto [0, 1] as landmark registration, and the respacing of the unevenly spaced centerline
+    points onto the grid. The opener no longer names curvature or radius profiles, and "bend"
+    became "feature" or "peak": this section now holds only general FPCA.
+  - NEW: five figures from made-up curves (content/technical/figures/fpca_figures.py):
+    fig:tech-fpca-curves, fig:tech-fpca-cov, fig:tech-fpca-rebuild, fig:tech-fpca-modes,
+    fig:tech-fpca-phase. The sentences that read the figures (taller peak, tilt, plateau) describe
+    the simulation, not a claim about FPCA.
+  - NEW, uncited on purpose (reasoning): "curves can differ in shape and not only in level";
+    the pointer sentence in sec:tech-fpca-grid to the Methods for curves at unequal positions.
+  - Equations, labels, notation and every wang2016fda claim are unchanged in content.
+2026-11-09 (sixth pass, user: "restructure how FPCA is explained using more of JMP, fix all
+  problems"). Now follows the JMP guide's order: what FPCA is (components and scores) -> why not
+  the raw values (correlated neighbours; shape, not just level) -> how it differs from PCA (a
+  component is a function, not a vector of weights) -> mean function and components -> scores and
+  rebuilding a curve -> reading the components -> how many to keep -> computation -> registration
+  (JMP: alignment as preprocessing). New subsections and labels: sec:tech-fpca-components,
+  sec:tech-fpca-scores, sec:tech-fpca-reading, sec:tech-fpca-k. Equations, eq labels, notation
+  and every wang2016fda claim unchanged in content. Fixed:
+  - the user's opener "(functional components)" / "(scores)": parenthetical glosses replaced by
+    "referred to as"; "functional components" became "components", the word used everywhere else.
+  - double definitions: component and score are defined once, in the opener; the later sentences
+    give their formal meaning ("Formally, the shapes are the eigenfunctions ..."; "A component is
+    thus ..."; "Formally, the score is ...") instead of glossing them again.
+  - "relate to disease" -> "relate to an outcome" (the section is general).
+  - NEW, uncited on purpose (reasoning, after JMP): PCA components as vectors of weights versus
+    FPCA components as functions of position; "the aim is to keep the main shapes without the
+    components that mostly describe noise".
+  - NEW CITE: wavelets added to the fixed-basis list (Wang p. 9 lists spline, Fourier, wavelet).
+  - Not taken from JMP: clustering and outlier detection as applications (not used here).
+2026-11-09 (seventh pass, user: "cut all unnecessary lines on what the method is not"). CUT:
+  "Instead of treating each measured value as an isolated point" (now stated positively); "curves
+  can also differ in shape and not only in level ..." (and "address both problems"); the ordinary
+  PCA sentence (vector of weights per variable), folded into "extends PCA ..., so each component is
+  itself a function of position"; "rather than with the curves themselves"; the fixed-basis
+  sentence (splines, Fourier, wavelets), so the optimality property now opens "The basis of FPCA
+  is estimated ..."; "without looking at any outcome" and "not by how strongly they relate to an
+  outcome". KEPT on purpose: "not a tested property of the curves" (a limit of reading components)
+  and "do not draw on the test curves" (a property of the fold-wise estimation).
+2026-11-09 (eighth pass, user: "optimise the whole section for flow and for easy understanding
+  on the first read"). Claims, cites, equations and labels unchanged. Opener reordered as
+  definition -> curve -> problem (many correlated values) -> FPCA's answer (components, scores,
+  extension of PCA) -> scores in a regression model. Eigen paragraph: no longer says "the shapes
+  are the eigenfunctions" and "each eigenfunction is one shape" twice. "The basis of FPCA" now
+  follows from the eigenfunctions (the fixed-basis sentence that introduced "basis" was cut).
+  Long modes sentence split. Sign paragraph tied to "arbitrary sign" above; fold sentence made
+  a statement of what is done. Outcome-blind paragraph tied to the choice of K. Grid opener: two
+  overlapping sentences merged. The outlier sentence now says why (covariance = second moment).
+2026-11-09 (ninth pass, user: "infer the Aida style guide on the full section; do not be
+  unnecessarily repetitive", outdated/thesis_retired/style_guide_technical_aida.md and
+  style_guide_aida.md). Applied: definition opener "X is a [kind] designed for [task], where ...";
+  one fact per sentence, no idea stated twice; "while/whereas" contrast pairs; subsections that
+  refine (grid, registration) open on the limitation they address; hazard closer kept; no
+  forward references (Aida §9 checklist). Repetition cut:
+  - opener (6 sentences -> 4): "a few" x3, "regression model" x2, "correlated" x2, the separate
+    curve gloss and "each component is itself a function of position" (said by "shapes").
+  - "The score of a curve on a component measures how strongly ..." (said in the opener).
+  - "so that the curve is replaced by K numbers" (said in the opener), now "where the truncation
+    replaces the curve by its first K scores"; the KL cite moved to the expansion itself.
+  - "the components are ordered by how much of the variation they describe" (said by the
+    first/second-shape sentence and lambda_1 >= lambda_2).
+  - "The deviations vary around zero, and everything that follows is computed from them" merged.
+  - "read" x3 in the modes sentence; "compared" x2 in the sign paragraph; "added component" x3.
+  FORWARD REFERENCE dropped: (Section~\ref{sec:method-fpca}) in sec:tech-fpca-grid, per Aida (the
+  background never mentions the Methodology; Methods 07 points back to sec:tech-fpca-grid).
+2026-11-09 (tenth pass, user: citations as often as Aida, one per paragraph). Where a whole
+  paragraph comes from Wang, one \cite{wang2016fda} now closes it (opener, choice of K, the warping
+  paragraph); the mode-of-variation cite moved to the end of its sentence. Paragraphs that mix Wang
+  with own reasoning keep the cite on the sentence it supports, so the reasoning is not attributed
+  to Wang. 25 -> 17 cite brackets for about 66 sentences.
+2026-11-09 (user): "with finite variance" added before the moment condition on X(t), as its
+  plain reading (strictly a finite second moment, which implies finite variance).
+2026-11-09 (eleventh pass, user: "limit the length to an appropriate length and detail, after
+  the section lengths in Aida's thesis; FPCA is a small part of the thesis"). Aida's whole
+  Technical Background is about 1,800 words over 6 pages, her largest section about 600 words;
+  this section was about 2,100 words, 7 equations and 5 figures over 8 pages. Cut to about 1,000
+  words, 5 displayed equations, 2 figures, 3 subsections. Claims and cites unchanged in content.
+  - MERGED into sec:tech-fpca-components: the former sec:tech-fpca-scores, sec:tech-fpca-reading
+    and sec:tech-fpca-k (labels removed).
+  - CUT figures: fig:tech-fpca-curves, fig:tech-fpca-cov, fig:tech-fpca-rebuild (the PDFs and
+    fpca_figures.py are kept). Kept: fig:tech-fpca-modes (caption shortened), fig:tech-fpca-phase.
+  - Covariance and FVE now inline (eq:tech-fpca-cov, eq:tech-fpca-fve removed), with the three
+    sentences that read the covariance figure and the scree-plot sentence.
+  - CUT (second tightening): the BIC/AIC/CV sentence on K (Wang p. 10; the ad hoc point kept);
+    "a position must mean the same on every curve"; "breaking this covariance down" as its own
+    sentence. Several sentence pairs merged.
+  - CUT: "The starting point is" (now a direct definition of the mean); the sentence reading the
+    rebuild figure; the fold-wise estimation sentence (a setting; Methods 07 has no CV); "each
+    added component brings ... less and less"; the w^{-1/2} justification sentence; the
+    "+alpha curve" sentence. Result: about 1,000 prose words, pp. 13-16 of main.pdf (was 13-20).
+2026-11-09 (twelfth pass, user: "apply Aida's style guide so it sounds human"). The cut of the
+  eleventh pass had chained facts into long sentences with two or three "and/so/while" clauses
+  (up to 50 words). Split back to one fact per sentence (Aida: median 24 words); "Let ... denote"
+  for D; "Under this approximation" before the reduction (her derivation chain names the step);
+  subsection openers "While [general], [limitation]" kept; the K paragraph split from the
+  outcome-blind and outlier paragraph; the hazard closer kept as her two sentences; the colon
+  list "break this covariance into shapes: the first ..., the second ..." made two sentences.
+  Claims, cites, equations and labels unchanged.
+2026-11-09 (thirteenth pass, user: "soften the exact mathematical breakdown to a master-thesis
+  level, FPCA is one small component; easy on the first read, each line following the last").
+  Softened: the finite-variance formula dropped (words kept, user); "symmetric and non-negative
+  definite" cut; eq:tech-fpca-eigen reduced to the integral equation, orthonormality in words;
+  optimality in words ("no other K shapes describe the curves more closely on average"); the sign
+  argument in words (no -phi_k equation reference); K trade-off in plain words.
+  MOVED to Methods 07 notes (user): the grid derivation (D, d_i, rectangle rule, N^-1 D'D,
+  eq:tech-fpca-grid with the w factors, SVD). sec:tech-fpca-grid now says it in words: rows of
+  numbers, sums, sample mean and covariance, PCA with positions as variables, scaling sets units.
+  Flow: mean -> deviations -> covariance -> shapes -> scores -> rebuilt curve -> why this basis ->
+  showing a component -> how many -> what components ignore. Bridges added: "Their average",
+  "These shapes", "Put together". Claims and cites unchanged in content.
+2026-11-09 (user): NEW fig:tech-fpca-steps (fpca_steps.pdf, block 6 of fpca_figures.py), a
+  simulated version of outdated/thesis_retired/week10/week_figure/fpca/f6_steps.png: each
+  component takes the largest remaining pattern, which is then removed for the next. The ordering
+  sentence split into three ("Removing from each curve the part that follows this shape ...").
+  Sequential reading uncited, as derivation (it equals the eigendecomposition). Figures now 3.
+2026-11-09 (humanizer pass, user). The text had few AI tells; changed only: the opener's two
+  sentences that both ended ", referred to as X" (now "These shapes are the components.", a short
+  sentence that varies the rhythm; scores "can replace"); "and so on for the following ones" ->
+  "and so on"; "also brings more estimation error" -> "brings its own estimation error". Kept on
+  purpose: "referred to as" for amplitude/phase (thesis-style gloss), "not a tested property"
+  (user, seventh pass), Karhunen--Loeve en dash (a name), Title Case headings (as in the rest of
+  the thesis).
+2026-11-09 (user): eigen paragraph explained in words. NEW: "Applying the covariance function to
+  an eigenfunction returns the same shape, only multiplied by a number" (reads eq:tech-fpca-eigen);
+  unit size and orthogonality as two sentences with their plain meaning (shape vs amount left to
+  the scores; no two eigenfunctions describe the same pattern). Plain readings uncited; Wang
+  cites kept on unit size and orthogonality. The modes paragraph no longer restates unit size
+  ("Since an eigenfunction shows only a shape, a component is shown by ...").
+2026-11-09 (user: "less stiff"): "Removing from each curve the part that follows this shape leaves
+  ..." -> "When each curve's share of this shape is taken out, what is left is ...".
+2026-11-09 (user, option 1): the removal step merged into the second-shape sentence ("Once it is
+  subtracted from the curves, the second eigenfunction is the shape along which the rest varies
+  most, and so on, ..."); replaces the "less stiff" version above.
+2026-11-09 (thesis-style pass over the section, with less_stiff.md). Changed: "found by breaking
+  this covariance down into shapes. These shapes are ..." merged ("shapes" three times in two
+  sentences); the eigen paragraph (8 sentences) split before "The first eigenfunction" so each
+  paragraph does one job (what an eigenfunction is; how they are ordered); score sentence back to
+  "The score of curve i on component k is ..." ("how strongly ... shows" was used three times:
+  opener, unit-size sentence, score); grid paragraph (7 sentences) split after the sentence on
+  unevenly spaced curves. Checked and left: no "Because", no lists, no banned words, no em
+  dashes, one "therefore" per paragraph, every cite on a claim the fpca-wang check supports.
+  OPEN: headings are Title Case, while thesis-style section 7 asks for sentence case; the
+  chapters are mixed (Clinical in sentence case, Literature, Technical and Methods in Title
+  Case). Decide once for the whole thesis.
+2026-11-09 (user): fig:tech-fpca-steps gets a top row (the curves with their mean; the same
+  curves after subtracting it), so the figure shows the whole method top to bottom. The float
+  moved to after the covariance paragraph, where it is first cited ("... deviate from it (Figure,
+  top)"); the ordering sentence cites it again. Caption rewritten for four rows.
+2026-11-09 (user: explain the mean and deviations "the human way", after the retired
+  outdated/thesis_retired/week10 fpca text): mean and deviation now one paragraph (typical value;
+  same for every curve, so it cannot tell them apart; subtracted at each position; what is left
+  shows how much and where a curve lies above or below; wide spread = curves differ a lot), and
+  covariance its own paragraph (a peak covers neighboring positions, so they rise and fall together;
+  Gamma large when above at t means above at u; FPCA looks for these patterns, each becomes a
+  shape). Kept general: "curves" and "a feature such as a peak", not people or turning. The next
+  paragraph now opens "These shapes are the eigenfunctions" (the old "found by breaking this
+  covariance down into shapes" said the same as the new last sentence). Uncited (plain reading).
+2026-11-09 (user: in the real turning profiles there are few peaks; a curve that turns more than
+  the mean at the start tends to do so at the end too): covariance example made general ("Neighboring
+  positions ... and so can positions far apart, for example when a curve lies above the mean along
+  its whole length"). fpca_figures.py re-simulated with broad patterns (overall level, start vs end,
+  middle vs ends; about 63, 28 and 8% of the variance, 1% left), as in the week-10 Medis steps
+  figure; fig:tech-fpca-steps and fig:tech-fpca-modes rebuilt. The phase figure keeps its peaks.
+  CAREFUL: the simulation imitates the pattern only; the week-10 figure came from Medis trees
+  (plaque at baseline), and the plaque-free tracer cohort may differ.
+2026-11-09 (user): the four-row figure split in two so text can sit between them: NEW
+  fig:tech-fpca-mean (fpca_mean.pdf, the curves with their mean; the same curves minus the mean),
+  placed after the covariance paragraph and cited by the mean paragraph; fig:tech-fpca-steps back
+  to three rows, placed after the ordering paragraph that cites it. Both share one y-scale for the
+  deviations (fpca_figures.py block 6). Figures now 4.
+2026-11-09 (fourteenth pass, user: "rewrite to the level of the JMP guide", Hersh, PDF in the
+  repo root, style only, not cited). Two equations kept (user): eq:tech-fpca-kl (now only the
+  truncated sum; it names x_i, mu, phi_k, xi_ik, K) and eq:tech-fpca-mode. REMOVED: the random
+  function X(t) and "finite variance"; Gamma as a formula (covariance in words); eq:tech-fpca-eigen
+  and "unit size"/"orthogonal" (plain readings kept: a shape says only what a pattern looks like,
+  no two shapes describe the same pattern; Wang cite kept); eq:tech-fpca-score (scores in words:
+  how strongly a curve shows a shape; uncorrelated with variance lambda_k, Wang); the FVE ratio
+  (now "fraction of variance explained (FVE)" in words, as the modes-figure legend uses FVE);
+  "the domain" from the sample-specific sentence. sec:tech-fpca-grid folded into 3 short sentences
+  (user); the units-of-scores point moved to the Methods 07 notes. Registration shortened to
+  alignment before FPCA (JMP's preprocessing level): the strictly increasing warp with fixed ends
+  and the landmark-fails sentence cut (Methods 07 notes cite Wang p. 28 for the segment ends
+  directly). Order follows JMP: mean, deviations, shapes, scores, rebuilt curve, mean +/- shape,
+  scree plot, how many, alignment. Copy before this pass:
+  scratchpad 02_fpca_before_jmp.tex (not in the repo).
+2026-11-09 (fifteenth pass, user): the JMP guide is now CITED (hershjmpfpca, vendor web guide,
+  read in full) where its plain explanations are used, never for properties of FPCA (those keep
+  wang2016fda; no JMP cite beside Wang on the same claim). Cited for: the deviation from the mean
+  as what FPCA looks at; the sign and size of a score; the mode plot showing which parts of the
+  curve a component changes most; examples of what a component may describe (level, width, a
+  shift in where a feature lies; JMP's shape functions 1-3); the scree plot showing where adding
+  components stops paying; keeping the main shape patterns without the components that mostly
+  describe noise. Not taken (unchanged): basis fitting as a required step, smoothing built in, the
+  90-99% rule, clustering and outlier detection, "dynamic data". Supersedes the "NOT cited" notes
+  above. The user removed sec:tech-fpca-grid and sec:tech-fpca-registration (and with them
+  fig:tech-fpca-phase and the warrenhoven/marron cites) before this pass; alignment and the grid
+  now live only in the Methods 07 notes.
+2026-11-09 (user): mean paragraph rewritten by the user and tidied: "FPCA finds patterns in how
+  the curves deviate from the mean, so the mean is first subtracted at each position"; the
+  "same for every curve, so it cannot tell the curves apart" detour cut; the deviation sentence
+  (JMP cite) kept.
+2026-11-09 (user: "rewrite so it does not repeat itself", opener excluded). CUT as repeats:
+  "How strongly a curve shows a shape is given by its score" (opener says it); "Scores on
+  different components are uncorrelated" (opener) and "the variance of the scores on component k
+  is its eigenvalue" (same fact as "the variance of the curves along each shape is its eigenvalue");
+  "A shape and its eigenvalue together form a component" (the opener calls the shapes the
+  components); "Since a shape on its own does not show how much ..." (repeated "describes only
+  what a pattern looks like") -> "To show how much the curves vary along a shape, ..."; "also"
+  before arbitrary; the scree plot named once for its role, once as an ad hoc choice; "ranked by
+  variance" (said by the ordering paragraph). Claims and cites otherwise unchanged.
+2026-11-09 (user: "include bootstrap, I will go with that one"): NEW paragraph on choosing K by
+  bootstrap stability (resample curves with replacement, repeat FPCA, keep components whose shape
+  changes little). General only; the setting (|cos| >= 0.9, number of resamples, the Riley cap)
+  belongs in Methods 07. The sign alignment sentence above covers the components re-estimated on
+  each bootstrap sample. Cited 2026-11-09 to song2018stability (see the next entry).
+2026-11-09 (user: "find a citation; write it as though bootstrap was always planned"). The K
+  paragraph now leads into stability as the answer to the estimation-error trade-off ("The
+  estimation error of a component can instead be judged directly ...") instead of "Another
+  approach"; the closer "Whatever the rule, ..." -> "Keeping only the stable components fixes K
+  from the curves alone, before ..."; "After the signs are aligned" ties to the sign paragraph.
+  CHECK: song2018stability (Comput Stat 33:1923-1938) read at abstract level only; it selects the
+  number of PCs of ordinary (multivariate) PCA by stability under SUBSAMPLING. Cited only for the
+  principle (keep the components that stay stable under resampling), which carries to FPCA on a
+  grid as ordinary PCA. No paper found that uses bootstrap eigenfunction stability to choose K in
+  FPCA (search 2026-11-09; Benko et al. 2009 bootstrap FPCA tests equality between samples, not
+  K). Read the full text before submission.
+2026-11-09 (user): MOVED to the Discussion notes (content/discussion.tex, Limitations): the
+  outcome-blind sentence (a low-variance component can carry more information about an outcome
+  than a leading one) and the outlier sentence (covariance is a second moment). Both are
+  limitations, not needed to understand FPCA; the first also repeated "from the curves alone".
+  The section now ends on the choice of K.
+2026-11-09 (user): MOVED to the Discussion notes: "The shapes are, however, specific to the sample
+  and the preprocessing they were estimated from" (a limitation; uncited reasoning, as before).
+2026-11-09 (user: "was this not decided by bootstrap?"): the K paragraph no longer reads as an
+  open choice. FVE kept as a descriptive measure only (the modes figure and the Results report
+  it); the scree plot as a selection aid cut ("where adding components stops paying", JMP cite);
+  "No rule ... ad hoc" folded into one contrast sentence that leads straight to the bootstrap
+  ("A threshold on the FVE sets this balance only by an ad hoc choice, whereas ...").
+2026-11-09 (user): the K rule moved to Methods 07 ("Keeping only the stable components fixes K
+  from the curves alone, before ..." and "After the signs are aligned"): it is a choice, not
+  background. The section keeps what to judge (stability of a component under resampling,
+  song2018stability) and one plain definition of a bootstrap sample. TODO: once
+  01_mixed_model.tex (was 01_prediction_model.tex) explains the bootstrap in general (it is also used for the model's
+  intervals), turn that definition into a pointer back to it (01 comes before 02, so no forward
+  reference).
+Pointed back to by: content/methodology/07_curvature_fpca.tex (sec:method-fpca), which also takes
+  the landmark reading of the segment ends and the respacing onto the grid.
+"Curve" stays general here: no curvature, turning angle or vessel in the prose. Methods 07
+  (sec:method-fpca) states that the curve x_i(t) is the turning-angle profile of a segment.
+Terms (fpca-wang section 2): "curve" is the observation, "profile" says what it measures, "bend"
+  is only the shape of the vessel. "Score" is xi_ik, "component" the pair (phi_k, lambda_k).
+Notation: x_i(t), t in [0,1], mu, phi_k, lambda_k, xi_ik, K, alpha (Gamma and X(t) dropped in
+  the fourteenth pass; t_g, G, D, d_i, v_k, w are in the Methods 07 notes). Avoids j, s, S, b, beta, c (taken by the GLMM, the curvature section and the
+  centerline).
+LEFT OUT on purpose (Methodology): the grid size, interpolation, the 5 mm chord, the sliding
+  profile, the K rule, the segments analysed, the sign convention chosen, software.
+All cite keys are in refs.bib (added and checked on Crossref 2026-11-06).
+wordlist.txt lacks: FPCA, eigenfunction(s), Karhunen, Loeve, realizations may need checking.
+Figures: made-up curves only, from content/technical/figures/fpca_figures.py (re-run to rebuild).
+Never a Medis or tracer figure here.
+2026-11-09 (user): the FVE and bootstrap-stability paragraphs given their own subsection again,
+  sec:tech-fpca-k, text unchanged. The bootstrap procedure itself (number of samples, similarity
+  measure, cut-off) belongs in Methods 07 once the code is in thesis_final/.
+  CHECK: song2018stability may be about subspace stability of the first K components in ordinary
+  PCA, not of a single functional component.
+2026-11-13 (user: technical background more human): light pass. "Let x_i(t) ... denote" opener
+  replaced (domain first, then the symbol, as in the GLMM second pass); British spelling
+  (neighbouring x2, coloured x2 in captions); "Instead, K can be chosen by" -> "A less arbitrary
+  guide is". Claims, cites, labels and equations unchanged.
+2026-11-13 (user: collapse sections): both subsections ("Components and Scores", "Choosing the
+  Number of Components") removed; FPCA is one section (~900 words, three figures), as Aida's 3.1.
+  Labels sec:tech-fpca-components and sec:tech-fpca-k kept on their paragraphs (no references
+  outside this file). Bridge "This leaves the question of how many components to keep." added.
+```

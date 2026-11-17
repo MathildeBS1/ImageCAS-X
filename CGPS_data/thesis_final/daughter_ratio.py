@@ -1,4 +1,4 @@
-"""Left main diameter ratios: the two ratio features of the who model (sec:method-ratio, 05c_daughter_ratio.tex).
+"""Left main diameter ratios: the two ratio features of the who model (sec:method-ratio, 03c_daughter_ratio.tex).
 
     from daughter_ratio import tree_ratios
     tree_ratios(tree, rings_of)  # {"asymmetry": ln(D_LCx / D_LAD), "finet": D_LM / (D_LAD + D_LCx)}, nan where missing
@@ -25,7 +25,7 @@ asymmetry. Missing: a daughter shorter than 10 mm, or no shared start of the LAD
 angle) -> both nan; a left main shorter than 2 mm or with fewer than 2 contours in its first 2 mm -> Finet
 nan, asymmetry kept.
 
-Not used (header of 05c_daughter_ratio.tex): the LM->LAD and LM->LCx ratios planned before 2026-11-11.
+Not used (header of 03c_daughter_ratio.tex): the LM->LAD and LM->LCx ratios planned before 2026-11-11.
 Open: the tracer contour format is unknown, so tracer_rings raises NotImplementedError (as
 split_check.tracer_tree); every other function takes arrays and is checked here.
 """

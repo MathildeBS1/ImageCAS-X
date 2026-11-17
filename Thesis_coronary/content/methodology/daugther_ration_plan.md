@@ -2,7 +2,7 @@
 
 ## Context
 
-`05c_daughter_ratio.tex` is notes only and `CGPS_data/thesis_final/` has no ratio code. The planned
+`03c_daughter_ratio.tex` is notes only and `CGPS_data/thesis_final/` has no ratio code. The planned
 features were the LM→LAD and LM→LCx diameter ratios. Evaluation:
 
 - Both planned ratios divide by the left main diameter, the least reliable of the three (LM length
@@ -56,7 +56,7 @@ Panel A: LM, LAD and LCx with O, the 5 to 10 mm stretch shaded on each vessel, a
 with its equal-area circle and `D = 2 sqrt(A/π)`. Panel B: the three diameters drawn as bars or
 circles to scale with the two formulas and their numbers. Label `fig:method-ratio`.
 
-## 3. Text: `Thesis_coronary/content/methodology/05c_daughter_ratio.tex`
+## 3. Text: `Thesis_coronary/content/methodology/03c_daughter_ratio.tex`
 
 Read `Thesis_coronary/CLAUDE.md` (done) and load the `thesis-style` skill first. Length and detail
 as the main part of 05a (about 350 words, two equations, the figure), prose only, no lists, no
@@ -86,10 +86,10 @@ calls `tree_ratios`.
 
 ## 4. Keep the rest in line (small edits)
 
-- `05_features.tex`: sentence 4 and the table row → "daughter asymmetry and Finet's ratio"; header note.
-- `03_prediction_model.tex` and `04_model_size.tex` (notes only): five features renamed; angle ×
+- `03_features.tex`: sentence 4 and the table row → "daughter asymmetry and Finet's ratio"; header note.
+- `03_prediction_model.tex` and `06_model_size.tex` (notes only): five features renamed; angle ×
   asymmetry as prespecified secondary term outside the LR test; Finet's ratio no longer "set aside".
-- `05b_bifurcation_angle.tex`: nothing in the prose; header note that 05c reuses O and the depths.
+- `03b_bifurcation_angle.tex`: nothing in the prose; header note that 05c reuses O and the depths.
 - Root `CLAUDE.md` (objective paragraph and Geometry line) and memory `segment-cloglog-who-model`:
   new feature names and the secondary term. Tell the user that
   `~/Desktop/Speciale/CGPS_statistics-/CLAUDE.md` (authoritative plan) needs the same change; edit it
