@@ -28,7 +28,7 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # the shared modules in CGPS_data/
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from bifurcation_angle import DEPTHS, artery_direction, lm_angle, point_at_depth
+from bifurcation_angle import DEPTHS, artery_direction, has_lm, lm_angle, point_at_depth
 
 COLOUR = {"LM": "tab:green", "LAD": "tab:blue", "CX": "tab:orange"}
 ZOOM = 15.0  # mm from O shown in each panel
@@ -46,20 +46,22 @@ def draw(ax, P, c, axes, **kw):
     ax.plot(q[:, 0], q[:, 1], **kw)
 
 
-def bifurcation(tree):
-    """{"O", "LM", "LAD", "CX", "theta"} of one tree; LAD and LCx as (Y, s, depth points, fitted direction).
-    None when the LAD or LCx is missing."""
+def bifurcation(tree, roots=None):
+    """{"O", "LM", "LAD", "CX", "theta", "ostium"} of one tree; LAD and LCx as (Y, s, depth points, fitted
+    direction). None when the LAD or LCx is missing. roots: the tracer's ostia (tracer_io.tracer_ostia)."""
     from split_trunks import graph, split, trunk_path
 
     X, lab, G = graph(tree)
-    arteries = split(X, lab, G)
+    roots = roots or {}
+    arteries = split(X, lab, G, roots=roots)
     if "LAD" not in arteries or "CX" not in arteries:
         return None
     O = arteries["LAD"][4][0]
-    pl = X[trunk_path(X, lab, G, "LAD")]
+    r = int(np.argmin(np.linalg.norm(X - roots["LAD"], axis=1))) if "LAD" in roots else None
+    pl = X[trunk_path(X, lab, G, "LAD", r)]
     k = int(np.argmin(np.linalg.norm(pl - O, axis=1)))  # the LM is the LAD path from the ostium up to O
-    out = {"O": O, "LM": pl[:k + 1],
-           "theta": lm_angle(arteries["LAD"][4:], arteries["CX"][4:])}
+    out = {"O": O, "LM": pl[:k + 1], "ostium": pl[0],
+           "theta": lm_angle(arteries["LAD"][4:], arteries["CX"][4:]) if has_lm(tree) else np.nan}
     for a in ("LAD", "CX"):
         *_, Y, s = arteries[a]
         pts = [point_at_depth(Y, s, d) for d in DEPTHS]
@@ -86,25 +88,28 @@ def panel(ax, m, b, tree, c, axes):
         if u is not None:
             draw(ax, [O, O + 12 * u], c, axes, color=COLOUR[a], lw=3, alpha=0.4)
     draw(ax, [O], c, axes, marker="o", ms=9, color="k", ls="none", label="O")
+    draw(ax, [b["ostium"]], c, axes, marker="x", ms=9, mew=2, color=COLOUR["LM"], ls="none", label="ostium")
     ul, uc = b["LAD"][3], b["CX"][3]
     if ul is not None and uc is not None:
         w = np.linspace(0, 1, 50)[:, None]
         arc = ul * (1 - w) + uc * w
         draw(ax, O + ARC * arc / np.linalg.norm(arc, axis=1, keepdims=True), c, axes, color="k", lw=1)
-    ax.set_title(f"{m}: angle {b['theta']:.0f} deg", fontsize=10)
+    ax.set_title(f"{m}: angle {b['theta']:.0f} deg" if np.isfinite(b["theta"]) else f"{m}: no angle (no LM label)",
+                 fontsize=10)
     ax.set_aspect("equal")
     ax.legend(fontsize=7, loc="best")
 
 
 def figure(cases, out):
-    """cases: [(row title, trees {"tracer": tree, "Medis": tree}, alignment text), ...], one row each."""
+    """cases: [(row title, trees {"tracer": tree, "Medis": tree}, alignment text, tracer roots), ...], one row
+    each."""
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 
     fig, grid = plt.subplots(len(cases), 2, figsize=(11, 5.2 * len(cases)), squeeze=False)
-    for row, (title, trees, check) in zip(grid, cases):
-        bif = {m: bifurcation(t) for m, t in trees.items()}
+    for row, (title, trees, check, roots) in zip(grid, cases):
+        bif = {m: bifurcation(t, roots if m == "tracer" else None) for m, t in trees.items()}
         zoom = np.concatenate([np.r_[[b["O"]], b["LAD"][2], b["CX"][2]] for b in bif.values() if b])
         c, axes = plane(zoom)
         for ax, m in zip(row, ("tracer", "Medis")):
@@ -158,7 +163,8 @@ def main():
     cases = []
     for label, r in (("largest difference, tracer wider", wide), ("close agreement", close)):
         trees = {"tracer": tracer_io.tracer_tree(r["id"], args.src), "Medis": hq.tree_points(medis[r["id"]])}
-        cases.append((f"{label}: tracer - Medis = {r['diff']:+.0f} deg", trees, alignment(A, r["id"])))
+        cases.append((f"{label}: tracer - Medis = {r['diff']:+.0f} deg", trees, alignment(A, r["id"]),
+                      tracer_io.tracer_ostia(r["id"], args.src)))
         print(f"{label}: id {r['id']}, difference {r['diff']:+.1f} deg")
     print(f"-> {figure(cases, rows)}")
 

@@ -91,12 +91,13 @@ def artery_curvature(Y, s, bounds, chord=CHORD):
     return [segment_mean(pos, kappa, lo, hi) for lo, hi in zip(bounds[:-1], bounds[1:])]
 
 
-def segment_curvature(tree, chord=CHORD):
-    """{(artery, part): average curvature in 1/mm} for the LAD, LCx and RCA segments of one tree, part 0/1/2 = p/m/d."""
+def segment_curvature(tree, chord=CHORD, roots=None):
+    """{(artery, part): average curvature in 1/mm} for the LAD, LCx and RCA segments of one tree, part 0/1/2 = p/m/d.
+    roots: the tree's own ostia, as split_trunks.split takes them (tracer_io.tracer_ostia)."""
     from split_trunks import graph, split  # imported here so --check runs without the shared modules
 
     out = {}
-    for a, (pm, md, end, _, Y, s) in split(*graph(tree)).items():
+    for a, (pm, md, end, _, Y, s) in split(*graph(tree), roots=roots).items():
         for part, T in enumerate(artery_curvature(Y, s, (0, pm, md, end), chord)):
             out[(a, part)] = T
     return out

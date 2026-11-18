@@ -41,7 +41,11 @@ def main():
     code = np.concatenate([c for _, _, c in raw])
     near = cKDTree(pts)
 
-    X, lab, G = graph(tracer_io.tracer_tree(args.id, args.src))
+    from bifurcation_angle import has_lm
+
+    tree = tracer_io.tracer_tree(args.id, args.src)
+    roots = tracer_io.tracer_ostia(args.id, args.src)
+    X, lab, G = graph(tree)
     _, comp = connected_components(G, directed=False)
     node_side = side[near.query(X)[1]]
     joined = [k for k in np.unique(comp) if len(set(node_side[comp == k])) > 1]
@@ -49,12 +53,14 @@ def main():
     print(f"1. connected pieces after graph(): {comp.max() + 1}; pieces holding points of both files: "
           f"{len(joined)} ({'left and right tree JOINED by bridging' if joined else 'left and right kept apart'})")
 
-    arteries = split(X, lab, G)
+    print(f"   LM label (code 1) present: {has_lm(tree)}; tracer ostia passed as roots: {sorted(roots)}")
+    arteries = split(X, lab, G, roots=roots)
     if "LAD" not in arteries or "CX" not in arteries:
         print("2. no LAD or no LCx after split(): " + ", ".join(sorted(arteries)))
         return
     O = arteries["LAD"][4][0]
-    lad_path = X[trunk_path(X, lab, G, "LAD")]
+    r = int(np.argmin(np.linalg.norm(X - roots["LAD"], axis=1))) if "LAD" in roots else None
+    lad_path = X[trunk_path(X, lab, G, "LAD", r)]
     lm = lad_path[: int(np.argmin(np.linalg.norm(lad_path - O, axis=1))) + 1]
     parts = {"LM": lm}
     for a in ("LAD", "CX"):

@@ -5,6 +5,8 @@
 
 Baseline only. Each Medis participant's tracer tree (tracer_io.tracer_tree) and Medis tree
 (hoe10y_qc.tree_points) are divided with split_trunks.split, and the LAD, LCx and RCA are paired by name.
+The tracer tree starts at the tracer's own ostia (tracer_io.tracer_ostia, passed as roots); the Medis tree
+starts at its LM label.
 Both are in LPS mm (tracer_probe.md), so no mapping is applied.
 
 Curvature, per artery pair:
@@ -18,7 +20,8 @@ Curvature, per artery pair:
                   the shared stretch (segment_mean).
 Angle, per participant: bifurcation_angle.lm_angle on each tree's own LAD and LCx (full trees), compared
 only where the LAD and the LCx both passed the alignment check (decided 2026-11-18, as for curvature: a
-failed pair is probably a different vessel). The CSV keeps every angle with the column aligned.
+failed pair is probably a different vessel). An angle is missing for a tree without an LM label
+(bifurcation_angle.has_lm, 2026-11-18). The CSV keeps every angle with the column aligned and the reasons.
 The daughter asymmetry is added once the tracer lumen contours exist (the delivered files hold none).
 
 Agreement per feature: difference tracer - Medis in the feature's own unit, bias, SD of the differences,
@@ -38,7 +41,7 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # the shared modules in CGPS_data/
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from bifurcation_angle import lm_angle
+from bifurcation_angle import has_lm, lm_angle
 from curvature_feature import CHORD, curvature_profile, segment_mean
 
 MAX_OFFSET = 2.0  # mm: median tracer-to-Medis distance over the shared stretch above this = not the same vessel
@@ -84,10 +87,14 @@ def compare_artery(Yt, st, Ym, sm, nearest):
                   "T_medis": segment_mean(*curvature_profile(Ym, CHORD, sm), m0, m1)}
 
 
-def angle(arteries):
+def angle(tree, arteries):
+    """(angle in degrees or nan, reason)."""
+    if not has_lm(tree):
+        return np.nan, "no LM label"
     if "LAD" not in arteries or "CX" not in arteries:
-        return np.nan
-    return lm_angle(arteries["LAD"][4:], arteries["CX"][4:])
+        return np.nan, "LAD or LCx missing"
+    theta = lm_angle(arteries["LAD"][4:], arteries["CX"][4:])
+    return theta, "ok" if np.isfinite(theta) else "no shared O or a daughter under 10 mm"
 
 
 # ---------------------------------------------------------------- agreement
@@ -132,8 +139,9 @@ def run(limit=None, src=None):
             continue
         flow["with a tracer pair"] += 1
         try:
-            med = split(*graph(hq.tree_points(trees[pid])))
-            trc = split(*graph(tracer_io.tracer_tree(pid, src)))
+            med_tree, trc_tree = hq.tree_points(trees[pid]), tracer_io.tracer_tree(pid, src)
+            med = split(*graph(med_tree))
+            trc = split(*graph(trc_tree), roots=tracer_io.tracer_ostia(pid, src))
         except Exception:  # noqa: BLE001 - counted
             flow["tree not divided"] += 1
             continue
@@ -146,7 +154,9 @@ def run(limit=None, src=None):
                 continue
             A.append({"id": pid, "artery": a} | compare_artery(*trc[a][4:], *med[a][4:], cq.nearest))
             ok |= {a} if A[-1]["reason"] == "ok" else set()
-        P.append({"id": pid, "theta_tracer": angle(trc), "theta_medis": angle(med), "aligned": {"LAD", "CX"} <= ok})
+        (tt, rt), (tm, rm) = angle(trc_tree, trc), angle(med_tree, med)
+        P.append({"id": pid, "theta_tracer": tt, "theta_medis": tm, "reason_tracer": rt, "reason_medis": rm,
+                  "aligned": {"LAD", "CX"} <= ok})
     return flow, pd.DataFrame(A), pd.DataFrame(P)
 
 
@@ -205,8 +215,11 @@ def report(flow, A, P, boot):
         L.append(stat_row("LAD-LCx angle", t - m, Q["id"].to_numpy(), boot, "degrees"))
         L.append(f"\nCompared only where the LAD and LCx both passed the alignment check: "
                  f"{count(len(Q))} participants, {count(len(P) - len(Q))} left out. "
-                 f"Among those compared, angle missing: tracer {count(np.isnan(t).sum())}, "
-                 f"Medis {count(np.isnan(m).sum())}.")
+                 f"Among those compared, angle missing:")
+        L += ["\n| reason | tracer | Medis |", "|---|---|---|"]
+        for r in sorted(set(Q["reason_tracer"]) | set(Q["reason_medis"])):
+            if r != "ok":
+                L.append(f"| {r} | {count((Q['reason_tracer'] == r).sum())} | {count((Q['reason_medis'] == r).sum())} |")
     return "\n".join(L) + "\n"
 
 

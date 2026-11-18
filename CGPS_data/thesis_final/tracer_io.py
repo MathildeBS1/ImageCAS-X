@@ -66,6 +66,22 @@ def tracer_ids(src=TRACER_DIR):
     return have[0] & have[1]
 
 
+def tracer_ostia(pid, src=TRACER_DIR):
+    """{"LAD": o, "CX": o, "RCA": q}: the first point of each file's root branch (cell data parent = -1), the
+    ostium where the tracer started (the _ostium_pruned files are cut there). Passed to split_trunks.split as
+    roots, so the ostium is not guessed from the labels. The first root branch in file order is used."""
+    out = {}
+    for side, f in zip(SIDES, tracer_files(pid, src)):
+        v = cq.read_vtk_legacy(Path(f).read_bytes())
+        cells = v["cells"].get("LINES", [])
+        parent = np.asarray(v["cell_data"]["parent"]).astype(int)
+        root = next((c for c, p in zip(cells, parent) if p == -1 and len(c) >= 2), None)
+        if root is not None:
+            o = v["points"][root[0]]
+            out |= {"LAD": o, "CX": o} if side == "left" else {"RCA": o}
+    return out
+
+
 def tracer_tree(pid, src=TRACER_DIR):
     """Both pruned files of one participant in the structure of hoe10y_qc.tree_points."""
     return [(P, [CODES[side].get(int(c)) for c in code])

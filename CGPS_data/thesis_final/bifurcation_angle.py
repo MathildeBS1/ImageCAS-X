@@ -86,11 +86,21 @@ def lm_angle(lad, cx, depths=DEPTHS, method="fit"):
     return float(np.mean(theta))
 
 
-def tree_angle(tree, depths=DEPTHS, method="fit"):
-    """LM bifurcation angle (degrees) of one tree, nan where the LAD or the LCx is missing."""
+def has_lm(tree):
+    """Whether any point of the tree is labelled lm. Without it the bifurcation point cannot be placed reliably
+    (tracer participant 1160, 2026-11-18: no LM code, and O fell on two LAD-coded vessels), so the angle and
+    the asymmetry are missing then. The rule needs no reference and is the same for every tree."""
+    return any(l == "lm" for _, labels in tree for l in labels)
+
+
+def tree_angle(tree, depths=DEPTHS, method="fit", roots=None):
+    """LM bifurcation angle (degrees) of one tree, nan where the LM label, the LAD or the LCx is missing.
+    roots: the tree's own ostia, as split_trunks.split takes them (tracer_io.tracer_ostia)."""
     from split_trunks import graph, split  # imported here so --check runs without the shared modules
 
-    arteries = split(*graph(tree))
+    if not has_lm(tree):
+        return np.nan
+    arteries = split(*graph(tree), roots=roots)
     if "LAD" not in arteries or "CX" not in arteries:
         return np.nan
     (*_, Yl, sl), (*_, Yc, sc) = arteries["LAD"], arteries["CX"]

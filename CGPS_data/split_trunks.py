@@ -1,6 +1,7 @@
 """Split the LAD, LCx and RCA of each centerline tree into proximal / mid / distal (SCCT).
 
     python CGPS_data/split_trunks.py [--src TREE_FOLDER] [--out CSV]
+    python CGPS_data/split_trunks.py --check   # path rules, no data needed
 
 Medis labels first: the boundaries are where the reader's segment labels change along the trunk
 (pLAD/mLAD/dLAD, pRCA/mRCA/dRCA, pCx). Medis has one label (13, LCx) for the CX after pCx; it is split
@@ -99,9 +100,17 @@ def graph(tree):
     return X, lab, adjacency(X, np.array(sorted(E)))
 
 
-def trunk_path(X, lab, G, artery):
+def shared_prefix(p, q):
+    """Number of leading nodes the paths p and q share, up to their first difference (the LM bifurcation for
+    the LAD and CX paths). Nodes the paths meet again further on, through a bridged loop, do not count."""
+    p, q = p or [], q or []
+    return next((k for k, (a, b) in enumerate(zip(p, q)) if a != b), min(len(p), len(q)))
+
+
+def trunk_path(X, lab, G, artery, root=None):
     """Node path from the ostium (LM bifurcation for LAD/CX after split()) to the trunk's far end,
-    inside the piece of the tree that holds most of the artery's labelled points."""
+    inside the piece of the tree that holds most of the artery's labelled points. root: the node of the
+    ostium when the tree gives it (the tracer, tracer_io.tracer_ostia); otherwise it is found from the labels."""
     nodes = [i for i, l in enumerate(lab) if ARTERY_OF.get(l) == artery.lower()]
     if not nodes:
         return None
@@ -112,7 +121,7 @@ def trunk_path(X, lab, G, artery):
     ends = [i for i in np.where((comp == main) & (deg == 1))[0]]
     proximal = NAMES[artery][0]
     ok = {"rca"} if artery == "RCA" else {"lad", "cx"}
-    root = max(
+    root = root if root is not None else max(
         [e for e in ends if lab[e] == "lm"]
         or [e for e in ends if lab[e] == proximal]
         or [e for e in ends if ARTERY_OF.get(lab[e]) in ok or lab[e] is None]
@@ -120,6 +129,9 @@ def trunk_path(X, lab, G, artery):
         or nodes,
         key=lambda e: X[e, 2],
     )  # ostium: LM end, else the most superior proximal / trunk end (LPS +z)
+    # Without an "lm" end the fallback can pick a side-branch tip above the ostium, and O is then not the LM
+    # bifurcation (tracer participant 1160, 2026-11-18). Tracer trees therefore pass the tracer's own ostium
+    # as root, and the angle and the asymmetry need an "lm" label (bifurcation_angle.has_lm).
     D, pred = dijkstra(G, indices=root, return_predecessors=True)
     far = [i for i in nodes if lab[i] in DISTAL[artery] and np.isfinite(D[i])] or [
         i for i in nodes if np.isfinite(D[i])
@@ -230,17 +242,20 @@ def label_cuts(a, p, lab, br, s):
     return pm, md, max(end, md), "medis label"
 
 
-def split(X, lab, G, info=None):
+def split(X, lab, G, info=None, roots=None):
     """{artery: (pm, md, end, rule, trunk points, arc length)}. Pass a dict as info to get, per artery,
-    the reason code, the rule source and the landmark boundaries (with / without branch labels)."""
+    the reason code, the rule source and the landmark boundaries (with / without branch labels).
+    roots: {artery: ostium point (3,)} when the tree gives its ostia (the tracer); the nearest node is the root."""
     info = {} if info is None else info
+    roots = roots or {}
     paths = {}
     for a in TRUNK:
         try:
-            paths[a] = trunk_path(X, lab, G, a)
+            r = int(np.argmin(np.linalg.norm(X - roots[a], axis=1))) if a in roots else None
+            paths[a] = trunk_path(X, lab, G, a, r)
         except Exception as ex:  # noqa: BLE001 - recorded per artery
             paths[a], info[a] = None, {"reason": f"error:{type(ex).__name__}"}
-    common = sum(1 for a, b in zip(paths["LAD"] or [], paths["CX"] or []) if a == b)
+    common = shared_prefix(paths["LAD"], paths["CX"])
     if common:  # LAD and LCx start at the LM bifurcation
         paths["LAD"], paths["CX"] = (
             paths["LAD"][common - 1 :],
@@ -276,6 +291,14 @@ def split(X, lab, G, info=None):
     return out
 
 
+def check():
+    """shared_prefix stops at the first difference; a node the paths meet again further on does not count."""
+    assert shared_prefix([0, 1, 2, 3, 9, 5], [0, 1, 2, 4, 9, 6]) == 3, "a later shared node must not count"
+    assert shared_prefix([0, 1, 2], [0, 1, 2, 3]) == 3, "one path ending inside the other"
+    assert shared_prefix([5, 1], [0, 1]) == 0 and shared_prefix(None, [0, 1]) == 0, "no shared start"
+    print("all checks passed")
+
+
 def main():
     ap = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
@@ -285,7 +308,11 @@ def main():
         default=str(Path(hq.ROOT) / "Medis" / "Analysis_Processed" / "centerline_tree"),
     )
     ap.add_argument("--out", default=str(Path(OUT_DIR) / "split_trunks.csv"))
+    ap.add_argument("--check", action="store_true", help="checks of the path rules, no data needed")
     args = ap.parse_args()
+    if args.check:
+        check()
+        return
     files = sorted(Path(args.src).rglob("*.vtk"))
     _, unreadable, _ = hq.read_label_codes((f, f) for f in files)  # names for codes a file leaves unnamed
     rows, arteries, failed = [], [], 0
