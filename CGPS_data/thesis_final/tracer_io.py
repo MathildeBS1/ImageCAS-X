@@ -12,9 +12,16 @@ _ostium_pruned files are read: the stub the tracer grows into the aorta before t
 Each point carries an integer code (point data segment_voted). The files hold no lumen (no radius, ring or
 contour array), so the daughter asymmetry cannot be computed from them (daughter_ratio.tracer_rings).
 
-The codes are not the SCCT numbers (the right tree carries 9, 10 and 11). CODES maps them to the
-split_trunks names and is filled from the table of --labels, which gives, for the Medis participants, the
-Medis label of the nearest Medis tree point for every tracer point with each code. Confirm it with Kit.
+The codes are not the SCCT numbers (the right tree carries 9, 10 and 11). CODES maps them, per side, to the
+split_trunks names. It was filled on 2026-11-18 from tracer_labels.md (--labels: for each code, the label of
+the nearest Medis tree point within 2 mm, over the 600 Medis participants); confirm it with Kit.
+  left   1 lm (79% of points nearest Medis LM), 2 lad (87% p/m/dLAD), 3 cx (69% cx/pCx), 4 d1 (76%),
+         5 d2 (43%; d1 24%), 6 om1 (44%), 7 om2 (om1 52%: a second obtuse marginal), 8 im (75%)
+  right  9 rca (88% p/m/dRCA), 10 pda (72%), 11 pla (81%)
+Not mapped (None, unlabelled side branches): left 11 (30 points), 12 (cx 42%, pla 16%, pda 12%; about
+40 participants, distal LCx or its posterior branches), 13 (unlabelled 46%), 14 (Medis code 21 51%, d2 13%);
+in fewer than five right trees 2 (dlad), 3 and 13. They count as side branches for the landmark rule only by
+their length. Codes are mapped per side, so a stray LAD code in a right tree does not become an LAD.
 """
 import argparse
 import sys
@@ -34,9 +41,11 @@ PATTERN = "BL_{pid}.coronary_{side}_centerline_ostium_pruned.vtk"
 SIDES = ("left", "right")
 NEAR = 2.0  # mm: a tracer point takes the label of the nearest Medis point only this close
 
-# Tracer code -> split_trunks name (lm, lad, cx, rca, d1, d2, om1, om2, pda, pla, ...; None = not used).
-# Empty until filled from tracer_labels.md (python tracer_io.py --labels); tracer_tree raises until then.
-CODES = {}
+# Tracer code -> split_trunks name per side (None = not used); from tracer_labels.md, 2026-11-18.
+CODES = {
+    "left": {1: "lm", 2: "lad", 3: "cx", 4: "d1", 5: "d2", 6: "om1", 7: "om2", 8: "im"},
+    "right": {9: "rca", 10: "pda", 11: "pla"},
+}
 
 
 def read_side(path):
@@ -59,9 +68,8 @@ def tracer_ids(src=TRACER_DIR):
 
 def tracer_tree(pid, src=TRACER_DIR):
     """Both pruned files of one participant in the structure of hoe10y_qc.tree_points."""
-    if not CODES:
-        raise NotImplementedError("tracer_io.CODES is empty: run tracer_io.py --labels and fill it")
-    return [(P, [CODES.get(int(c)) for c in code]) for f in tracer_files(pid, src) for P, code in read_side(f)]
+    return [(P, [CODES[side].get(int(c)) for c in code])
+            for side, f in zip(SIDES, tracer_files(pid, src)) for P, code in read_side(f)]
 
 
 def label_table(src=TRACER_DIR, medis=MEDIS_TREES, n=None):
