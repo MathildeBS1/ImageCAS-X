@@ -2,12 +2,15 @@
 
     from daughter_ratio import tree_ratios
     tree_ratios(tree, rings_of)  # {"asymmetry": ln(D_LCx / D_LAD), "finet": D_LM / (D_LAD + D_LCx)}, nan where missing
+    narrower_rows(asymmetry)     # {"plad": ..., "pcx": ...}, the asymmetry's value on the two model rows
 
     python CGPS_data/thesis_final/daughter_ratio.py --check   # synthetic shapes, needs no data
 
 Diameter of one cross-section: the area-equivalent diameter 2 sqrt(A / pi) of the lumen contour, A the area
 of the contour polygon in 3D (contour_diameter), the "effective radius" (A = pi R^2) of Medrano-Gracia et
-al. 2016. Diameter of one vessel (reference_diameter), the median of these diameters over a stretch:
+al. 2016. Diameter of one vessel (reference_diameter), the median of these diameters over a stretch, taken
+every 0.5 mm (STEP, the depths of bifurcation_angle.py) by linear interpolation between contours, so densely
+sampled parts of the stretch do not count more (2026-11-18; before, the median over the points):
   LAD, LCx  5 to 10 mm downstream of the LM bifurcation point O (DEPTHS). O and the interval are those of
             bifurcation_angle.py, so the angle and the diameters describe the same stretch, clear of the
             widened confluence at O.
@@ -25,6 +28,11 @@ asymmetry. Missing: a daughter shorter than 10 mm, or no shared start of the LAD
 angle) -> both nan; a left main shorter than 2 mm or with fewer than 2 contours in its first 2 mm -> Finet
 nan, asymmetry kept.
 
+Model rows (narrower_rows, decided 2026-11-18): |asymmetry| enters only the proximal segment of the narrower
+daughter, 0 on the wider one, so pLAD = max(a, 0) and pCX = max(-a, 0). Garcha and Grande Gutierrez 2025
+(p. 6, Fig. 4) found low wall shear stress "in the smaller-of-the-two branches". The model scales the value
+by its SD over persons but does not centre it, so 0 keeps meaning equal daughters or the wider one.
+
 Not used (header of 03c_daughter_ratio.tex): the LM->LAD and LM->LCx ratios planned before 2026-11-11.
 Open: the tracer contour format is unknown, so tracer_rings raises NotImplementedError (as
 split_check.tracer_tree); every other function takes arrays and is checked here.
@@ -39,6 +47,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # the shared modul
 
 DEPTHS = (5.0, 10.0)  # mm from O along the LAD and the LCx, the interval of bifurcation_angle.DEPTHS
 LM_OSTIUM = (0.0, 2.0)  # mm from the ostium along the left main, sec:method-ratio
+STEP = 0.5  # mm between the depths the median is taken at, the step of bifurcation_angle.DEPTHS
 
 
 def contour_area(ring):
@@ -54,14 +63,17 @@ def contour_diameter(ring):
     return 2.0 * np.sqrt(contour_area(ring) / np.pi)
 
 
-def reference_diameter(s, D, lo=DEPTHS[0], hi=DEPTHS[1]):
-    """Median of the diameters D over the points with arc length s in [lo, hi]; nan when the vessel does not
-    reach hi or fewer than 2 points with a diameter fall in the interval."""
+def reference_diameter(s, D, lo=DEPTHS[0], hi=DEPTHS[1], step=STEP):
+    """Median of D taken every step mm over [lo, hi] (linear interpolation between the contours with a
+    diameter), so the value does not depend on how densely the points are spaced; nan when the vessel does
+    not reach hi or fewer than 2 points with a diameter fall in the interval."""
     s, D = np.asarray(s, float), np.asarray(D, float)
     if len(s) == 0 or s[-1] < hi:
         return np.nan
-    d = D[(s >= lo) & (s <= hi) & np.isfinite(D)]
-    return float(np.median(d)) if len(d) >= 2 else np.nan
+    ok = np.isfinite(D)
+    if ((s >= lo) & (s <= hi) & ok).sum() < 2:
+        return np.nan
+    return float(np.median(np.interp(np.arange(lo, hi + 1e-9, step), s[ok], D[ok])))
 
 
 def lm_ratios(lad, cx, lm, depths=DEPTHS, lm_window=LM_OSTIUM):
@@ -72,6 +84,14 @@ def lm_ratios(lad, cx, lm, depths=DEPTHS, lm_window=LM_OSTIUM):
     asym = float(np.log(d_cx / d_lad)) if np.isfinite(d_lad) and np.isfinite(d_cx) else np.nan
     finet = float(d_lm / (d_lad + d_cx)) if np.isfinite(asym) and np.isfinite(d_lm) else np.nan
     return {"asymmetry": asym, "finet": finet}
+
+
+def narrower_rows(asym):
+    """Value of the asymmetry a = ln(D_LCx / D_LAD) on the pLAD and pCX rows: |a| on the narrower daughter,
+    0 on the wider one (a > 0: the LAD is the narrower). nan on both when a is missing."""
+    if not np.isfinite(asym):
+        return {"plad": np.nan, "pcx": np.nan}
+    return {"plad": max(asym, 0.0), "pcx": max(-asym, 0.0)}
 
 
 def _arc(Y):
@@ -88,7 +108,7 @@ def tracer_rings(path):
 def tree_ratios(tree, rings_of):
     """Asymmetry and Finet's ratio of one tree. rings_of(Y) gives the lumen contour (m, 3) of each
     centerline point of Y (n, 3), or None where there is none."""
-    from split_trunks import graph, split, trunk_path  # imported here so --check runs without the shared modules
+    from split_trunks import graph, shared_prefix, split, trunk_path  # here so --check runs without the shared modules
 
     nan = {"asymmetry": np.nan, "finet": np.nan}
     X, lab, G = graph(tree)
@@ -99,8 +119,7 @@ def tree_ratios(tree, rings_of):
     if not np.allclose(Yl[0], Yc[0]):
         return nan  # no shared bifurcation point, as in bifurcation_angle.lm_angle
     pl, pc = trunk_path(X, lab, G, "LAD"), trunk_path(X, lab, G, "CX")
-    common = sum(1 for a, b in zip(pl, pc) if a == b)
-    Ym = X[pl[:common]]  # left main from the ostium down to O
+    Ym = X[pl[:shared_prefix(pl, pc)]]  # left main from the ostium down to O
     out = []
     for Y, s in ((Yl, sl), (Yc, sc), (Ym, _arc(Ym))):
         rings = rings_of(Y)
@@ -158,6 +177,14 @@ def check():
           f"(ln {d_cx}/{d_lad} = {np.log(d_cx / d_lad):.4f}), Finet {r['finet']:.4f}")
     assert abs(lm_ratios(cx, cx, lm)["asymmetry"]) < 1e-12, "equal daughters must give asymmetry 0"
 
+    # model rows: |a| on the narrower daughter only
+    rows = narrower_rows(r["asymmetry"])  # the LCx (2.25 mm) is the narrower
+    assert rows["plad"] == 0.0 and abs(rows["pcx"] - np.log(d_lad / d_cx)) < 1e-4, "narrower LCx: pCX row only"
+    rows = narrower_rows(lm_ratios(cx, lad, lm)["asymmetry"])  # swapped: the LAD is the narrower
+    assert rows["pcx"] == 0.0 and abs(rows["plad"] - np.log(d_lad / d_cx)) < 1e-4, "narrower LAD: pLAD row only"
+    assert narrower_rows(lm_ratios(cx, cx, lm)["asymmetry"]) == {"plad": 0.0, "pcx": 0.0}, "equal daughters: 0, 0"
+    assert all(np.isnan(v) for v in narrower_rows(np.nan).values()), "missing asymmetry: nan on both rows"
+
     # one cross-section widened (side-branch origin) inside the window leaves the median unchanged
     lad_w = _tube([1, 0.4, 0], d_lad, 30, rng, widen_at=7.0)
     assert np.max(lad_w[1]) > 1.5 * d_lad, "the widened contour must be in the data"
@@ -179,7 +206,10 @@ def check():
     s_sparse = np.unique(np.r_[0, np.sort(rng.uniform(0, 20, 60)), 20])
     taper = lambda s: 3.0 - 0.02 * s  # noqa: E731
     a, b = reference_diameter(s_dense, taper(s_dense)), reference_diameter(s_sparse, taper(s_sparse))
-    assert abs(a - taper(7.5)) < 1e-9 and abs(b - taper(7.5)) < 0.03, "median of a linear taper is mid-window"
+    assert abs(a - taper(7.5)) < 1e-9 and abs(b - taper(7.5)) < 1e-9, "median of a linear taper is mid-window"
+    # points crowded into the first millimetre of the window must not pull the median there
+    s_crowd = np.r_[np.linspace(0, 5, 11), np.linspace(5, 6, 200), np.linspace(6.5, 20, 28)]
+    assert abs(reference_diameter(s_crowd, taper(s_crowd)) - taper(7.5)) < 1e-9, "crowded points must not count more"
     print("all checks passed")
 
 
