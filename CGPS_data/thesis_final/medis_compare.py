@@ -16,7 +16,9 @@ Curvature, per artery pair:
                   before any feature difference was looked at.
   curvature       the Menger profile (curvature_feature.curvature_profile) on each full artery, averaged over
                   the shared stretch (segment_mean).
-Angle, per participant: bifurcation_angle.lm_angle on each tree's own LAD and LCx (full trees).
+Angle, per participant: bifurcation_angle.lm_angle on each tree's own LAD and LCx (full trees), compared
+only where the LAD and the LCx both passed the alignment check (decided 2026-11-18, as for curvature: a
+failed pair is probably a different vessel). The CSV keeps every angle with the column aligned.
 The daughter asymmetry is added once the tracer lumen contours exist (the delivered files hold none).
 
 Agreement per feature: difference tracer - Medis in the feature's own unit, bias, SD of the differences,
@@ -136,13 +138,15 @@ def run(limit=None, src=None):
             flow["tree not divided"] += 1
             continue
         flow["both trees divided"] += 1
+        ok = set()
         for a in ARTERIES:
             if a not in med or a not in trc:
                 missing = " and ".join(n for n, t in (("Medis", med), ("tracer", trc)) if a not in t)
                 A.append({"id": pid, "artery": a, "reason": f"missing in {missing}"})
                 continue
             A.append({"id": pid, "artery": a} | compare_artery(*trc[a][4:], *med[a][4:], cq.nearest))
-        P.append({"id": pid, "theta_tracer": angle(trc), "theta_medis": angle(med)})
+            ok |= {a} if A[-1]["reason"] == "ok" else set()
+        P.append({"id": pid, "theta_tracer": angle(trc), "theta_medis": angle(med), "aligned": {"LAD", "CX"} <= ok})
     return flow, pd.DataFrame(A), pd.DataFrame(P)
 
 
@@ -196,9 +200,13 @@ def report(flow, A, P, boot):
 
     L += ["\n## Bifurcation angle\n", head]
     if len(P):
-        t, m = P["theta_tracer"].to_numpy(float), P["theta_medis"].to_numpy(float)
-        L.append(stat_row("LAD-LCx angle", t - m, P["id"].to_numpy(), boot, "degrees"))
-        L.append(f"\nAngle missing: tracer {count(np.isnan(t).sum())}, Medis {count(np.isnan(m).sum())}.")
+        Q = P[P["aligned"]]
+        t, m = Q["theta_tracer"].to_numpy(float), Q["theta_medis"].to_numpy(float)
+        L.append(stat_row("LAD-LCx angle", t - m, Q["id"].to_numpy(), boot, "degrees"))
+        L.append(f"\nCompared only where the LAD and LCx both passed the alignment check: "
+                 f"{count(len(Q))} participants, {count(len(P) - len(Q))} left out. "
+                 f"Among those compared, angle missing: tracer {count(np.isnan(t).sum())}, "
+                 f"Medis {count(np.isnan(m).sum())}.")
     return "\n".join(L) + "\n"
 
 
@@ -295,7 +303,7 @@ def main():
     rows.mkdir(parents=True, exist_ok=True)
     A.to_csv(rows / "medis_compare_arteries.csv", index=False)
     P.to_csv(rows / "medis_compare_participants.csv", index=False)
-    plots(A, P, rows)
+    plots(A, P[P["aligned"]], rows)
     text = report(flow, A, P, args.boot)
     Path(args.out).write_text(text, encoding="utf-8")
     print(text)
