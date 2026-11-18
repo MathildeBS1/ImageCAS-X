@@ -49,14 +49,16 @@ def draw(ax, P, c, axes, **kw):
 def bifurcation(tree):
     """{"O", "LM", "LAD", "CX", "theta"} of one tree; LAD and LCx as (Y, s, depth points, fitted direction).
     None when the LAD or LCx is missing."""
-    from split_trunks import graph, shared_prefix, split, trunk_path
+    from split_trunks import graph, split, trunk_path
 
     X, lab, G = graph(tree)
     arteries = split(X, lab, G)
     if "LAD" not in arteries or "CX" not in arteries:
         return None
-    pl, pc = trunk_path(X, lab, G, "LAD"), trunk_path(X, lab, G, "CX")
-    out = {"O": arteries["LAD"][4][0], "LM": X[pl[:shared_prefix(pl, pc)]],
+    O = arteries["LAD"][4][0]
+    pl = X[trunk_path(X, lab, G, "LAD")]
+    k = int(np.argmin(np.linalg.norm(pl - O, axis=1)))  # the LM is the LAD path from the ostium up to O
+    out = {"O": O, "LM": pl[:k + 1],
            "theta": lm_angle(arteries["LAD"][4:], arteries["CX"][4:])}
     for a in ("LAD", "CX"):
         *_, Y, s = arteries[a]
