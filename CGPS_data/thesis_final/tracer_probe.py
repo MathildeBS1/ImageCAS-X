@@ -34,7 +34,8 @@ def bounds(P):
 def describe_array(name, a):
     a = np.asarray(a)
     u = np.unique(a.reshape(len(a), -1), axis=0) if a.ndim > 1 else np.unique(a)
-    first = ", ".join(str(np.round(v, 3).tolist()) for v in u[:8])
+    num = np.issubdtype(a.dtype, np.number)
+    first = ", ".join(str(np.round(v, 3).tolist() if num else np.asarray(v).tolist()) for v in u[:8])
     return f"    {name}: dtype {a.dtype}, shape {a.shape}, {len(u)} distinct; first: {first}"
 
 
