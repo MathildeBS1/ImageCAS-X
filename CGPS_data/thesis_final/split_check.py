@@ -40,7 +40,7 @@ from split_trunks import ARTERY_OF, NAMES, graph, split, table
 PLAQUE = ("minimal", "mild", "moderate", "severe", "occlusion")
 OFF_TRUNK = 2.0  # mm: median contour-to-trunk distance above this = contour is not on the trunk
 MIN_OVERLAP = 2.0  # mm: a contour lies in a split segment when it overlaps it by at least this
-TRACER_GLOB = "*.vtk"  # \clarify: file pattern of the tracer trees
+TRACER_GLOB = "BL_*.coronary_left_centerline_ostium_pruned.vtk"  # one file per participant; tracer_io reads both sides
 COVERS = {**{s: (s,) for segs in NAMES.values() for s in segs}, "cx": ("mcx", "dcx"),
           "lad": NAMES["LAD"], "rca": NAMES["RCA"]}  # contour name -> split segments it stands for
 ORDER = [s for segs in NAMES.values() for s in segs]
@@ -68,11 +68,11 @@ def contour_points(files):
 
 
 def tracer_tree(path):
-    """Tracer tree in the structure of hq.tree_points: [(points in LPS mm, label per point), ...], labels
-    as in split_trunks (lad, cx, rca, d1, om1, pda, ...)."""
-    raise NotImplementedError(
-        "tracer_tree: file format and coordinates (voxel or world mm) of the tracer output are not known yet; "
-        "map the points to LPS mm with the NIfTI affine and the labels to split_trunks names")
+    """Tracer tree of the participant of path (one of its pruned BL files) in the structure of hq.tree_points,
+    read by tracer_io (both sides, codes mapped to split_trunks names)."""
+    import tracer_io
+
+    return tracer_io.tracer_tree(hq.id_from_name(Path(path).name.split(".", 1)[0]), Path(path).parent)
 
 
 def visual(bl, pid, seg):

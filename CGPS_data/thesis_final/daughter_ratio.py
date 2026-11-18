@@ -34,8 +34,9 @@ daughter, 0 on the wider one, so pLAD = max(a, 0) and pCX = max(-a, 0). Garcha a
 by its SD over persons but does not centre it, so 0 keeps meaning equal daughters or the wider one.
 
 Not used (header of 03c_daughter_ratio.tex): the LM->LAD and LM->LCx ratios planned before 2026-11-11.
-Open: the tracer contour format is unknown, so tracer_rings raises NotImplementedError (as
-split_check.tracer_tree); every other function takes arrays and is checked here.
+Open: the delivered tracer files hold centerlines only, no lumen (tracer_probe.md, 2026-11-18), so
+tracer_rings raises NotImplementedError until Kit delivers the contours; every other function takes arrays
+and is checked here.
 """
 import argparse
 import sys
@@ -101,8 +102,9 @@ def _arc(Y):
 def tracer_rings(path):
     """Lumen contour per centerline point of a tracer tree."""
     raise NotImplementedError(
-        "tracer_rings: file format of the tracer lumen contours is not known yet (as split_check.tracer_tree); "
-        "return a callable Y (n, 3) -> list of n contour rings (m, 3) in LPS mm")
+        "tracer_rings: the delivered tracer files hold centerlines only, no lumen (tracer_probe.md, 2026-11-18); "
+        "once Kit delivers the per-step contours, return a callable Y (n, 3) -> list of n contour rings (m, 3) "
+        "in LPS mm")
 
 
 def tree_ratios(tree, rings_of):
