@@ -8,9 +8,11 @@ data array (dtype, shape, number of distinct values, the first distinct values),
 the points next to that of the Medis tree and, where a BL volume is found under NIFTI/, of the volume in
 voxel and in world (RAS and LPS) mm. Without a volume, the tracer and Medis bounds alone show whether the two
 share a frame.
-Participants are printed as 1, 2, 3; no study_id leaves the server. Read-only.
+Participants are printed as 1, 2, 3; no study_id leaves the server. Reads only the data; the printout is also
+written to tracer_probe.md next to this script (--out to change).
 """
 import argparse
+import io
 import sys
 from pathlib import Path
 
@@ -67,7 +69,35 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--src", default=TRACER_DIR)
     ap.add_argument("--n", type=int, default=3)
+    ap.add_argument("--out", default=str(Path(__file__).resolve().with_suffix(".md")))
     args = ap.parse_args()
+    buf = io.StringIO()
+    stdout = sys.stdout
+    sys.stdout = Tee(stdout, buf)
+    try:
+        probe(args)
+    finally:
+        sys.stdout = stdout
+        Path(args.out).write_text("# Tracer file format (tracer_probe.py)\n\n```\n" + buf.getvalue() + "```\n")
+        print(f"written to {args.out}")
+
+
+class Tee:
+    """Write to the terminal and to a buffer at once."""
+
+    def __init__(self, *streams):
+        self.streams = streams
+
+    def write(self, text):
+        for st in self.streams:
+            st.write(text)
+
+    def flush(self):
+        for st in self.streams:
+            st.flush()
+
+
+def probe(args):
     src = Path(args.src)
     files = sorted(src.glob("BL_*.vtk"))
     print(f"{len(files)} BL files, {len(list(src.glob('FU_*.vtk')))} FU files in {src}")
