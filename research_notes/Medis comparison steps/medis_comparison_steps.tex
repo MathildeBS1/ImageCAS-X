@@ -1,0 +1,261 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage[hidelinks]{hyperref}
+\usepackage{xcolor}
+\newcommand{\code}[1]{\texttt{#1}}
+\setlength{\parskip}{0.5em}
+\setlength{\parindent}{0pt}
+
+\title{Tracer against Medis: the comparison step by step}
+\author{Working note, \code{CGPS\_data/thesis\_final/medis\_compare.py}}
+\date{Code state of 19 November 2026 (after the code review of that day; not yet run on the server)}
+
+\begin{document}
+\maketitle
+
+\noindent This note gives every step the script takes, in the order it takes them, with the constants
+it uses. It describes the code, not the thesis text. Section~\ref{sec:changes} lists what changed on
+19 November 2026. Those changes follow the code review and were made after the 18 November results had
+been seen.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}llp{8.2cm}@{}}
+\toprule
+Constant & Value & Meaning \\
+\midrule
+\code{MIN\_SHARED} & 10 mm & minimum shared stretch, and minimum averaged part \\
+\code{CHORD} & 5 mm & chord of the curvature profile; also cut from each end of the shared stretch \\
+\code{DENSE} & 0.25 mm & resampling step for the distances \\
+\code{MAX\_OFFSET} & 2 mm & alignment cut on the 90th percentile of the distances \\
+\code{DEPTHS} & 5, 5.5, \dots, 10 mm & depths from O used for the angle \\
+\code{O\_FAR} & 5 mm & threshold for reporting $o$ (not a cut) \\
+bootstrap & 2000 samples, seed 0 & resampling of participants \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Input}
+
+\textbf{Step 1: participants.} The input is all Medis centerline trees (\code{Medis/.../*.vtk}, 600 at
+baseline), sorted by study id. A participant goes on only when both of the tracer's pruned baseline files
+exist (\code{BL\_<id>.coronary\_\{left,right\}\_centerline\_ostium\_pruned.vtk}); otherwise the flow
+counts the participant as ``no tracer pair''.
+
+\textbf{Step 2: reading the trees.} The Medis tree is read as polylines with a segment label per point
+(\code{hoe10y\_qc.tree\_points}; the label codes are named by \code{read\_label\_codes}). The tracer tree
+is read as one polyline per branch of both files, with the voted integer code of each point mapped to the
+same label names (\code{tracer\_io.tracer\_tree}, map \code{tracer\_io.CODES}). Both are taken as LPS mm
+in the same frame, and no mapping is applied. (Which coordinates the two store is still open.) The
+tracer's ostia are also read: the first point of the root branch (\code{parent} $=-1$) of the left file is
+the left ostium, used for the LAD and the LCx, and that of the right file is the RCA ostium
+(\code{tracer\_io.tracer\_ostia}).
+
+\section{Dividing each tree into arteries}
+
+The same function, \code{split\_trunks.split}, is applied to both trees. For the comparison only the
+whole artery is used, not the segment boundaries the function also returns.
+
+\textbf{Step 3: graph.} All points are pooled. Points that agree to 0.01 mm become one node, and a node
+takes the first label any of its points has. Consecutive points of a polyline are joined by an edge.
+A polyline end within 1 mm of a point of another polyline is joined to it. After that, a polyline end
+within 3 mm (\code{BRIDGE}) of another connected piece is joined to the nearest node of that piece. The
+edge weight is the Euclidean length (\code{split\_trunks.graph}).
+
+\textbf{Step 4: path of each artery.} For the LAD, the LCx and the RCA in turn, the nodes labelled with
+that artery (any of its segment labels) are collected. The connected piece of the graph that holds most
+of them is the one used.
+
+The root of the path is found differently for the two trees:
+\begin{itemize}
+\item \emph{Tracer:} the node nearest the tracer's own ostium from Step 2.
+\item \emph{Medis:} the most superior (largest $z$) graph end labelled \code{lm}. Without one, it is the
+most superior end labelled as the artery's proximal segment, then an artery or unlabelled end, then
+any end.
+\end{itemize}
+
+The path is the shortest path (Dijkstra) from the root to the farthest node, in path length, that
+carries the artery's distal label (\code{dlad}; \code{dcx} or \code{cx}; \code{drca}). Without such a
+node, it runs to the farthest node labelled with the artery (\code{split\_trunks.trunk\_path}).
+
+\textbf{Step 5: start at the bifurcation point O.} The LAD and LCx paths both start at the left ostium,
+so they share their first nodes. When they share a start, both are cut at their last shared node. This
+node is the bifurcation point O, and both daughters start exactly there. Only when they share no start
+(for example one of them is missing) does a path start at its last node labelled \code{lm}
+(\code{split\_trunks.start\_at\_bifurcation}). The RCA starts at its ostium. Each path gets the arc length
+$s$ along it, 0 at its start.
+
+A path with fewer than three nodes, or one that raises an error, counts as missing for that artery. A
+tree on which the whole step raises is counted as ``tree not divided''.
+
+\section{Curvature, per artery pair}
+
+\textbf{Step 6: pairing.} The tracer LAD is paired with the Medis LAD of the same participant, and
+likewise for the LCx and the RCA. An artery missing in one or both trees is kept as a row with the reason
+``missing in Medis / tracer''. Every following step runs inside a guard: a pair whose computation raises
+is kept with the reason \code{error:<type>}, and the run goes on.
+
+\textbf{Step 7: shared stretch.} Let the tracer line be $Y_t$ with arc length $s_t\in[0,L_t]$, and the
+Medis line $Y_m$ with $s_m\in[0,L_m]$. Write $\pi_t(q)$ for the arc length of the point on the tracer
+polyline closest to $q$, measured on the line pieces and not only on the points; $\pi_m$ is the same on
+Medis. The shared stretch is
+\begin{align*}
+[t_0,t_1]&=\bigl[\max(0,\pi_t(Y_m(0))),\ \min(L_t,\pi_t(Y_m(L_m)))\bigr],\\
+[m_0,m_1]&=\bigl[\max(0,\pi_m(Y_t(0))),\ \min(L_m,\pi_m(Y_t(L_t)))\bigr],
+\end{align*}
+that is, from the later start to the earlier end, on each line (\code{shared\_stretch}). If
+$\min(t_1-t_0,\ m_1-m_0)<10$ mm, the pair is left out with the reason ``shared stretch $<$ 10 mm''. It is
+then not aligned.
+
+\textbf{Step 8: alignment.} The two shared stretches are each resampled every 0.25 mm along their arc
+length, by linear interpolation with both ends kept (\code{stretch}). This gives $A$ (tracer) and $B$
+(Medis). For each point of $A$, the distance to the nearest point of $B$ is taken, and the same is done
+from $B$ to $A$. The offset is
+\[
+\text{offset}=\max\bigl(P_{90}\{d(a,B)\}_{a\in A},\ P_{90}\{d(b,A)\}_{b\in B}\bigr).
+\]
+The pair is aligned (\code{aligned\_artery}) when the offset is at most 2 mm. The median of $d(a,B)$
+(tracer to Medis) is saved as \code{offset\_median}, for the report only. Both directions are measured
+only within the shared stretches, so an end cannot match a part of the other line outside the overlap.
+Both are evenly resampled, so no stretch counts more because it has more points.
+
+\textbf{Step 9: averaged part.} The averaged part is the shared stretch without 5 mm (\code{CHORD}) at
+each end, on both lines: $[t_0+5,\ t_1-5]$ and $[m_0+5,\ m_1-5]$. If either is under 10 mm (a shared
+stretch under 20 mm), the pair is left out with the reason ``averaged part $<$ 10 mm''. This reason comes
+before the offset, so such a pair gets no curvature even if it also failed Step 8. Its
+\code{aligned\_artery} from Step 8 is kept, because the angle uses it (Step 13).
+
+\textbf{Step 10: reason.} A pair that reaches this step gets the reason ``ok'' when it is aligned and
+``offset $>$ 2 mm'' otherwise. Curvature is computed for both kinds.
+
+\textbf{Step 11: curvature.} A curvature profile is computed on each \emph{whole} artery, from O (or the
+RCA ostium) to its end, not on the shared stretch alone. At each point $P_i$, the chord ends $B_i$ and
+$F_i$ are the points on the polyline exactly 5 mm away from $P_i$ in a straight line, one behind and one
+ahead, found by linear interpolation on the first piece that crosses 5 mm. The curvature is Menger's
+\[
+\kappa_i=\frac{2\,\lVert (P_i-B_i)\times(F_i-P_i)\rVert}{\lVert P_i-B_i\rVert\,\lVert F_i-P_i\rVert\,\lVert F_i-B_i\rVert}
+\quad[\text{mm}^{-1}],
+\]
+the inverse radius of the circle through the three points. Points without both chord ends get no
+profile value (\code{curvature\_feature.curvature\_profile}). The feature of each line is the arc-length
+mean, by the trapezoid rule, of its profile values at $s\in[\text{lo},\text{hi})$ over its own averaged
+part, and nan with fewer than two values (\code{segment\_mean}):
+\[
+T=\frac{\sum_k \tfrac12(\kappa_k+\kappa_{k+1})(s_{k+1}-s_k)}{s_{\text{last}}-s_{\text{first}}}.
+\]
+This gives $T_{\text{tracer}}$ over $[t_0+5,t_1-5]$ and $T_{\text{Medis}}$ over $[m_0+5,m_1-5]$. Because
+the profile is computed on the whole line, the values inside the averaged part do not depend on where the
+other line ends.
+
+\section{Bifurcation angle, per participant}
+
+\textbf{Step 12: angle in each tree.} One function is used for the cohort feature and for this comparison
+(\code{bifurcation\_angle.angle\_with\_reason}). The angle is nan with a reason when the tree has no point
+labelled \code{lm}, or when the LAD or the LCx is missing. Otherwise the LAD and LCx from Step 5 must start
+at the same point; if they do not, it is nan. On each daughter the points at arc lengths
+$5, 5.5,\dots,10$ mm from O are interpolated, and the daughter's direction is the first principal axis of
+these 11 points (SVD), pointing from the 5 mm point towards the 10 mm point. The angle is
+$\operatorname{atan2}(\lVert u\times v\rVert,\ u\cdot v)$ in degrees. A daughter shorter than 10 mm gives
+nan.
+
+\textbf{Step 13: which angles are compared.} A participant's angle pair is compared only when two things
+hold. First, the LAD pair and the LCx pair are both aligned in Step 8 (\code{aligned\_whole}); the
+averaged-part minimum of Step 9 does not apply here. Second, both daughters pass the near-O check
+(\code{near\_o}), which runs only when the first condition holds. For one daughter, each tree's first
+10 mm from its own O is resampled every 0.25 mm. The distances run from it to the other tree's left main
+(ostium to O, \code{split\_trunks.left\_main}) together with that tree's whole daughter, also resampled, in
+both directions. The larger of the two 90th percentiles must be at most 2 mm. The left main is in the
+reference because the two O need not coincide. If one tree places O a few mm further along the same vessel,
+the start of its daughter lies beside the other tree's left main, and the pair still passes. A daughter
+that enters a different vessel within 10 mm still fails. A daughter shorter than 10 mm in either tree gives
+nan, which fails the check. A computation that raises is recorded as \code{error:<type>} and counted in
+the report.
+
+The distance $o=\lVert O_{\text{tracer}}-O_{\text{Medis}}\rVert$ (the first points of the two LADs) is
+saved and reported, not used as a cut.
+
+\section{Daughter asymmetry, per participant}
+
+These rules were fixed on 19 November 2026, before any asymmetry result was seen.
+
+\textbf{Step 14: which participants.} The asymmetry is computed only for participants whose angle is
+compared (both conditions of Step 13), so both trees describe the same two daughters. The participant must
+also have Medis baseline lumen meshes on the left tree. All of that participant's left-tree lumen files are
+read and merged into one mesh. The tracer side is the predicted \code{lumen\_surface\_ostium\_pruned.vtk}.
+It is a triangle mesh in the same frame as the centerlines, and it goes with the same centerline files
+(\code{lumen\_probe.md}).
+
+\textbf{Step 15: cross-sections.} On each tree's own LAD and LCx, take the 11 depths 5, 5.5, \dots, 10 mm
+from that tree's own O. At each depth, the tree's own lumen surface is cut with the plane through the
+centerline point $p$. The plane's normal is the direction from the point 1 mm before $p$ to the point 1 mm
+after it. Only triangles with a vertex within 10 mm of $p$ take part. The cut gives line pieces, which are
+chained into loops, and chains that do not close are dropped. The cross-section is the closed loop that
+encloses $p$ in the plane (the smallest, if several do). Its diameter is the area-equivalent
+$D=2\sqrt{A/\pi}$. A depth has no diameter in three cases: no closed loop encloses $p$ (the surface ends
+there), the cut leaves the 10 mm radius, or the loop also encloses the point where the other daughter's
+centerline crosses the plane (both daughters in one loop near O)
+(\code{daughter\_ratio.surface\_diameters}).
+
+\textbf{Step 16: strict coverage and the feature.} A daughter's diameter is the median of its 11 values,
+and only when all 11 depths have a diameter, on both trees. This matters most for Medis, whose lumen
+surface ends where Medis stopped contouring. The asymmetry is $a=\ln(D_{\text{LCx}}/D_{\text{LAD}})$ on
+each tree. A participant is compared when all four daughters (LAD and LCx, tracer and Medis) are complete.
+Otherwise the reason is recorded: Medis lumen not covering 5--10 mm (checked first), a tracer cut missing,
+or \code{error:<type>}.
+
+Medis contoured almost only diseased segments. Every participant compared therefore has plaque at the
+bifurcation, where the lumen is narrowed. The plaque-free cohort may agree better, and this comparison
+cannot show it.
+
+\section{Agreement}
+
+\textbf{Step 17: differences.} For each feature, the difference is tracer $-$ Medis in the feature's own
+unit (1/mm, degrees), a plain difference with no ratio or log.
+
+\textbf{Step 18: statistics.} The bias is the mean difference, $\mathit{SD}$ is the standard deviation
+of the differences ($n-1$), and the 95\% limits of agreement are bias $\pm 1.96\,\mathit{SD}$. The 95\%
+intervals come from 2000 bootstrap samples of participants: participants are drawn with replacement, all
+their pairs come along, and the 2.5th and 97.5th percentiles of the bias and of both limits are taken.
+Arteries of one participant are therefore not treated as independent.
+
+\textbf{Step 19: rows reported.} For curvature: the LAD, the LCx, the RCA and all arteries, from the
+``ok'' pairs, plus one sensitivity row that also holds the ``offset $>$ 2 mm'' pairs. Those pairs meet the
+same length rules as the main rows. For the angle: one row, from the participants of Step 13 with an angle
+in both trees. For the asymmetry: the signed
+$a$, and the LAD and the LCx diameters in mm as secondary rows, from the participants of Step 16, with the
+number of participants left out for each reason.
+
+Next to the limits the report gives the flow (participants and pairs at each step) and the pairs per
+artery and reason, as a share of that artery. It also gives the median alignment distances of the pairs
+kept, the number of short shared stretches whose two lengths differ more than twofold, the flow of the
+angle (aligned on the whole artery, also near O, angle in both, reasons for a missing angle), and the
+median and 90th percentile of $o$ with the share above 5 mm. The limits describe only the pairs kept; the
+plaque-free cohort uses every trace.
+
+\textbf{Disclosure.} Counts of 1 to 4 are shown as $<5$. A statistic needs at least 5 pairs, a median at
+least 10 values and a 90th percentile at least 20. Per-pair rows (with study ids) and the Bland--Altman
+plots stay on the server.
+
+\section{What changed on 19 November 2026}\label{sec:changes}
+
+These changes come from the code review, not from the numbers, and they were made after the
+18 November results had been seen.
+\begin{itemize}
+\item Step 5: an \code{lm} label past O no longer moves a daughter's start when the two paths share one.
+  Before, the angle could become nan without a warning.
+\item Step 8: both directions are measured between the evenly resampled shared stretches. Before, the
+  query was the raw points and the reference was the whole other line.
+\item Step 9: the averaged-part reason comes before the offset. Before, offset failures skipped it and
+  entered the sensitivity row with averages over a few mm.
+\item Step 13: the near-O check was added. Its first version (never run on the data) compared with the
+  other daughter's first 15 mm only. An O placed more than about 3 mm further along the vessel then failed
+  the check by itself, which made it a cut on $o$. The left main is now part of the reference.
+\item Steps 14--16: the daughter asymmetry was added (the tracer's lumen was delivered on that day).
+\item Step 6 onward: a pair that raises is counted (\code{error:<type>}) instead of stopping the run.
+\end{itemize}
+
+\end{document}

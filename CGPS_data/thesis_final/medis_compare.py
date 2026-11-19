@@ -50,7 +50,14 @@ tracer's and Medis' bifurcation point O, is saved and reported, not used as a cu
 cut chosen after the angle results were seen would be tuned on them). An angle is missing for a tree without
 an LM label (bifurcation_angle.has_lm, 2026-11-18). The CSV keeps every angle with the columns aligned_whole,
 aligned and the reasons.
-The daughter asymmetry is added once the tracer lumen contours exist (the delivered files hold none).
+Daughter asymmetry, per participant (2026-11-19, rule fixed before any result): only where the angle is
+compared (aligned). Each tree's own lumen surface is cut across its own LAD and LCx at SECTION_DEPTHS (5 to
+10 mm from its own O, every 0.5 mm; daughter_ratio.surface_diameters): the tracer's
+lumen_surface_ostium_pruned.vtk (tracer_io.tracer_lumen, the same centerlines as TRACER_DIR, lumen_probe.md)
+and the participant's BL Medis lumen meshes of the left tree, merged. A daughter's D is the median of its
+cuts, kept only when every cut has a diameter (strict rule: the Medis lumen ends where Medis stopped
+contouring). a = ln(D_LCx / D_LAD); reported as the signed a and as D_LAD and D_LCx. Medis contoured almost
+only diseased segments, so every participant compared has plaque at the bifurcation.
 A pair or participant whose computation raises is kept with the reason error:<type> (2026-11-19).
 
 Agreement per feature: difference tracer - Medis in the feature's own unit, bias, SD of the differences,
@@ -74,12 +81,14 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # the shared modul
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from bifurcation_angle import DEPTHS, angle_with_reason
 from curvature_feature import CHORD, curvature_profile, segment_mean
+from daughter_ratio import SECTION_DEPTHS, merge, surface, surface_diameters
 
 MAX_OFFSET = 2.0  # mm: 90th percentile of the point distances, both ways, above this = not the same vessel
 MIN_SHARED = 10.0  # mm: minimum shared stretch, and minimum averaged part (shared stretch less CHORD at each end)
 DENSE = 0.25  # mm: the other centerline is resampled this finely for the distances
 O_FAR = 5.0  # mm: o_dist above this is counted in the report (not a cut)
 ARTERIES = ("LAD", "CX", "RCA")
+RIGHT = {"prca", "mrca", "drca", "rca", "pda", "pla"}  # Medis lumen sets of the right tree, not read for the asymmetry
 NAME = {"LAD": "LAD", "CX": "LCx", "RCA": "RCA"}
 
 
@@ -157,6 +166,23 @@ def guarded(fn, *args):
         return None, f"error:{type(ex).__name__}"
 
 
+def asymmetry_pair(trc, med, trc_surf, med_surf):
+    """Lumen diameters at the SECTION_DEPTHS of each tree's own LAD and LCx (daughter_ratio.surface_diameters on
+    its own surface) and the asymmetry ln(D_LCx / D_LAD), with the reason. Strict rule (2026-11-19, before any
+    result): a daughter's D is the median over all its cuts, and only when every cut has a diameter."""
+    row, short = {}, []
+    for name, arts, surf in (("medis", med, med_surf), ("tracer", trc, trc_surf)):
+        (*_, Yl, sl), (*_, Yc, sc) = arts["LAD"], arts["CX"]
+        for a, D in (("LAD", surface_diameters(*surf, Yl, sl, Yc)), ("CX", surface_diameters(*surf, Yc, sc, Yl))):
+            row[f"n_cut_{a}_{name}"] = int(np.isfinite(D).sum())
+            row[f"D_{a}_{name}"] = float(np.median(D)) if np.isfinite(D).all() else np.nan
+            short += [name] if not np.isfinite(D).all() else []
+        row[f"asym_{name}"] = float(np.log(row[f"D_CX_{name}"] / row[f"D_LAD_{name}"]))
+    reason = ("Medis lumen does not cover 5-10 mm of both daughters" if "medis" in short
+              else "tracer cut missing" if "tracer" in short else "ok")
+    return row | {"asym_reason": reason}
+
+
 # ---------------------------------------------------------------- agreement
 
 def agreement(diff, pid, boot=2000, seed=0):
@@ -179,13 +205,19 @@ def agreement(diff, pid, boot=2000, seed=0):
 
 # ---------------------------------------------------------------- data run (server)
 
-def run(limit=None, src=None):
+def run(limit=None, src=None, lumen=None, medis=None):
     import centerline_qc as cq
     import hoe10y_qc as hq
     import tracer_io
     from split_trunks import graph, left_main, split
 
-    src = src or tracer_io.TRACER_DIR
+    from split_check import contour_files
+
+    src, lumen = src or tracer_io.TRACER_DIR, lumen or tracer_io.LUMEN_DIR
+    med_lumen = {}  # id -> the participant's BL Medis lumen files of the left tree
+    for (i, seg), fs in contour_files(medis or Path(hq.ROOT) / hq.MEDIS_DIR).items():
+        if "lumen" in fs and seg not in RIGHT:
+            med_lumen.setdefault(i, []).append(fs["lumen"])
     trees = {hq.id_from_name(p.name): p for p in tracer_io.MEDIS_TREES.rglob("*.vtk")}
     hq.read_label_codes((f, f) for f in trees.values())
     have = tracer_io.tracer_ids(src)
@@ -226,6 +258,14 @@ def run(limit=None, src=None):
                 row[f"near_o_{a}"], row[f"near_o_reason_{a}"] = (np.nan, err) if err else (res, "ok")
         row["o_dist"] = float(np.linalg.norm(trc["LAD"][4][0] - med["LAD"][4][0])) if "LAD" in trc and "LAD" in med else np.nan
         row["aligned"] = row["aligned_whole"] and all(row[f"near_o_{a}"] <= MAX_OFFSET for a in ("LAD", "CX"))
+        if not row["aligned"]:
+            row["asym_reason"] = "not aligned"
+        elif pid not in med_lumen:
+            row["asym_reason"] = "no Medis lumen in the left tree"
+        else:
+            res, err = guarded(lambda: asymmetry_pair(trc, med, surface(tracer_io.tracer_lumen(pid, lumen)),
+                                                      merge([surface(f) for f in med_lumen[pid]])))
+            row |= res or {"asym_reason": err}
         P.append(row)
     return flow, pd.DataFrame(A), pd.DataFrame(P)
 
@@ -328,6 +368,22 @@ def report(flow, A, P, boot):
                 if top.sum() >= QUARTILE_MIN:
                     L.append(f"Median O distance among the 10% largest |angle differences| {fmt(med(o[top]), 2)} mm, "
                              f"among the rest {fmt(med(o[~top]), 2)} mm.")
+
+    L += ["\n## Daughter asymmetry ln(D_LCx / D_LAD)\n", head]
+    if len(P) and "asym_reason" in P:
+        Q = P[P["asym_reason"] == "ok"]
+        for col, label, unit in (("asym", "asymmetry", "ln ratio"), ("D_LAD", "LAD diameter", "mm"),
+                                 ("D_CX", "LCx diameter", "mm")):
+            if f"{col}_tracer" in Q:
+                diff = Q[f"{col}_tracer"].to_numpy(float) - Q[f"{col}_medis"].to_numpy(float)
+                L.append(stat_row(label, diff, Q["id"].to_numpy(), boot, unit))
+        L.append(f"\nDiameters from plane cuts of each tree's own lumen surface at {len(SECTION_DEPTHS)} depths, "
+                 f"{SECTION_DEPTHS[0]:g} to {SECTION_DEPTHS[-1]:g} mm from its own O (daughter_ratio.surface_diameters); "
+                 f"a daughter counts only when every cut has a diameter. Participants by reason:")
+        L += ["\n| reason | participants |", "|---|---|"]
+        L += [f"| {r} | {count(n)} |" for r, n in P["asym_reason"].value_counts().items()]
+        L.append("\nMedis lumen exists only where Medis contoured, almost always diseased segments: every participant "
+                 "compared here has plaque at the bifurcation, unlike the plaque-free cohort.")
     return "\n".join(L) + "\n"
 
 
@@ -337,7 +393,8 @@ def plots(A, P, out):
     import matplotlib.pyplot as plt
 
     sets = [("curvature", A.get("T_tracer"), A.get("T_medis"), "average curvature (1/mm)"),
-            ("angle", P.get("theta_tracer"), P.get("theta_medis"), "bifurcation angle (degrees)")]
+            ("angle", P.get("theta_tracer"), P.get("theta_medis"), "bifurcation angle (degrees)"),
+            ("asymmetry", P.get("asym_tracer"), P.get("asym_medis"), "asymmetry ln(D_LCx / D_LAD)")]
     for name, t, m, lab in sets:
         if t is None:
             continue
@@ -449,6 +506,8 @@ def main():
     ap.add_argument("--limit", type=int, default=None, help="only the first N Medis participants")
     ap.add_argument("--boot", type=int, default=2000)
     ap.add_argument("--src", default=None, help="tracer folder (default tracer_io.TRACER_DIR)")
+    ap.add_argument("--lumen", default=None, help="lumen prediction folder (default tracer_io.LUMEN_DIR)")
+    ap.add_argument("--medis", default=None, help="Medis contour folder (default <ROOT>/<MEDIS_DIR>)")
     ap.add_argument("--out", default=str(Path(__file__).resolve().parent / "medis_compare.md"))
     ap.add_argument("--rows", default=None, help="folder for the per-pair CSVs and plots (server only)")
     args = ap.parse_args()
@@ -457,7 +516,7 @@ def main():
         return
     from cgps_stats import OUT_DIR
 
-    flow, A, P = run(args.limit, args.src)
+    flow, A, P = run(args.limit, args.src, args.lumen, args.medis)
     rows = Path(args.rows or Path(OUT_DIR) / "medis_compare")
     rows.mkdir(parents=True, exist_ok=True)
     A.to_csv(rows / "medis_compare_arteries.csv", index=False)

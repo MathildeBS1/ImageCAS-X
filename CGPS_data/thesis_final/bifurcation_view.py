@@ -14,7 +14,9 @@ first (the N worst cases, 2026-11-19; before, only the largest tracer - Medis). 
 Each row has the tracer left and Medis right, with: the LM from the ostium to the bifurcation point O
 (green), O, the LAD and LCx up to ZOOM mm from O, the side branches near O in grey (so a trifurcation or a
 misplaced O shows), the points 5 to 10 mm along each daughter (bifurcation_angle.DEPTHS), the fitted line
-through them (artery_direction) and the angle between the two lines as an arc. The two panels of a row use
+through them (artery_direction, drawn through the points' centre over their extent, with a dotted link from
+O; until 2026-11-19 it was drawn from O, which showed it shifted off the points wherever the daughter bends
+before 5 mm) and the angle between the two directions as an arc at O. The two panels of a row use
 the same projection (the plane through that participant's zoom points that shows them best) and the same
 scale; the angle printed in each panel is the 3D angle. Each row title gives the rank, the difference, the
 distance between the two O, the near-O check of the LAD and LCx (medis_compare.near_o) and the
@@ -84,7 +86,9 @@ def panel(ax, m, b, tree, c, axes):
         if len(pts):
             draw(ax, pts, c, axes, marker="o", ms=4, color=COLOUR[a], ls="none")
         if u is not None:
-            draw(ax, [O, O + 12 * u], c, axes, color=COLOUR[a], lw=3, alpha=0.4)
+            m, t = pts.mean(axis=0), (pts - pts.mean(axis=0)) @ u  # the fitted line passes through the points' centre
+            draw(ax, [m + (t.min() - 1) * u, m + (t.max() + 1) * u], c, axes, color=COLOUR[a], lw=3, alpha=0.4)
+            draw(ax, [O, m + t.min() * u], c, axes, color=COLOUR[a], lw=1, ls=":")  # from O to the fitted line
     draw(ax, [O], c, axes, marker="o", ms=9, color="k", ls="none", label="O")
     draw(ax, [b["ostium"]], c, axes, marker="x", ms=9, mew=2, color=COLOUR["LM"], ls="none", label="ostium")
     ul, uc = b["LAD"][3], b["CX"][3]

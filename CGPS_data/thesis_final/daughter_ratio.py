@@ -34,9 +34,17 @@ daughter, 0 on the wider one, so pLAD = max(a, 0) and pCX = max(-a, 0). Garcha a
 by its SD over persons but does not centre it, so 0 keeps meaning equal daughters or the wider one.
 
 Not used (header of 03c_daughter_ratio.tex): the LM->LAD and LM->LCx ratios planned before 2026-11-11.
-Open: the delivered tracer files hold centerlines only, no lumen (tracer_probe.md, 2026-11-18), so
-tracer_rings raises NotImplementedError until Kit delivers the contours; every other function takes arrays
-and is checked here.
+Diameters from a lumen surface (surface_diameters, 2026-11-19). The lumen predictions hold no contour per
+step, only a triangle mesh (lumen_probe.md: lumen_surface_ostium_pruned.vtk). The surface is cut with the plane
+through the centerline point at each depth of SECTION_DEPTHS (5 to 10 mm from O every STEP mm), perpendicular
+to the centerline (the direction from the point 1 mm before to the point 1 mm after). Of the closed loops of
+the cut, the one that encloses the centerline point is the cross-section (the smallest, if several do), and
+its area-equivalent diameter is taken. No diameter at that depth when no closed loop encloses the point (the
+surface ends, or the cut leaves CUT_RADIUS), or when the loop also encloses the point where the other
+daughter's centerline crosses the plane (both daughters in one loop near O). The same function is used for
+the tracer and the Medis lumen in medis_compare.py, so both diameters come from one method.
+Open: tracer_rings (a contour per point) stays unimplemented; the cohort asymmetry is to be computed with
+surface_diameters (not yet wired into progression_who_pooled.py).
 """
 import argparse
 import sys
@@ -45,10 +53,15 @@ from pathlib import Path
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # the shared modules in CGPS_data/
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from bifurcation_angle import point_at_depth
 
 DEPTHS = (5.0, 10.0)  # mm from O along the LAD and the LCx, the interval of bifurcation_angle.DEPTHS
 LM_OSTIUM = (0.0, 2.0)  # mm from the ostium along the left main, sec:method-ratio
 STEP = 0.5  # mm between the depths the median is taken at, the step of bifurcation_angle.DEPTHS
+SECTION_DEPTHS = np.arange(DEPTHS[0], DEPTHS[1] + 1e-9, STEP)  # the 11 cuts of surface_diameters
+TANGENT = 1.0  # mm before and after the point for the direction of the cut's normal
+CUT_RADIUS = 10.0  # mm: only triangles with a vertex this close to the centerline point take part in a cut
 
 
 def contour_area(ring):
@@ -99,12 +112,112 @@ def _arc(Y):
     return np.r_[0, np.cumsum(np.linalg.norm(np.diff(Y, axis=0), axis=1))]
 
 
+def surface(path):
+    """(vertices (n, 3), triangles (m, 3)) of a legacy VTK surface: POLYGONS fan-triangulated, TRIANGLE_STRIPS
+    unrolled; ValueError when the file has neither (a contour file of rings or lines, not a surface)."""
+    import centerline_qc as cq
+
+    v = cq.read_vtk_legacy(Path(path).read_bytes())
+    tris = [(c[0], c[k], c[k + 1]) for c in v["cells"].get("POLYGONS", []) for k in range(1, len(c) - 1)]
+    tris += [(c[k], c[k + 1], c[k + 2]) for c in v["cells"].get("TRIANGLE_STRIPS", []) for k in range(len(c) - 2)]
+    if not tris:
+        raise ValueError("no POLYGONS or TRIANGLE_STRIPS: not a surface")
+    return np.asarray(v["points"], float), np.asarray(tris, int)
+
+
+def merge(surfaces):
+    """One (vertices, triangles) from several, e.g. the Medis lumen meshes of one participant."""
+    V, F, k = [], [], 0
+    for v, f in surfaces:
+        V.append(v)
+        F.append(f + k)
+        k += len(v)
+    return np.concatenate(V), np.concatenate(F)
+
+
+def section_loops(V, F, p, n):
+    """Closed loops (points (k, 3)) in which the plane through p with normal n cuts the mesh (V, F), using the
+    triangles with a vertex within CUT_RADIUS of p. A vertex on the plane counts as on its positive side.
+    Chains that do not close (a mesh border, or the radius) are dropped."""
+    F = F[(np.linalg.norm(V - p, axis=1) <= CUT_RADIUS)[F].any(axis=1)]
+    d = (V - p) @ n
+    pos = d[F] >= 0
+    point, links = {}, {}
+    for tri in F[pos.any(axis=1) & ~pos.all(axis=1)]:
+        ends = []
+        for a, b in ((tri[0], tri[1]), (tri[1], tri[2]), (tri[2], tri[0])):
+            if (d[a] >= 0) != (d[b] >= 0):
+                e = (min(a, b), max(a, b))
+                point.setdefault(e, V[a] + d[a] / (d[a] - d[b]) * (V[b] - V[a]))
+                ends.append(e)
+        links.setdefault(ends[0], []).append(ends[1])
+        links.setdefault(ends[1], []).append(ends[0])
+    loops, seen = [], set()
+    for start in links:
+        if start in seen:
+            continue
+        chain, prev, cur, closed = [start], None, start, False
+        seen.add(start)
+        while len(links[cur]) == 2:
+            nxt = links[cur][0] if links[cur][0] != prev else links[cur][1]
+            if nxt == start:
+                closed = True
+                break
+            if nxt in seen:
+                break
+            chain.append(nxt)
+            seen.add(nxt)
+            prev, cur = cur, nxt
+        if closed and len(chain) >= 3:
+            loops.append(np.array([point[e] for e in chain]))
+    return loops
+
+
+def _inside(loop, q, p, n):
+    """Whether q (in the plane) lies inside the closed loop, in the plane's own 2D coordinates (ray casting)."""
+    e1 = np.cross(n, [1.0, 0, 0] if abs(n[0]) < 0.9 else [0, 1.0, 0])
+    e1 /= np.linalg.norm(e1)
+    e2 = np.cross(n, e1)
+    x, y = (loop - q) @ e1, (loop - q) @ e2
+    x2, y2 = np.roll(x, -1), np.roll(y, -1)
+    cross = (y > 0) != (y2 > 0)
+    xs = x[cross] + (0 - y[cross]) * (x2[cross] - x[cross]) / (y2[cross] - y[cross])
+    return bool((xs > 0).sum() % 2)
+
+
+def crossings(Y, p, n):
+    """Points where the polyline Y crosses the plane through p with normal n, within CUT_RADIUS of p."""
+    d = (Y - p) @ n
+    k = np.flatnonzero((d[:-1] >= 0) != (d[1:] >= 0))
+    q = Y[k] + (d[k] / (d[k] - d[k + 1]))[:, None] * (Y[k + 1] - Y[k])
+    return q[np.linalg.norm(q - p, axis=1) <= CUT_RADIUS]
+
+
+def surface_diameters(V, F, Y, s, other, depths=SECTION_DEPTHS):
+    """Area-equivalent lumen diameter (mm) at each depth of one daughter (Y, s: arc length from O), from the
+    mesh (V, F); other: the other daughter's centerline points. nan at a depth without a clean cross-section."""
+    out = []
+    for dep in depths:
+        p, a, b = (point_at_depth(Y, s, x) for x in (dep, max(dep - TANGENT, 0.0), dep + TANGENT))
+        if p is None or b is None:
+            out.append(np.nan)
+            continue
+        n = (b - a) / np.linalg.norm(b - a)
+        inner = [lp for lp in section_loops(V, F, p, n) if _inside(lp, p, p, n)]
+        if not inner:
+            out.append(np.nan)
+            continue
+        lp = min(inner, key=contour_area)
+        merged = any(_inside(lp, q, p, n) for q in crossings(np.asarray(other, float), p, n))
+        out.append(np.nan if merged else contour_diameter(lp))
+    return np.array(out)
+
+
 def tracer_rings(path):
     """Lumen contour per centerline point of a tracer tree."""
     raise NotImplementedError(
-        "tracer_rings: the delivered tracer files hold centerlines only, no lumen (tracer_probe.md, 2026-11-18); "
-        "once Kit delivers the per-step contours, return a callable Y (n, 3) -> list of n contour rings (m, 3) "
-        "in LPS mm")
+        "tracer_rings: the lumen predictions hold a surface mesh, no contour per step (lumen_probe.md, "
+        "2026-11-19); use surface_diameters on tracer_io.tracer_lumen")
 
 
 def tree_ratios(tree, rings_of, roots=None):
@@ -216,7 +329,44 @@ def check():
     # points crowded into the first millimetre of the window must not pull the median there
     s_crowd = np.r_[np.linspace(0, 5, 11), np.linspace(5, 6, 200), np.linspace(6.5, 20, 28)]
     assert abs(reference_diameter(s_crowd, taper(s_crowd)) - taper(7.5)) < 1e-9, "crowded points must not count more"
+    check_surface()
     print("all checks passed")
+
+
+def _tube_mesh(origin, direction, D, length, step=0.25, m=64):
+    """Triangle mesh of a straight open tube of diameter D (rings of m points every step mm)."""
+    u = np.asarray(direction, float) / np.linalg.norm(direction)
+    rings = [_ring(np.asarray(origin, float) + x * u, u, D / 2, D / 2, m) for x in np.arange(0, length + 1e-9, step)]
+    V = np.concatenate(rings)
+    F = [(i * m + j, i * m + (j + 1) % m, (i + 1) * m + j) for i in range(len(rings) - 1) for j in range(m)]
+    F += [(i * m + (j + 1) % m, (i + 1) * m + (j + 1) % m, (i + 1) * m + j) for i in range(len(rings) - 1) for j in range(m)]
+    return V, np.array(F)
+
+
+def check_surface():
+    """Known diameters from plane cuts of tube meshes."""
+    d_lad, d_cx = 2.75, 2.25
+    u_lad, u_cx = np.array([1, 0.4, 0.0]), np.array([1, -0.6, 0.2])
+    V, F = merge([_tube_mesh(0.5 * u_lad / np.linalg.norm(u_lad), u_lad, d_lad, 30),
+                  _tube_mesh(0.5 * u_cx / np.linalg.norm(u_cx), u_cx, d_cx, 30)])
+    line = lambda u, L: np.linspace(0, L, 121)[:, None] * u / np.linalg.norm(u)  # noqa: E731
+    lad, cx = line(u_lad, 30), line(u_cx, 30)
+    D_lad = surface_diameters(V, F, lad, _arc(lad), cx)
+    D_cx = surface_diameters(V, F, cx, _arc(cx), lad)
+    poly = np.sqrt(64 * np.sin(2 * np.pi / 64) / (2 * np.pi))  # a 64-gon's area-equivalent diameter / D
+    assert np.allclose(D_lad, d_lad * poly, rtol=2e-3) and np.allclose(D_cx, d_cx * poly, rtol=2e-3), (D_lad, D_cx)
+    a = np.log(reference_diameter(SECTION_DEPTHS, D_cx) / reference_diameter(SECTION_DEPTHS, D_lad))
+    assert abs(a - np.log(d_cx / d_lad)) < 1e-3, a
+    print(f"plane cuts of tube meshes: LAD {np.median(D_lad):.3f}, LCx {np.median(D_cx):.3f} mm "
+          f"(64-gons of {d_lad}, {d_cx}); asymmetry {a:.4f}")
+    # the mesh ends at 8 mm: no closed loop beyond it
+    V8, F8 = _tube_mesh(np.zeros(3), u_lad, d_lad, 8)
+    D8 = surface_diameters(V8, F8, lad, _arc(lad), cx)
+    assert np.isfinite(D8[SECTION_DEPTHS <= 7.5]).all() and np.isnan(D8[SECTION_DEPTHS >= 8.5]).all(), D8
+    # one wide tube around both daughters (they run 0.75 mm apart at 5 mm): no diameter
+    near_cx = line([1, 0.15, 0], 30)
+    Vw, Fw = _tube_mesh(np.zeros(3), [1, 0, 0], 8.0, 30)
+    assert np.isnan(surface_diameters(Vw, Fw, line([1, 0, 0], 30), _arc(line([1, 0, 0], 30)), near_cx)).all()
 
 
 if __name__ == "__main__":

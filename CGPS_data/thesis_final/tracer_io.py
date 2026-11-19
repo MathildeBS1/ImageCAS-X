@@ -36,6 +36,7 @@ import hoe10y_qc as hq
 from cgps_stats import count
 
 TRACER_DIR = "/data/kimbr/centerlines_for_mathilde"
+LUMEN_DIR = "/data/kimbr/predictions_CGPS-10Y_folds_01234"  # same centerlines (lumen_probe.md) plus the lumen surface
 MEDIS_TREES = Path(hq.ROOT) / "Medis" / "Analysis_Processed" / "centerline_tree"
 PATTERN = "BL_{pid}.coronary_{side}_centerline_ostium_pruned.vtk"
 SIDES = ("left", "right")
@@ -80,6 +81,11 @@ def tracer_ostia(pid, src=TRACER_DIR):
             o = v["points"][root[0]]
             out |= {"LAD": o, "CX": o} if side == "left" else {"RCA": o}
     return out
+
+
+def tracer_lumen(pid, src=LUMEN_DIR):
+    """Path of the predicted BL lumen surface (triangle mesh, LPS mm) that goes with the pruned centerlines."""
+    return Path(src) / f"BL_{pid}.lumen_surface_ostium_pruned.vtk"
 
 
 def tracer_tree(pid, src=TRACER_DIR):

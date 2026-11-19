@@ -17,14 +17,19 @@ functions on arrays, a `tree_*` wrapper on one centerline tree (arteries from `.
   (sec:method-split, `02b_segment_split.tex`).
 - `tracer_probe.py`: one-off look at the tracer files (format, arrays, frame, Medis/tracer overlap);
   output in `tracer_probe.md`.
+- `lumen_probe.py`: one-off look at the lumen predictions in `/data/kimbr/predictions_CGPS-10Y_folds_01234`
+  (surface, npz, pkl, ostia), their frame against the Medis lumen rings, and how many participants have
+  Medis lumen contours on the proximal LAD and LCx; output in `lumen_probe.md`.
 - `tracer_io.py`: reads the tracer centerlines (`tracer_tree`) in the structure of the Medis trees;
   `--labels` writes `tracer_labels.md`, the table from which the code map `CODES` is filled.
 - `medis_compare.py`: tracer against Medis on the features (sec:method-medis-agreement): bias, limits
   of agreement and bootstrap intervals for curvature (per artery, over the shared stretch less 5 mm at
-  each end) and the angle. Pairs are left out when the 90th percentile of the distances (both ways)
-  exceeds 2 mm; the share left out is reported with the limits, and the distance between the two
+  each end) and the angle. Pairs are left out when the 90th percentile of the distances between the
+  two shared stretches (both ways, resampled every 0.25 mm) exceeds 2 mm; angles also need the same check
+  within 10 mm of O. The share left out is reported with the limits, and the distance between the two
   bifurcation points O is reported (not a cut).
-  The asymmetry is added once the tracer contours exist. Writes `medis_compare.md` (aggregates);
+  The asymmetry: plane cuts of each tree's own lumen surface at 5-10 mm from O on both daughters
+  (`daughter_ratio.surface_diameters`), where the Medis lumen covers every cut. Writes `medis_compare.md` (aggregates);
   per-pair rows and Bland-Altman plots stay on the server.
 
 The model script `../progression_who_pooled.py` imports the three feature modules. Removed 2026-11-18
