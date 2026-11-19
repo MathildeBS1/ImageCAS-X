@@ -112,7 +112,7 @@ def tree_ratios(tree, rings_of, roots=None):
     centerline point of Y (n, 3), or None where there is none. nan without an LM label (bifurcation_angle.has_lm).
     roots: the tree's own ostia, as split_trunks.split takes them (tracer_io.tracer_ostia)."""
     from bifurcation_angle import has_lm
-    from split_trunks import graph, shared_prefix, split, trunk_path  # here so --check runs without the shared modules
+    from split_trunks import graph, left_main, split  # here so --check runs without the shared modules
 
     nan = {"asymmetry": np.nan, "finet": np.nan}
     if not has_lm(tree):
@@ -125,9 +125,7 @@ def tree_ratios(tree, rings_of, roots=None):
     (*_, Yl, sl), (*_, Yc, sc) = arteries["LAD"], arteries["CX"]
     if not np.allclose(Yl[0], Yc[0]):
         return nan  # no shared bifurcation point, as in bifurcation_angle.lm_angle
-    r = int(np.argmin(np.linalg.norm(X - roots["LAD"], axis=1))) if "LAD" in roots else None
-    pl, pc = trunk_path(X, lab, G, "LAD", r), trunk_path(X, lab, G, "CX", r)
-    Ym = X[pl[:shared_prefix(pl, pc)]]  # left main from the ostium down to O
+    Ym = left_main(X, lab, G, roots)
     out = []
     for Y, s in ((Yl, sl), (Yc, sc), (Ym, _arc(Ym))):
         rings = rings_of(Y)

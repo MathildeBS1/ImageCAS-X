@@ -98,13 +98,21 @@ def tree_angle(tree, depths=DEPTHS, method="fit", roots=None):
     roots: the tree's own ostia, as split_trunks.split takes them (tracer_io.tracer_ostia)."""
     from split_trunks import graph, split  # imported here so --check runs without the shared modules
 
+    if not has_lm(tree):  # the rule is in angle_with_reason; checked here only to skip split
+        return np.nan
+    return angle_with_reason(tree, split(*graph(tree), roots=roots), depths, method)[0]
+
+
+def angle_with_reason(tree, arteries, depths=DEPTHS, method="fit"):
+    """(angle in degrees or nan, reason) of one tree already divided by split_trunks.split. The one rule for
+    the cohort feature (tree_angle) and the tracer-Medis comparison (medis_compare.py)."""
     if not has_lm(tree):
-        return np.nan
-    arteries = split(*graph(tree), roots=roots)
+        return np.nan, "no LM label"
     if "LAD" not in arteries or "CX" not in arteries:
-        return np.nan
+        return np.nan, "LAD or LCx missing"
     (*_, Yl, sl), (*_, Yc, sc) = arteries["LAD"], arteries["CX"]
-    return lm_angle((Yl, sl), (Yc, sc), depths, method)
+    theta = lm_angle((Yl, sl), (Yc, sc), depths, method)
+    return theta, "ok" if np.isfinite(theta) else "no shared O or a daughter under 10 mm"
 
 
 # ---------------------------------------------------------------- checks on synthetic shapes (no data)

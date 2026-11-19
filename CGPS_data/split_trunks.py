@@ -242,6 +242,34 @@ def label_cuts(a, p, lab, br, s):
     return pm, md, max(end, md), "medis label"
 
 
+def start_at_bifurcation(lad, cx, lab):
+    """The LAD and CX paths from the LM bifurcation: cut at the end of their shared prefix when they share
+    a start. Only when they do not (one path missing, or no shared start), a path starts after its
+    labelled LM. With a shared start the LM labels are not used: the voted tracer lm code can reach a few
+    points into one daughter, and trimming it then moved that daughter's start past O (code review
+    2026-11-19), so the two paths no longer shared their first point."""
+    common = shared_prefix(lad, cx)
+    if common:
+        return lad[common - 1 :], cx[common - 1 :]
+    out = []
+    for p in (lad, cx):
+        if p and lab[p[0]] == "lm":
+            k = next((i for i, v in enumerate(p) if lab[v] != "lm"), len(p))
+            p = p[max(k - 1, 0) :]
+        out.append(p)
+    return tuple(out)
+
+
+def left_main(X, lab, G, roots=None):
+    """Points of the left main from the ostium down to O (the shared prefix of the LAD and CX paths, O
+    included); empty without a shared start. roots as for split."""
+    roots = roots or {}
+    pl, pc = (trunk_path(X, lab, G, a, int(np.argmin(np.linalg.norm(X - roots[a], axis=1))) if a in roots else None)
+              for a in ("LAD", "CX"))
+    k = shared_prefix(pl, pc)
+    return X[pl[:k]] if k else np.empty((0, 3))
+
+
 def split(X, lab, G, info=None, roots=None):
     """{artery: (pm, md, end, rule, trunk points, arc length)}. Pass a dict as info to get, per artery,
     the reason code, the rule source and the landmark boundaries (with / without branch labels).
@@ -255,17 +283,7 @@ def split(X, lab, G, info=None, roots=None):
             paths[a] = trunk_path(X, lab, G, a, r)
         except Exception as ex:  # noqa: BLE001 - recorded per artery
             paths[a], info[a] = None, {"reason": f"error:{type(ex).__name__}"}
-    common = shared_prefix(paths["LAD"], paths["CX"])
-    if common:  # LAD and LCx start at the LM bifurcation
-        paths["LAD"], paths["CX"] = (
-            paths["LAD"][common - 1 :],
-            paths["CX"][common - 1 :],
-        )
-    for a in ("LAD", "CX"):  # without the other trunk: start after the labelled LM
-        p = paths[a]
-        if p and lab[p[0]] == "lm":
-            k = next((i for i, v in enumerate(p) if lab[v] != "lm"), len(p))
-            paths[a] = p[max(k - 1, 0) :]
+    paths["LAD"], paths["CX"] = start_at_bifurcation(paths["LAD"], paths["CX"], lab)
     out = {}
     for a, p in paths.items():
         if a in info:
@@ -296,6 +314,11 @@ def check():
     assert shared_prefix([0, 1, 2, 3, 9, 5], [0, 1, 2, 4, 9, 6]) == 3, "a later shared node must not count"
     assert shared_prefix([0, 1, 2], [0, 1, 2, 3]) == 3, "one path ending inside the other"
     assert shared_prefix([5, 1], [0, 1]) == 0 and shared_prefix(None, [0, 1]) == 0, "no shared start"
+    lab = ["lm", "lm", "lm", "lm", "lad", "cx", "cx", "lad"]  # node 3 (lm) lies past the junction at node 2
+    lad, cx = start_at_bifurcation([0, 1, 2, 3, 4, 7], [0, 1, 2, 5, 6], lab)
+    assert lad[0] == cx[0] == 2, "with a shared start, lm labels past O must not move a daughter's start"
+    lad, cx = start_at_bifurcation([0, 1, 2, 4, 7], None, lab)
+    assert lad[0] == 2 and cx is None, "without the other path, start at the last labelled LM node"
     print("all checks passed")
 
 
