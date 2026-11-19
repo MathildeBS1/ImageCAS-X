@@ -1,0 +1,216 @@
+% Technical Background: generalised linear model, written 2026-11-18 around the illustrations
+% content/technical/figures/02_illus_link_function.pdf, 03_illus_proportional_hazard.pdf and
+% 04_illus_hazard_area.pdf (scripts beside them). 01_illus_distribution_residual.pdf was dropped.
+% Written fresh on request, without 01_mixed_model.tex. A second version, not input from
+% content/background.tex; choose between the two before either is committed.
+% Labels use the prefix tech-glmi, since 01_mixed_model.tex already holds fig:tech-glm-*.
+% Voice: thesis-style skill and the Aida technical guide (outdated/thesis_retired/
+%   style_guide_technical_aida.md): definition openers, structure then function, hazard closer.
+% Explanatory moves (range first, inverse link from eta to p, two named scales, unit steps on both
+%   scales) from the causact chapter "Linear Predictors and Inverse Link Functions" (link-intuition
+%   skill). causact is not cited.
+% 2026-11-18: rewritten on request for a warmer tone and an easier first read (less_stiff.md): the
+%   figures are walked through in reading order, every symbol gets its plain meaning first,
+%   shorter sentences, a worked hazard ratio (1.5) added. Same claims, equations and labels.
+% 2026-11-18: started over on request. Rewritten in the register of Aida's Chapter 3 itself
+%   (pdftotext of Former_students_work/AidaJimenez_MasterThesis_s243279.pdf, pp. 15-19): definition
+%   opener, "commonly referred to as", structure then function ("By doing so"), "Central to",
+%   figure-led paragraphs, Aida-style captions ("Illustration of ..., showing ..."), and her hazard
+%   closer ("is thus dependent on ... Otherwise, ..."). causact phrasing kept for the link: the
+%   linear predictor "ranges from -inf to inf", the inverse link "confines it" to the scale of the
+%   mean and "forces" it between 0 and 1, "caution is needed" when reading coefficients.
+% 2026-11-18: on review, Figure 01 is about the distribution (no normal residual for a binary
+%   outcome: y - p takes two values, variance p(1 - p) changes with x), not about the range of the
+%   mean, which its line never leaves. The opener now names both changes a GLM makes (distribution
+%   -> Fig. 01, scale of the mean -> Fig. 02); "scale of the outcome" corrected to "scale of the mean".
+% 2026-11-18: opener said "outcomes that do not follow a normal distribution"; linear regression
+%   assumes normality only of the residuals (the outcome given the covariates), not of the outcome
+%   as a whole. Now "whose distribution around the mean is not normal", and the residual assumption
+%   is stated as an assumption. CHECK with dobson2002glm (conditional definition of the GLM).
+% 2026-11-18: opening reordered to follow Figure 01 as a story: linear regression (left panel), the
+%   same line on a binary outcome (right panel: two-valued residual, changing variance, Bernoulli),
+%   the line leaving [0, 1] when extended, then the GLM as the answer to both (Aida's "introduced to
+%   address" move), leading into Figure 02.
+% 2026-11-18: Figure 01 (fig:tech-glmi-distribution) dropped on request: it showed only what one
+%   sentence states (two-valued residual, changing variance) and not the range problem the link
+%   solves. Opening tightened to three paragraphs: linear regression and its two assumptions, why
+%   both break down for a binary outcome, the GLM as the answer. The PDF and script stay in figures/.
+% 2026-11-18: opening and the subsection Linear Predictor and Inverse Link Function collapsed into
+%   one part, kept close to the user's own draft of the opening; repeated statements cut (range of
+%   eta, "same linear form as linear regression", "confines/forces between 0 and 1", "By doing so").
+%   Label sec:tech-glmi-link removed with the subsection heading (not referenced anywhere).
+% 2026-11-18: the cloglog paragraph (eq:tech-glmi-cloglog, unit-step numbers, "caution", logit
+%   symmetry) replaced by the user's bridging line naming logit, probit and cloglog; past tense
+%   "was chosen" put in the present. The derivation now writes the cloglog formula itself.
+% 2026-11-18: hazard subsection rewritten in the register of the reworked first part (short plain
+%   sentences, figure rows named, "referred to as"); "binary" -> "Bernoulli". Claims, equations and
+%   labels unchanged.
+% 2026-11-18: made the thesis version (user: "make 01_glm.tex into the pdf"; chose to keep the
+%   GLMM parts of 01_mixed_model.tex after it, now in 02_glmm.tex). Equation labels renamed to the old
+%   names so Methods 05 and Appendices B and C keep pointing right: eq:tech-lp, eq:tech-link,
+%   eq:tech-cumhaz, eq:tech-ph, eq:tech-cloglog (eq:tech-glmi-risk is new). sec:tech-model and
+%   sec:tech-segment-glmm added beside sec:tech-glmi and sec:tech-glmi-hazard. The per-SD and
+%   exposure/offset paragraphs were carried over from 01_mixed_model.tex (Methods 05 points to them
+%   through sec:tech-segment-glmm), rewritten with "features"; their cites (dobson2002glm Sec. 9.2,
+%   Eq. 9.3 for the offset) were dropped with the others until the Dobson PDF is checked. CHECK.
+% 2026-11-18 (user agreed): subsection Likelihood Ratio Test (sec:tech-lr, eq:tech-lr) moved here from
+%   02_glmm.tex, since the bifurcation GLM uses it too; the GLMM section keeps only the averaged
+%   likelihood and the dependence assumption.
+% Scope: GLM, link, hazard and the cloglog link only. No random intercept, likelihood ratio test or
+%   cluster risk (no figure covers them). No cohort, no settings.
+%
+% Numbers: cloglog risks recomputed 2026-11-18 from p = 1 - exp(-exp(eta)):
+%   eta = -1, 0, 1, 2 -> p = 0.3078, 0.6321, 0.9340, 0.9994.
+% Uncited reasoning from the equations (no source needed, recorded here): the area of c*h(t) is
+%   c*H(t); cloglog(p) = log H(T), so without proportional hazards exp(beta_k) is still the ratio of
+%   the cumulative hazards at T.
+%
+% CHECK (no \cite yet; dobson2002glm is not in papers/, so it was not opened):
+%   - GLM extends linear regression to other distributions; linear predictor; link g with
+%     g(mu) = eta (Dobson Ch. 3, likely Sec. 3.3 to 3.4). The term "linear predictor" came from the
+%     causact chapter (not cited); check that Dobson uses this exact term and not e.g. "linear
+%     component" before the citation suggests it does. Origin of the term: Nelder and Wedderburn
+%     1972 (not opened).
+%   - Bernoulli outcome, mean p, variance p(1 - p) (Dobson Ch. 7).
+%   - cloglog link and its asymmetry against the logit (Dobson Sec. 7.3).
+%   - hazard, cumulative hazard, survival exp(-H), proportional hazards, hazard ratio exp(beta_k)
+%     (Dobson Ch. 10, Sec. 10.2).
+%   - cloglog as the GLM of a proportional hazards model observed at one time
+%     (prentice1978grouped pp. 58-59, unverified; PDF wanted in papers/).
+%   - "The cloglog link is often used for grouped survival data" (user's opener, 2026-11-18): needs
+%     a source; prentice1978grouped is the candidate. Confirm its term for grouped data (grouped
+%     survival times / grouped data) before citing.
+
+\section{Generalised Linear Models}
+\label{sec:tech-glmi}
+
+Linear regression describes how a continuous outcome $y$ depends on one or more independent
+variables, also referred to as features. It assumes that the expected value of $y$ changes along a
+straight line in each feature when the other features are held fixed.
+
+However, linear regression does not work for many types of outcome, an example being Bernoulli distributed outcomes. A
+Bernoulli outcome is not continuous. It is 1 if an event occurs and 0 if it does not, so its expected
+value is the probability of the event, also known as the risk $p$. The risk lies between 0 and 1,
+whereas the weighted sum of the features,
+\begin{equation}
+  \eta_i = \beta_0 + \sum_k \beta_k x_{ik},
+  \label{eq:tech-lp}
+\end{equation}
+can in principel take any value from minus to plus infinity (Figure~\ref{fig:tech-glmi-link}, left). Here $x_{ik}$
+is feature $k$ of unit $i$, $\beta_0$ is the intercept and $\beta_k$ is the coefficient of feature
+$k$. The weighted sum $\eta_i$ is referred to as the linear predictor, and $\beta_k$ gives how much it
+changes when $x_{ik}$ increases by one.
+
+The generalised linear model (GLM) solves this problem while keeping the model linear in the features. The GLM maps the linear predicotr onto the interval from 0 to 1
+with an inverse link function $g^{-1}$ (Figure~\ref{fig:tech-glmi-link}, right),
+\begin{equation}
+  p_i = g^{-1}(\eta_i).
+  \label{eq:tech-link}
+\end{equation}
+The link function $g$ maps the other way, from the risk back to the linear predictor.
+
+\begin{figure}[tbp]
+  \centering
+  \includegraphics[width=\textwidth]{content/technical/figures/02_illus_link_function.pdf}
+  \caption{Illustration of the inverse link function, showing how a value $\eta_i$ of the unbounded
+  linear predictor (left) is mapped by the cloglog inverse link $g^{-1}$ to a risk $p_i$ between 0
+  and 1 (right).}
+  \label{fig:tech-glmi-link}
+\end{figure}
+
+There are several link functions to choose from, most commonly the logit, the probit and the
+complementary log-log (cloglog) link for Bernoulli outcomes. 
+
+\subsection{Hazard and the Complementary Log-Log Link}
+\label{sec:tech-glmi-hazard}
+\label{sec:tech-segment-glmm}
+
+The cloglog link is often used for grouped survival data. In this kind of data the time of an event is not
+observed exactly when it happens, only the interval in which it happened. The simplest case is a Bernoulli outcome that
+only shows whether the event has happened by the end of follow-up at time $T$, which is a single
+interval. The hazard
+$h(t)$ is the rate at which the event happens at time $t$ among units that are still free of it.
+
+For an event observed only once, at the end of follow-up, the shape of the hazard over time is
+unknown. It could rise, fall or fluctuate, as in the three panels of Figure~\ref{fig:tech-glmi-ph}
+(top). What the model instead assumes is that, whatever the shape, the hazards of all units follow it
+and differ only by a fixed factor. This called the proportional hazards assumption. The ratio between the hazards of two units $A$ and $B$ is
+therefore constant at every time (bottom). The features set this factor,
+\begin{equation}
+  h_i(t) = h_0(t) \exp\Bigl(\sum_k \beta_k x_{ik}\Bigr),
+  \label{eq:tech-ph}
+\end{equation}
+where the baseline hazard $h_0(t)$ gives the shared shape, which is the hazard of a unit with all
+features equal to zero. When two units differ by one in $x_k$ and are otherwise identical, the ratio
+of their hazards is $\exp(\beta_k)$, referred to as the hazard ratio. 
+
+\begin{figure}[tbp]
+  \centering
+  \includegraphics[width=\textwidth]{content/technical/figures/03_illus_proportional_hazard.pdf}
+  \caption{Proportional hazards for three baseline hazards $h_0$ (dashed), on made-up curves. The
+  hazards $h_A$ and $h_B$ of two units follow the shape of $h_0$ (top), while their ratio stays the
+  same over time (bottom).}
+  \label{fig:tech-glmi-ph}
+\end{figure}
+
+The outcome, however, is observed only at $T$. What the hazard means for the outcome is given by the
+area under the hazard up to time $t$, referred to as the cumulative hazard,
+\begin{equation}
+  H(t) = \int_0^t h(s)\,\mathrm{d}s.
+  \label{eq:tech-cumhaz}
+\end{equation}
+The larger this area, the less likely a unit is to stay free of the event. The probability of no
+event by $T$ is $\exp\{-H(T)\}$, so the risk at the end of follow-up is
+\begin{equation}
+  p = 1 - \exp\{-H(T)\}.
+  \label{eq:tech-glmi-risk}
+\end{equation}
+
+With only one observation at $T$, the shape of the hazard cannot be estimated. The three hazards in
+Figure~\ref{fig:tech-glmi-area} differ in shape but have the same area $A$ up to $T$ (top). Their
+cumulative hazards therefore end at the same value (bottom), and all three give the same risk
+$1 - \exp(-A)$. 
+
+\begin{figure}[tbp]
+  \centering
+  \includegraphics[width=\textwidth]{content/technical/figures/04_illus_hazard_area.pdf}
+  \caption{Three hazards $h(t)$ with different shapes but the same area $A$ up to $T$ (top), on
+  made-up curves. Their cumulative hazards $H(t)$ end at the same value $A$ (bottom), so all three give
+  the same risk.}
+  \label{fig:tech-glmi-area}
+\end{figure}
+
+Scaling a hazard by a fixed factor scales its area by the same factor. Under proportional hazards,
+the cumulative hazard is therefore $H_i(T) = H_0(T)\exp(\sum_k \beta_k x_{ik}) = \exp(\eta_i)$, where
+the intercept $\beta_0 = \log H_0(T)$ is the log of the area under the baseline hazard. Inserting this in
+Equation~\eqref{eq:tech-glmi-risk} gives the cloglog inverse link,
+\begin{equation}
+  p_i = 1 - \exp\{-\exp(\eta_i)\},
+  \label{eq:tech-cloglog}
+\end{equation}
+so the cloglog link follows from proportional hazards, and its coefficients are log hazard ratios. This interpretation holds only if the hazard ratio stays constant during follow-up, which one observation per
+unit cannot check.
+
+The size of a hazard ratio depends on the unit in which its feature is measured, such as degrees or
+millimetres. To compare features measured in different units, each hazard ratio can be given per
+standard deviation of its feature.
+
+Units can also differ in how long they are at risk, referred to as their exposure $E_i$. The exposure
+enters the linear predictor as $\gamma \log E_i$, so it multiplies the cumulative hazard by
+$E_i^{\gamma}$. When $\gamma$ is fixed at 1, the cumulative hazard grows in proportion to the exposure
+and the term is referred to as an offset. When $\gamma$ is estimated, the data decide how strongly the
+cumulative hazard grows with the exposure.
+
+\subsection{Likelihood Ratio Test}
+\label{sec:tech-lr}
+
+The coefficients of a GLM are estimated by maximum likelihood. The joint contribution of a set of $q$
+features is assessed with a likelihood ratio test. The model is fitted with and without the set on the
+same units, and the two fits are compared through \cite[Section~5.7]{dobson2002glm}
+\begin{equation}
+  \mathrm{LR} = 2\left(\ell_1 - \ell_0\right) \;\overset{H_0}{\sim}\; \chi^2_q ,
+  \label{eq:tech-lr}
+\end{equation}
+where $\ell_1$ and $\ell_0$ are the maximised log-likelihoods with and without the set. Under the null
+hypothesis that the set adds no information, LR follows a $\chi^2$ distribution with $q$ degrees of
+freedom, so large values are evidence against it.

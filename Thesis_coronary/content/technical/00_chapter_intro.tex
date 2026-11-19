@@ -4,12 +4,15 @@
 % Rule for what belongs here: a sentence that would be true if this thesis had never been written is
 % background; what was done, with which settings, on which data, is Methodology. Every section is
 % pointed back to by a Methodology section (content/methodology/0*.tex); if none does, cut it.
-% Sections:
-%   01_mixed_model.tex        cloglog GLMM (renamed 2026-11-15 from          sec:tech-model
-%                             01_prediction_model.tex; association framing,
-%                             technical parts in app:glmm). Old note: (risk models,
-%                             recalibration, bootstrap still notes)
-%   02_fpca.tex               functional principal component analysis, written sec:tech-fpca
+% Sections (files renamed 2026-11-18 to follow the section order):
+%   01_glm.tex                generalised linear model, link, hazard and the    sec:tech-glmi
+%                             cloglog link (written 2026-11-18 around the
+%                             illustrations in figures/02-04)
+%   02_glmm.tex               generalised linear mixed model, LR test, cluster  sec:tech-glmm
+%                             risk (GLMM part of 01_mixed_model.tex)
+%   03_fpca.tex               functional principal component analysis, written sec:tech-fpca
+%                             (was 02_fpca.tex)
+%   01_mixed_model.tex is no longer input.
 % Removed 2026-11-16: 01b_sample_size.tex (Riley criteria, sec:tech-sample-size), retired to
 %   outdated/thesis_retired/technical_background/retired/01b_sample_size_2026-11-16.tex. The
 %   criteria are for developing a prediction model and no Methodology section relies on them any
@@ -17,7 +20,8 @@
 % Not written yet, on purpose, until the model is confirmed: added predictive value (was
 %   thesis/technical_background/03_added_value.tex).
 % Map, Methodology file -> background it relies on:
-%   05_statistical_model     sec 1 (renamed 2026-11-16 from 03_prediction_model)
+%   05_statistical_model     sec 1 (GLM: bifurcation model) and sec 2 (GLMM: curvature model), since
+%                            2026-11-18 two models (renamed 2026-11-16 from 03_prediction_model)
 %   (06_model_size retired 2026-11-16; the number of fixed effects is in 05_statistical_model)
 %   07_curvature_fpca        sec 2 (cut sec 2 if the descriptive FPCA is dropped)
 % Each definition lives once: here if it is general, in the Methodology if it carries a setting.

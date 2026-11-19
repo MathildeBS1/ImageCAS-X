@@ -5,13 +5,35 @@
 % reference, shared imaging errors) go in the Discussion.
 % Every threshold marked [x] is a design choice without a published value; fix it before the
 % comparison is run and before any outcome analysis, never tune it on the result.
+% 2026-11-18 (user: "write the units sentence into the Medis agreement section"): last paragraph added.
+%   Differences in each feature's own unit (curvature mm^-1, angle degrees, asymmetry log ratio), so the
+%   agreement is free of the spread among the plaque-at-baseline Medis participants. Interpretation against
+%   the plaque-free cohort SD (reports/Centerline and lumen contour comparison.md, line 161) not yet written.
+%   CHECK: code is CGPS_data/thesis_final/medis_compare.py (first run 2026-11-18; rerun after the code-review
+%   changes of 2026-11-18). The code covers curvature and the angle only; the lumen-contour sentence (cut at
+%   the first and last Medis contour) has no code until the tracer contours exist.
+% 2026-11-18 (user: "cut both to the shared stretch for curvature"): "Centerline features were computed on
+%   the full artery without any adjustments" replaced. Curvature: profile on each full centerline (so no
+%   5 mm end loss at the cut), averaged over the stretch both cover (ends projected at the closest point;
+%   later start to earlier end). Reason: Medis trees were probably checked only where contoured, so a length
+%   difference would show as disagreement without being a tracing error. Angle stays on the full trees
+%   (it uses 5-10 mm from O). Root CLAUDE.md Medis bullet updated to match. Code: medis_compare.shared_stretch.
+% 2026-11-18 (user: "make the edits discovered in the code review"): "semi-manually annotated" removed (how
+%   the Medis data were made is open); "mapped into the coordinates of Medis" replaced by the same frame (the
+%   code applies no mapping; tracer_probe.md: bounds agree within about 1 mm; LPS still open, clarify kept);
+%   the exclusions the code applies written out: 5 mm (CHORD) off each end of the shared stretch on both
+%   lines, at least 10 mm left (MIN_SHARED), 90th percentile of the point distances in both directions at
+%   most 2 mm (MAX_OFFSET; was the one-way median), angle only where LAD and LCx pass and both trees have
+%   an LM label (bifurcation_angle.has_lm). The distance between the two bifurcation points O is reported
+%   in medis_compare.md, not used as a cut, so it is not in the text. Curvature is compared as a plain
+%   difference only (no log scale), fixed before the results.
 % Red clarification notes; needs \usepackage{xcolor} in the preamble. Remove before submission.
 \providecommand{\clarify}[1]{\textcolor{red}{\textbf{Clarification needed:} #1}}
 \section{Medis Reference as validation for the in house tracer output}
 \label{sec:method-medis}
 
 No ground truth exists for the Herlev--{\O}sterbro scans, so the quality of the centerlines and lumen contours from the in-house tracer (Section~\ref{sec:method-tracer}) cannot be measured directly.
-Instead, they were compared to the Medis centerlines and the semi-manually annotated Medis contours of the same baseline scans (Section~\ref{sec:data-medis}), which gives an indirect estimate.
+Instead, they were compared to the Medis centerlines and contours of the same baseline scans (Section~\ref{sec:data-medis}), which gives an indirect estimate.
 Medis: \clarify{how were they exactly produced and handled (semi corrected?} 
 Medis data exist only for participants with plaque at baseline, so the comparison was made outside the plaque-free study cohort.
 
@@ -24,9 +46,24 @@ This thesis uses only the LAD, LCx and RCA (Section~\ref{sec:method-population-a
 \label{sec:method-medis-agreement}
 The centerlines and contours enter the model only through the geometric features computed from them (Section~\ref{sec:method-features}).                                                                           
 Therefore the agreement was measured on the features and not the points themselves.
-First the tracer centerlines and contours were mapped into the coordinates of Medis, and each tracer artery was paired with the Medis artery of the same participant and label.
+The tracer and Medis store their points in the same coordinate frame.
+Each tracer artery was therefore paired directly with the Medis artery of the same participant and label.
 \clarify{in which coordinates are the Medis points stored: LPS millimeters, RAS millimeters or voxel indices? And in which coordinates does the tracer store its points?}
 
-Centerline features were computed on the full artery without any adjustments, whereas the lumen contour features were computed only over the part of the artery covered by the Medis lumen contours.
+The two methods may follow an artery for different lengths, so the curvature was compared over the stretch that both centerlines cover.
+The first and the last point of each centerline were projected onto the other centerline at the closest point.
+The shared stretch runs from the later of the two starts to the earlier of the two ends.
+The curvature profile was computed on the full centerline of each method.
+The profile has no values within 5~mm of the ends of its own centerline, so 5~mm were removed from each end of the shared stretch on both centerlines.
+The profile was then averaged over the remaining stretch, and pairs with less than 10~mm left were excluded.
+A pair was also excluded when the two centerlines did not follow the same vessel.
+For each centerline, the distance from every point of its shared stretch to the nearest point of the other centerline was measured.
+The pair was excluded when the 90th percentile of these distances exceeded 2~mm in either direction.
+The bifurcation angle was computed on the full trees of both methods.
+It was compared only for participants whose LAD and LCx both passed this check and whose two trees both contained points labelled as the LM.
+The lumen contour features were computed only over the part of the artery covered by the Medis lumen contours.
 To achieve this, the tracer centerline was cut where the first and the last Medis lumen contour lie \cite{schaap2009cat08}, which cut its lumen contours to the same stretch.
 
+Each feature was compared in its own unit, that is curvature in mm$^{-1}$, the bifurcation angle in degrees and the daughter asymmetry as a log ratio.
+The differences between the tracer and Medis therefore describe the measurement error directly.
+This keeps the agreement independent of the spread of the features among the Medis participants, nearly all of whom had plaque at baseline.

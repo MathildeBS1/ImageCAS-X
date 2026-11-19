@@ -123,8 +123,13 @@
 %   "three"; sentence 2 "bends and branching" (narrowing cut); sentence 4 curvature only; table row
 %   and \input{05d_taper} removed. 05d_taper.tex and figures/taper_figure.* moved to
 %   outdated/thesis_retired/methodology/retired/. Not stated in the text (counterfactual rule).
-%   taper_feature.py stays in CGPS_data/thesis_final/, unused. The taper notes above are history.
+%   taper_feature.py was deleted from CGPS_data/thesis_final/ on 2026-11-18 (in git history). The taper
+%   notes above are history.
 %   Sentence 6 keeps "lumen contours": the daughter asymmetry uses them.
+% 2026-11-18 (user: two models, a GLMM for curvature and a person-level GLM for the angle and asymmetry,
+%   outcome plaque in the proximal LAD or LCx): "entered the model only in" -> "were related only to plaque
+%   in"; table column "Segments" -> "Outcome segments", asymmetry row "proximal LAD and LCx" (the narrower-row
+%   coding is gone); caption to match.
 \providecommand{\clarify}[1]{\textcolor{red}{\textbf{Clarification needed:} #1}}
 \section{Geometric Features}
 \label{sec:method-features}
@@ -133,16 +138,16 @@ The geometry of the coronary tree was summarised by the three features presented
 The features were selected on the basis of a prior hypothesis; that bends and branching of the arteries disturb flow and lower the WSS (Section~\ref{sec:wss}).
 Each of these properties can be quantified in several ways, so the measure used for each was the one most closely tied to low WSS or plaque found in by the literature review (Section~\ref{sec:lit-wss}).
 Curvature was computed for each of the nine segments defined in Section~\ref{sec:method-split}, whereas the bifurcation angle and the daughter asymmetry were computed once per participant at the left main bifurcation.
-To avoid diluting an effect expected just downstream of the bifurcation, where the flow is disturbed (Section~\ref{sec:wss}), the latter two entered the model only in the proximal LAD and the proximal LCx (Section~\ref{sec:method-models}).
+To avoid diluting an effect expected just downstream of the bifurcation, where the flow is disturbed (Section~\ref{sec:wss}), the latter two were related only to plaque in the proximal LAD and the proximal LCx (Section~\ref{sec:method-models}).
 All three features were computed on the centerlines and lumen contours produced by the in-house tracer described in Section~\ref{sec:method-tracer}.
 
 \begin{table}[htbp]
   \centering
-  \caption{Summary of the geometric features computed from the in-house tracer output, including where each is measured and the segments it enters the model in.}
+  \caption{Summary of the geometric features computed from the in-house tracer output, including where each is measured and the segments whose outcome it is related to.}
   \label{tab:method-features}
   \begin{tabular}{llll}
     \toprule
-    Feature & Computed on & Segments & Section \\
+    Feature & Computed on & Outcome segments & Section \\
     \midrule
     Curvature (segment average) & each segment & all nine & \ref{sec:method-curvature} \\
     Bifurcation angle & left main bifurcation & proximal LAD and LCx & \ref{sec:method-angle} \\

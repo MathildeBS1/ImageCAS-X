@@ -3,6 +3,9 @@
 %   03 statistical model (before that 03_prediction_model) -> 05, 04 model size -> 06; 07 unchanged.
 %   File names in the comments below were updated; bare numbers in comments dated before this entry
 %   ("Methods 03", "05a header", "05d") are the OLD numbers.
+% 2026-11-18 (user: two models): the random-slope sentence now concerns the curvature model only; "two of
+%   the three features are constant within a participant" cut, since the angle and asymmetry are now in a
+%   participant-level GLM with no random effects.
 \chapter{Discussion}
 \label{ch:discussion}
 
@@ -59,7 +62,7 @@
 %   2026-11-16 (user): taper dropped, three features (root CLAUDE.md). Two of the three (LM angle and daughter
 %   asymmetry) are constant within a participant; curvature alone varies by segment. "three of the five"
 %   -> "two of the three"; the feature list in the note above is history.
-Random slopes were not considered, as two of the three features are constant within a participant and nine binary segment outcomes per participant do not identify a slope variance.
+Random slopes were not considered in the curvature model, as nine binary segment outcomes per participant do not identify a slope variance.
 
 % - Irreversible outcome (added 2026-11-16 as prose, user: "add the irreversibility point to the discussion"; from
 %   app:link-derivation, where exp(-Lambda) covers every event time in the window). Uncited reasoning apart from the
@@ -72,5 +75,15 @@ Random slopes were not considered, as two of the three features are constant wit
 The model treats incident coronary plaque as irreversible, so a participant without plaque at follow-up is taken to have been free of plaque throughout the observation window (Appendix~\ref{app:link-derivation}).
 Plaque that formed during the window and then regressed below the detection limit of CCTA, for example under lipid-lowering treatment, would therefore be counted as no event \clarify{CITATION WANTED: plaque regression on serial CCTA}.
 Minimal plaque, which the outcome includes, is the grade most likely to fall below this limit, so the observed risk of the outcome may be lower than the risk of developing plaque during the window.
+
+% - Proportional hazards (added 2026-11-18, user: "move the second sentence to the discussion"; moved from
+%   the closing paragraph of technical/01_glm.tex, sec:tech-glmi-hazard, which keeps the general
+%   statement that the hazard ratio reading needs a constant ratio and cannot be checked with one observation).
+%   Uncited reasoning from the equations: cloglog(p) = log H(T), so exp(beta_k) is always the ratio of the
+%   cumulative hazards at T. FORWARD REFERENCE: sec:tech-glmi-hazard exists only once 01_glm.tex is
+%   input from content/background.tex instead of 01_mixed_model.tex.
+Each participant has a single follow-up scan, so whether the hazard ratios of the geometric features stay constant during follow-up cannot be checked (Section~\ref{sec:tech-glmi-hazard}).
+If they do change, the hazard ratios answer a coarser question.
+They compare how much hazard participants have built up by the follow-up scan, rather than how much faster plaque develops in one participant than in another at each moment.
 
 \section{Future work}

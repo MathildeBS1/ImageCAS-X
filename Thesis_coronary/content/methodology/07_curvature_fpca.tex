@@ -26,6 +26,9 @@
 %   200 bootstrap resamples of people; stable = median over resamples of |cos| with the best-matching resampled
 %   component >= STABLE = 0.9; K = leading stable components ("boot").
 % CHECK (text ahead of the code; root CLAUDE.md requires the code in thesis_final/ before the text is final):
+%   - (2026-11-18: turning_profile_shapes.py DELETED with the other old scripts, in git history. No FPCA
+%     code exists now; write it in thesis_final/ on the curvature_feature.py profile.) The notes below
+%     describe the deleted script.
 %   - turning_profile_shapes.py is not in CGPS_data/thesis_final/ and still runs on the Medis trees (people with
 %     plaque at baseline), not on the plaque-free tracer cohort. K must be computed on the tracer cohort.
 %   - It uses tortuosity.curvature.profile_thesis (turning angle / length, rad/mm), not
@@ -63,7 +66,7 @@
 
 The average curvature of the main model gives the same value to a segment with one sharp bend as to a segment that bends evenly along its length (Section~\ref{sec:method-curvature}).
 To describe where along a segment the bending lies, the shape of the curvature profile was analysed with FPCA (Section~\ref{sec:tech-fpca}).
-This analysis was secondary and descriptive, and it lay outside the likelihood ratio test of the geometric features (Section~\ref{sec:method-test}).
+This analysis was secondary and descriptive, and it lay outside the likelihood ratio tests of the geometric features (Section~\ref{sec:method-test}).
 It was restricted to the proximal and the mid LAD, where plaque developed most often (Section~\ref{sec:results-cohort}), so that each of the two segments had enough events for a model of its own.
 
 \subsection{Curvature Profiles as Curves}

@@ -429,6 +429,12 @@
 %   0.023, 0.032 mm^-1). Replaces fig:method-turning (turning_feature_schematic) as the only figure;
 %   both old scripts stay on disk, out of the text. Panel references remapped: opener cites the
 %   figure, B for placing B_i and F_i, A and C for the circle sentence, D for profile and T.
+% 2026-11-18 (code review): the LAD and LCx of split_trunks.split start at O, so their profiles have no
+%   value in the first 5 mm (no chord point behind) and the proximal LAD/LCx averages start about 5 mm
+%   from the LM bifurcation (pRCA: from the ostium). One sentence added after the "whole artery" sentence.
+%   A proximal segment shorter than about 6 mm then has fewer than two profile points and is missing (the
+%   existing missing sentence covers it). progression_who_pooled.py now uses this module
+%   (curvature_feature.artery_curvature) instead of the turning-angle mean_T5.
 \subsection{Curvature}
 \label{sec:method-curvature}
 
@@ -450,6 +456,7 @@ Since any three points lie in one plane, the formula applies directly to a 3D ce
 
 Subsequently, the values $\kappa_i$ along an artery formed its curvature profile, which has no value within about 5\,mm of either end (Figure~\ref{fig:method-curvature}D).
 To capture bends that cross a segment boundary, the profile was computed along the whole artery and only then divided at the segment boundaries.
+The average of each proximal segment therefore starts about 5\,mm into the segment, at the left main bifurcation for the LAD and the LCx and at the ostium for the RCA.
 
 Finally, each segment was summarised to its average curvature $T$ (Figure~\ref{fig:method-curvature}D):
 \begin{equation}

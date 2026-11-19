@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) (preloaded format=pdflatex 2023.6.16)  16 NOV 2026 23:14
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) (preloaded format=pdflatex 2023.6.16)  18 NOV 2026 22:58
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1510,9 +1510,9 @@ LaTeX Font Info:    External font `lmex10' loaded for size
  (./content/introduction.tex
 Chapter 1.
 LaTeX Font Info:    Font shape `T1/phv/m/n' will be
-(Font)              scaled to size 16.55997pt on input line 53.
+(Font)              scaled to size 16.55997pt on input line 57.
 LaTeX Font Info:    Font shape `T1/phv/m/n' will be
-(Font)              scaled to size 36.79993pt on input line 53.
+(Font)              scaled to size 36.79993pt on input line 57.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
@@ -1521,7 +1521,7 @@ pdfTeX warning (ext4): destination with the same identifier (name{page.1}) has
 been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.101 
+l.108 
        [1
 
 
@@ -1605,39 +1605,93 @@ LaTeX Warning: Reference `fig:wss-sites' on page 10 undefined on input line 78.
 
 ]
 Chapter 4.
-) (./content/technical/01_mixed_model.tex
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
+) (./content/technical/01_glm.tex
+<content/technical/figures/02_illus_link_function.pdf, id=898, 455.30101pt x 21
+6.81pt>
+File: content/technical/figures/02_illus_link_function.pdf Graphic file (type p
+df)
+<use content/technical/figures/02_illus_link_function.pdf>
+Package pdftex.def Info: content/technical/figures/02_illus_link_function.pdf  
+used on input line 111.
+(pdftex.def)             Requested size: 370.3126pt x 176.34625pt.
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <9> on input line 114.
  [13{/usr/local/texlive/2023/texmf-dist/fonts/enc/dvips/lm/lm-mathit.enc}{/usr/
 local/texlive/2023/texmf-dist/fonts/enc/dvips/lm/lm-rm.enc}{/usr/local/texlive/
-2023/texmf-dist/fonts/enc/dvips/lm/lm-mathex.enc}] [14] [15])
-(./content/technical/02_fpca.tex
-Underfull \vbox (badness 1436) has occurred while \output is active []
+2023/texmf-dist/fonts/enc/dvips/lm/lm-mathex.enc}]
+<content/technical/figures/03_illus_proportional_hazard.pdf, id=913, 455.30101p
+t x 245.718pt>
+File: content/technical/figures/03_illus_proportional_hazard.pdf Graphic file (
+type pdf)
+<use content/technical/figures/03_illus_proportional_hazard.pdf>
+Package pdftex.def Info: content/technical/figures/03_illus_proportional_hazard
+.pdf  used on input line 146.
+(pdftex.def)             Requested size: 370.3126pt x 199.85909pt.
 
- [16]
-<content/technical/figures/fpca_steps.pdf, id=965, 455.30101pt x 448.07399pt>
+Underfull \vbox (badness 1622) has occurred while \output is active []
+
+ [14 <./content/technical/figures/02_illus_link_function.pdf>]
+<content/technical/figures/04_illus_hazard_area.pdf, id=955, 455.30101pt x 245.
+718pt>
+File: content/technical/figures/04_illus_hazard_area.pdf Graphic file (type pdf
+)
+<use content/technical/figures/04_illus_hazard_area.pdf>
+Package pdftex.def Info: content/technical/figures/04_illus_hazard_area.pdf  us
+ed on input line 173.
+(pdftex.def)             Requested size: 370.3126pt x 199.85909pt.
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [15 <./content/technical/figures/03_illus_proportional_hazard.pdf>])
+(./content/technical/02_glmm.tex [16 <./content/technical/figures/04_illus_haza
+rd_area.pdf>]
+<content/technical/figures/05_illus_random_intercept.pdf, id=1009, 455.30101pt 
+x 180.675pt>
+File: content/technical/figures/05_illus_random_intercept.pdf Graphic file (typ
+e pdf)
+<use content/technical/figures/05_illus_random_intercept.pdf>
+Package pdftex.def Info: content/technical/figures/05_illus_random_intercept.pd
+f  used on input line 65.
+(pdftex.def)             Requested size: 370.3126pt x 146.9552pt.
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [17 <./content/technical/figures/05_illus_random_intercept.pdf>]
+<content/technical/figures/06_illus_random_intercept_integration.pdf, id=1048, 
+455.30101pt x 180.675pt>
+File: content/technical/figures/06_illus_random_intercept_integration.pdf Graph
+ic file (type pdf)
+<use content/technical/figures/06_illus_random_intercept_integration.pdf>
+Package pdftex.def Info: content/technical/figures/06_illus_random_intercept_in
+tegration.pdf  used on input line 95.
+(pdftex.def)             Requested size: 370.3126pt x 146.9552pt.
+ [18 <./content/technical/figures/06_illus_random_intercept_integration.pdf>])
+(./content/technical/03_fpca.tex [19]
+<content/technical/figures/fpca_steps.pdf, id=1106, 455.30101pt x 448.07399pt>
 File: content/technical/figures/fpca_steps.pdf Graphic file (type pdf)
 <use content/technical/figures/fpca_steps.pdf>
 Package pdftex.def Info: content/technical/figures/fpca_steps.pdf  used on inpu
 t line 123.
 (pdftex.def)             Requested size: 370.3126pt x 364.44891pt.
-LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <9> on input line 124.
-<content/technical/figures/fpca_modes.pdf, id=970, 455.30101pt x 173.448pt>
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [20]
+[21 <./content/technical/figures/fpca_steps.pdf>]
+<content/technical/figures/fpca_modes.pdf, id=1168, 455.30101pt x 173.448pt>
 File: content/technical/figures/fpca_modes.pdf Graphic file (type pdf)
 <use content/technical/figures/fpca_modes.pdf>
 Package pdftex.def Info: content/technical/figures/fpca_modes.pdf  used on inpu
 t line 156.
 (pdftex.def)             Requested size: 370.3126pt x 141.077pt.
-
+))
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
- [17]
-[18 <./content/technical/figures/fpca_steps.pdf>])) [19 <./content/technical/fi
-gures/fpca_modes.pdf>]
+ [22 <./content/technical/figures/fpca_modes.pdf>] [23]
 \openout2 = `content/data.aux'.
 
- (./content/data.tex (./content/data/00_chapter_intro.tex [20
+ (./content/data.tex
+(./content/data/00_chapter_intro.tex [24
 
 
 
@@ -1690,10 +1744,10 @@ Overfull \hbox (6.06757pt too wide) in paragraph at lines 21--30
  []
 
 ) (./content/data/01_ct_volumes.tex) (./content/data/02_visual_analysis.tex
-[21]) (./content/data/03_medis_reference.tex)) [22] [23]
+[25]) (./content/data/03_medis_reference.tex)) [26] [27]
 \openout2 = `content/methods.aux'.
 
- (./content/methods.tex (./content/methodology/00_chapter_intro.tex [24
+ (./content/methods.tex (./content/methodology/00_chapter_intro.tex [28
 
 
 
@@ -1701,158 +1755,170 @@ Overfull \hbox (6.06757pt too wide) in paragraph at lines 21--30
 ]
 Chapter 6.
 
-LaTeX Warning: Reference `fig:method-overview' on page 25 undefined on input li
-ne 17.
+LaTeX Warning: Reference `fig:method-overview' on page 29 undefined on input li
+ne 18.
 
 ) (./content/methodology/01a_inhouse_tracker.tex
-Underfull \hbox (badness 10000) in paragraph at lines 27--5
+Underfull \hbox (badness 10000) in paragraph at lines 28--5
 
  []
 
-[25]) (./content/methodology/01b_medis_reference.tex
+[29]) (./content/methodology/01b_medis_reference.tex
 
-LaTeX Warning: Citation 'schaap2009cat08' on page 26 undefined on input line 31
+LaTeX Warning: Citation 'schaap2009cat08' on page 30 undefined on input line 65
 .
 
+[30]) (./content/methodology/02_population_outcome.tex
 
-Overfull \hbox (0.57585pt too wide) in paragraph at lines 30--32
-[]\T1/lmr/m/n/10 Centerline fea-tures were com-puted on the full artery with-ou
-t any ad-just-ments, whereas
- []
-
-) (./content/methodology/02_population_outcome.tex [26]
-
-LaTeX Warning: Reference `sec:results-cohort' on page 27 undefined on input lin
-e 18.
+LaTeX Warning: Reference `sec:results-cohort' on page 31 undefined on input lin
+e 21.
 
 
-Overfull \hbox (1.24385pt too wide) in paragraph at lines 17--22
+Overfull \hbox (1.24385pt too wide) in paragraph at lines 20--26
 \T1/lmr/m/n/10 The study co-hort com-prised the Herlev--Østerbro par-tic-i-pant
 s with-out coro-nary plaque
  []
 
 ) (./content/methodology/02b_segment_split.tex
 
-LaTeX Warning: Reference `sec:results-cohort' on page 27 undefined on input lin
+LaTeX Warning: Reference `sec:results-cohort' on page 31 undefined on input lin
 e 29.
 
+[31]
 
-LaTeX Warning: Reference `fig:method-segments' on page 27 undefined on input li
+LaTeX Warning: Reference `fig:method-segments' on page 32 undefined on input li
 ne 36.
 
 
-LaTeX Warning: Reference `sec:app-split' on page 27 undefined on input line 40.
+LaTeX Warning: Reference `sec:app-split' on page 32 undefined on input line 40.
 
 
-[27]
 
-LaTeX Warning: Reference `sec:results-cohort' on page 28 undefined on input lin
+LaTeX Warning: Reference `sec:results-cohort' on page 32 undefined on input lin
 e 50.
 
 ) (./content/methodology/03_features.tex
-Overfull \hbox (30.52065pt too wide) in paragraph at lines 143--152
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [32]
+Overfull \hbox (30.52065pt too wide) in paragraph at lines 148--157
  [][] 
  []
 
-(./content/methodology/03a_curvature.tex [28]
+(./content/methodology/03a_curvature.tex
 
-LaTeX Warning: Citation 'menger1930metrik' on page 29 undefined on input line 4
-42.
+LaTeX Warning: Citation 'menger1930metrik' on page 33 undefined on input line 4
+48.
 
-<content/methodology/figures/curvature_figure.pdf, id=1157, 462.52798pt x 621.5
+[33]
+<content/methodology/figures/curvature_figure.pdf, id=1306, 462.52798pt x 621.5
 2202pt>
 File: content/methodology/figures/curvature_figure.pdf Graphic file (type pdf)
 <use content/methodology/figures/curvature_figure.pdf>
 Package pdftex.def Info: content/methodology/figures/curvature_figure.pdf  used
- on input line 466.
+ on input line 473.
 (pdftex.def)             Requested size: 370.3126pt x 497.63557pt.
 
-LaTeX Warning: Float too large for page by 61.10486pt on input line 469.
 
-[29] [30 <./content/methodology/figures/curvature_figure.pdf>])
-(./content/methodology/03b_bifurcation_angle.tex
-<content/methodology/figures/bifurcation_angle_figure.pdf, id=1255, 455.30101pt
+LaTeX Warning: Float too large for page by 61.10486pt on input line 476.
+
+) (./content/methodology/03b_bifurcation_angle.tex [34] [35 <./content/methodol
+ogy/figures/curvature_figure.pdf>]
+<content/methodology/figures/bifurcation_angle_figure.pdf, id=1404, 455.30101pt
  x 220.42351pt>
 File: content/methodology/figures/bifurcation_angle_figure.pdf Graphic file (ty
 pe pdf)
 <use content/methodology/figures/bifurcation_angle_figure.pdf>
 Package pdftex.def Info: content/methodology/figures/bifurcation_angle_figure.p
-df  used on input line 125.
+df  used on input line 136.
 (pdftex.def)             Requested size: 370.3126pt x 179.28535pt.
 )
-(./content/methodology/03c_daughter_ratio.tex [31] [32 <./content/methodology/f
-igures/bifurcation_angle_figure.pdf>]
-<content/methodology/figures/daughter_ratio_figure.pdf, id=1332, 462.52798pt x 
+(./content/methodology/03c_daughter_ratio.tex
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [36 <./content/methodology/figures/bifurcation_angle_figure.pdf>]
+<content/methodology/figures/daughter_ratio_figure.pdf, id=1472, 462.52798pt x 
 390.25798pt>
 File: content/methodology/figures/daughter_ratio_figure.pdf Graphic file (type 
 pdf)
 <use content/methodology/figures/daughter_ratio_figure.pdf>
 Package pdftex.def Info: content/methodology/figures/daughter_ratio_figure.pdf 
- used on input line 130.
+ used on input line 163.
 (pdftex.def)             Requested size: 370.3126pt x 312.46881pt.
 ))
 (./content/methodology/04_feature_validity.tex)
 (./content/methodology/05_statistical_model.tex
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
- [33 <./content/methodology/figures/daughter_ratio_figure.pdf>] [34]
-Overfull \hbox (17.96565pt too wide) in paragraph at lines 153--169
+ [37]
+[38 <./content/methodology/figures/daughter_ratio_figure.pdf>]
+Underfull \vbox (badness 6725) has occurred while \output is active []
+
+ [39]
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [40]
+Overfull \hbox (71.60442pt too wide) in paragraph at lines 212--228
  [][] 
  []
 
 
-LaTeX Warning: Reference `sec:results-cohort' on page 35 undefined on input lin
-e 176.
+LaTeX Warning: Reference `sec:results-cohort' on page 41 undefined on input lin
+e 237.
 
 
-Underfull \vbox (badness 10000) has occurred while \output is active []
+Underfull \vbox (badness 6380) has occurred while \output is active []
 
- [35]
-[36] [37]) (./content/methodology/07_curvature_fpca.tex [38]
+ [41]
+[42] [43]) (./content/methodology/07_curvature_fpca.tex
 
-LaTeX Warning: Reference `sec:results-cohort' on page 39 undefined on input lin
-e 67.
+LaTeX Warning: Reference `sec:results-cohort' on page 44 undefined on input lin
+e 70.
 
-<content/methodology/figures/curvature_shape_figure.pdf, id=1479, 520.34402pt x
+[44]
+<content/methodology/figures/curvature_shape_figure.pdf, id=1630, 520.34402pt x
  195.129pt>
 File: content/methodology/figures/curvature_shape_figure.pdf Graphic file (type
  pdf)
 <use content/methodology/figures/curvature_shape_figure.pdf>
 Package pdftex.def Info: content/methodology/figures/curvature_shape_figure.pdf
-  used on input line 79.
+  used on input line 82.
 (pdftex.def)             Requested size: 370.3126pt x 138.87303pt.
-[39] [40 <./content/methodology/figures/curvature_shape_figure.pdf>])) [41]
+
+Underfull \vbox (badness 5105) has occurred while \output is active []
+
+ [45 <./content/methodology/figures/curvature_shape_figure.pdf>])) [46] [47]
 \openout2 = `content/results.aux'.
 
 
-(./content/results.tex [42
+(./content/results.tex [48
 
 
 
 
 ]
 Chapter 7.
-(./content/results/baseline.tex)) [43]
+(./content/results/baseline.tex)) [49]
 \openout2 = `content/discussion.aux'.
 
- (./content/discussion.tex [44
+ (./content/discussion.tex [50
 
 
 
 
 ]
 Chapter 8.
-) [45]
+) [51]
 \openout2 = `content/conclusion.aux'.
 
- (./content/conclusion.tex [46
+ (./content/conclusion.tex [52
 
 
 
 
 ]
 Chapter 9.
-) [47] [48
+) [53] [54
 
 
 
@@ -1862,7 +1928,7 @@ LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 4
  (/usr/local/texlive/2023/texmf-dist/tex/latex/lm/t1lmtt.fd
 File: t1lmtt.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
-[49] [50]
+[55] [56]
 Overfull \hbox (1.89697pt too wide) in paragraph at lines 43--43
 \T1/lmr/m/n/10 istry''. In: \T1/lmr/m/it/10 Car-dio-vas-cu-lar Di-a-betol-ogy \
 T1/lmr/m/n/10 21.1 (2022), p. 239. \T1/lmr/m/sc/10 doi\T1/lmr/m/n/10 : []$\T1/l
@@ -1893,7 +1959,7 @@ Overfull \hbox (7.60074pt too wide) in paragraph at lines 43--43
 lmr/m/n/10 . Berlin, Hei-del-berg: Springer
  []
 
-[51]
+[57]
 Overfull \hbox (3.1889pt too wide) in paragraph at lines 43--43
 \T1/lmr/m/n/10 ``The Coro-nary Vas-cu-lar Sys-tem and As-so-ci-ated Anatom-i-ca
 l Fea-tures''. In: \T1/lmr/m/it/10 Hand-
@@ -1906,7 +1972,7 @@ Overfull \hbox (32.31943pt too wide) in paragraph at lines 43--43
 RCINTERVENTIONS .
  []
 
-[52]
+[58]
 Overfull \hbox (4.55261pt too wide) in paragraph at lines 43--43
 \T1/lmr/m/n/10 shear stress wors-ens plaque vul-ner-a-bil-ity: a sys-tem-atic r
 e-view and meta-analysis''.
@@ -1918,49 +1984,49 @@ Overfull \hbox (1.74847pt too wide) in paragraph at lines 43--43
 -dy-nam-ics on atheroscle-
  []
 
-[53]
+[59]
 Overfull \hbox (31.49287pt too wide) in paragraph at lines 43--43
 \T1/lmr/m/n/10 anatomy''. In: \T1/lmr/m/it/10 Eu-roIn-t-er-ven-tion \T1/lmr/m/n
 /10 12.7 (2016), pp. 845^^U854. \T1/lmr/m/sc/10 doi\T1/lmr/m/n/10 : []$\T1/lmtt
 /m/n/10 10 . 4244 / EIJV12I7A139$[]\T1/lmr/m/n/10 . 
  []
 
-[54]
+[60]
 Overfull \hbox (13.32678pt too wide) in paragraph at lines 43--43
 \T1/lmr/m/n/10 Col-lege Sta-tion, TX, 2025. \T1/lmr/m/sc/10 url\T1/lmr/m/n/10 :
  []$\T1/lmtt/m/n/10 https : / / www . stata . com / manuals / memecloglog .
  []
 
-(./content/appendix/bifurcation_point.tex [55] [56
+(./content/appendix/bifurcation_point.tex [61] [62
 
 ]
 Appendix A.
-) (./content/appendix/link_choice.tex [57] [58]
+) (./content/appendix/link_choice.tex [63] [64]
 Appendix B.
-[59
+[65
 
 ]
-<content/appendix/figures/link_ratios.pdf, id=1748, 455.30101pt x 332.44202pt>
+<content/appendix/figures/link_ratios.pdf, id=1912, 455.30101pt x 332.44202pt>
 File: content/appendix/figures/link_ratios.pdf Graphic file (type pdf)
 <use content/appendix/figures/link_ratios.pdf>
 Package pdftex.def Info: content/appendix/figures/link_ratios.pdf  used on inpu
 t line 82.
 (pdftex.def)             Requested size: 370.3126pt x 270.3976pt.
-) (./content/appendix/mixed_model_details.tex [60] [61 <./content/appendix/figu
-res/link_ratios.pdf>] [62
+) (./content/appendix/mixed_model_details.tex [66] [67 <./content/appendix/figu
+res/link_ratios.pdf>] [68
 
 ]
 Appendix C.
-) (./content/appendix/score2_recalibration.tex [63] [64]
+) (./content/appendix/score2_recalibration.tex [69] [70]
 Appendix D.
-[65
+[71
 
-]) (./content/aideclaration.tex [66])
+]) (./content/aideclaration.tex [72])
 
 Package caption Warning: Unused \captionsetup[sub] on input line 35.
 See the caption package documentation for explanation.
 
-[67
+[73
 
 ] (./main.aux (./content/introduction.aux) (./content/litterature_review.aux) (
 ./content/background.aux) (./content/data.aux) (./content/methods.aux)
@@ -1969,16 +2035,16 @@ See the caption package documentation for explanation.
 LaTeX Warning: There were undefined references.
 
 Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: 321326EEF3807C1894DCDAF7930F1C92;14465.
+(rerunfilecheck)             Checksum: 5A2022BA7862672AE52926D24E263866;14313.
 Package logreq Info: Writing requests to 'main.run.xml'.
 \openout1 = `main.run.xml'.
 
  ) 
 Here is how much of TeX's memory you used:
- 43663 strings out of 476025
- 912389 string characters out of 5790017
+ 43737 strings out of 476025
+ 915218 string characters out of 5790017
  1866388 words of memory out of 5000000
- 62994 multiletter control sequences out of 15000+600000
+ 63047 multiletter control sequences out of 15000+600000
  635192 words of font info for 123 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  88i,14n,83p,1193b,2683s stack positions out of 10000i,1000n,20000p,200000b,200000s
@@ -1997,15 +2063,16 @@ public/lm/lmr7.pfb></usr/local/texlive/2023/texmf-dist/fonts/type1/public/lm/lm
 r8.pfb></usr/local/texlive/2023/texmf-dist/fonts/type1/public/lm/lmr9.pfb></usr
 /local/texlive/2023/texmf-dist/fonts/type1/public/lm/lmri10.pfb></usr/local/tex
 live/2023/texmf-dist/fonts/type1/public/lm/lmsy10.pfb></usr/local/texlive/2023/
-texmf-dist/fonts/type1/public/lm/lmsy7.pfb></usr/local/texlive/2023/texmf-dist/
-fonts/type1/public/lm/lmsy8.pfb></usr/local/texlive/2023/texmf-dist/fonts/type1
-/public/lm/lmsy9.pfb></usr/local/texlive/2023/texmf-dist/fonts/type1/public/lm/
-lmtt10.pfb></usr/local/texlive/2023/texmf-dist/fonts/type1/urw/helvetic/uhvb8a.
-pfb></usr/local/texlive/2023/texmf-dist/fonts/type1/urw/helvetic/uhvr8a.pfb>
-Output written on main.pdf (81 pages, 1162230 bytes).
+texmf-dist/fonts/type1/public/lm/lmsy6.pfb></usr/local/texlive/2023/texmf-dist/
+fonts/type1/public/lm/lmsy7.pfb></usr/local/texlive/2023/texmf-dist/fonts/type1
+/public/lm/lmsy8.pfb></usr/local/texlive/2023/texmf-dist/fonts/type1/public/lm/
+lmsy9.pfb></usr/local/texlive/2023/texmf-dist/fonts/type1/public/lm/lmtt10.pfb>
+</usr/local/texlive/2023/texmf-dist/fonts/type1/urw/helvetic/uhvb8a.pfb></usr/l
+ocal/texlive/2023/texmf-dist/fonts/type1/urw/helvetic/uhvr8a.pfb>
+Output written on main.pdf (87 pages, 1277789 bytes).
 PDF statistics:
- 1998 PDF objects out of 2073 (max. 8388607)
- 1553 compressed objects within 16 object streams
- 267 named destinations out of 1000 (max. 500000)
- 663 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 2168 PDF objects out of 2487 (max. 8388607)
+ 1656 compressed objects within 17 object streams
+ 280 named destinations out of 1000 (max. 500000)
+ 688 words of extra memory for PDF output out of 10000 (max. 10000000)
 

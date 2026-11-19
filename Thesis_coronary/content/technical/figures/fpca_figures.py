@@ -1,4 +1,4 @@
-"""Figures for sec:tech-fpca (content/technical/02_fpca.tex). Made-up curves only, no cohort data.
+"""Figures for sec:tech-fpca (content/technical/03_fpca.tex). Made-up curves only, no cohort data.
 
     python3 Thesis_coronary/content/technical/figures/fpca_figures.py
 

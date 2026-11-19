@@ -101,6 +101,16 @@
 %   dashed back towards O, u_LAD and u_LCx, theta. New made-up shape bends beyond 10 mm: theta 88.9 deg
 %   (fit), 87.5 deg from O. Caption rewritten to name what is drawn; panel A/B citations in the text
 %   unchanged.
+% 2026-11-18 (code review of the feature modules): "the angle also hardly depends on the exact position of
+%   O" holds in check() and Appendix A only for arteries straight over 5 to 10 mm; a misplaced O slides both
+%   windows along a bending artery. Split into two sentences, with the condition stated.
+%   split_trunks.split now cuts the LAD and LCx paths at their shared PREFIX (shared_prefix), not at a
+%   count of all equal positions; the two paths come from one Dijkstra tree when they share a root, so
+%   the old count gave the same O on every tree seen so far, but the rule now matches "the last centerline
+%   point shared by the two arteries".
+% CHECK: on tracer trees (no "lm" label) the root is the most superior LAD/CX/unlabelled end
+%   (split_trunks.trunk_path). If a side-branch tip lies above the ostium, O is not the LM bifurcation.
+%   Confirm on the first tracer trees.
 \subsection{Bifurcation Angle}
 \label{sec:method-angle}
 
@@ -110,7 +120,8 @@ The bifurcation angle between the LAD and the LCx was measured in 3D on the cent
 Distances were measured along the centerline from the bifurcation point $O$, the last centerline point shared by the two arteries.
 Along each artery, points were placed every 0.5\,mm between 5 and 10\,mm from $O$ (Figure~\ref{fig:method-angle}A), and a straight line was fitted through them by least squares to give the direction in which the artery leaves the bifurcation.
 Using a stretch of points rather than a single one makes the measurement more robust, as Medrano-Gracia et al.\ noted for their average over the same interval \cite{medranogracia2016atlas}.
-Since the line starts 5\,mm from $O$ and does not pass through it, the angle also hardly depends on the exact position of $O$, which can only be placed approximately (Appendix~\ref{app:angle-origin}).
+The point $O$ can only be placed approximately (Appendix~\ref{app:angle-origin}).
+Since the line starts 5\,mm from $O$ and does not pass through it, the angle hardly depends on the exact position of $O$ as long as the arteries run straight between 5 and 10\,mm.
 With $\mathbf{u}_{\mathrm{LAD}}$ and $\mathbf{u}_{\mathrm{LCx}}$ the unit vectors along the two lines, pointing away from the bifurcation (Figure~\ref{fig:method-angle}B), the angle is
 \begin{equation}
   \theta = \arccos\left( \mathbf{u}_{\mathrm{LAD}} \cdot \mathbf{u}_{\mathrm{LCx}} \right) ,

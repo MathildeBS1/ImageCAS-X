@@ -49,6 +49,10 @@
 % 2026-11-16 (user): lumen taper dropped as a model feature (root CLAUDE.md). Paragraph 5 now names
 %   three features; "the narrowing of their lumen along their length" cut. The CHECK of 2026-11-15
 %   on "four features" and taper per artery or per segment is resolved.
+% 2026-11-18 (user: two models, a GLMM for curvature and a person-level GLM for the angle and the
+%   asymmetry): "A single regression model ... tested once" -> one segment model for curvature, a second
+%   model for the two left main features with one outcome per individual (plaque in the proximal LAD or
+%   LCx, written "at the start of its two daughter arteries"), one test per model.
 
 \chapter{Introduction}
 \label{ch:introduction}
@@ -94,9 +98,12 @@ In these scans, the centerline and the lumen of the three main coronary arteries
 an in-house tracer, and three features are computed from them: the curvature of the arteries, the
 angle at which the left main artery divides, and the difference in diameter between its two
 daughter arteries.
-A single regression model then relates plaque development in each artery segment to these features
-and to the risk factors, with all segments of an individual analysed together.
-The association is tested once, by comparing this model with the same model without the geometry.
+One regression model relates plaque development in each artery segment to the curvature and to the
+risk factors, with all segments of an individual analysed together.
+A second model relates the two features of the left main division to plaque development at the start
+of its two daughter arteries, with one outcome per individual.
+In each model the association is tested once, by comparing it with the same model without the
+geometry.
 How much geometry adds to the prediction of who develops plaque is estimated as a secondary result.
 
 An association would indicate that the anatomy of an individual's arteries carries information

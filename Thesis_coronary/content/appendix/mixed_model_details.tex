@@ -47,7 +47,7 @@ For a likelihood ratio test of $\omega^2 = 0$, which is Eq.~\eqref{eq:tech-lr} w
 \section{The Marginal Cluster Risk}
 \label{app:glmm-risk}
 
-Given $b_i$, the probability that no unit of cluster $i$ has the event is $\exp(-e^{b_i} H_i)$ (Eq.~\eqref{eq:tech-agg-conditional}).
+Given $b_i$, the probability that no unit of cluster $i$ has the event is $\exp(-e^{b_i} H_i)$ (Eq.~\eqref{eq:method-agg-conditional}).
 For a new cluster $b_i$ is unknown, so the risk is averaged over its distribution,
 \begin{equation}
   P_i = P(A_i = 1) = 1 - \int \exp\!\left(-e^{b} H_i\right) f(b;\sigma^2)\,\mathrm{d}b ,

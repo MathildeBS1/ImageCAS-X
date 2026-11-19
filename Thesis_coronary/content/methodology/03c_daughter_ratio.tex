@@ -44,7 +44,8 @@
 %   diameter, LAD/LCx 5 to 10 mm from O, LM 0 to 2 mm from the ostium; a = ln(D_LCx/D_LAD),
 %   F = D_LM/(D_LAD + D_LCx). Report the coverage of F once the tracer LM lengths are known.)
 % CAREFUL: progression_who_pooled.py has no ratios yet, so the model and this text disagree until it
-%   calls tree_ratios.
+%   calls tree_ratios. (2026-11-18: its design() now has an "asymmetry" term built with
+%   narrower_rows, but nothing fills the person column until tracer_rings reads tracer contours.)
 % Style: prose only, British spelling, reason before method, no "trunk", no sentence opening "Because".
 % 2026-11-11 (user: no First/Subsequently/Finally for short methods, true to the code but not every
 %   detail, flow between sentences, A++ thesis voice). Body rewritten as connected prose; facts, labels,
@@ -100,6 +101,36 @@
 %   LM. Geometry block now 4 parameters (+1 secondary angle x asymmetry). The LM window, eq:method-finet,
 %   finet2008fractal and medranogracia2017bifurcation are out of the text; the notes above on them are
 %   history. daughter_ratio.py still returns "finet" (descriptive only, not in the model).
+% 2026-11-18 (user): the angle x asymmetry term DROPPED (Garcha p. 7: the angle's effect changes sign
+%   with which daughter is wider, so one product term does not test it); its sentence is cut. Geometry
+%   block 3 terms, no secondary product.
+% 2026-11-18 (user, plan approved): the asymmetry enters ONLY THE NARROWER DAUGHTER's proximal row as
+%   |a|, the wider one gets 0 (pLAD = max(a, 0), pCX = max(-a, 0); daughter_ratio.narrower_rows, checked
+%   in check()). eq:method-asymmetry keeps the signed a. Reason: Garcha p. 6 "ALWSS formation in the
+%   smaller-of-the-two branches", Fig. 4 caption (stated in sec:lit-wss, pointed back to, not cited
+%   again). Decided before the tracer cohort was linked to the outcome. Scaling (by SD, not centred)
+%   is stated in sec:method-model-spec.
+%   CAREFUL: synthetic rigid CFD trees, outcome low-WSS area, not plaque.
+%   CHECK before outcome linkage (aggregate only): share of participants whose LCx is the narrower; if
+%   it is most of them, the term mostly acts in the proximal LCx, which has fewer events. Atlas means
+%   in Garcha (LAD 3.7 vs LCx 3.6 mm men, 3.0 vs 2.8 mm women, SD about 0.6) suggest both occur.
+%   Not modelled: one slope for both daughters, though Garcha's low-WSS area was larger with a wider
+%   LCx (16.7% vs 6.8%, p. 7). Near-equal daughters give |a| near 0, so which one counts as narrower
+%   hardly matters.
+% 2026-11-18 (code review, user: fix the issues): the median was over the contour POINTS in the stretch,
+%   so densely sampled parts counted more. daughter_ratio.reference_diameter now reads D every 0.5 mm
+%   (STEP, the depths of bifurcation_angle.DEPTHS) by linear interpolation between contours and takes the
+%   median of those values; rule kept: nan below 2 contours in the stretch or a vessel short of 10 mm.
+%   check(): crowded points no longer pull the median. One sentence added after the stretch sentence.
+%   The left main path for Finet's ratio now uses split_trunks.shared_prefix, the rule split() uses for O.
+%   Missing asymmetry: complete cases (user, 2026-11-18), stated in sec:method-model-spec.
+% 2026-11-18 (user: two models; the angle and asymmetry go into a person-level cloglog GLM whose outcome is
+%   plaque in the proximal LAD or proximal LCx). The narrower-row coding is superseded: |a| enters the
+%   bifurcation model once per participant (per SD, not centred, sec:method-model-spec). The Garcha reason
+%   (low WSS in the narrower daughter) is kept for taking |a|. CAREFUL: the outcome covers both daughters,
+%   so the model no longer ties |a| to the narrower daughter's own segment; do not write that it does.
+%   CODE: daughter_ratio.narrower_rows and the asymmetry rows in progression_who_pooled.design() still use
+%   the old coding; no person-level GLM exists yet.
 \subsection{Daughter Asymmetry}
 \label{sec:method-ratio}
 
@@ -114,6 +145,7 @@ As the contours are rarely circular, each was reduced to its area-equivalent dia
 where $A$ is the area enclosed by the contour (Figure~\ref{fig:method-ratio}A).
 Each vessel was then given one diameter, the median of $D$ over a fixed stretch of its centerline, adapted from Gharleghi et al.\ \cite{gharleghi2025sex}, and the median keeps a single cross-section widened by a side-branch origin from moving the value.
 For the LAD and the LCx the stretch was 5 to 10\,mm downstream of the bifurcation point $O$, the same stretch as for the bifurcation angle, which leaves out the widened lumen where the vessels join.
+To keep closely spaced contours from counting more, $D$ was read every 0.5\,mm along the stretch, at the same depths as the points of the bifurcation angle (Section~\ref{sec:method-angle}).
 
 From the two diameters (Figure~\ref{fig:method-ratio}B), the daughter asymmetry
 \begin{equation}
@@ -121,9 +153,10 @@ From the two diameters (Figure~\ref{fig:method-ratio}B), the daughter asymmetry
   \label{eq:method-asymmetry}
 \end{equation}
 was computed.
+In simulated trees, low WSS formed in the narrower of the two daughters (Section~\ref{sec:lit-wss}).
+The absolute value $|a|$ therefore entered the model, which relates it to plaque in the proximal segment of either daughter (Section~\ref{sec:method-models}).
 
 The asymmetry was missing whenever the angle was, or when the LAD or the LCx had fewer than two contours in its stretch.
-A prespecified interaction between the angle and the asymmetry is described in Section~\ref{sec:method-models}.
 
 \begin{figure}[htbp]
   \centering
