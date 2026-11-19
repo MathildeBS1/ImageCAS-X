@@ -260,6 +260,27 @@ def start_at_bifurcation(lad, cx, lab):
     return tuple(out)
 
 
+def full_artery(artery, labels):
+    """(full, reason) of one artery path from the segment labels of its nodes in path order (info[artery]
+    ["path_labels"] of split), for a Medis tree. Full when the first label of this artery along the path is its
+    proximal segment, the last is its distal segment (DISTAL), and its proximal, mid and distal segments all occur
+    along it. The LCx: pCx and Medis' one label for mCx and dCx (cx), or both mCx and dCx. No minimum length
+    (decided 2026-11-19 with the user, after curvature_view.png showed 14-27 mm Medis fragments compared with whole
+    tracer arteries, before the outcome was linked)."""
+    own = [l for l in labels if ARTERY_OF.get(l) == artery.lower()]
+    if not own:
+        return False, "no segment label"
+    p, m, d = NAMES[artery]
+    if own[0] != p:
+        return False, "does not start in the proximal segment"
+    if own[-1] not in DISTAL[artery]:
+        return False, "does not end in the distal segment"
+    have = set(own)
+    if not ({m, d} <= have or (artery == "CX" and "cx" in have)):
+        return False, "a segment is missing"
+    return True, "full"
+
+
 def left_main(X, lab, G, roots=None):
     """Points of the left main from the ostium down to O (the shared prefix of the LAD and CX paths, O
     included); empty without a shared start. roots as for split."""
@@ -302,7 +323,8 @@ def split(X, lab, G, info=None, roots=None):
             source = "medis_label" if lc else "fraction" if lm[3].startswith("fraction") else "landmark"
             info[a] = {"reason": "ok_label" if lc else "ok_landmark", "source": source,
                        "landmark": lm[:3] if lc else None, "landmark_rule": lm[3] if lc else None,
-                       "label_free": landmark_cuts(a, p, X, br, s, use_labels=False)[:3] if lc else None}
+                       "label_free": landmark_cuts(a, p, X, br, s, use_labels=False)[:3] if lc else None,
+                       "path_labels": [lab[v] for v in p]}
             out[a] = (pm, md, end, rule, X[p], s)  # trunk points and arc length, for per-segment features
         except Exception as ex:  # noqa: BLE001 - recorded per artery
             info[a] = {"reason": f"error:{type(ex).__name__}"}
@@ -319,6 +341,13 @@ def check():
     assert lad[0] == cx[0] == 2, "with a shared start, lm labels past O must not move a daughter's start"
     lad, cx = start_at_bifurcation([0, 1, 2, 4, 7], None, lab)
     assert lad[0] == 2 and cx is None, "without the other path, start at the last labelled LM node"
+    lad = ["lm", "plad", "plad", "d1", "mlad", "dlad"]
+    assert full_artery("LAD", lad) == (True, "full"), "LM, then p/m/dLAD (a side-branch label in between)"
+    assert full_artery("LAD", ["mlad", "dlad"])[1] == "does not start in the proximal segment"
+    assert full_artery("LAD", ["plad", "mlad"])[1] == "does not end in the distal segment"
+    assert full_artery("LAD", ["plad", "dlad"])[1] == "a segment is missing"
+    assert full_artery("CX", ["lm", "pcx", "cx"])[0] and full_artery("CX", ["pcx", "mcx", "dcx"])[0], "LCx labels"
+    assert full_artery("RCA", [None, None])[1] == "no segment label"
     print("all checks passed")
 
 
