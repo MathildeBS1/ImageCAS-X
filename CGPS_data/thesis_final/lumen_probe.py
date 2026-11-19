@@ -58,6 +58,21 @@ def structure(x, depth=0, max_depth=3):
     return [f"{pad}{type(x).__name__}"]
 
 
+def npz_headers(path):
+    """{array name: (shape, dtype)} from the .npy headers inside an .npz, without loading or unpickling data."""
+    import zipfile
+
+    out = {}
+    with zipfile.ZipFile(path) as zf:
+        for member in zf.namelist():
+            with zf.open(member) as f:
+                version = np.lib.format.read_magic(f)
+                shape, _, dtype = (np.lib.format.read_array_header_1_0 if version == (1, 0)
+                                   else np.lib.format.read_array_header_2_0)(f)
+            out[member.removesuffix(".npy")] = (shape, dtype)
+    return out
+
+
 def lines_of(path):
     """Points of each LINES cell of a centerline file."""
     v = cq.read_vtk_legacy(Path(path).read_bytes())
@@ -98,59 +113,72 @@ def probe(args):
     order = sorted(both_prox & set(medis) & lumen, key=int) or sorted(set(with_lumen) & set(medis) & lumen, key=int)
     for k, pid in enumerate(order[: args.n], 1):
         print(f"=== participant {k}")
-        base = src / f"BL_{pid}"
-        for kind in ("lumen_surface_ostium_pruned.vtk", "lumen_surface.vtk", "outer_surface_ostium_pruned.vtk",
-                     "coronary_left_centerline_ostium_pruned.vtk"):
-            p = Path(f"{base}.{kind}")
+        try:
+            base = src / f"BL_{pid}"
+            for kind in ("lumen_surface_ostium_pruned.vtk", "lumen_surface.vtk", "outer_surface_ostium_pruned.vtk",
+                         "coronary_left_centerline_ostium_pruned.vtk"):
+                p = Path(f"{base}.{kind}")
+                if p.exists():
+                    show_file(p)
+                else:
+                    print(f"  {kind}: missing")
+            p = Path(f"{base}.npz")
             if p.exists():
-                show_file(p)
-            else:
-                print(f"  {kind}: missing")
-        p = Path(f"{base}.npz")
-        if p.exists():
-            z = np.load(p, allow_pickle=False)
-            print(f"  npz: {len(z.files)} arrays")
-            for name in z.files:
-                a = z[name]
-                print(describe_array(name, a) if a.ndim and len(a) else f"    {name}: dtype {a.dtype}, shape {a.shape}")
-        p = Path(f"{base}.pkl")
-        if p.exists():
-            try:
-                with open(p, "rb") as f:
-                    obj = pickle.load(f)  # Kit's own output on this server
-                print("  pkl:")
-                print("\n".join(structure(obj)))
-            except Exception as ex:  # noqa: BLE001 - shown
-                print(f"  pkl: not read ({type(ex).__name__}: {ex})")
-        p = Path(f"{base}.ostia.json")
-        if p.exists():
-            print(f"  ostia.json: {json.dumps(json.loads(p.read_text()))[:600]}")
+                print(f"  npz: {len(npz_headers(p))} arrays")
+                z = np.load(p, allow_pickle=False)
+                for name, (shape, dtype) in npz_headers(p).items():
+                    print(f"    {name}: dtype {dtype}, shape {shape}")
+                    if dtype.hasobject or not 0 < np.prod(shape) <= 10 ** 6:
+                        continue  # object arrays are not unpickled; large arrays only by shape
+                    try:
+                        a = z[name]
+                        print(describe_array(name, a) if a.ndim else f"      value {a}")
+                        if np.issubdtype(a.dtype, np.number):
+                            print(f"      min {np.nanmin(a):.4g}, max {np.nanmax(a):.4g}")
+                    except Exception as ex:  # noqa: BLE001 - shown
+                        print(f"      not read ({type(ex).__name__}: {ex})")
+            p = Path(f"{base}.pkl")
+            if p.exists():
+                try:
+                    with open(p, "rb") as f:
+                        obj = pickle.load(f)  # Kit's own output on this server
+                    print("  pkl:")
+                    print("\n".join(structure(obj)))
+                except Exception as ex:  # noqa: BLE001 - shown
+                    print(f"  pkl: not read ({type(ex).__name__}: {ex})")
+            p = Path(f"{base}.ostia.json")
+            if p.exists():
+                print(f"  ostia.json: {json.dumps(json.loads(p.read_text()))[:600]}")
 
-        for side in tracer_io.SIDES:  # same centerlines as the files the comparison reads so far?
-            new = Path(f"{base}.coronary_{side}_centerline_ostium_pruned.vtk")
-            old = Path(tracer_io.TRACER_DIR) / new.name
-            if new.exists() and old.exists():
-                A, B = lines_of(new), lines_of(old)
-                d = np.ravel(cq.nearest(A, B)[0])
-                print(f"  {side} centerline against {tracer_io.TRACER_DIR}: {len(A)} / {len(B)} points, distance new to "
-                      f"old median {np.median(d):.3f}, max {d.max():.3f} mm")
-            else:
-                print(f"  {side} centerline: not in both folders")
+            for side in tracer_io.SIDES:  # same centerlines as the files the comparison reads so far?
+                new = Path(f"{base}.coronary_{side}_centerline_ostium_pruned.vtk")
+                old = Path(tracer_io.TRACER_DIR) / new.name
+                if new.exists() and old.exists():
+                    A, B = lines_of(new), lines_of(old)
+                    d = np.ravel(cq.nearest(A, B)[0])
+                    print(f"  {side} centerline against {tracer_io.TRACER_DIR}: {len(A)} / {len(B)} points, distance new to "
+                          f"old median {np.median(d):.3f}, max {d.max():.3f} mm")
+                else:
+                    print(f"  {side} centerline: not in both folders")
 
-        surf = Path(f"{base}.lumen_surface_ostium_pruned.vtk")
-        if surf.exists():
-            S = cq.read_vtk_legacy(surf.read_bytes())["points"]
-            for seg in sorted(with_lumen.get(pid, ())):
-                fs = contours[(pid, seg)]
-                cl = cq.read_vtk_legacy(fs["centerline"].read_bytes())["points"] if "centerline" in fs else None
-                rings, how = hq.read_rings(fs["lumen"], cl)
-                R = np.concatenate(rings)
-                d = np.ravel(cq.nearest(R, S)[0])
-                diam = [contour_diameter(r) for r in rings if len(r) >= 3]
-                print(f"  Medis lumen {seg}: {len(rings)} rings ({how}), bounds {bounds(R)}; ring points to the "
-                      f"nearest predicted surface vertex median {np.median(d):.2f}, 90th pct {np.percentile(d, 90):.2f} mm; "
-                      f"Medis ring diameter median {np.median(diam):.2f} mm")
-            print(f"  predicted lumen surface bounds {bounds(S)}")
+            surf = Path(f"{base}.lumen_surface_ostium_pruned.vtk")
+            if surf.exists():
+                S = cq.read_vtk_legacy(surf.read_bytes())["points"]
+                for seg in sorted(with_lumen.get(pid, ())):
+                    fs = contours[(pid, seg)]
+                    cl = cq.read_vtk_legacy(fs["centerline"].read_bytes())["points"] if "centerline" in fs else None
+                    rings, how = hq.read_rings(fs["lumen"], cl)
+                    R = np.concatenate(rings)
+                    d = np.ravel(cq.nearest(R, S)[0])
+                    diam = [contour_diameter(r) for r in rings if len(r) >= 3]
+                    print(f"  Medis lumen {seg}: {len(rings)} rings ({how}), bounds {bounds(R)}; ring points to the "
+                          f"nearest predicted surface vertex median {np.median(d):.2f}, 90th pct {np.percentile(d, 90):.2f} mm; "
+                          f"Medis ring diameter median {np.median(diam):.2f} mm")
+                print(f"  predicted lumen surface bounds {bounds(S)}")
+        except Exception as ex:  # noqa: BLE001 - shown, the next participant goes on
+            import traceback
+            print(f"  stopped here: {type(ex).__name__}: {ex}")
+            print("\n".join("    " + l for l in traceback.format_exc().splitlines()[-6:]))
         print()
 
 

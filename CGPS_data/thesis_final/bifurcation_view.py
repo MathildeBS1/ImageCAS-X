@@ -1,13 +1,14 @@
-"""Draw the LM bifurcation of the tracer and of Medis side by side for two participants: the one whose tracer
-angle is the widest compared with Medis, and the one where the two angles agree best (server only: the
-figure shows single participants).
+"""Draw the LM bifurcation of the tracer and of Medis side by side for the --n participants whose angles
+differ most (largest |theta_tracer - theta_medis|, either sign), and below them the one where the two angles
+agree best, as a reference (server only: the figure shows single participants).
 
-    python CGPS_data/thesis_final/bifurcation_view.py [--all] [--rows DIR]
+    python CGPS_data/thesis_final/bifurcation_view.py [--n 6] [--all] [--rows DIR]
 
 Reuses the per-pair CSVs that medis_compare.py saved in --rows (medis_compare_participants.csv and
 medis_compare_arteries.csv), so nothing is recomputed for the other participants. Only participants whose
 LAD and LCx both passed the alignment check are chosen (column aligned), as in the angle comparison;
---all chooses among every participant. Row 1: the largest theta_tracer - theta_medis. Row 2: the smallest
+--all chooses among every participant. Rows 1 to n: the n largest |theta_tracer - theta_medis|, largest
+first (the N worst cases, 2026-11-19; before, only the largest tracer - Medis). Last row: the smallest
 |theta_tracer - theta_medis|. Both trees are read again and divided with split_trunks.split.
 
 Each row has the tracer left and Medis right, with: the LM from the ostium to the bifurcation point O
@@ -15,9 +16,11 @@ Each row has the tracer left and Medis right, with: the LM from the ostium to th
 misplaced O shows), the points 5 to 10 mm along each daughter (bifurcation_angle.DEPTHS), the fitted line
 through them (artery_direction) and the angle between the two lines as an arc. The two panels of a row use
 the same projection (the plane through that participant's zoom points that shows them best) and the same
-scale; the angle printed in each panel is the 3D angle. Each row title gives the difference and the
-alignment check of the LAD and LCx (reason and median offset).
-Figure: bifurcation_view.png in --rows. The study ids are printed to the terminal, not in the figure.
+scale; the angle printed in each panel is the 3D angle. Each row title gives the rank, the difference, the
+distance between the two O, the near-O check of the LAD and LCx (medis_compare.near_o) and the
+whole-artery alignment check (reason and offset).
+Figure: bifurcation_view.png in --rows. The study ids are printed to the terminal with each row's numbers,
+not in the figure.
 """
 import argparse
 import sys
@@ -28,7 +31,7 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # the shared modules in CGPS_data/
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from bifurcation_angle import DEPTHS, artery_direction, has_lm, lm_angle, point_at_depth
+from bifurcation_angle import DEPTHS, angle_with_reason, artery_direction, point_at_depth
 
 COLOUR = {"LM": "tab:green", "LAD": "tab:blue", "CX": "tab:orange"}
 ZOOM = 15.0  # mm from O shown in each panel
@@ -49,19 +52,14 @@ def draw(ax, P, c, axes, **kw):
 def bifurcation(tree, roots=None):
     """{"O", "LM", "LAD", "CX", "theta", "ostium"} of one tree; LAD and LCx as (Y, s, depth points, fitted
     direction). None when the LAD or LCx is missing. roots: the tracer's ostia (tracer_io.tracer_ostia)."""
-    from split_trunks import graph, split, trunk_path
+    from split_trunks import graph, left_main, split
 
     X, lab, G = graph(tree)
-    roots = roots or {}
     arteries = split(X, lab, G, roots=roots)
     if "LAD" not in arteries or "CX" not in arteries:
         return None
-    O = arteries["LAD"][4][0]
-    r = int(np.argmin(np.linalg.norm(X - roots["LAD"], axis=1))) if "LAD" in roots else None
-    pl = X[trunk_path(X, lab, G, "LAD", r)]
-    k = int(np.argmin(np.linalg.norm(pl - O, axis=1)))  # the LM is the LAD path from the ostium up to O
-    out = {"O": O, "LM": pl[:k + 1], "ostium": pl[0],
-           "theta": lm_angle(arteries["LAD"][4:], arteries["CX"][4:]) if has_lm(tree) else np.nan}
+    O, lm = arteries["LAD"][4][0], left_main(X, lab, G, roots)
+    out = {"O": O, "LM": lm, "ostium": lm[0] if len(lm) else O, "theta": angle_with_reason(tree, arteries)[0]}
     for a in ("LAD", "CX"):
         *_, Y, s = arteries[a]
         pts = [point_at_depth(Y, s, d) for d in DEPTHS]
@@ -107,7 +105,7 @@ def figure(cases, out):
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 
-    fig, grid = plt.subplots(len(cases), 2, figsize=(11, 5.2 * len(cases)), squeeze=False)
+    fig, grid = plt.subplots(len(cases), 2, figsize=(11, 5.8 * len(cases)), squeeze=False)
     for row, (title, trees, check, roots) in zip(grid, cases):
         bif = {m: bifurcation(t, roots if m == "tracer" else None) for m, t in trees.items()}
         zoom = np.concatenate([np.r_[[b["O"]], b["LAD"][2], b["CX"][2]] for b in bif.values() if b])
@@ -143,6 +141,7 @@ def main():
     from cgps_stats import OUT_DIR
 
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--n", type=int, default=6, help="number of worst cases (largest |angle difference|)")
     ap.add_argument("--all", action="store_true", help="choose among all participants, not only aligned ones")
     ap.add_argument("--rows", default=str(Path(OUT_DIR) / "medis_compare"), help="medis_compare --rows folder")
     ap.add_argument("--src", default=tracer_io.TRACER_DIR)
@@ -155,18 +154,23 @@ def main():
             ap.error("the CSV has no column aligned: rerun medis_compare.py, or use --all")
         P = P[P["aligned"]]
     P = P.assign(diff=P["theta_tracer"] - P["theta_medis"]).dropna(subset=["diff"])
-    wide = P.loc[P["diff"].idxmax()]
+    worst = P.loc[P["diff"].abs().sort_values(ascending=False).index[:args.n]]
     close = P.loc[P["diff"].abs().idxmin()]
+    picks = [(f"worst {k} of {len(P)}", r) for k, (_, r) in enumerate(worst.iterrows(), 1)]
+    picks.append(("closest agreement (reference)", close))
 
     medis = {hq.id_from_name(p.name): p for p in tracer_io.MEDIS_TREES.rglob("*.vtk")}
     hq.read_label_codes((f, f) for f in medis.values())  # as in medis_compare, so the Medis labels match
     cases = []
-    for label, r in (("largest difference, tracer wider", wide), ("close agreement", close)):
+    for label, r in picks:
         trees = {"tracer": tracer_io.tracer_tree(r["id"], args.src), "Medis": hq.tree_points(medis[r["id"]])}
         o = f", O {r['o_dist']:.1f} mm apart" if pd.notna(r.get("o_dist", np.nan)) else ""
-        cases.append((f"{label}: tracer - Medis = {r['diff']:+.0f} deg{o}", trees, alignment(A, r["id"]),
+        near = ", ".join(f"{'LCx' if a == 'CX' else a} {r[f'near_o_{a}']:.1f}" for a in ("LAD", "CX")
+                         if pd.notna(r.get(f"near_o_{a}", np.nan)))
+        near = f"\nnear-O check (90th pct, mm): {near}" if near else ""
+        cases.append((f"{label}: tracer - Medis = {r['diff']:+.0f} deg{o}{near}", trees, alignment(A, r["id"]),
                       tracer_io.tracer_ostia(r["id"], args.src)))
-        print(f"{label}: id {r['id']}, difference {r['diff']:+.1f} deg")
+        print(f"{label}: id {r['id']}, difference {r['diff']:+.1f} deg{o}{near.replace(chr(10), '; ')}")
     print(f"-> {figure(cases, rows)}")
 
 
