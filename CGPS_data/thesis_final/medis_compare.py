@@ -49,6 +49,12 @@ DEPTHS[-1] mm of the daughter from its own O to the other tree's left main and w
 between the two bifurcation points O, is reported. Curvature needs the artery to pass; the angle and the
 asymmetry need the LAD and the LCx to pass and to pass near_o (aligned). The check only selects pairs: every
 feature value is still the whole-artery value of each tree on its own.
+Stored beside it (descriptive, 2026-11-19): T_shared_tracer and T_shared_medis, each tree's curvature averaged over
+only the stretch both lines cover, less CHORD mm at each end (shared_curvature), and one report row with their
+difference on the main pairs: agreement per artery and for all arteries, the whole-artery row on exactly the
+pairs that have a shared value, reliability rows and a Bland-Altman plot (bland_altman_curvature_shared.png). It
+shows how much of the whole-artery difference comes from the stretches only one line covers. The Bland-Altman plots
+use the pairs of the main rows (main_rows).
 
 Agreement per feature: difference tracer - Medis in the feature's own unit, bias, SD of the differences, 95% limits
 of agreement (bias +- 1.96 SD) and 95% intervals from a bootstrap over participants. Reliability per feature, on the
@@ -69,7 +75,7 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # the shared modules in CGPS_data/
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from bifurcation_angle import DEPTHS, angle_with_reason
-from curvature_feature import CHORD, artery_curvature
+from curvature_feature import CHORD, artery_curvature, curvature_profile, segment_mean
 from daughter_ratio import SECTION_DEPTHS, merge, surface, tree_asymmetry
 
 MAX_OFFSET = 2.0  # mm: 90th percentile of the point distances, both ways, above this = not the same vessel
@@ -160,6 +166,18 @@ def artery_offset(Yt, st, Ym, sm, nearest):
     (p_t, med_t), (p_m, _) = p90(A, B, nearest), p90(B, A, nearest)
     off = max(p_t, p_m)
     return row | {"offset": off, "offset_median": med_t, "reason": "ok" if off <= MAX_OFFSET else f"offset > {MAX_OFFSET:g} mm"}
+
+
+def shared_curvature(Yt, st, Ym, sm):
+    """Average curvature of the tracer (Yt, st) and of Medis (Ym, sm) over only the stretch both cover (descriptive;
+    the compared values stay the whole-artery averages). The profile is the cohort's (curvature_profile on each
+    whole artery); the average is taken over the shared stretch less CHORD mm at each end on both lines, since a
+    profile has no values within CHORD of its own line's ends, and only when at least MIN_SHARED mm remain."""
+    (t0, t1), (m0, m1) = shared_stretch(Yt, st, Ym, sm)
+    if min(t1 - t0, m1 - m0) - 2 * CHORD < MIN_SHARED:
+        return {"T_shared_tracer": np.nan, "T_shared_medis": np.nan}
+    return {"T_shared_tracer": segment_mean(*curvature_profile(Yt, CHORD, st), t0 + CHORD, t1 - CHORD),
+            "T_shared_medis": segment_mean(*curvature_profile(Ym, CHORD, sm), m0 + CHORD, m1 - CHORD)}
 
 
 def near_o(Yt, st, Ym, sm, lm_t, lm_m, nearest, depth=DEPTHS[-1]):
@@ -282,6 +300,8 @@ def run(limit=None, src=None, lumen=None, medis=None):
             if a in ta and a in ma:
                 res, err = guarded(artery_offset, *ta[a][4:], *ma[a][4:], cq.nearest)
                 row |= res or {"reason": err}
+                res, _ = guarded(shared_curvature, *ta[a][4:], *ma[a][4:])
+                row |= res or {"T_shared_tracer": np.nan, "T_shared_medis": np.nan}
             else:
                 row["reason"] = "missing in " + " and ".join(n for n, t in (("Medis", ma), ("tracer", ta)) if a not in t)
             A.append(row)
@@ -333,6 +353,20 @@ def reference_rows(A):
     min_len = {a: float(A.loc[(A["artery"] == a) & A["T_tracer"].notna(), "L_tracer"].min()) for a in ARTERIES}
     keep = A["medis_full"].astype(bool) & (A["L_medis"] >= A["artery"].map(min_len))
     return A[keep], min_len
+
+
+def shared_pairs(S):
+    """The rows of S that also have a shared-stretch curvature on both lines."""
+    if not len(S) or "T_shared_tracer" not in S:
+        return S.iloc[:0]
+    return S[S["T_shared_tracer"].notna() & S["T_shared_medis"].notna()]
+
+
+def main_rows(A, P):
+    """The pairs of the main rows: curvature where the Medis artery is a reference (reference_rows) and the artery
+    passes the same-vessel check; the angle and asymmetry where the participant is aligned."""
+    F = reference_rows(A)[0]
+    return F[F["reason"] == "ok"] if len(F) else F, P[P["aligned"].astype(bool)] if len(P) else P
 
 
 def coverage(t, m):
@@ -401,6 +435,16 @@ def report(flow, A, P, boot):
         L.append(stat_row("all arteries", diff(S, "T"), S["id"].to_numpy(), boot, "1/mm"))
         L.append(stat_row("all arteries, also pairs failing the same-vessel check (sensitivity)", diff(B, "T"),
                           B["id"].to_numpy(), boot, "1/mm"))
+        SS = shared_pairs(S)
+        L += [f"\nThe same pairs averaged over the shared stretch only (descriptive; shared_curvature: the stretch both "
+              f"lines cover less {CHORD:g} mm at each end, at least {MIN_SHARED:g} mm). The last row is the whole-artery "
+              f"comparison on exactly these pairs, so any difference between the two comes from the stretch alone.\n",
+              head]
+        for a in ARTERIES:
+            d = SS[SS["artery"] == a]
+            L.append(stat_row(f"{NAME[a]}, shared stretch", diff(d, "T_shared"), d["id"].to_numpy(), boot, "1/mm"))
+        L.append(stat_row("all arteries, shared stretch", diff(SS, "T_shared"), SS["id"].to_numpy(), boot, "1/mm"))
+        L.append(stat_row("all arteries, whole artery, the same pairs", diff(SS, "T"), SS["id"].to_numpy(), boot, "1/mm"))
         L += ["\nCompared pairs: the same-vessel distance (per pair, the larger 90th percentile of the distances "
               "between the two centerlines, both ways) and the stretch both lines cover, in mm and as a share of each "
               f"tree's whole artery. Median (90th percentile over pairs from {TAIL_MIN} pairs).\n",
@@ -497,6 +541,10 @@ def report(flow, A, P, boot):
     if len(S):
         sets += [(f"curvature, {NAME[a]}", S[S["artery"] == a], "T", "1/mm") for a in ARTERIES]
         sets.append(("curvature, all arteries", S, "T", "1/mm"))
+        SS = shared_pairs(S)
+        sets += [(f"curvature over the shared stretch, {NAME[a]}", SS[SS["artery"] == a], "T_shared", "1/mm")
+                 for a in ARTERIES]
+        sets.append(("curvature over the shared stretch, all arteries", SS, "T_shared", "1/mm"))
     if len(P):
         sets.append(("LAD-LCx angle", P[P["aligned"].astype(bool)], "theta", "degrees"))
     if len(P) and "asym_tracer" in P:
@@ -523,6 +571,8 @@ def plots(A, P, out):
     import matplotlib.pyplot as plt
 
     sets = [("curvature", A.get("T_tracer"), A.get("T_medis"), "average curvature per artery (1/mm)"),
+            ("curvature_shared", A.get("T_shared_tracer"), A.get("T_shared_medis"),
+             "average curvature over the shared stretch (1/mm)"),
             ("angle", P.get("theta_tracer"), P.get("theta_medis"), "bifurcation angle (degrees)"),
             ("asymmetry", P.get("asym_tracer"), P.get("asym_medis"), "asymmetry ln(D_LCx / D_LAD)")]
     for name, t, m, lab in sets:
@@ -645,6 +695,13 @@ def check():
     assert abs(c - 0.8) < 0.02 and a < c, (c, a)  # 1 / (1 + 0.25)
     print(f"ICC of simulated pairs (true 0.8): consistency {c:.3f}, absolute agreement {a:.3f}")
 
+    # curvature over the shared stretch only: a Medis piece of the same artery gives the same average there
+    Yw = _wavy(np.linspace(0, 90, 400))
+    piece = Yw[(arc(Yw) > 20) & (arc(Yw) < 70)]
+    r = shared_curvature(Yw, arc(Yw), piece, arc(piece))
+    assert abs(r["T_shared_tracer"] / r["T_shared_medis"] - 1) < 0.02, r
+    assert np.isnan(shared_curvature(Yw, arc(Yw), Yw[:40], arc(Yw[:40]))["T_shared_medis"]), "overlap too short"
+
     # agreement on simulated pairs: bias 0.2, SD 1, three pairs per participant
     pid = np.repeat(np.arange(700), 3)
     g = agreement(0.2 + rng.normal(size=len(pid)), pid, boot=300)
@@ -676,7 +733,7 @@ def main():
     rows.mkdir(parents=True, exist_ok=True)
     A.to_csv(rows / "medis_compare_arteries.csv", index=False)
     P.to_csv(rows / "medis_compare_participants.csv", index=False)
-    plots(A, P, rows)
+    plots(*main_rows(A, P), rows)  # the pairs of the main rows
     text = report(flow, A, P, args.boot)
     Path(args.out).write_text(text, encoding="utf-8")
     print(text)
