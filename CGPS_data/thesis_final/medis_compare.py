@@ -170,6 +170,18 @@ def guarded(fn, *args):
         return None, f"error:{type(ex).__name__}"
 
 
+def medis_lumen_files(medis=None):
+    """{id: [the participant's BL Medis lumen files of the left tree]} (split_check.contour_files)."""
+    import hoe10y_qc as hq
+    from split_check import contour_files
+
+    out = {}
+    for (i, seg), fs in contour_files(medis or Path(hq.ROOT) / hq.MEDIS_DIR).items():
+        if "lumen" in fs and seg not in RIGHT:
+            out.setdefault(i, []).append(fs["lumen"])
+    return out
+
+
 def asymmetry_pair(trc, med, trc_surf, med_surf):
     """Lumen diameters at the SECTION_DEPTHS of each tree's own LAD and LCx (daughter_ratio.surface_diameters on
     its own surface) and the asymmetry ln(D_LCx / D_LAD), with the reason. Strict rule (2026-11-19, before any
@@ -245,13 +257,8 @@ def run(limit=None, src=None, lumen=None, medis=None):
     import tracer_io
     from split_trunks import graph, left_main, split
 
-    from split_check import contour_files
-
     src, lumen = src or tracer_io.TRACER_DIR, lumen or tracer_io.LUMEN_DIR
-    med_lumen = {}  # id -> the participant's BL Medis lumen files of the left tree
-    for (i, seg), fs in contour_files(medis or Path(hq.ROOT) / hq.MEDIS_DIR).items():
-        if "lumen" in fs and seg not in RIGHT:
-            med_lumen.setdefault(i, []).append(fs["lumen"])
+    med_lumen = medis_lumen_files(medis)
     trees = {hq.id_from_name(p.name): p for p in tracer_io.MEDIS_TREES.rglob("*.vtk")}
     hq.read_label_codes((f, f) for f in trees.values())
     have = tracer_io.tracer_ids(src)

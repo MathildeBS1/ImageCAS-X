@@ -193,24 +193,27 @@ def crossings(Y, p, n):
     return q[np.linalg.norm(q - p, axis=1) <= CUT_RADIUS]
 
 
+def section(V, F, Y, s, other, dep):
+    """(loop (k, 3) or None, p, n): the cross-section of the mesh (V, F) at depth dep of the daughter (Y, s), the
+    centerline point p and the plane normal n. None when the daughter is too short, no closed loop encloses p,
+    or the loop also encloses a point where the other daughter's centerline (other) crosses the plane."""
+    p, a, b = (point_at_depth(Y, s, x) for x in (dep, max(dep - TANGENT, 0.0), dep + TANGENT))
+    if p is None or b is None:
+        return None, p, None
+    n = (b - a) / np.linalg.norm(b - a)
+    inner = [lp for lp in section_loops(V, F, p, n) if _inside(lp, p, p, n)]
+    if not inner:
+        return None, p, n
+    lp = min(inner, key=contour_area)
+    merged = any(_inside(lp, q, p, n) for q in crossings(np.asarray(other, float), p, n))
+    return (None if merged else lp), p, n
+
+
 def surface_diameters(V, F, Y, s, other, depths=SECTION_DEPTHS):
     """Area-equivalent lumen diameter (mm) at each depth of one daughter (Y, s: arc length from O), from the
     mesh (V, F); other: the other daughter's centerline points. nan at a depth without a clean cross-section."""
-    out = []
-    for dep in depths:
-        p, a, b = (point_at_depth(Y, s, x) for x in (dep, max(dep - TANGENT, 0.0), dep + TANGENT))
-        if p is None or b is None:
-            out.append(np.nan)
-            continue
-        n = (b - a) / np.linalg.norm(b - a)
-        inner = [lp for lp in section_loops(V, F, p, n) if _inside(lp, p, p, n)]
-        if not inner:
-            out.append(np.nan)
-            continue
-        lp = min(inner, key=contour_area)
-        merged = any(_inside(lp, q, p, n) for q in crossings(np.asarray(other, float), p, n))
-        out.append(np.nan if merged else contour_diameter(lp))
-    return np.array(out)
+    loops = [section(V, F, Y, s, other, dep)[0] for dep in depths]
+    return np.array([np.nan if lp is None else contour_diameter(lp) for lp in loops])
 
 
 def tracer_rings(path):
