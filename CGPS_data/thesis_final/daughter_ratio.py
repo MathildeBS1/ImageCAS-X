@@ -43,8 +43,9 @@ its area-equivalent diameter is taken. No diameter at that depth when no closed 
 surface ends, or the cut leaves CUT_RADIUS), or when the loop also encloses the point where the other
 daughter's centerline crosses the plane (both daughters in one loop near O). The same function is used for
 the tracer and the Medis lumen in medis_compare.py, so both diameters come from one method.
-Open: tracer_rings (a contour per point) stays unimplemented; the cohort asymmetry is to be computed with
-surface_diameters (not yet wired into progression_who_pooled.py).
+tree_asymmetry (2026-11-19) is the cohort feature: one tree and its own surface, nothing from another tree, so
+medis_compare.py runs it unchanged on the tracer and on Medis. Open: tracer_rings (a contour per point) stays
+unimplemented; tree_asymmetry is not yet wired into progression_who_pooled.py.
 """
 import argparse
 import sys
@@ -216,6 +217,38 @@ def surface_diameters(V, F, Y, s, other, depths=SECTION_DEPTHS):
     return np.array([np.nan if lp is None else contour_diameter(lp) for lp in loops])
 
 
+def daughter_asymmetry(V, F, lad, cx, depths=SECTION_DEPTHS):
+    """{"asym": ln(D_LCx / D_LAD), "D_LAD", "D_CX", "n_cut_LAD", "n_cut_CX", "reason"} from one tree's own lumen
+    surface (V, F) and its daughters lad, cx = (Y, s), arc length from O. Strict rule (2026-11-19): a daughter's D
+    is the median of its cuts (surface_diameters), only when every cut has a diameter."""
+    (Yl, sl), (Yc, sc) = lad, cx
+    out = {}
+    for a, D in (("LAD", surface_diameters(V, F, Yl, sl, Yc, depths)), ("CX", surface_diameters(V, F, Yc, sc, Yl, depths))):
+        out[f"n_cut_{a}"] = int(np.isfinite(D).sum())
+        out[f"D_{a}"] = float(np.median(D)) if np.isfinite(D).all() else np.nan
+    out["asym"] = float(np.log(out["D_CX"] / out["D_LAD"]))
+    return out | {"reason": "ok" if np.isfinite(out["asym"]) else "a cut without a cross-section"}
+
+
+def tree_asymmetry(tree, surf, roots=None, arteries=None):
+    """daughter_asymmetry of one tree from its own lumen surface surf = (V, F), with the rules of the angle
+    (bifurcation_angle.angle_with_reason): nan without an LM label, the LAD or the LCx, or a shared O. The one rule
+    for the cohort feature and both trees of medis_compare.py. arteries: the tree already divided by split_trunks.split."""
+    from bifurcation_angle import has_lm
+    from split_trunks import graph, split  # here so --check runs without the shared modules
+
+    nan = {"asym": np.nan, "D_LAD": np.nan, "D_CX": np.nan}
+    if not has_lm(tree):
+        return nan | {"reason": "no LM label"}
+    arteries = split(*graph(tree), roots=roots) if arteries is None else arteries
+    if "LAD" not in arteries or "CX" not in arteries:
+        return nan | {"reason": "LAD or LCx missing"}
+    (*_, Yl, sl), (*_, Yc, sc) = arteries["LAD"], arteries["CX"]
+    if not np.allclose(Yl[0], Yc[0]):
+        return nan | {"reason": "no shared O"}
+    return daughter_asymmetry(*surf, (Yl, sl), (Yc, sc))
+
+
 def tracer_rings(path):
     """Lumen contour per centerline point of a tracer tree."""
     raise NotImplementedError(
@@ -370,6 +403,13 @@ def check_surface():
     near_cx = line([1, 0.15, 0], 30)
     Vw, Fw = _tube_mesh(np.zeros(3), [1, 0, 0], 8.0, 30)
     assert np.isnan(surface_diameters(Vw, Fw, line([1, 0, 0], 30), _arc(line([1, 0, 0], 30)), near_cx)).all()
+    # the strict rule: one daughter without a cross-section beyond 8 mm gives no asymmetry
+    r = daughter_asymmetry(V, F, (lad, _arc(lad)), (cx, _arc(cx)))
+    assert r["reason"] == "ok" and abs(r["asym"] - np.log(d_cx / d_lad)) < 1e-3, r
+    V2, F2 = merge([_tube_mesh(0.5 * u_lad / np.linalg.norm(u_lad), u_lad, d_lad, 8),
+                    _tube_mesh(0.5 * u_cx / np.linalg.norm(u_cx), u_cx, d_cx, 30)])
+    r = daughter_asymmetry(V2, F2, (lad, _arc(lad)), (cx, _arc(cx)))
+    assert r["reason"] != "ok" and np.isnan(r["asym"]) and r["n_cut_LAD"] < len(SECTION_DEPTHS), r
 
 
 if __name__ == "__main__":

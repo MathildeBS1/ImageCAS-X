@@ -3,75 +3,50 @@
     python CGPS_data/thesis_final/medis_compare.py [--limit N] [--boot 2000] [--out MD] [--rows DIR]
     python CGPS_data/thesis_final/medis_compare.py --check   # synthetic shapes, needs no data
 
-Baseline only. Each Medis participant's tracer tree (tracer_io.tracer_tree) and Medis tree
-(hoe10y_qc.tree_points) are divided with split_trunks.split, and the LAD, LCx and RCA are paired by name.
-The tracer tree starts at the tracer's own ostia (tracer_io.tracer_ostia, passed as roots); the Medis tree
-starts at its LM label.
-Both are in LPS mm (tracer_probe.md), so no mapping is applied.
+Baseline only, the Medis participants (all have plaque at baseline). Tracer and Medis points are both in LPS mm
+(tracer_probe.md), so no mapping is applied.
 
-Curvature, per artery pair, in this order:
-  shared stretch  each centerline's first and last point is projected onto the other at the closest point;
-                  the stretch runs from the later start to the earlier end (shared_stretch). Pairs with a
-                  shared stretch under MIN_SHARED mm are left out.
-  alignment       each line's shared stretch is resampled every DENSE mm (stretch); the distances run from the
-                  points of each to the other, and the larger of the two 90th percentiles is the offset. Pairs
-                  above MAX_OFFSET mm are left out (a wrong vessel or a failed trace). MAX_OFFSET was fixed on
-                  2026-11-18 before any feature difference was looked at. Until the code review of 2026-11-18
-                  the rule used the median, one way (tracer to Medis): a branch could then take up nearly half
-                  the stretch and still pass. The median (tracer to Medis) stays as the column offset_median.
-                  Code review 2026-11-19, after the 2026-11-18 results were seen and for the code's reasons,
-                  not the numbers: both ends of the distances are the shared stretches resampled by arc length.
-                  Before, the query was the raw points (unevenly spaced Medis points weighted the percentile by
-                  sampling density) and the reference the whole other line (an end could match a loop outside
-                  the overlap, so mismatched stretches passed).
-  averaged part   the shared stretch without CHORD mm at each end, on both lines: a profile has no points
-                  within CHORD of its own line's ends, so without this the line that ends first would lose
-                  up to CHORD mm at an end that the other keeps (code review 2026-11-18). Pairs whose averaged
-                  part is under MIN_SHARED mm are left out, with this reason ahead of the offset (2026-11-19:
-                  before, offset failures skipped the length rule and entered the sensitivity row with
-                  averages over a few mm).
-  curvature       the Menger profile (curvature_feature.curvature_profile) on each full artery, averaged over
-                  the averaged part (segment_mean). T is also computed for pairs that fail only the alignment
-                  check, for the sensitivity row "including offset failures", which so meets the same length
-                  rules as the main row. aligned_artery = passed the alignment check (whatever the averaged
-                  part); False when the shared stretch is too short for the check.
-Angle, per participant: bifurcation_angle.angle_with_reason (the rule of the cohort feature) on each tree's
-own LAD and LCx (full trees), compared only where the LAD and the LCx both passed the alignment check
-(aligned_artery, so not the averaged-part length, which concerns curvature only; decided 2026-11-18, as for
-curvature: a failed pair is probably a different vessel) and both pass near_o: the 90th percentile of the
-distances from each tree's first DEPTHS[-1] mm of the daughter from its own O to the other tree's left main
-(split_trunks.left_main) and whole daughter, the larger of the two directions, at most MAX_OFFSET (added
-2026-11-19, code review: the whole-artery stretch starts at the later O and can miss the 5-10 mm the angle
-uses). The left main is in the reference so that an O placed further along the same vessel in one tree does
-not fail the check: the first version (also 2026-11-19, never run on the data) took the other daughter's
-first 15 mm only, and so cut on the O distance once it exceeded about 3 mm. near_o runs only where the
-whole-artery check passed. o_dist, the distance between the
-tracer's and Medis' bifurcation point O, is saved and reported, not used as a cut (code review 2026-11-18: a
-cut chosen after the angle results were seen would be tuned on them). An angle is missing for a tree without
-an LM label (bifurcation_angle.has_lm, 2026-11-18). The CSV keeps every angle with the columns aligned_whole,
-aligned and the reasons.
-Daughter asymmetry, per participant (2026-11-19, rule fixed before any result): only where the angle is
-compared (aligned). Each tree's own lumen surface is cut across its own LAD and LCx at SECTION_DEPTHS (5 to
-10 mm from its own O, every 0.5 mm; daughter_ratio.surface_diameters): the tracer's
-lumen_surface_ostium_pruned.vtk (tracer_io.tracer_lumen, the same centerlines as TRACER_DIR, lumen_probe.md)
-and the participant's BL Medis lumen meshes of the left tree, merged. A daughter's D is the median of its
-cuts, kept only when every cut has a diameter (strict rule: the Medis lumen ends where Medis stopped
-contouring). a = ln(D_LCx / D_LAD); reported as the signed a and as D_LAD and D_LCx. Medis contoured almost
-only diseased segments, so every participant compared has plaque at the bifurcation.
-A pair or participant whose computation raises is kept with the reason error:<type> (2026-11-19).
+The rule (2026-11-19, replaces the comparison over the stretch both centerlines cover, 2026-11-18): every tracer
+value is the value the plaque-free cohort gets. tree_features computes it with the cohort's own functions from the
+tracer tree and the tracer's own lumen surface alone; no start, end, stretch, cut or check on the tracer side comes
+from Medis. The same functions run unchanged on the Medis tree and the Medis lumen meshes. Until 2026-11-19 the
+curvature was averaged over the stretch both centerlines cover (ends projected onto Medis), and pairs whose two
+traces were more than MAX_OFFSET mm apart were left out of the main rows. Neither can be done without Medis, so the
+limits described traces the cohort cannot pick out, over stretches the cohort does not use.
 
-Reliability per feature (2026-11-19), on the same pairs: SD of each method, SD of the differences and the
-ICC of the two methods, consistency ICC(C,1) and absolute agreement ICC(A,1) (McGraw and Wong 1996), with
-bootstrap intervals over participants; for the asymmetry also abs(a), the model feature. It sets the
-measurement error against the spread between people, which is what weakens a per-SD hazard ratio.
-Agreement per feature: difference tracer - Medis in the feature's own unit, bias, SD of the differences,
-95% limits of agreement (bias +- 1.96 SD) and 95% intervals from a bootstrap over participants. Curvature
-is compared as a plain difference only (fixed 2026-11-18, before the results).
-The share of pairs left out, and why, is reported next to the limits: the limits describe only the traces
-that passed, while the plaque-free cohort uses every trace.
+A pair is compared when both trees give a value. A missing Medis value (an artery missing in the Medis tree, Medis
+lumen that does not reach every cut) only means there is no reference there. A missing tracer value where Medis has one is
+the tracer's own missingness, as in the cohort, and is reported next to the limits.
 
-Writes medis_compare.md next to this script (aggregates only: counts 1-4 hidden, statistics only from
-MIN_CELL pairs) and, in --rows (server only, contains study ids), the per-pair CSVs and Bland-Altman plots.
+Features, each tree on its own (tree_features):
+  curvature   per artery (LAD with LAD, LCx with LCx, RCA with RCA): the profile of the cohort feature
+              (curvature_feature.artery_curvature, Menger, CHORD mm) on the tree's own artery, averaged over the
+              whole artery, from its start to its end in split_trunks.split (the three segments together; the
+              tracer from its own ostia, tracer_io.tracer_ostia). Each tree keeps its own start and end, so a
+              difference in where the two traces stop is part of the difference.
+  angle       bifurcation_angle.angle_with_reason.
+  asymmetry   daughter_ratio.tree_asymmetry on the tree's own lumen surface: the tracer's
+              lumen_surface_ostium_pruned.vtk (tracer_io.tracer_lumen) and the participant's BL Medis lumen meshes
+              of the left tree, merged. Medis contoured almost only diseased segments, so every participant compared
+              has plaque at the bifurcation.
+A feature whose computation raises is missing with the reason error:<type> (guarded); the others are kept.
+
+Same-vessel check (descriptive and a sensitivity row, never a cut of the main rows, since the cohort cannot apply
+it): per artery, the stretch both centerlines cover (each line's ends projected onto the other at the closest point,
+from the later start to the earlier end, at least MIN_SHARED mm), both stretches resampled every DENSE mm, the 90th
+percentile of the distances from each to the other, the larger of the two, at most MAX_OFFSET mm (artery_offset).
+For the angle and the asymmetry also near_o on the LAD and the LCx: the same distance from each tree's first
+DEPTHS[-1] mm of the daughter from its own O to the other tree's left main and whole daughter. o_dist, the distance
+between the two bifurcation points O, is reported. The check tells how much of the disagreement comes from traces
+that follow another vessel or fail.
+
+Agreement per feature: difference tracer - Medis in the feature's own unit, bias, SD of the differences, 95% limits
+of agreement (bias +- 1.96 SD) and 95% intervals from a bootstrap over participants. Reliability per feature, on the
+same pairs: SD of each method, SD of the differences, consistency ICC(C,1) and absolute agreement ICC(A,1) (McGraw
+and Wong 1996), with bootstrap intervals over participants; for the asymmetry also abs(a), the model feature.
+
+Writes medis_compare.md next to this script (aggregates only: counts 1-4 hidden, statistics only from MIN_CELL
+pairs) and, in --rows (server only, contains study ids), the per-pair CSVs and Bland-Altman plots.
 """
 import argparse
 import sys
@@ -84,19 +59,51 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # the shared modules in CGPS_data/
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from bifurcation_angle import DEPTHS, angle_with_reason
-from curvature_feature import CHORD, curvature_profile, segment_mean
-from daughter_ratio import SECTION_DEPTHS, merge, surface, surface_diameters
+from curvature_feature import CHORD, artery_curvature
+from daughter_ratio import SECTION_DEPTHS, merge, surface, tree_asymmetry
 
 MAX_OFFSET = 2.0  # mm: 90th percentile of the point distances, both ways, above this = not the same vessel
-MIN_SHARED = 10.0  # mm: minimum shared stretch, and minimum averaged part (shared stretch less CHORD at each end)
-DENSE = 0.25  # mm: the other centerline is resampled this finely for the distances
-O_FAR = 5.0  # mm: o_dist above this is counted in the report (not a cut)
+MIN_SHARED = 10.0  # mm: shortest stretch both centerlines cover on which the same-vessel check is made
+DENSE = 0.25  # mm: both stretches are resampled this finely for the distances
+O_FAR = 5.0  # mm: o_dist above this is counted in the report
 ARTERIES = ("LAD", "CX", "RCA")
 RIGHT = {"prca", "mrca", "drca", "rca", "pda", "pla"}  # Medis lumen sets of the right tree, not read for the asymmetry
 NAME = {"LAD": "LAD", "CX": "LCx", "RCA": "RCA"}
+NAN_ASYM = {"asym": np.nan, "D_LAD": np.nan, "D_CX": np.nan}
 
 
-# ---------------------------------------------------------------- geometry
+# ---------------------------------------------------------------- features: one tree, nothing from the other
+
+def guarded(fn, *args):
+    """(fn(*args), None), or (None, "error:<type>") when it raises: counted in the report, not a stopped run."""
+    try:
+        return fn(*args), None
+    except Exception as ex:  # noqa: BLE001 - counted
+        return None, f"error:{type(ex).__name__}"
+
+
+def tree_features(tree, roots=None, surf=None):
+    """Every feature of one tree from the cohort's functions, on this tree and its own lumen surface alone:
+    {"arteries": split_trunks.split, "T": {artery: 1/mm}, "theta", "reason_theta", "asym": {...}}.
+    roots: the tree's own ostia (tracer_io.tracer_ostia), None for Medis. surf: a callable that loads the tree's
+    lumen surface (V, F), None when the tree has none. Raises only when the tree cannot be divided."""
+    from split_trunks import graph, split
+
+    arts = split(*graph(tree), roots=roots)
+    T, err = guarded(lambda: {a: artery_curvature(Y, s, (0.0, end), CHORD)[0]
+                              for a, (_, _, end, _, Y, s) in arts.items()})
+    out = {"arteries": arts, "T": T or {}, "T_reason": err or "ok"}
+    res, err = guarded(angle_with_reason, tree, arts)
+    out["theta"], out["reason_theta"] = res or (np.nan, err)
+    if surf is None:
+        out["asym"] = NAN_ASYM | {"reason": "no lumen surface"}
+    else:
+        res, err = guarded(lambda: tree_asymmetry(tree, surf(), roots, arts))
+        out["asym"] = res or NAN_ASYM | {"reason": err}
+    return out
+
+
+# ---------------------------------------------------------------- same-vessel check (descriptive)
 
 def arc(Y):
     return np.r_[0, np.cumsum(np.linalg.norm(np.diff(Y, axis=0), axis=1))]
@@ -131,43 +138,30 @@ def shared_stretch(Ya, sa, Yb, sb):
     return a, b
 
 
-def compare_artery(Yt, st, Ym, sm, nearest):
-    """Average curvature of one artery from the tracer (Yt, st) and from Medis (Ym, sm) over their shared stretch."""
+def artery_offset(Yt, st, Ym, sm, nearest):
+    """Same-vessel check of one artery, tracer (Yt, st) against Medis (Ym, sm): the larger 90th percentile of the
+    distances between the two shared stretches, with the reason. Changes no feature value."""
     (t0, t1), (m0, m1) = shared_stretch(Yt, st, Ym, sm)
     row = {"shared_tracer": t1 - t0, "shared_medis": m1 - m0}
     if min(t1 - t0, m1 - m0) < MIN_SHARED:
-        return row | {"reason": f"shared stretch < {MIN_SHARED:g} mm", "aligned_artery": False}
+        return row | {"reason": f"shared stretch < {MIN_SHARED:g} mm"}
     A, B = stretch(Yt, st, t0, t1), stretch(Ym, sm, m0, m1)
     (p_t, med_t), (p_m, _) = p90(A, B, nearest), p90(B, A, nearest)
     off = max(p_t, p_m)
-    row |= {"offset": off, "offset_median": med_t, "aligned_artery": off <= MAX_OFFSET}
-    if min(t1 - t0, m1 - m0) - 2 * CHORD < MIN_SHARED:
-        return row | {"reason": f"averaged part < {MIN_SHARED:g} mm"}
-    reason = "ok" if off <= MAX_OFFSET else f"offset > {MAX_OFFSET:g} mm"
-    return row | {"reason": reason, "T_tracer": segment_mean(*curvature_profile(Yt, CHORD, st), t0 + CHORD, t1 - CHORD),
-                  "T_medis": segment_mean(*curvature_profile(Ym, CHORD, sm), m0 + CHORD, m1 - CHORD)}
+    return row | {"offset": off, "offset_median": med_t, "reason": "ok" if off <= MAX_OFFSET else f"offset > {MAX_OFFSET:g} mm"}
 
 
 def near_o(Yt, st, Ym, sm, lm_t, lm_m, nearest, depth=DEPTHS[-1]):
-    """Alignment of one daughter at the bifurcation: the larger 90th percentile of the distances from each
+    """Same-vessel check of one daughter at the bifurcation: the larger 90th percentile of the distances from each
     tree's first depth mm from its own O to the other tree's left main (lm_t, lm_m: ostium to O) and whole
-    daughter. The left main is in the reference so that O placed further along the same vessel in one tree
-    does not fail the check (the two O are not compared, o_dist is reported only); nan when either daughter
-    is shorter than depth."""
+    daughter. The left main is in the reference so that O placed further along the same vessel in one tree does
+    not fail the check; nan when either daughter is shorter than depth."""
     if min(st[-1] - st[0], sm[-1] - sm[0]) < depth:
         return np.nan
     whole = lambda Y: stretch(Y, arc(Y), 0, arc(Y)[-1]) if len(Y) > 1 else Y  # noqa: E731
     ref_t, ref_m = np.r_[whole(lm_t), whole(Yt)], np.r_[whole(lm_m), whole(Ym)]
     return max(p90(stretch(Yt, st, st[0], st[0] + depth), ref_m, nearest)[0],
                p90(stretch(Ym, sm, sm[0], sm[0] + depth), ref_t, nearest)[0])
-
-
-def guarded(fn, *args):
-    """(fn(*args), None), or (None, "error:<type>") when it raises: counted in the report, not a stopped run."""
-    try:
-        return fn(*args), None
-    except Exception as ex:  # noqa: BLE001 - counted
-        return None, f"error:{type(ex).__name__}"
 
 
 def medis_lumen_files(medis=None):
@@ -180,23 +174,6 @@ def medis_lumen_files(medis=None):
         if "lumen" in fs and seg not in RIGHT:
             out.setdefault(i, []).append(fs["lumen"])
     return out
-
-
-def asymmetry_pair(trc, med, trc_surf, med_surf):
-    """Lumen diameters at the SECTION_DEPTHS of each tree's own LAD and LCx (daughter_ratio.surface_diameters on
-    its own surface) and the asymmetry ln(D_LCx / D_LAD), with the reason. Strict rule (2026-11-19, before any
-    result): a daughter's D is the median over all its cuts, and only when every cut has a diameter."""
-    row, short = {}, []
-    for name, arts, surf in (("medis", med, med_surf), ("tracer", trc, trc_surf)):
-        (*_, Yl, sl), (*_, Yc, sc) = arts["LAD"], arts["CX"]
-        for a, D in (("LAD", surface_diameters(*surf, Yl, sl, Yc)), ("CX", surface_diameters(*surf, Yc, sc, Yl))):
-            row[f"n_cut_{a}_{name}"] = int(np.isfinite(D).sum())
-            row[f"D_{a}_{name}"] = float(np.median(D)) if np.isfinite(D).all() else np.nan
-            short += [name] if not np.isfinite(D).all() else []
-        row[f"asym_{name}"] = float(np.log(row[f"D_CX_{name}"] / row[f"D_LAD_{name}"]))
-    reason = ("Medis lumen does not cover 5-10 mm of both daughters" if "medis" in short
-              else "tracer cut missing" if "tracer" in short else "ok")
-    return row | {"asym_reason": reason}
 
 
 # ---------------------------------------------------------------- agreement
@@ -255,7 +232,7 @@ def run(limit=None, src=None, lumen=None, medis=None):
     import centerline_qc as cq
     import hoe10y_qc as hq
     import tracer_io
-    from split_trunks import graph, left_main, split
+    from split_trunks import graph, left_main
 
     src, lumen = src or tracer_io.TRACER_DIR, lumen or tracer_io.LUMEN_DIR
     med_lumen = medis_lumen_files(medis)
@@ -271,42 +248,44 @@ def run(limit=None, src=None, lumen=None, medis=None):
             flow["no tracer pair"] += 1
             continue
         flow["with a tracer pair"] += 1
+        f_lumen = Path(tracer_io.tracer_lumen(pid, lumen))
         try:
             med_tree, trc_tree = hq.tree_points(trees[pid]), tracer_io.tracer_tree(pid, src)
-            roots, med_g, trc_g = tracer_io.tracer_ostia(pid, src), graph(med_tree), graph(trc_tree)
-            med, trc = split(*med_g), split(*trc_g, roots=roots)
+            roots = tracer_io.tracer_ostia(pid, src)
+            trc = tree_features(trc_tree, roots, (lambda: surface(f_lumen)) if f_lumen.exists() else None)
+            med = tree_features(med_tree, None, (lambda: merge([surface(f) for f in med_lumen[pid]]))
+                                if pid in med_lumen else None)
         except Exception:  # noqa: BLE001 - counted
             flow["tree not divided"] += 1
             continue
         flow["both trees divided"] += 1
-        ok = set()
+
+        ta, ma = trc["arteries"], med["arteries"]
+        same = set()
         for a in ARTERIES:
-            if a not in med or a not in trc:
-                missing = " and ".join(n for n, t in (("Medis", med), ("tracer", trc)) if a not in t)
-                A.append({"id": pid, "artery": a, "reason": f"missing in {missing}"})
-                continue
-            res, err = guarded(compare_artery, *trc[a][4:], *med[a][4:], cq.nearest)
-            A.append({"id": pid, "artery": a} | (res or {"reason": err, "aligned_artery": False}))
-            ok |= {a} if A[-1]["aligned_artery"] else set()
-        row = {"id": pid, "aligned_whole": {"LAD", "CX"} <= ok}
-        for name, tree, arts in (("tracer", trc_tree, trc), ("medis", med_tree, med)):
-            res, err = guarded(angle_with_reason, tree, arts)
-            row[f"theta_{name}"], row[f"reason_{name}"] = res or (np.nan, err)
-        if row["aligned_whole"]:  # near_o can change "aligned" only then
-            lms, err = guarded(lambda: (left_main(*trc_g, roots), left_main(*med_g)))
+            row = {"id": pid, "artery": a, "T_tracer": trc["T"].get(a, np.nan), "T_medis": med["T"].get(a, np.nan)}
+            if a in ta and a in ma:
+                res, err = guarded(artery_offset, *ta[a][4:], *ma[a][4:], cq.nearest)
+                row |= res or {"reason": err}
+            else:
+                row["reason"] = "missing in " + " and ".join(n for n, t in (("Medis", ma), ("tracer", ta)) if a not in t)
+            A.append(row)
+            same |= {a} if row["reason"] == "ok" else set()
+
+        row = {"id": pid, "theta_tracer": trc["theta"], "reason_tracer": trc["reason_theta"],
+               "theta_medis": med["theta"], "reason_medis": med["reason_theta"], "aligned_whole": {"LAD", "CX"} <= same}
+        if row["aligned_whole"]:  # near_o is checked only then
+            lms, err = guarded(lambda: (left_main(*graph(trc_tree), roots), left_main(*graph(med_tree))))
             for a in ("LAD", "CX"):
-                res, err = (None, err) if err else guarded(near_o, *trc[a][4:], *med[a][4:], *lms, cq.nearest)
-                row[f"near_o_{a}"], row[f"near_o_reason_{a}"] = (np.nan, err) if err else (res, "ok")
-        row["o_dist"] = float(np.linalg.norm(trc["LAD"][4][0] - med["LAD"][4][0])) if "LAD" in trc and "LAD" in med else np.nan
+                res, err_a = (None, err) if err else guarded(near_o, *ta[a][4:], *ma[a][4:], *lms, cq.nearest)
+                row[f"near_o_{a}"], row[f"near_o_reason_{a}"] = (np.nan, err_a) if err_a else (res, "ok")
+        row["o_dist"] = float(np.linalg.norm(ta["LAD"][4][0] - ma["LAD"][4][0])) if "LAD" in ta and "LAD" in ma else np.nan
         row["aligned"] = row["aligned_whole"] and all(row[f"near_o_{a}"] <= MAX_OFFSET for a in ("LAD", "CX"))
-        if not row["aligned"]:
-            row["asym_reason"] = "not aligned"
-        elif pid not in med_lumen:
-            row["asym_reason"] = "no Medis lumen in the left tree"
-        else:
-            res, err = guarded(lambda: asymmetry_pair(trc, med, surface(tracer_io.tracer_lumen(pid, lumen)),
-                                                      merge([surface(f) for f in med_lumen[pid]])))
-            row |= res or {"asym_reason": err}
+        for name, f in (("tracer", trc), ("medis", med)):
+            row |= {f"{k}_{name}": v for k, v in f["asym"].items() if k != "reason"}
+            row[f"asym_reason_{name}"] = f["asym"]["reason"]
+        rm, rt = row["asym_reason_medis"], row["asym_reason_tracer"]
+        row["asym_reason"] = "ok" if rm == rt == "ok" else f"Medis: {rm}" if rm != "ok" else f"tracer: {rt}"
         P.append(row)
     return flow, pd.DataFrame(A), pd.DataFrame(P)
 
@@ -329,6 +308,16 @@ def stat_row(label, diff, pid, boot, unit):
             f"{fmt(g['loa_lo'])}{ci('lo_ci')} | {fmt(g['loa_hi'])}{ci('hi_ci')} | {unit} |")
 
 
+def coverage(t, m):
+    """Pairs with a Medis value, and how many of them also have a tracer value: the tracer's own missingness
+    where there is a reference."""
+    from cgps_stats import count
+
+    t, m = np.isfinite(np.asarray(t, float)), np.isfinite(np.asarray(m, float))
+    n, both = int(m.sum()), int((t & m).sum())
+    return f"{count(n)} | {count(both)} ({100 * both / n:.0f}%)" if n else "0 | -"
+
+
 def report(flow, A, P, boot):
     from cgps_stats import MIN_CELL, QUARTILE_MIN, TAIL_MIN, count
 
@@ -337,112 +326,119 @@ def report(flow, A, P, boot):
         x = x[np.isfinite(x)]
         return np.median(x) if len(x) >= QUARTILE_MIN else None
 
+    def both(d, col):
+        return d[np.isfinite(d[f"{col}_tracer"].astype(float)) & np.isfinite(d[f"{col}_medis"].astype(float))]
+
+    def diff(d, col):
+        return d[f"{col}_tracer"].to_numpy(float) - d[f"{col}_medis"].to_numpy(float)
+
     head = ("| | pairs | bias (95% CI) | SD of differences | lower limit (95% CI) | upper limit (95% CI) | unit |\n"
             "|---|---|---|---|---|---|---|")
     L = ["# Tracer against Medis: agreement of the geometric features (medis_compare.py)\n",
-         (f"Baseline. Differences are tracer - Medis. Limits of agreement = bias +- 1.96 SD; 95% intervals from "
-          f"{boot} bootstrap samples of participants. Alignment cut: 90th percentile of the distances, both ways, "
-          f"at most {MAX_OFFSET:g} mm. Curvature averaged over the shared stretch less {CHORD:g} mm at each end, "
-          f"at least {MIN_SHARED:g} mm. Counts 1-4 shown as <5; statistics only from 5 pairs.\n"),
+         (f"Baseline. Differences are tracer - Medis. Every value is computed on its own tree by the cohort's "
+          f"functions (tree_features), so the tracer values are those the plaque-free cohort gets; nothing on the "
+          f"tracer side comes from Medis. A pair is compared when both trees give a value. Limits of agreement = "
+          f"bias +- 1.96 SD; 95% intervals from {boot} bootstrap samples of participants. Counts 1-4 shown as <5; "
+          f"statistics only from 5 pairs.\n"),
          "## Flow\n", "| step | participants |", "|---|---|"]
     L += [f"| {k} | {count(v)} |" for k, v in flow.items()]
 
+    L += ["\n## Curvature per artery (average over each tree's whole artery)\n",
+          "| artery | Medis value | tracer value too (share) |", "|---|---|---|"]
+    if len(A):
+        for a in ARTERIES:
+            d = A[A["artery"] == a]
+            L.append(f"| {NAME[a]} | {coverage(d['T_tracer'], d['T_medis'])} |")
+        L += ["", head]
+        B = both(A, "T")
+        for a in ARTERIES:
+            d = B[B["artery"] == a]
+            L.append(stat_row(NAME[a], diff(d, "T"), d["id"].to_numpy(), boot, "1/mm"))
+        L.append(stat_row("all arteries", diff(B, "T"), B["id"].to_numpy(), boot, "1/mm"))
+        d = B[B["reason"] == "ok"]
+        L.append(stat_row("all arteries, same-vessel pairs only (sensitivity)", diff(d, "T"), d["id"].to_numpy(),
+                          boot, "1/mm"))
+
+    L += ["\n## Bifurcation angle (bifurcation_angle.angle_with_reason on each tree)\n", head]
+    if len(P):
+        B = both(P, "theta")
+        L.append(stat_row("LAD-LCx angle", diff(B, "theta"), B["id"].to_numpy(), boot, "degrees"))
+        d = B[B["aligned"].astype(bool)]
+        L.append(stat_row("LAD-LCx angle, same vessel incl. near O (sensitivity)", diff(d, "theta"), d["id"].to_numpy(),
+                          boot, "degrees"))
+        L.append(f"\nParticipants with both trees divided {count(len(P))}; Medis angle "
+                 f"{coverage(P['theta_tracer'], P['theta_medis']).replace(' | ', ', tracer angle too ')}. "
+                 f"Angle missing, by reason (all divided participants):")
+        L += ["\n| reason | tracer | Medis |", "|---|---|---|"]
+        for r in sorted(set(P["reason_tracer"]) | set(P["reason_medis"])):
+            if r != "ok":
+                L.append(f"| {r} | {count((P['reason_tracer'] == r).sum())} | {count((P['reason_medis'] == r).sum())} |")
+        o = B["o_dist"].to_numpy(float)
+        o = o[np.isfinite(o)]
+        if len(o) >= MIN_CELL:
+            p90_ = np.percentile(o, 90) if len(o) >= TAIL_MIN else None
+            L.append(f"\nDistance between the tracer's and Medis' bifurcation point O, angles compared: median "
+                     f"{fmt(med(o), 2)} mm, 90th percentile {fmt(p90_, 2)} mm, {count(int((o > O_FAR).sum()))} "
+                     f"({100 * (o > O_FAR).mean():.0f}%) above {O_FAR:g} mm.")
+
+    L += ["\n## Daughter asymmetry ln(D_LCx / D_LAD) (daughter_ratio.tree_asymmetry on each tree)\n", head]
+    if len(P) and "asym_tracer" in P:
+        B = both(P, "asym")
+        for col, label, unit in (("asym", "asymmetry", "ln ratio"), ("D_LAD", "LAD diameter", "mm"),
+                                 ("D_CX", "LCx diameter", "mm")):
+            L.append(stat_row(label, diff(B, col), B["id"].to_numpy(), boot, unit))
+        d = B[B["aligned"].astype(bool)]
+        L.append(stat_row("asymmetry, same vessel incl. near O (sensitivity)", diff(d, "asym"), d["id"].to_numpy(),
+                          boot, "ln ratio"))
+        L.append(f"\nPlane cuts of each tree's own lumen surface at {len(SECTION_DEPTHS)} depths, {SECTION_DEPTHS[0]:g} "
+                 f"to {SECTION_DEPTHS[-1]:g} mm from its own O; a daughter counts only when every cut has a diameter. "
+                 f"Medis asymmetry {coverage(P['asym_tracer'], P['asym_medis']).replace(' | ', ', tracer asymmetry too ')}. "
+                 f"Asymmetry missing, by reason (all divided participants):")
+        L += ["\n| reason | tracer | Medis |", "|---|---|---|"]
+        for r in sorted(set(P["asym_reason_tracer"]) | set(P["asym_reason_medis"])):
+            if r != "ok":
+                L.append(f"| {r} | {count((P['asym_reason_tracer'] == r).sum())} | "
+                         f"{count((P['asym_reason_medis'] == r).sum())} |")
+        L.append("\nMedis lumen exists only where Medis contoured, almost always diseased segments: every participant "
+                 "compared here has plaque at the bifurcation, unlike the plaque-free cohort.")
+
     if len(A):
         reasons = sorted(A["reason"].unique())
-        L += ["\nPer artery, pairs by reason (share of the artery's pairs). The limits below describe only the "
-              "pairs kept.\n", "| artery | " + " | ".join(reasons) + " |", "|---|" + "---|" * len(reasons)]
+        L += ["\n## Same-vessel check (descriptive; not a cut of the rows above)\n",
+              (f"Per artery: 90th percentile of the distances between the two centerlines over the stretch both cover, "
+               f"both ways, at most {MAX_OFFSET:g} mm, the stretch at least {MIN_SHARED:g} mm. Pairs by reason (share "
+               f"of the artery's pairs):\n"),
+              "| artery | " + " | ".join(reasons) + " |", "|---|" + "---|" * len(reasons)]
         for a in ARTERIES:
             c = A[A["artery"] == a]["reason"].value_counts()
             L.append(f"| {NAME[a]} | " + " | ".join(f"{count(c.get(r, 0))} ({100 * c.get(r, 0) / c.sum():.0f}%)"
                                                     for r in reasons) + " |")
         if "offset" in A:
             ok = A[A["reason"] == "ok"]
-            L.append(f"\nPairs kept, alignment distance (mm), median over pairs of the per-pair median (tracer to "
-                     f"Medis) / of the per-pair 90th percentile (both ways), from {QUARTILE_MIN} pairs: "
+            L.append(f"\nSame-vessel pairs, distance (mm), median over pairs of the per-pair median (tracer to Medis) / "
+                     f"of the per-pair 90th percentile (both ways), from {QUARTILE_MIN} pairs: "
                      + ", ".join(f"{NAME[a]} {fmt(med(ok[ok['artery'] == a]['offset_median']), 2)} / "
                                  f"{fmt(med(ok[ok['artery'] == a]['offset']), 2)}" for a in ARTERIES))
-        short = A[A["reason"].str.startswith("shared stretch")]
-        if len(short):
-            lo, hi = short[["shared_tracer", "shared_medis"]].min(1), short[["shared_tracer", "shared_medis"]].max(1)
-            L.append(f"\nShort shared stretch: {count(len(short))} pairs, of which {count(int((hi > 2 * lo).sum()))} "
-                     f"have a tracer and a Medis length that differ more than twofold (an end projected onto "
-                     f"another turn of the artery), per artery: "
-                     + ", ".join(f"{NAME[a]} {count(int(((hi > 2 * lo) & (short['artery'] == a)).sum()))}"
-                                 for a in ARTERIES))
-
-    L += [f"\n## Curvature (average over the shared stretch less {CHORD:g} mm at each end)\n", head]
-    if len(A) and "T_tracer" in A:
-        kept = A[A["reason"] == "ok"]
-        for a in ARTERIES + ("all",):
-            d = kept if a == "all" else kept[kept["artery"] == a]
-            diff = d["T_tracer"].to_numpy(float) - d["T_medis"].to_numpy(float)
-            L.append(stat_row("all arteries" if a == "all" else NAME[a], diff, d["id"].to_numpy(), boot, "1/mm"))
-        d = A[A["reason"].eq("ok") | A["reason"].str.startswith("offset")]
-        L.append(stat_row("all arteries, including offset failures (sensitivity)",
-                          d["T_tracer"].to_numpy(float) - d["T_medis"].to_numpy(float), d["id"].to_numpy(), boot, "1/mm"))
-
-    L += ["\n## Bifurcation angle\n", head]
-    if len(P):
-        Q = P[P["aligned"]]
-        t, m = Q["theta_tracer"].to_numpy(float), Q["theta_medis"].to_numpy(float)
-        L.append(stat_row("LAD-LCx angle", t - m, Q["id"].to_numpy(), boot, "degrees"))
-        both = np.isfinite(t) & np.isfinite(m)
-        W = P[P["aligned_whole"]]
-        L.append(f"\nFlow: both trees divided {count(len(P))}; LAD and LCx both passed the alignment check on the "
-                 f"whole artery {count(len(W))} ({100 * len(W) / len(P):.0f}%); and within the first "
-                 f"{DEPTHS[-1]:g} mm from O (near_o) {count(len(Q))} ({100 * len(Q) / len(P):.0f}%); angle in both "
-                 f"{count(int(both.sum()))} ({100 * both.sum() / len(P):.0f}%). near_o not computed (error) for "
-                 f"{count(int(W.filter(like='near_o_reason').ne('ok').any(axis=1).sum()))} of the whole-artery "
-                 f"aligned. Among the aligned, angle missing:")
-        L += ["\n| reason | tracer | Medis |", "|---|---|---|"]
-        for r in sorted(set(Q["reason_tracer"]) | set(Q["reason_medis"])):
-            if r != "ok":
-                L.append(f"| {r} | {count((Q['reason_tracer'] == r).sum())} | {count((Q['reason_medis'] == r).sum())} |")
-        if "o_dist" in Q:
-            o, d = Q["o_dist"].to_numpy(float)[both], np.abs(t - m)[both]
-            if len(o) >= MIN_CELL:
-                p90 = np.percentile(o, 90) if len(o) >= TAIL_MIN else None
-                L.append(f"\nDistance between the tracer's and Medis' bifurcation point O, angles compared "
-                         f"(reported only, not a cut): median {fmt(med(o), 2)} mm, 90th percentile {fmt(p90, 2)} mm, "
-                         f"{count(int((o > O_FAR).sum()))} ({100 * (o > O_FAR).mean():.0f}%) above {O_FAR:g} mm.")
-                top = d >= np.percentile(d, 90)
-                if top.sum() >= QUARTILE_MIN:
-                    L.append(f"Median O distance among the 10% largest |angle differences| {fmt(med(o[top]), 2)} mm, "
-                             f"among the rest {fmt(med(o[~top]), 2)} mm.")
-
-    L += ["\n## Daughter asymmetry ln(D_LCx / D_LAD)\n", head]
-    if len(P) and "asym_reason" in P:
-        Q = P[P["asym_reason"] == "ok"]
-        for col, label, unit in (("asym", "asymmetry", "ln ratio"), ("D_LAD", "LAD diameter", "mm"),
-                                 ("D_CX", "LCx diameter", "mm")):
-            if f"{col}_tracer" in Q:
-                diff = Q[f"{col}_tracer"].to_numpy(float) - Q[f"{col}_medis"].to_numpy(float)
-                L.append(stat_row(label, diff, Q["id"].to_numpy(), boot, unit))
-        L.append(f"\nDiameters from plane cuts of each tree's own lumen surface at {len(SECTION_DEPTHS)} depths, "
-                 f"{SECTION_DEPTHS[0]:g} to {SECTION_DEPTHS[-1]:g} mm from its own O (daughter_ratio.surface_diameters); "
-                 f"a daughter counts only when every cut has a diameter. Participants by reason:")
-        L += ["\n| reason | participants |", "|---|---|"]
-        L += [f"| {r} | {count(n)} |" for r, n in P["asym_reason"].value_counts().items()]
-        L.append("\nMedis lumen exists only where Medis contoured, almost always diseased segments: every participant "
-                 "compared here has plaque at the bifurcation, unlike the plaque-free cohort.")
+        if len(P):
+            L.append(f"\nAngle and asymmetry: LAD and LCx both same vessel {count(int(P['aligned_whole'].sum()))} "
+                     f"({100 * P['aligned_whole'].mean():.0f}%), and within the first {DEPTHS[-1]:g} mm from O (near_o) "
+                     f"{count(int(P['aligned'].sum()))} ({100 * P['aligned'].mean():.0f}%) of {count(len(P))}.")
 
     L += ["\n## Reliability: measurement error against the spread between people\n",
-          ("Same pairs as the agreement rows above. ICC(C,1) (consistency) ignores a constant bias, which does not "
-           "change a per-SD hazard ratio; ICC(A,1) (absolute agreement) also counts the bias (McGraw and Wong 1996). "
-           "With no ground truth, Medis is a second error-prone measurement, not the truth; the ICC is the share of "
-           "the variance between pairs that the two methods agree on.\n"),
+          ("Same pairs as the main agreement rows above. ICC(C,1) (consistency) ignores a constant bias, which does "
+           "not change a per-SD hazard ratio; ICC(A,1) (absolute agreement) also counts the bias (McGraw and Wong "
+           "1996). With no ground truth, Medis is a second error-prone measurement, not the truth; the ICC is the "
+           "share of the variance between pairs that the two methods agree on.\n"),
           "| | pairs | SD tracer | SD Medis | SD of differences | ICC(C,1) (95% CI) | ICC(A,1) (95% CI) | unit |",
           "|---|---|---|---|---|---|---|---|"]
     sets = []
-    if len(A) and "T_tracer" in A:
-        kept = A[A["reason"] == "ok"]
-        sets += [(f"curvature, {NAME[a]}", kept[kept["artery"] == a], "T", "1/mm") for a in ARTERIES]
-        sets.append(("curvature, all arteries", kept, "T", "1/mm"))
+    if len(A):
+        sets += [(f"curvature, {NAME[a]}", A[A["artery"] == a], "T", "1/mm") for a in ARTERIES]
+        sets.append(("curvature, all arteries", A, "T", "1/mm"))
     if len(P):
-        sets.append(("LAD-LCx angle", P[P["aligned"]], "theta", "degrees"))
-    if len(P) and "asym_reason" in P:
-        Q = P[P["asym_reason"] == "ok"]
-        Q = Q.assign(absasym_tracer=Q["asym_tracer"].abs(), absasym_medis=Q["asym_medis"].abs())
+        sets.append(("LAD-LCx angle", P, "theta", "degrees"))
+    if len(P) and "asym_tracer" in P:
+        Q = P.assign(absasym_tracer=P["asym_tracer"].abs(), absasym_medis=P["asym_medis"].abs())
         sets += [("asymmetry a", Q, "asym", "ln ratio"), ("abs(a), the model feature", Q, "absasym", "ln ratio"),
                  ("LAD diameter", Q, "D_LAD", "mm"), ("LCx diameter", Q, "D_CX", "mm")]
     for label, d, col, unit in sets:
@@ -463,7 +459,7 @@ def plots(A, P, out):
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 
-    sets = [("curvature", A.get("T_tracer"), A.get("T_medis"), "average curvature (1/mm)"),
+    sets = [("curvature", A.get("T_tracer"), A.get("T_medis"), "average curvature per artery (1/mm)"),
             ("angle", P.get("theta_tracer"), P.get("theta_medis"), "bifurcation angle (degrees)"),
             ("asymmetry", P.get("asym_tracer"), P.get("asym_medis"), "asymmetry ln(D_LCx / D_LAD)")]
     for name, t, m, lab in sets:
@@ -497,9 +493,42 @@ def _wavy(x):
     return np.c_[x, 4 * np.sin(2 * np.pi * x / 25), 3 * np.cos(x / 9)]
 
 
+def _left_tree(shift=0.0, cx_turn=0.6):
+    """A made-up left tree in the structure of hoe10y_qc.tree_points: an LM of 10 mm, then a wavy LAD and an LCx
+    that leaves at cx_turn rad. shift moves the whole tree."""
+    lm = np.c_[np.linspace(-10, 0, 21), np.zeros(21), np.zeros(21)]
+    lad = _wavy(np.linspace(0, 90, 361)) - _wavy(np.zeros(1))
+    t = np.linspace(0, 60, 241)
+    cx = np.c_[t * np.cos(cx_turn), -t * np.sin(cx_turn), 2 * np.sin(t / 8)]
+    labs = lambda n, a: [f"p{a}"] * (n // 3) + [f"m{a}"] * (n // 3) + [f"d{a}"] * (n - 2 * (n // 3))  # noqa: E731
+    return [(np.r_[lm, lad[1:]] + shift, ["lm"] * 21 + labs(360, "lad")),
+            (cx + shift, ["lm"] + labs(240, "cx"))]
+
+
 def check():
     """Known answers."""
+    from bifurcation_angle import tree_angle
+
     rng = np.random.default_rng(0)
+    # the features of a tree depend on that tree only: the cohort's functions give the same values
+    tree = _left_tree()
+    f = tree_features(tree)
+    from split_trunks import graph, split
+    arts = split(*graph(tree))
+    assert set(f["T"]) == {"LAD", "CX"} and all(
+        f["T"][a] == artery_curvature(Y, s, (0.0, end))[0] for a, (_, _, end, _, Y, s) in arts.items()), f["T"]
+    pm, md, end, _, Y, s = arts["LAD"]
+    parts = artery_curvature(Y, s, (0.0, pm, md, end))
+    assert min(parts) <= f["T"]["LAD"] <= max(parts), "the artery mean lies among its segment means"
+    assert f["theta"] == tree_angle(tree) and f["reason_theta"] == "ok", (f["theta"], f["reason_theta"])
+    assert f["asym"]["reason"] == "no lumen surface" and np.isnan(f["asym"]["asym"]), f["asym"]
+    g = tree_features(_left_tree(shift=np.array([3.0, -2.0, 1.0])))
+    assert np.allclose([f["T"][k] for k in sorted(f["T"])], [g["T"][k] for k in sorted(g["T"])]), "moved tree"
+    assert abs(f["theta"] - g["theta"]) < 1e-9, "moved tree: same angle"
+    f = tree_features(tree, surf=lambda: (_ for _ in ()).throw(OSError("unreadable")))
+    assert f["asym"]["reason"] == "error:OSError" and np.isfinite(f["theta"]), "a failed surface hides nothing else"
+    print(f"made-up left tree: angle {f['theta']:.1f} deg, curvature LAD {f['T']['LAD']:.4f} 1/mm")
+
     # shared stretch of two straight lines that overlap from x = 10 to x = 50
     a = np.c_[np.linspace(0, 50, 101), np.zeros(101), np.zeros(101)]
     b = np.c_[np.linspace(10, 70, 121), np.full(121, 0.3), np.zeros(121)]
@@ -507,58 +536,43 @@ def check():
     assert np.allclose((a0, a1, b0, b1), (10, 50, 0, 40)), (a0, a1, b0, b1)
     assert np.isclose(project(a, arc(a), np.array([12.3, 5.0, 0])), 12.3), "projection onto a piece"
 
-    # curvature of one made-up artery, traced twice
+    # same-vessel check
     Y = _wavy(np.linspace(0, 90, 400))
-    row = compare_artery(Y, arc(Y), Y, arc(Y), _nearest)
-    assert row["reason"] == "ok" and abs(row["T_tracer"] - row["T_medis"]) < 1e-12, "identical lines: no difference"
-    Ym = _wavy(np.sort(rng.uniform(8, 80, 600)))  # Medis: starts later, ends earlier, uneven points
-    row = compare_artery(Y, arc(Y), Ym, arc(Ym), _nearest)
-    assert row["reason"] == "ok" and row["offset"] < 0.2, row
-    assert abs(row["T_tracer"] / row["T_medis"] - 1) < 0.02, "same artery, other sampling and ends: within 2%"
-    print(f"same artery, other ends and sampling: T tracer {row['T_tracer']:.4f}, Medis {row['T_medis']:.4f} 1/mm, "
-          f"shared {row['shared_tracer']:.1f} / {row['shared_medis']:.1f} mm")
-    Yr = Y + [0, 0, 3.0]
-    assert compare_artery(Yr, arc(Yr), Y, arc(Y), _nearest)["reason"].startswith("offset"), "3 mm moved copy left out"
-    short = Y[arc(Y) <= 15]
-    row = compare_artery(short, arc(short), Y, arc(Y), _nearest)
-    assert row["aligned_artery"] and row["reason"].startswith("averaged part"), row
-    far = Y + [0, 5.0, 0]
-    assert compare_artery(Y, arc(Y), far, arc(far), _nearest)["reason"].startswith("offset"), "5 mm away left out"
     s = arc(Y)
+    assert artery_offset(Y, s, Y, s, _nearest)["reason"] == "ok", "identical lines"
+    Ym = _wavy(np.sort(rng.uniform(8, 80, 600)))  # Medis: starts later, ends earlier, uneven points
+    row = artery_offset(Y, s, Ym, arc(Ym), _nearest)
+    assert row["reason"] == "ok" and row["offset"] < 0.2, row
+    assert artery_offset(Y + [0, 0, 3.0], s, Y, s, _nearest)["reason"].startswith("offset"), "3 mm moved copy"
+    short = Y[s <= 8]
+    assert artery_offset(short, arc(short), Y, s, _nearest)["reason"].startswith("shared stretch"), "under 10 mm"
     branch = Y + np.c_[np.zeros(len(Y)), np.zeros(len(Y)), np.clip(s - 0.6 * s[-1], 0, None)]  # leaves after 60%
-    row = compare_artery(branch, arc(branch), Y, s, _nearest)
+    row = artery_offset(branch, arc(branch), Y, s, _nearest)
     assert row["offset_median"] < MAX_OFFSET and row["reason"].startswith("offset"), row
-    print(f"branch leaving over the last 40%: median {row['offset_median']:.2f} mm (passed the old rule), "
-          f"90th percentile {row['offset']:.1f} mm -> left out")
-
-    # an offset failure with a short averaged part is left out for its length and gets no T (2026-11-19)
-    row = compare_artery(short + [0, 0, 3.0], arc(short), Y, arc(Y), _nearest)
-    assert row["reason"].startswith("averaged part") and not row["aligned_artery"] and "T_tracer" not in row, row
+    print(f"branch leaving over the last 40%: median {row['offset_median']:.2f} mm, 90th percentile "
+          f"{row['offset']:.1f} mm -> not the same vessel")
     # the offset does not depend on how unevenly Medis is sampled
     x = np.r_[np.linspace(0, 54, 1500), np.linspace(54.5, 90, 8)]  # dense first 60%, 8 points over the rest
     Ye, Yu = _wavy(np.linspace(0, 90, 300)) + [0, 1.0, 0], _wavy(x) + [0, 1.0, 0]
-    oe, ou = (compare_artery(Y, s, Z, arc(Z), _nearest)["offset"] for Z in (Ye, Yu))
+    oe, ou = (artery_offset(Y, s, Z, arc(Z), _nearest)["offset"] for Z in (Ye, Yu))
     assert abs(oe - ou) < 0.15, (oe, ou)
-    # a tracer end that turns back along the line: the end projects onto Medis 25 mm early (finding 6)
+    # a tracer end that turns back along the line: the end projects onto Medis 25 mm early
     m = np.c_[np.linspace(0, 50, 101), np.zeros(101), np.zeros(101)]
     back = np.c_[np.linspace(49.5, 25, 50), np.full(50, 1.5), np.zeros(50)]
     t = np.r_[m, [[50.5, 0.4, 0], [50.8, 0.75, 0], [50.5, 1.1, 0]], back]
-    row = compare_artery(t, arc(t), m, arc(m), _nearest)
-    assert row["reason"].startswith("offset"), row
-    print(f"tracer turning back 1.5 mm beside its own artery: shared {row['shared_tracer']:.0f} / "
-          f"{row['shared_medis']:.0f} mm, offset {row['offset']:.1f} mm -> left out")
+    assert artery_offset(t, arc(t), m, arc(m), _nearest)["reason"].startswith("offset"), "turning back"
     # near O: left main along x up to O, daughter on along x
     line = lambda a, b: np.c_[np.linspace(a, b, int(2 * (b - a)) + 1), np.zeros(int(2 * (b - a)) + 1), np.zeros(int(2 * (b - a)) + 1)]  # noqa: E731
     lm_t, lad_t = line(-8, 0), line(0, 30)
     assert near_o(lad_t, arc(lad_t), lad_t, arc(lad_t), lm_t, lm_t, _nearest) < 1e-9, "same daughter"
-    lm_m, lad_m = line(-8, -4), line(-4, 30)  # Medis O 4 mm further up the same vessel: passes (o_dist is no cut)
+    lm_m, lad_m = line(-8, -4), line(-4, 30)  # Medis O 4 mm further up the same vessel: passes
     assert near_o(lad_t, arc(lad_t), lad_m, arc(lad_m), lm_t, lm_m, _nearest) < 0.2, "O shifted along the vessel"
     d = np.linspace(0, 30, 61)
     other = np.c_[d * np.cos(0.8), d * np.sin(0.8), 0 * d]  # the tracer daughter enters a vessel 46 deg off
     assert near_o(other, arc(other), lad_t, arc(lad_t), lm_t, lm_t, _nearest) > MAX_OFFSET, "other vessel"
     assert np.isnan(near_o(lad_t[:10], arc(lad_t[:10]), lad_t, arc(lad_t), lm_t, lm_t, _nearest)), "under 10 mm"
     # a raising computation is counted, not a stopped run
-    assert guarded(compare_artery, Y[:1], arc(Y[:1]), Y, arc(Y), _nearest)[1].startswith("error:")
+    assert guarded(artery_offset, Y[:1], arc(Y[:1]), Y, s, _nearest)[1].startswith("error:")
     assert guarded(near_o, lad_t, arc(lad_t), lad_t, arc(lad_t), lm_t, np.zeros((2, 2)), _nearest)[1].startswith("error:")
 
     # ICC on simulated pairs: true SD 1, error SD 0.5 in each method, tracer shifted by 0.3
@@ -599,7 +613,7 @@ def main():
     rows.mkdir(parents=True, exist_ok=True)
     A.to_csv(rows / "medis_compare_arteries.csv", index=False)
     P.to_csv(rows / "medis_compare_participants.csv", index=False)
-    plots(A[A["reason"] == "ok"], P[P["aligned"]], rows)
+    plots(A, P, rows)
     text = report(flow, A, P, args.boot)
     Path(args.out).write_text(text, encoding="utf-8")
     print(text)
