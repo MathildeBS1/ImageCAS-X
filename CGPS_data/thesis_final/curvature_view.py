@@ -105,6 +105,7 @@ def main():
     if "medis_full" in A:  # only where the Medis artery is a reference, the rule of medis_compare
         from medis_compare import reference_rows
         A = reference_rows(A)[0]
+        A = A[A["reason"] == "ok"]  # the same vessel, as in the main rows of medis_compare
     A = A.assign(diff=A["T_tracer"] - A["T_medis"]).dropna(subset=["diff"])
     if args.artery:
         A = A[A["artery"] == args.artery]

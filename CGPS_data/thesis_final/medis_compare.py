@@ -38,14 +38,17 @@ Features, each tree on its own (tree_features):
               has plaque at the bifurcation.
 A feature whose computation raises is missing with the reason error:<type> (guarded); the others are kept.
 
-Same-vessel check (descriptive and a sensitivity row, never a cut of the main rows, since the cohort cannot apply
-it): per artery, the stretch both centerlines cover (each line's ends projected onto the other at the closest point,
+Same-vessel check, a condition of the main rows (2026-11-19, with the user: compare the same centerline, but
+without cutting the features to the stretch both cover; before, the check was only descriptive, since the cohort
+cannot apply it). The pairs that fail it are kept in one sensitivity row per feature, which is the closer estimate
+of the error in the cohort, where every trace is used. Per artery, the stretch both centerlines cover (each line's ends projected onto the other at the closest point,
 from the later start to the earlier end, at least MIN_SHARED mm), both stretches resampled every DENSE mm, the 90th
 percentile of the distances from each to the other, the larger of the two, at most MAX_OFFSET mm (artery_offset).
 For the angle and the asymmetry also near_o on the LAD and the LCx: the same distance from each tree's first
 DEPTHS[-1] mm of the daughter from its own O to the other tree's left main and whole daughter. o_dist, the distance
-between the two bifurcation points O, is reported. The check tells how much of the disagreement comes from traces
-that follow another vessel or fail.
+between the two bifurcation points O, is reported. Curvature needs the artery to pass; the angle and the
+asymmetry need the LAD and the LCx to pass and to pass near_o (aligned). The check only selects pairs: every
+feature value is still the whole-artery value of each tree on its own.
 
 Agreement per feature: difference tracer - Medis in the feature's own unit, bias, SD of the differences, 95% limits
 of agreement (bias +- 1.96 SD) and 95% intervals from a bootstrap over participants. Reliability per feature, on the
@@ -391,21 +394,21 @@ def report(flow, A, P, boot):
             L.append(f"| {NAME[a]} | {coverage(d['T_tracer'], d['T_medis'])} |")
         L += ["", head]
         B = both(F, "T")
+        S = B[B["reason"] == "ok"]  # same vessel
         for a in ARTERIES:
-            d = B[B["artery"] == a]
+            d = S[S["artery"] == a]
             L.append(stat_row(NAME[a], diff(d, "T"), d["id"].to_numpy(), boot, "1/mm"))
-        L.append(stat_row("all arteries", diff(B, "T"), B["id"].to_numpy(), boot, "1/mm"))
-        d = B[B["reason"] == "ok"]
-        L.append(stat_row("all arteries, same-vessel pairs only (sensitivity)", diff(d, "T"), d["id"].to_numpy(),
-                          boot, "1/mm"))
+        L.append(stat_row("all arteries", diff(S, "T"), S["id"].to_numpy(), boot, "1/mm"))
+        L.append(stat_row("all arteries, also pairs failing the same-vessel check (sensitivity)", diff(B, "T"),
+                          B["id"].to_numpy(), boot, "1/mm"))
 
     L += ["\n## Bifurcation angle (bifurcation_angle.angle_with_reason on each tree)\n", head]
     if len(P):
         B = both(P, "theta")
-        L.append(stat_row("LAD-LCx angle", diff(B, "theta"), B["id"].to_numpy(), boot, "degrees"))
         d = B[B["aligned"].astype(bool)]
-        L.append(stat_row("LAD-LCx angle, same vessel incl. near O (sensitivity)", diff(d, "theta"), d["id"].to_numpy(),
-                          boot, "degrees"))
+        L.append(stat_row("LAD-LCx angle", diff(d, "theta"), d["id"].to_numpy(), boot, "degrees"))
+        L.append(stat_row("LAD-LCx angle, also pairs failing the same-vessel check (sensitivity)", diff(B, "theta"),
+                          B["id"].to_numpy(), boot, "degrees"))
         L.append(f"\nParticipants with both trees divided {count(len(P))}; Medis angle "
                  f"{coverage(P['theta_tracer'], P['theta_medis']).replace(' | ', ', tracer angle too ')}. "
                  f"Angle missing, by reason (all divided participants):")
@@ -424,12 +427,12 @@ def report(flow, A, P, boot):
     L += ["\n## Daughter asymmetry ln(D_LCx / D_LAD) (daughter_ratio.tree_asymmetry on each tree)\n", head]
     if len(P) and "asym_tracer" in P:
         B = both(P, "asym")
+        d = B[B["aligned"].astype(bool)]
         for col, label, unit in (("asym", "asymmetry", "ln ratio"), ("D_LAD", "LAD diameter", "mm"),
                                  ("D_CX", "LCx diameter", "mm")):
-            L.append(stat_row(label, diff(B, col), B["id"].to_numpy(), boot, unit))
-        d = B[B["aligned"].astype(bool)]
-        L.append(stat_row("asymmetry, same vessel incl. near O (sensitivity)", diff(d, "asym"), d["id"].to_numpy(),
-                          boot, "ln ratio"))
+            L.append(stat_row(label, diff(d, col), d["id"].to_numpy(), boot, unit))
+        L.append(stat_row("asymmetry, also pairs failing the same-vessel check (sensitivity)", diff(B, "asym"),
+                          B["id"].to_numpy(), boot, "ln ratio"))
         L.append(f"\nPlane cuts of each tree's own lumen surface at {len(SECTION_DEPTHS)} depths, {SECTION_DEPTHS[0]:g} "
                  f"to {SECTION_DEPTHS[-1]:g} mm from its own O; a daughter counts only when every cut has a diameter. "
                  f"Medis asymmetry {coverage(P['asym_tracer'], P['asym_medis']).replace(' | ', ', tracer asymmetry too ')}. "
@@ -444,7 +447,7 @@ def report(flow, A, P, boot):
 
     if len(A):
         reasons = sorted(A["reason"].unique())
-        L += ["\n## Same-vessel check (descriptive; not a cut of the rows above)\n",
+        L += ["\n## Same-vessel check (a condition of the main rows above)\n",
               (f"Per artery: 90th percentile of the distances between the two centerlines over the stretch both cover, "
                f"both ways, at most {MAX_OFFSET:g} mm, the stretch at least {MIN_SHARED:g} mm. Pairs by reason (share "
                f"of the artery's pairs):\n"),
@@ -472,13 +475,15 @@ def report(flow, A, P, boot):
           "| | pairs | SD tracer | SD Medis | SD of differences | ICC(C,1) (95% CI) | ICC(A,1) (95% CI) | unit |",
           "|---|---|---|---|---|---|---|---|"]
     sets = []
-    if len(F):
-        sets += [(f"curvature, {NAME[a]}", F[F["artery"] == a], "T", "1/mm") for a in ARTERIES]
-        sets.append(("curvature, all arteries", F, "T", "1/mm"))
+    S = F[F["reason"] == "ok"] if len(F) else F
+    if len(S):
+        sets += [(f"curvature, {NAME[a]}", S[S["artery"] == a], "T", "1/mm") for a in ARTERIES]
+        sets.append(("curvature, all arteries", S, "T", "1/mm"))
     if len(P):
-        sets.append(("LAD-LCx angle", P, "theta", "degrees"))
+        sets.append(("LAD-LCx angle", P[P["aligned"].astype(bool)], "theta", "degrees"))
     if len(P) and "asym_tracer" in P:
-        Q = P.assign(absasym_tracer=P["asym_tracer"].abs(), absasym_medis=P["asym_medis"].abs())
+        Q = P[P["aligned"].astype(bool)]
+        Q = Q.assign(absasym_tracer=Q["asym_tracer"].abs(), absasym_medis=Q["asym_medis"].abs())
         sets += [("asymmetry a", Q, "asym", "ln ratio"), ("abs(a), the model feature", Q, "absasym", "ln ratio"),
                  ("LAD diameter", Q, "D_LAD", "mm"), ("LCx diameter", Q, "D_CX", "mm")]
     for label, d, col, unit in sets:
