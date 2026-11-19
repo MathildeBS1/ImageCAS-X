@@ -5,15 +5,28 @@ functions on arrays, a `tree_*` wrapper on one centerline tree (arteries from `.
 `--check` on synthetic shapes that needs no data.
 
 - `curvature_feature.py`: average curvature per segment, Menger's formula with 5 mm chords
-  (`segment_curvature`; sec:method-curvature, `05a_curvature.tex`).
-- `bifurcation_angle.py`: left main bifurcation angle, mean over 5 to 10 mm from the bifurcation point
-  (`tree_angle`; sec:method-angle, `05b_bifurcation_angle.tex`).
-- `daughter_ratio.py`: daughter asymmetry ln(D_LCx / D_LAD) and Finet's ratio D_LM / (D_LAD + D_LCx), each
-  diameter the median area-equivalent diameter over 5 to 10 mm from the bifurcation point (LAD, LCx) or
-  over the first 2 mm from the ostium (LM)
-  (`tree_ratios`; sec:method-ratio, `05c_daughter_ratio.tex`). Needs the tracer lumen contours, whose file
-  format is not known yet (`tracer_rings` raises).
+  (`segment_curvature`; sec:method-curvature, `03a_curvature.tex`).
+- `bifurcation_angle.py`: left main bifurcation angle between least-squares lines through the points 5 to
+  10 mm from the bifurcation point (`tree_angle`; sec:method-angle, `03b_bifurcation_angle.tex`).
+- `daughter_ratio.py`: daughter asymmetry ln(D_LCx / D_LAD) (and Finet's ratio, descriptive only), each
+  diameter the median area-equivalent diameter read every 0.5 mm over 5 to 10 mm from the bifurcation
+  point (`tree_ratios`; sec:method-ratio, `03c_daughter_ratio.tex`). `narrower_rows` gives its model
+  value: |a| on the narrower daughter's proximal row, 0 on the other. Needs the tracer lumen contours,
+  which the delivered tracer files do not hold (`tracer_rings` raises).
 - `split_check.py`: checks the proximal / mid / distal split against Medis and the visual reads
   (sec:method-split, `02b_segment_split.tex`).
-- `turning_feature.py`: mean turning per segment, the curvature feature before 2026-11-10; replaced by
-  `curvature_feature.py`.
+- `tracer_probe.py`: one-off look at the tracer files (format, arrays, frame, Medis/tracer overlap);
+  output in `tracer_probe.md`.
+- `tracer_io.py`: reads the tracer centerlines (`tracer_tree`) in the structure of the Medis trees;
+  `--labels` writes `tracer_labels.md`, the table from which the code map `CODES` is filled.
+- `medis_compare.py`: tracer against Medis on the features (sec:method-medis-agreement): bias, limits
+  of agreement and bootstrap intervals for curvature (per artery, over the shared stretch less 5 mm at
+  each end) and the angle. Pairs are left out when the 90th percentile of the distances (both ways)
+  exceeds 2 mm; the share left out is reported with the limits, and the distance between the two
+  bifurcation points O is reported (not a cut).
+  The asymmetry is added once the tracer contours exist. Writes `medis_compare.md` (aggregates);
+  per-pair rows and Bland-Altman plots stay on the server.
+
+The model script `../progression_who_pooled.py` imports the three feature modules. Removed 2026-11-18
+(in git history): `turning_feature.py` (curvature before 2026-11-10) and `taper_feature.py` (taper
+dropped 2026-11-16).

@@ -1,12 +1,18 @@
 """Who, pooled engine (who-progression B2 and G02): does geometry add to the SCORE2 factors in predicting who progresses?
 
     python progression_who_pooled.py [--src TREE_FOLDER] [--person score2|factors] [--folds 10] [--repeats 50]
-                                     [--variant-repeats 10] [--nodes 30] [--check]
+                                     [--nodes 30] [--check]
     python progression_who_pooled.py --synthetic      # fitter and pooling self-test, no data needed
 
-Rows: the 9 split trunk segments of each Medis tree (progression_turning.build) with a visual grade at BL and FU;
-occluded-at-BL segments are dropped. Segment outcome: higher grade at FU than at BL. Person outcome: any of the
-person's graded trunk segments progressed. People without SCORE2, dominance or follow-up are dropped.
+Rows: the 9 split trunk segments of each Medis tree (build: split_trunks.split, segments under 1 mm dropped) with a
+visual grade at BL and FU; occluded-at-BL segments are dropped. Segment outcome: higher grade at FU than at BL.
+Person outcome: any of the person's graded trunk segments progressed. People without SCORE2, dominance or follow-up
+are dropped.
+
+Geometry from thesis_final/ (the Methods modules): average curvature per segment (curvature_feature.artery_curvature,
+Menger, 5 mm chords) and the LM bifurcation angle (bifurcation_angle.lm_angle, fitted lines 5 to 10 mm from O).
+The daughter asymmetry needs tracer lumen contours (daughter_ratio.tracer_rings raises), so its column is empty on
+the Medis trees and the term is left out with a note in the report.
 
 Engine (experiments/who-progression/pooled_score2/pooling.md): a segment-level cloglog GLMM with a person random
 intercept b ~ N(0, s^2), fitted by Gauss-Hermite quadrature with an analytic gradient, then pooled to person risk
@@ -15,18 +21,13 @@ intercept b ~ N(0, s^2), fitted by Gauss-Hermite quadrature with an analytic gra
         + segment position (ref pLAD) + log length + BL grade;
         --person factors replaces log SCORE2 by the refitted factors: age, male, current smoking, SBP, total
         cholesterol, HDL (continuous ones z-scored).
-  G02 = B2 + mean T5 (z within segment type) + LM bifurcation angle (z, on the pLAD and pCX rows only).
+  G02 = B2 + average curvature (z within segment type) + LM bifurcation angle (z, on the pLAD and pCX rows only)
+        + daughter asymmetry (|a| on the narrower daughter's pLAD or pCX row, daughter_ratio.narrower_rows, 0 on
+        the other rows, divided by the training SD of |a|, not centred).
 Everything learned (z-score constants, coefficients, s) is fitted on the training persons.
-
-Turning variants (curvature only, no LM angle): B2 + one way of summarising the segment's turning angles, each
-z-scored within segment type. The six of progression_turning.py (mean T5, 90th pct T5, fraction above p75, mean
-T2.5, mean T10, upstream 20 mm T5) and four more:
-  max T5        the sharpest single bend (low WSS sits on the inner wall of the sharpest bend);
-  total T5      all the turning in the segment, rad (more bends, more low-WSS wall for "any plaque" to start on);
-  bends         number of separate runs of T5 above the cohort p75 (counts bends, not their sharpness);
-  log mean T5   mean T5 on the log scale (right-skewed; damps the few very tortuous segments).
-Per variant: HR per SD and an LR test (1 df) vs B2 on the full data, and ΔC / Δ log loss vs B2 on the folds of
-the first --variant-repeats repeats. Ten variants: these are exploratory, the prespecified test stays G02.
+Missing geometry: curvature and angle are set to the training mean (z = 0; the rule is open, Methods 05). A
+missing asymmetry drops the person from both B2 and G02 (complete cases, decided 2026-11-18), so the LR test
+compares the same rows.
 
 Validation: 10 person folds stratified on the person outcome, repeated with seeds 0..R-1; the same folds for B2 and
 G02. Per repeat, from the pooled out-of-fold person risks: C, Brier, log loss, calibration slope and intercept.
@@ -39,6 +40,7 @@ Aggregates only (counts 1-4 hidden); writes progression_who_pooled.md and progre
 """
 import argparse
 import hashlib
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -48,10 +50,13 @@ from scipy.special import logsumexp
 from scipy.stats import chi2
 
 import hoe10y_qc as hq
-import progression_angle as pa
-import progression_segment_models as psm
-import progression_turning as pt
 from cgps_stats import MIN_CELL, OUT_DIR, count, num, suppress, yes
+from split_trunks import NAMES, graph, split
+
+sys.path.insert(0, str(Path(__file__).resolve().parent / "thesis_final"))
+import bifurcation_angle as ba  # noqa: E402
+import curvature_feature as cf  # noqa: E402
+import daughter_ratio as dr  # noqa: E402
 
 PREFIX = "progression_who_pooled"
 SCORE2_COLS = {"age": "scan_age", "male": "male", "smoking": "hist_smoking_current", "sbp": "clin_bp_sys_mean",
@@ -60,19 +65,77 @@ CONTINUOUS = ("age", "sbp", "tc", "hdl")  # z-scored on the training persons
 ANGLE_SEGS = ("plad", "pcx")  # the rows the LM bifurcation angle can act on
 REF_SEG = "plad"
 MODELS = ("B2", "G02")
-GEOMETRY = {"B2": (), "G02": ("mean_T5", "LM angle")}
-TURNING = {**pt.VARIANTS, "max_T5": "max T5", "total_T5": "total T5", "bends_T5": "bends",
-           "log_mean_T5": "log mean T5"}  # column -> label; the first six are progression_turning's
-NEW_TURNING = ("max_T5", "total_T5", "bends_T5", "log_mean_T5")
-COLOR = {"B2": pt.MODEL_COLOR["base"], "G02": pt.MODEL_COLOR["turning + angle"]}
+GEOMETRY = {"B2": (), "G02": ("curvature", "LM angle", "asymmetry")}
 LOG_SIGMA_BOUNDS = (-8.0, 3.0)  # s from 3e-4 (no clustering) to 20
 NODE_TOL = {"beta": 1e-3, "sigma": 1e-3, "ll": 0.05}  # set before running; optimiser noise alone moves ll ~0.02
 RISK_TOL = 1e-6
+GRADE = {"none": "none", "minimal": "minimal", "mild": "mild", "moderate": ">=moderate", "severe": ">=moderate"}
+GRADES = ("none", "minimal", "mild", ">=moderate")
+SEG_ORDER = [sg for segs in NAMES.values() for sg in segs]
+VESSEL = {"plad": "LAD", "mlad": "LAD", "dlad": "LAD", "pcx": "LCx", "mcx": "LCx", "dcx": "LCx",
+          "prca": "RCA", "mrca": "RCA", "drca": "RCA"}
+# Validated categorical palette (dataviz skill); one fixed colour per model in every figure.
+SURF, INK, INK2, MUTED, GRID, MISSED = "#fcfcfb", "#0b0b0b", "#52514e", "#8a8984", "#e4e3df", "#eb6834"
+COLOR = {"B2": "#8a8984", "G02": "#1baf7a"}
 
 
 # ---------------------------------------------------------------- data
+def build(src):
+    """Segment rows of the Medis trees: BL and FU visual grade, outcome y (higher grade at FU), segment length,
+    average curvature and the person's LM bifurcation angle; and the rows with a usable BL and FU grade."""
+    sheets = hq.load_sheets(hq.ROOT)
+    bl, fu = (sheets[v].assign(id=sheets[v]["study_id"].map(hq.norm_id)).drop_duplicates("id").set_index("id")
+              for v in ("BL", "FU"))
+    score2 = num(bl["score2"]).fillna(num(bl["score2_op"])) if "score2_op" in bl else num(bl["score2"])
+    years = (pd.to_datetime(fu["scandate"], errors="coerce").reindex(bl.index)
+             - pd.to_datetime(bl["scandate"], errors="coerce")).dt.days / 365.25
+    files = sorted(Path(src).rglob("*.vtk"))
+    hq.read_label_codes((f, f) for f in files)  # names for codes a file leaves unnamed
+    rows, skipped = [], 0
+    for f in files:
+        pid = hq.id_from_name(f.name)
+        try:
+            arteries = split(*graph(hq.tree_points(f)))
+        except Exception:  # noqa: BLE001 - tree skipped, counted
+            skipped += 1
+            continue
+        angle = (ba.lm_angle(arteries["LAD"][4:], arteries["CX"][4:]) if "LAD" in arteries and "CX" in arteries
+                 else np.nan)
+        for a, (pm, md, end, _, Y, s) in arteries.items():
+            bounds = (0.0, pm, md, end)
+            for seg, lo, hi, T in zip(NAMES[a], bounds[:-1], bounds[1:], cf.artery_curvature(Y, s, bounds)):
+                if hi - lo < 1.0:  # segment with no Medis label (split_trunks: present = 0)
+                    continue
+                g = [hq.grade_of(d.at[pid, f"ct_cag_{seg}_stenosis"]) if pid in d.index else "missing" for d in (bl, fu)]
+                rows.append({"id": pid, "segment": seg, "bl": g[0], "fu": g[1], "length": hi - lo, "curvature": T,
+                             "angle": angle, "asymmetry": np.nan, "score2": score2.get(pid, np.nan),
+                             "years": years.get(pid, np.nan)})
+    d = pd.DataFrame(rows)
+    rank = {g: i for i, g in enumerate(hq.GRADES)}
+    d["y"] = (d["fu"].map(rank) > d["bl"].map(rank)).astype(float)
+    return d, d["bl"].isin(GRADE) & d["fu"].isin(rank), skipped
+
+
+def merge_grades(g):
+    """Merge each BL grade level with fewer than MIN_CELL rows into the level below."""
+    g = g.copy()
+    for hi, lo in zip(GRADES[:0:-1], GRADES[-2::-1]):
+        if 0 < (g == hi).sum() < MIN_CELL:
+            g[g == hi] = lo
+    return g
+
+
+def zscore(d, col, train):
+    m, sd = d[train].groupby("segment")[col].mean(), d[train].groupby("segment")[col].std()
+    return ((d[col] - d["segment"].map(m)) / d["segment"].map(sd).replace(0, np.nan)).fillna(0).to_numpy()
+
+
+def dummies(d, col, levels):
+    return [(d[col] == v).to_numpy(float) for v in levels]
+
+
 def person_covariates():
-    """Person table indexed like progression_turning.build: SCORE2 factors and right dominance (NaN = unknown)."""
+    """Person table indexed like build: SCORE2 factors and right dominance (NaN = unknown)."""
     bl = hq.load_sheets(hq.ROOT)["BL"]
     bl = bl.assign(id=bl["study_id"].map(hq.norm_id)).drop_duplicates("id").set_index("id")
     P = pd.DataFrame({k: num(bl[c]) for k, c in SCORE2_COLS.items()})
@@ -113,20 +176,25 @@ def design(d, train, terms, segs, grades, person):
         names.append("log SCORE2 (per SD)")
     X.append(d["right"].to_numpy(float))
     names.append("right dominance")
-    X += pt.dummies(d, "segment", [s for s in segs if s != REF_SEG])
+    X += dummies(d, "segment", [s for s in segs if s != REF_SEG])
     names += [s for s in segs if s != REF_SEG]
     X.append(np.log(d["length"].clip(lower=1.0)).to_numpy())
     names.append("log length")
-    X += pt.dummies(d, "grade", grades[1:])
+    X += dummies(d, "grade", grades[1:])
     names += [f"BL {g}" for g in grades[1:]]
-    for t in terms:
-        if t in TURNING:
-            X.append(pt.zscore(d, t, train))
-            names.append(f"{TURNING[t]} (per SD, within type)")
+    if "curvature" in terms:
+        X.append(zscore(d, "curvature", train))
+        names.append("average curvature (per SD, within type)")
     if "LM angle" in terms:
         a = (d["angle"] - people["angle"].mean()) / people["angle"].std()
         X.append(a.fillna(0).to_numpy() * d["segment"].isin(ANGLE_SEGS).to_numpy())
         names.append("LM angle (per SD, pLAD/pCX rows)")
+    if "asymmetry" in terms:  # |ln(D_LCx / D_LAD)| on the narrower daughter's row, scaled, not centred
+        assert d["asymmetry"].notna().all(), "asymmetry: complete cases only (main drops the missing)"
+        rows = [dr.narrower_rows(a) for a in d["asymmetry"]]
+        v = np.array([r.get(s, 0.0) for r, s in zip(rows, d["segment"])])
+        X.append(v / people["asymmetry"].abs().std())
+        names.append("daughter asymmetry (per SD, narrower of pLAD/pCX)")
     return np.column_stack(X), names
 
 
@@ -192,6 +260,37 @@ def person_risk(X, beta, sigma, ids, nodes=40):
 
 
 # ---------------------------------------------------------------- metrics
+def fit(X, y, l2=1e-6):
+    w = np.zeros(X.shape[1])
+    for _ in range(100):
+        p = 1 / (1 + np.exp(-np.clip(X @ w, -30, 30)))
+        H = X.T @ (X * (p * (1 - p))[:, None]) + l2 * np.eye(len(w))
+        step = np.linalg.solve(H, X.T @ (y - p) - l2 * w)
+        w += step
+        if np.abs(step).max() < 1e-9:
+            break
+    p = 1 / (1 + np.exp(-np.clip(X @ w, -30, 30)))
+    return w, p, np.sum(y * np.log(p) + (1 - y) * np.log(1 - p)), H
+
+
+def auc(y, p):
+    order = np.argsort(-p)
+    tpr = np.r_[0, np.cumsum(y[order] == 1) / max((y == 1).sum(), 1)]
+    fpr = np.r_[0, np.cumsum(y[order] == 0) / max((y == 0).sum(), 1)]
+    return float(np.sum(np.diff(fpr) * (tpr[1:] + tpr[:-1]) / 2)), fpr, tpr
+
+
+def confusion(y, p, thr):
+    c = p > thr
+    return [int(x) for x in ((c & (y == 1)).sum(), (~c & (y == 1)).sum(), (c & (y == 0)).sum(), (~c & (y == 0)).sum())]
+
+
+def youden(y, p):
+    _, fpr, tpr = auc(y, p)
+    cuts = np.r_[np.sort(p)[::-1], -np.inf]  # p > cuts[k] calls the k highest "progresses"
+    return cuts[np.argmax(tpr - fpr)]
+
+
 def cal_intercept(y, lp):
     """Calibration-in-the-large: intercept a of logit P(y) = a + lp (offset)."""
     a = 0.0
@@ -207,9 +306,9 @@ def cal_intercept(y, lp):
 def metrics(y, p):
     p = np.clip(p, 1e-9, 1 - 1e-9)
     lp = np.log(p / (1 - p))
-    return {"C": pt.auc(y, p)[0], "Brier": np.mean((p - y) ** 2),
+    return {"C": auc(y, p)[0], "Brier": np.mean((p - y) ** 2),
             "log loss": -np.mean(y * np.log(p) + (1 - y) * np.log(1 - p)),
-            "cal. slope": pt.fit(np.column_stack([np.ones(len(y)), lp]), y)[0][1], "cal. intercept": cal_intercept(y, lp)}
+            "cal. slope": fit(np.column_stack([np.ones(len(y)), lp]), y)[0][1], "cal. intercept": cal_intercept(y, lp)}
 
 
 def person_folds(Y, k, rng):
@@ -221,11 +320,35 @@ def person_folds(Y, k, rng):
 
 
 # ---------------------------------------------------------------- figures
+def _plt():
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    plt.rcParams.update({
+        "font.family": "DejaVu Sans", "font.size": 9, "figure.facecolor": SURF, "axes.facecolor": SURF,
+        "savefig.facecolor": SURF, "axes.edgecolor": MUTED, "axes.labelcolor": INK2, "xtick.color": INK2,
+        "ytick.color": INK2, "axes.titlesize": 11, "axes.titleweight": "bold", "axes.titlelocation": "left",
+        "axes.titlecolor": INK, "axes.spines.top": False, "axes.spines.right": False, "legend.frameon": False})
+    return plt
+
+
+def _grid(ax, axis="y"):
+    ax.grid(axis=axis, color=GRID, lw=0.8)
+    ax.set_axisbelow(True)
+
+
+def _save(fig, path, rect=None):
+    fig.tight_layout(rect=rect)
+    fig.savefig(path, dpi=170)
+    import matplotlib.pyplot as plt
+    plt.close(fig)
+
+
 def fig_calibration(Y, oof, bins, out_dir):
     """Binned person calibration (repeat 0). A bin with fewer than MIN_CELL events or non-events is not drawn."""
-    plt = pt._plt()
+    plt = _plt()
     fig, ax = plt.subplots(figsize=(5.6, 5.2))
-    pt._grid(ax, "both")
+    _grid(ax, "both")
     hidden = 0
     for m in MODELS:
         p = oof[m]
@@ -239,71 +362,71 @@ def fig_calibration(Y, oof, bins, out_dir):
             xs.append(p[q == b].mean()); ys.append(yb.mean())
         ax.plot(xs, ys, "o-", color=COLOR[m], lw=1.8, label=m)
     lo = min(0.5, ax.get_xlim()[0], ax.get_ylim()[0])
-    ax.plot([lo, 1], [lo, 1], ls=":", color=pt.MUTED, lw=1)
+    ax.plot([lo, 1], [lo, 1], ls=":", color=MUTED, lw=1)
     ax.set(xlim=(lo, 1), ylim=(lo, 1), xlabel="mean predicted person risk (out of fold)", ylabel="observed share progressed")
     ax.set_title("Person calibration, pooled engine")
     ax.legend(fontsize=8, loc="upper left")
     fig.text(0.01, 0.01, f"Repeat 0, {bins} risk bins per model; {hidden} bin(s) not drawn (< {MIN_CELL} events or non-events).",
-             fontsize=7.5, color=pt.INK2)
-    pt._save(fig, out_dir / f"{PREFIX}_calibration.png", rect=(0, 0.03, 1, 1))
+             fontsize=7.5, color=INK2)
+    _save(fig, out_dir / f"{PREFIX}_calibration.png", rect=(0, 0.03, 1, 1))
 
 
 def fig_deltas(rep_metrics, out_dir):
-    plt = pt._plt()
+    plt = _plt()
     keys = ("C", "Brier", "log loss", "cal. slope")
     fig, axes = plt.subplots(1, len(keys), figsize=(11, 3.2))
     for ax, key in zip(axes, keys):
-        pt._grid(ax, "y")
+        _grid(ax, "y")
         dlt = np.array([r["G02"][key] - r["B2"][key] for r in rep_metrics])
         ax.boxplot(dlt, widths=0.5, medianprops={"color": COLOR["G02"]}, flierprops={"markersize": 3})
-        ax.axhline(0, color=pt.MUTED, lw=1, ls=":")
+        ax.axhline(0, color=MUTED, lw=1, ls=":")
         ax.set_xticks([])
         ax.set_title(f"Δ {key}", fontsize=10)
     fig.suptitle(f"G02 − B2 over {len(rep_metrics)} CV repeats (paired, same folds)", x=0.01, ha="left",
-                 fontsize=11, fontweight="bold", color=pt.INK)
-    pt._save(fig, out_dir / f"{PREFIX}_deltas.png")
+                 fontsize=11, fontweight="bold", color=INK)
+    _save(fig, out_dir / f"{PREFIX}_deltas.png")
 
 
 def fig_auc(rows, out_dir):
     """AUC per level (person, then segments): mean over repeats with 2.5/97.5 percentile bars."""
-    plt = pt._plt()
+    plt = _plt()
     fig, ax = plt.subplots(figsize=(7.5, 0.55 * len(rows) + 1.4))
-    pt._grid(ax, "x")
+    _grid(ax, "x")
     yy = np.arange(len(rows))[::-1].astype(float)
     for y_, (lab, _, aucs) in zip(yy, rows):
         for k, m in enumerate(MODELS):
             v, off = np.asarray(aucs[m]), (0.18 if k == 0 else -0.18)
             a, lo, hi = v.mean(), np.percentile(v, 2.5), np.percentile(v, 97.5)
             ax.barh(y_ + off, a - 0.5, left=0.5, height=0.34, color=COLOR[m], label=m if y_ == yy[0] else None)
-            ax.plot([lo, hi], [y_ + off] * 2, color=pt.INK2, lw=1)
-            ax.text(max(hi, a) + 0.005, y_ + off, f"{a:.2f}", va="center", fontsize=7.5, color=pt.INK2)
-    ax.axvline(0.5, color=pt.MUTED, lw=1, ls=":")
-    ax.axhline(yy[0] - 0.5, color=pt.MUTED, lw=0.8)
+            ax.plot([lo, hi], [y_ + off] * 2, color=INK2, lw=1)
+            ax.text(max(hi, a) + 0.005, y_ + off, f"{a:.2f}", va="center", fontsize=7.5, color=INK2)
+    ax.axvline(0.5, color=MUTED, lw=1, ls=":")
+    ax.axhline(yy[0] - 0.5, color=MUTED, lw=0.8)
     ax.set_yticks(yy, [f"{lab}  ({n})" for lab, n, _ in rows])
     for lab, (name, _, _) in zip(ax.get_yticklabels(), rows):
-        lab.set_color({"LAD": "#2a78d6", "LCx": "#1baf7a", "RCA": "#e34948"}.get(pt.VESSEL.get(name), pt.INK))
+        lab.set_color({"LAD": "#2a78d6", "LCx": "#1baf7a", "RCA": "#e34948"}.get(VESSEL.get(name), INK))
         lab.set_fontweight("bold")
     ax.set_xlim(min(0.4, min(np.percentile(a[m], 2.5) for _, _, a in rows for m in MODELS) - 0.03), 1.0)
     ax.set_xlabel("AUC on the test folds (0.5 = chance); bars: 2.5th to 97.5th percentile over repeats")
     ax.set_title("AUC per person and per segment: B2 vs G02 (one pooled model)")
     ax.legend(fontsize=8, loc="lower right")
     fig.text(0.01, 0.01, "(progressed/rows). Segment rows use the pooled model's segment risk; AUC within a segment "
-             "compares people.", fontsize=7.5, color=pt.INK2)
-    pt._save(fig, out_dir / f"{PREFIX}_auc.png", rect=(0, 0.03, 1, 1))
+             "compares people.", fontsize=7.5, color=INK2)
+    _save(fig, out_dir / f"{PREFIX}_auc.png", rect=(0, 0.03, 1, 1))
 
 
 def fig_roc(panels, out_dir):
     """ROC per level on the test folds of repeat 0; binned so no single person is a visible step."""
-    plt = pt._plt()
+    plt = _plt()
     ncol = 4
     nrow = -(-len(panels) // ncol)
     fig, axes = plt.subplots(nrow, ncol, figsize=(3.3 * ncol, 3.2 * nrow), sharex=True, sharey=True, squeeze=False)
     grid = np.linspace(0, 1, 21)
     for ax, (lab, n, yv, p, _) in zip(axes.ravel(), panels):
-        pt._grid(ax, "both")
-        ax.plot([0, 1], [0, 1], lw=1, ls=":", color=pt.MUTED)
+        _grid(ax, "both")
+        ax.plot([0, 1], [0, 1], lw=1, ls=":", color=MUTED)
         for m in MODELS:
-            a, fpr, tpr = pt.auc(yv, p[m])
+            a, fpr, tpr = auc(yv, p[m])
             ax.plot(grid, [tpr[fpr <= g].max() for g in grid], lw=2.2 if m == "B2" else 1.8, color=COLOR[m],
                     label=f"{m}  (AUC {a:.2f})")
         ax.set_title(f"{lab}  ({n})", fontsize=10)
@@ -316,17 +439,17 @@ def fig_roc(panels, out_dir):
     for ax in axes[:, 0]:
         ax.set_ylabel("sensitivity")
     fig.suptitle("ROC on the test folds (repeat 0): person, then each segment", x=0.01, ha="left",
-                 fontsize=12, fontweight="bold", color=pt.INK)
-    pt._save(fig, out_dir / f"{PREFIX}_roc.png")
+                 fontsize=12, fontweight="bold", color=INK)
+    _save(fig, out_dir / f"{PREFIX}_roc.png")
 
 
 def fig_confusion(panels, out_dir):
-    plt = pt._plt()
+    plt = _plt()
     fig, axes = plt.subplots(len(panels), 2, figsize=(6.4, 2.3 * len(panels)), squeeze=False)
-    cell_col = np.array([["#1baf7a", pt.MISSED], ["#e34948", "#1baf7a"]])  # TP, FN / FP, TN
+    cell_col = np.array([["#1baf7a", MISSED], ["#e34948", "#1baf7a"]])  # TP, FN / FP, TN
     for row, (lab, _, yv, p, thr) in zip(axes, panels):
         for ax, m in zip(row, MODELS):
-            tp, fn, fp, tn = pt.confusion(yv, p[m], thr[m])
+            tp, fn, fp, tn = confusion(yv, p[m], thr[m])
             M = np.array([[tp, fn], [fp, tn]])
             share = M / np.maximum(M.sum(axis=1, keepdims=True), 1)
             shown = suppress(M)
@@ -334,51 +457,22 @@ def fig_confusion(panels, out_dir):
             for (i, j), v in np.ndenumerate(shown):
                 alpha = 0.18 + 0.75 * share[i, j] if row_ok[i] else 0.3
                 ax.add_patch(plt.Rectangle((j - 0.48, i - 0.48), 0.96, 0.96, color=cell_col[i, j], alpha=alpha))
-                ax.text(j, i - 0.1, v, ha="center", va="center", fontsize=11, fontweight="bold", color=pt.INK)
+                ax.text(j, i - 0.1, v, ha="center", va="center", fontsize=11, fontweight="bold", color=INK)
                 if row_ok[i]:
                     ax.text(j, i + 0.25, f"{100 * share[i, j]:.0f}% of row", ha="center", va="center", fontsize=6.5,
-                            color=pt.INK2)
+                            color=INK2)
             ax.set_xlim(-0.5, 1.5); ax.set_ylim(1.5, -0.5)
             ax.set_xticks([0, 1], ["called progress", "called stable"], fontsize=7)
             ax.set_yticks([0, 1], ["progressed", "stable"], fontsize=7)
             ax.tick_params(length=0)
             for sp in ax.spines.values():
                 sp.set_visible(False)
-            ax.set_title(f"{lab}: {m}  (AUC {pt.auc(yv, p[m])[0]:.2f})", color=COLOR[m], fontsize=9)
+            ax.set_title(f"{lab}: {m}  (AUC {auc(yv, p[m])[0]:.2f})", color=COLOR[m], fontsize=9)
     fig.suptitle("Confusion matrices on the test folds (repeat 0)", x=0.01, ha="left", fontsize=12,
-                 fontweight="bold", color=pt.INK)
+                 fontweight="bold", color=INK)
     fig.text(0.01, 0.003, "Cut-off: Youden's J on the training fold's own predictions (per level). Green = correct, orange = missed\n"
-             "progression, red = false alarm; darker = larger share of its row.", fontsize=7.5, color=pt.INK2)
-    pt._save(fig, out_dir / f"{PREFIX}_confusion.png", rect=(0, 0.015, 1, 0.99))
-
-
-def fig_variants(res, out_dir):
-    """HR per SD (full data) and ΔC vs B2 (over repeats) per turning variant; the four new ones in blue."""
-    plt = pt._plt()
-    fig, (a1, a2) = plt.subplots(1, 2, figsize=(10, 0.42 * len(res) + 1.6), sharey=True)
-    yy = np.arange(len(res))[::-1]
-    for y_, (col, r) in zip(yy, res.items()):
-        c = pt.MODEL_COLOR["mean T5"] if col in NEW_TURNING else pt.INK2
-        a1.plot(r["ci"], [y_] * 2, color=c, lw=1.4)
-        a1.plot(r["hr"], y_, "o", color=c, ms=5)
-        dc = np.asarray(r["dC"])
-        a2.plot([np.percentile(dc, 2.5), np.percentile(dc, 97.5)], [y_] * 2, color=c, lw=1.4)
-        a2.plot(dc.mean(), y_, "o", color=c, ms=5)
-    for ax, ref, lab in ((a1, 1.0, "HR per SD (95% CI), full data"),
-                         (a2, 0.0, "ΔC vs B2 (mean, 2.5th to 97.5th pct over repeats)")):
-        pt._grid(ax, "x")
-        ax.axvline(ref, color=pt.MUTED, lw=1, ls=":")
-        ax.set_xlabel(lab)
-    a1.set_xscale("log")
-    lo, hi = a1.get_xlim()
-    a1.set_xticks([t for t in (0.25, 0.33, 0.5, 0.67, 0.8, 1, 1.25, 1.5, 2, 3, 4) if lo <= t <= hi])
-    a1.xaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f"{v:g}"))
-    a1.xaxis.set_minor_formatter(plt.NullFormatter())
-    a1.set_yticks(yy, [TURNING[c] for c in res])
-    a1.set_title("Turning variants: B2 + one variant")
-    fig.text(0.01, 0.01, "Grey: the six of progression_turning.py; blue: added here. Curvature only, no LM angle.",
-             fontsize=7.5, color=pt.INK2)
-    pt._save(fig, out_dir / f"{PREFIX}_variants.png", rect=(0, 0.04, 1, 1))
+             "progression, red = false alarm; darker = larger share of its row.", fontsize=7.5, color=INK2)
+    _save(fig, out_dir / f"{PREFIX}_confusion.png", rect=(0, 0.015, 1, 0.99))
 
 
 # ---------------------------------------------------------------- self-test (no data)
@@ -411,34 +505,6 @@ def synthetic(seed=1):
     print(f"integral 40 vs 200 nodes: max |diff| {np.abs(P - person_risk(X, fit['beta'], fit['sigma'], ids, 200)).max():.1e}")
 
 
-# ---------------------------------------------------------------- turning variants
-def turning_variants(d, y, ids, Y, segs, grades, args, base_fit, fold_sets, base_metrics):
-    """{col: hr, ci, lr, p, dC, dlogloss, fails} for B2 + one turning variant; folds = the first repeats of the CV."""
-    full, Yv, out = np.ones(len(d), bool), Y.to_numpy(), {}
-    for col in TURNING:
-        X, names = design(d, full, (col,), segs, grades, args.person)
-        f = fit_glmm(X, y, ids, args.nodes)
-        b, s = f["beta"][-1], wald_se(f)[-2]  # last beta; the last theta is log s
-        lr = 2 * (f["ll"] - base_fit["ll"])
-        r = {"hr": np.exp(b), "ci": np.exp([b - 1.96 * s, b + 1.96 * s]), "lr": lr, "p": chi2.sf(max(lr, 0.0), 1),
-             "dC": [], "dlogloss": [], "fails": 0, "missing": int(d[col].isna().sum())}
-        for (fold, pfold), base in zip(fold_sets, base_metrics):
-            oof, theta = np.zeros(len(Y)), None
-            for k in range(args.folds):
-                tr, te = fold != k, fold == k
-                X, _ = design(d, tr, (col,), segs, grades, args.person)
-                fk = fit_glmm(X[tr], y[tr], ids[tr], args.nodes, theta0=theta)
-                r["fails"] += not fk["ok"]
-                theta = fk["theta"]
-                oof[pfold == k] = person_risk(X[te], fk["beta"], fk["sigma"], ids[te])
-            m = metrics(Yv, oof)
-            r["dC"].append(m["C"] - base["C"])
-            r["dlogloss"].append(m["log loss"] - base["log loss"])
-        out[col] = r
-        print(f"variant {TURNING[col]}: HR {r['hr']:.2f}, LR p {r['p']:.3g}, ΔC {np.mean(r['dC']):+.4f}")
-    return out
-
-
 # ---------------------------------------------------------------- main
 def fmt_ci(v):
     return f"{np.mean(v):.3f} ({np.percentile(v, 2.5):.3f} to {np.percentile(v, 97.5):.3f})"
@@ -450,8 +516,6 @@ def main():
     ap.add_argument("--out", default=str(Path(OUT_DIR) / f"{PREFIX}.md"))
     ap.add_argument("--folds", type=int, default=10)
     ap.add_argument("--repeats", type=int, default=50)
-    ap.add_argument("--variant-repeats", type=int, default=10,
-                    help="CV repeats (the first ones, same folds) for the turning-variant comparison; 0 = skip it")
     ap.add_argument("--nodes", type=int, default=30)
     ap.add_argument("--bins", type=int, default=5)
     ap.add_argument("--person", choices=("score2", "factors"), default="score2",
@@ -466,18 +530,20 @@ def main():
     out_dir.mkdir(parents=True, exist_ok=True)
 
     # ---- cohort
-    d0, graded, skipped = pt.build(args.src)
+    d0, graded, skipped = build(args.src)
     P, dom = person_covariates()
     d0 = d0.join(P, on="id")
-    d0["angle"] = d0["id"].map(pa.angles(args.src))
     cov_ok = d0[person_columns(args.person)].notna().all(axis=1) & (d0["years"] > 0)
     if args.person == "score2":
         cov_ok &= d0["score2"] > 0
     keep = graded & cov_ok
-    d = sort_by_person(d0[keep].assign(grade=lambda x: x["bl"].map(pt.GRADE)))
-    d["grade"] = psm.merge_grades(d["grade"])
-    grades = [g for g in psm.GRADES if g in set(d["grade"])]
-    segs = [REF_SEG] + [s for s in pt.SEG_ORDER if s != REF_SEG and s in set(d["segment"])]
+    use_asym = bool(d0.loc[keep, "asymmetry"].notna().any())  # empty on the Medis trees: no tracer contours
+    geometry = {m: tuple(t for t in GEOMETRY[m] if t != "asymmetry" or use_asym) for m in MODELS}
+    asym_ok = d0["asymmetry"].notna() if use_asym else pd.Series(True, index=d0.index)
+    d = sort_by_person(d0[keep & asym_ok].assign(grade=lambda x: x["bl"].map(GRADE)))
+    d["grade"] = merge_grades(d["grade"])
+    grades = [g for g in GRADES if g in set(d["grade"])]
+    segs = [REF_SEG] + [s for s in SEG_ORDER if s != REF_SEG and s in set(d["segment"])]
     y, ids = d["y"].to_numpy(), d["id"].to_numpy()
     Y = d.groupby("id", sort=False)["y"].max()  # person outcome, in the row order of the persons
     n_events = int(Y.sum())
@@ -494,7 +560,7 @@ def main():
     full = np.ones(len(d), bool)
     fits, names, Xs = {}, {}, {}
     for m in MODELS:
-        Xs[m], names[m] = design(d, full, GEOMETRY[m], segs, grades, args.person)
+        Xs[m], names[m] = design(d, full, geometry[m], segs, grades, args.person)
         fits[m] = fit_glmm(Xs[m], y, ids, args.nodes)
     df_geo = len(names["G02"]) - len(names["B2"])
     lr = 2 * (fits["G02"]["ll"] - fits["B2"]["ll"])
@@ -513,12 +579,11 @@ def main():
                           f"{'pass' if ok else 'FAIL'} |")
 
     # ---- cross-validation
-    rep_metrics, seg_auc, fails, first, fold_sets = [], [], {m: 0 for m in MODELS}, None, []
+    rep_metrics, seg_auc, fails, first = [], [], {m: 0 for m in MODELS}, None
     for r in range(args.repeats):
         fold_of = person_folds(Y, args.folds, np.random.default_rng(r))
         fold = d["id"].map(fold_of).to_numpy()
         pfold = Y.index.map(fold_of).to_numpy()
-        fold_sets.append((fold, pfold))
         oof = {m: np.zeros(len(Y)) for m in MODELS}
         seg_oof = {m: np.zeros(len(d)) for m in MODELS}
         thr = {m: {"person": np.zeros(len(Y)), "segment": np.zeros(len(d))} for m in MODELS}
@@ -527,18 +592,18 @@ def main():
             for k in range(args.folds):
                 tr, te = fold != k, fold == k
                 assert not set(ids[tr]) & set(ids[te]), "a person is in both train and test"
-                X, _ = design(d, tr, GEOMETRY[m], segs, grades, args.person)
+                X, _ = design(d, tr, geometry[m], segs, grades, args.person)
                 f = fit_glmm(X[tr], y[tr], ids[tr], args.nodes, theta0=theta)
                 fails[m] += not f["ok"]
                 theta = f["theta"]
                 oof[m][pfold == k] = person_risk(X[te], f["beta"], f["sigma"], ids[te])
                 seg_oof[m][te] = segment_risk(X[te], f["beta"], f["sigma"])
-                thr[m]["person"][pfold == k] = psm.youden(Yv[pfold != k], person_risk(X[tr], f["beta"], f["sigma"], ids[tr]))
+                thr[m]["person"][pfold == k] = youden(Yv[pfold != k], person_risk(X[tr], f["beta"], f["sigma"], ids[tr]))
                 str_ = segment_risk(X[tr], f["beta"], f["sigma"])
                 for S in seg_rows.values():
-                    thr[m]["segment"][te & S] = psm.youden(y[tr & S], str_[S[tr]])
+                    thr[m]["segment"][te & S] = youden(y[tr & S], str_[S[tr]])
         rep_metrics.append({m: metrics(Yv, oof[m]) for m in MODELS})
-        seg_auc.append({m: {s: pt.auc(y[S], seg_oof[m][S])[0] for s, S in seg_rows.items()} for m in MODELS})
+        seg_auc.append({m: {s: auc(y[S], seg_oof[m][S])[0] for s, S in seg_rows.items()} for m in MODELS})
         first = first or (oof, seg_oof, thr)
         print(f"repeat {r + 1}/{args.repeats}: C B2 {rep_metrics[-1]['B2']['C']:.3f}, G02 {rep_metrics[-1]['G02']['C']:.3f}")
 
@@ -554,8 +619,13 @@ def main():
            f"- Left out: {count(int((~graded).sum()))} segment rows without a usable BL/FU grade or occluded at BL; "
            f"{count(int((graded & ~cov_ok).sum()))} rows of {count(d0.loc[graded & ~cov_ok, 'id'].nunique())} people "
            f"without {'all SCORE2 factors' if args.person == 'factors' else 'SCORE2'}, dominance or follow-up. Trees that could not be split: {count(skipped)}.",
-           f"- Missing geometry is set to the training mean (z = 0): mean T5 on {count(int(d['mean_T5'].isna().sum()))} "
-           f"rows, LM angle for {count(int(d.drop_duplicates('id')['angle'].isna().sum()))} people.",
+           f"- Missing geometry is set to the training mean (z = 0): average curvature on "
+           f"{count(int(d['curvature'].isna().sum()))} rows, LM angle for "
+           f"{count(int(d.drop_duplicates('id')['angle'].isna().sum()))} people.",
+           (f"- Daughter asymmetry: complete cases; {count(int((keep & ~asym_ok).sum()))} rows of "
+            f"{count(d0.loc[keep & ~asym_ok, 'id'].nunique())} people without it left out of both models."
+            if use_asym else "- Daughter asymmetry: no values (it needs tracer lumen contours), so G02 holds curvature "
+            "and the LM angle only."),
            f"- BL grade levels in the model: {', '.join(grades)} (a level with < {MIN_CELL} rows is merged into the one below).\n",
            "Graded trunk segments per person (they make up S_i and the person outcome):\n",
            "| " + " | ".join(map(str, per_person.index)) + " |", "|" + "---|" * len(per_person),
@@ -602,23 +672,6 @@ def main():
         rep.append(f"| {key} | {fmt_ci(v['B2'])} | {fmt_ci(v['G02'])} | "
                    f"{fmt_ci(np.subtract(v['G02'], v['B2']))} |")
 
-    # ---- turning variants
-    nv = min(args.variant_repeats, args.repeats)
-    if nv:
-        var = turning_variants(d, y, ids, Y, segs, grades, args, fits["B2"], fold_sets[:nv], [r["B2"] for r in rep_metrics[:nv]])
-        rep += ["\n## Turning variants (curvature only)\n",
-                "B2 + one turning variant (z within segment type, missing = 0), no LM angle. HR per SD and LR test (1 df) "
-                f"vs B2 on the full data; ΔC and Δ log loss vs B2 on the folds of repeats 0..{nv - 1} (mean, 2.5th to 97.5th "
-                "percentile). Ten variants on the same data: expect about one p < 0.10 by chance. Exploratory; the "
-                "prespecified test is G02. *new* = not in progression_turning.py.\n",
-                "| variant | rows missing | HR per SD (95% CI) | LR | p | ΔC (G − B2) | Δ log loss | fold fits not converged |",
-                "|---|---|---|---|---|---|---|---|"]
-        for col, r in var.items():
-            rep.append(f"| {TURNING[col]}{' *new*' if col in NEW_TURNING else ''} | {count(r['missing'])} | "
-                       f"{r['hr']:.2f} ({r['ci'][0]:.2f} to {r['ci'][1]:.2f}) | {r['lr']:.2f} | {r['p']:.3g} | "
-                       f"{fmt_ci(r['dC'])} | {fmt_ci(r['dlogloss'])} | {r['fails']} of {nv * args.folds} |")
-        fig_variants(var, out_dir)
-
     # ---- per segment, confusion matrices, figures
     oof0, seg0, thr0 = first
     def n_lab(yv):
@@ -647,7 +700,7 @@ def main():
     for lab, _, yv, p, th in panels:
         cells = []
         for m in MODELS:
-            tp, fn, fp, tn = pt.confusion(yv, p[m], th[m])
+            tp, fn, fp, tn = confusion(yv, p[m], th[m])
             shown = suppress([[tp, fn, fp, tn]])[0]
             ok = [isinstance(v, (int, np.integer)) for v in shown]
             cells += [*map(str, shown), f"{100 * tp / max(tp + fn, 1):.0f}%" if ok[0] and ok[1] else "hidden",
@@ -659,7 +712,7 @@ def main():
     fig_roc(panels, out_dir)
     fig_confusion(panels, out_dir)
     rep.append(f"\nFigures: {PREFIX}_auc.png, {PREFIX}_roc.png, {PREFIX}_confusion.png, {PREFIX}_calibration.png, "
-               f"{PREFIX}_deltas.png{f', {PREFIX}_variants.png' if nv else ''}.\n")
+               f"{PREFIX}_deltas.png.\n")
     Path(args.out).write_text("\n".join(rep))
     print("\n".join(rep))
 

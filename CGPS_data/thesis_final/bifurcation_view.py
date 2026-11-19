@@ -163,7 +163,8 @@ def main():
     cases = []
     for label, r in (("largest difference, tracer wider", wide), ("close agreement", close)):
         trees = {"tracer": tracer_io.tracer_tree(r["id"], args.src), "Medis": hq.tree_points(medis[r["id"]])}
-        cases.append((f"{label}: tracer - Medis = {r['diff']:+.0f} deg", trees, alignment(A, r["id"]),
+        o = f", O {r['o_dist']:.1f} mm apart" if pd.notna(r.get("o_dist", np.nan)) else ""
+        cases.append((f"{label}: tracer - Medis = {r['diff']:+.0f} deg{o}", trees, alignment(A, r["id"]),
                       tracer_io.tracer_ostia(r["id"], args.src)))
         print(f"{label}: id {r['id']}, difference {r['diff']:+.1f} deg")
     print(f"-> {figure(cases, rows)}")
