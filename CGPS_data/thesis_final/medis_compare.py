@@ -14,7 +14,12 @@ curvature was averaged over the stretch both centerlines cover (ends projected o
 traces were more than MAX_OFFSET mm apart were left out of the main rows. Neither can be done without Medis, so the
 limits described traces the cohort cannot pick out, over stretches the cohort does not use.
 
-A pair is compared when both trees give a value. A missing Medis value (an artery missing in the Medis tree, Medis
+A pair is compared when both trees give a value. For curvature the Medis artery must also be full
+(split_trunks.full_artery, 2026-11-19, set after curvature_view.png showed 14-27 mm Medis fragments compared with
+whole tracer arteries, before the outcome was linked): along its path, the first label of the artery is its
+proximal segment, the last its distal segment, and all its segments occur, with no minimum length. This is a rule
+on the reference only: a Medis artery that is not full is no reference for a whole-artery average, and the tracer
+side is unchanged. A missing Medis value (an artery missing in the Medis tree, Medis
 lumen that does not reach every cut) only means there is no reference there. A missing tracer value where Medis has one is
 the tracer's own missingness, as in the cohort, and is reported next to the limits.
 
@@ -89,10 +94,11 @@ def tree_features(tree, roots=None, surf=None):
     lumen surface (V, F), None when the tree has none. Raises only when the tree cannot be divided."""
     from split_trunks import graph, split
 
-    arts = split(*graph(tree), roots=roots)
+    info = {}
+    arts = split(*graph(tree), info=info, roots=roots)
     T, err = guarded(lambda: {a: artery_curvature(Y, s, (0.0, end), CHORD)[0]
                               for a, (_, _, end, _, Y, s) in arts.items()})
-    out = {"arteries": arts, "T": T or {}, "T_reason": err or "ok"}
+    out = {"arteries": arts, "info": info, "T": T or {}, "T_reason": err or "ok"}
     res, err = guarded(angle_with_reason, tree, arts)
     out["theta"], out["reason_theta"] = res or (np.nan, err)
     if surf is None:
@@ -232,7 +238,7 @@ def run(limit=None, src=None, lumen=None, medis=None):
     import centerline_qc as cq
     import hoe10y_qc as hq
     import tracer_io
-    from split_trunks import graph, left_main
+    from split_trunks import full_artery, graph, left_main
 
     src, lumen = src or tracer_io.TRACER_DIR, lumen or tracer_io.LUMEN_DIR
     med_lumen = medis_lumen_files(medis)
@@ -264,6 +270,8 @@ def run(limit=None, src=None, lumen=None, medis=None):
         same = set()
         for a in ARTERIES:
             row = {"id": pid, "artery": a, "T_tracer": trc["T"].get(a, np.nan), "T_medis": med["T"].get(a, np.nan)}
+            row["medis_full"], row["medis_full_reason"] = (
+                full_artery(a, med["info"][a]["path_labels"]) if a in ma else (False, "missing in Medis"))
             if a in ta and a in ma:
                 res, err = guarded(artery_offset, *ta[a][4:], *ma[a][4:], cq.nearest)
                 row |= res or {"reason": err}
@@ -344,13 +352,23 @@ def report(flow, A, P, boot):
     L += [f"| {k} | {count(v)} |" for k, v in flow.items()]
 
     L += ["\n## Curvature per artery (average over each tree's whole artery)\n",
-          "| artery | Medis value | tracer value too (share) |", "|---|---|---|"]
+          ("Compared only where the Medis artery is full (split_trunks.full_artery, 2026-11-19): along its path the "
+           "first label of the artery is its proximal segment, the last its distal segment, and the proximal, mid and "
+           "distal segments all occur (no minimum length). A rule on the reference only; the tracer side is unchanged.\n"),
+          "| artery | Medis artery | full | not full, by reason |", "|---|---|---|---|"]
+    F = A[A["medis_full"].astype(bool)] if len(A) and "medis_full" in A else A.iloc[:0]
     if len(A):
         for a in ARTERIES:
-            d = A[A["artery"] == a]
+            d = A[(A["artery"] == a) & A["T_medis"].notna()]
+            nf = d[~d["medis_full"].astype(bool)]["medis_full_reason"].value_counts()
+            L.append(f"| {NAME[a]} | {count(len(d))} | {count(int(d['medis_full'].astype(bool).sum()))} | "
+                     + "; ".join(f"{r} {count(n)}" for r, n in nf.items()) + " |")
+        L += ["", "| artery | full Medis artery with a value | tracer value too (share) |", "|---|---|---|"]
+        for a in ARTERIES:
+            d = F[F["artery"] == a]
             L.append(f"| {NAME[a]} | {coverage(d['T_tracer'], d['T_medis'])} |")
         L += ["", head]
-        B = both(A, "T")
+        B = both(F, "T")
         for a in ARTERIES:
             d = B[B["artery"] == a]
             L.append(stat_row(NAME[a], diff(d, "T"), d["id"].to_numpy(), boot, "1/mm"))
@@ -432,9 +450,9 @@ def report(flow, A, P, boot):
           "| | pairs | SD tracer | SD Medis | SD of differences | ICC(C,1) (95% CI) | ICC(A,1) (95% CI) | unit |",
           "|---|---|---|---|---|---|---|---|"]
     sets = []
-    if len(A):
-        sets += [(f"curvature, {NAME[a]}", A[A["artery"] == a], "T", "1/mm") for a in ARTERIES]
-        sets.append(("curvature, all arteries", A, "T", "1/mm"))
+    if len(F):
+        sets += [(f"curvature, {NAME[a]}", F[F["artery"] == a], "T", "1/mm") for a in ARTERIES]
+        sets.append(("curvature, all arteries", F, "T", "1/mm"))
     if len(P):
         sets.append(("LAD-LCx angle", P, "theta", "degrees"))
     if len(P) and "asym_tracer" in P:
