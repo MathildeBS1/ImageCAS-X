@@ -5,7 +5,8 @@ reference (server only: the figure shows single participants).
     python CGPS_data/thesis_final/curvature_view.py [--n 6] [--artery LAD|CX|RCA] [--rows DIR]
 
 Reuses medis_compare_arteries.csv that medis_compare.py saved in --rows and chooses among every artery pair with a
-value in both trees, as in the curvature comparison (no same-vessel check). Both trees are read again and divided
+value in both trees whose Medis artery is a reference and which pass the same-vessel check, as in the main
+curvature rows of medis_compare (reference_rows, reason ok). Both trees are read again and divided
 with split_trunks.split (the tracer from its own ostia), as in medis_compare.tree_features.
 
 Each row: left, the artery of both trees in one projection (the plane through both lines that shows them best),
@@ -13,8 +14,8 @@ tracer solid and Medis dashed, with each line's start (circle) and end (square),
 follows another vessel shows. Right, the curvature profile of each (curvature_feature.curvature_profile, CHORD mm)
 along its own arc length from its own start, and its average over the whole artery (the compared value,
 curvature_feature.artery_curvature over 0 to end) as a thin line over the same stretch. The row title gives the
-rank, the artery, the two averages and their difference, the two artery lengths and the same-vessel check (reason
-and offset; descriptive only).
+rank, the artery, the two averages and their difference, the two artery lengths, the same-vessel check (reason and
+the same-vessel distance) and the stretch both lines cover on each.
 Figure: curvature_view.png in --rows. The study ids are printed to the terminal with each row's numbers, not in the
 figure.
 """
@@ -122,8 +123,10 @@ def main():
                  "Medis": artery(hq.tree_points(medis[pid]), a)}
         (_, _, lt, tt), (_, _, lm, tm) = lines["tracer"], lines["Medis"]
         off = f" ({r['offset']:.1f} mm)" if pd.notna(r.get("offset", np.nan)) else ""
+        shared = (f"; shared stretch tracer {r['shared_tracer']:.0f} mm, Medis {r['shared_medis']:.0f} mm"
+                  if pd.notna(r.get("shared_tracer", np.nan)) else "")
         text = (f"{label}: {NAME[a]}, average curvature tracer {tt:.3f}, Medis {tm:.3f} 1/mm, difference {tt - tm:+.3f}\n"
-                f"length tracer {lt:.0f} mm, Medis {lm:.0f} mm; same-vessel check: {r['reason']}{off}")
+                f"length tracer {lt:.0f} mm, Medis {lm:.0f} mm; same-vessel check: {r['reason']}{off}{shared}")
         cases.append((text, lines))
         print(f"id {pid}: {text.replace(chr(10), '; ')}")
     print(f"-> {figure(cases, rows)}")

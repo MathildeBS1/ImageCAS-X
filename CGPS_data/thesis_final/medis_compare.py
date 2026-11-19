@@ -401,6 +401,24 @@ def report(flow, A, P, boot):
         L.append(stat_row("all arteries", diff(S, "T"), S["id"].to_numpy(), boot, "1/mm"))
         L.append(stat_row("all arteries, also pairs failing the same-vessel check (sensitivity)", diff(B, "T"),
                           B["id"].to_numpy(), boot, "1/mm"))
+        L += ["\nCompared pairs: the same-vessel distance (per pair, the larger 90th percentile of the distances "
+              "between the two centerlines, both ways) and the stretch both lines cover, in mm and as a share of each "
+              f"tree's whole artery. Median (90th percentile over pairs from {TAIL_MIN} pairs).\n",
+              "| artery | pairs | same-vessel distance (mm) | shared stretch, tracer (mm) | shared stretch, Medis (mm) | "
+              "share of the tracer artery | share of the Medis artery |", "|---|---|---|---|---|---|---|"]
+
+        def spread(x, form="{:.2f}"):
+            x = np.asarray(x, float)
+            x = x[np.isfinite(x)]
+            m = med(x)
+            if m is None:
+                return "-"
+            return form.format(m) + (f" ({form.format(np.percentile(x, 90))})" if len(x) >= TAIL_MIN else "")
+
+        for a, d in [(NAME[a], S[S["artery"] == a]) for a in ARTERIES] + [("all arteries", S)]:
+            L.append(f"| {a} | {count(len(d))} | {spread(d['offset'])} | {spread(d['shared_tracer'], '{:.0f}')} | "
+                     f"{spread(d['shared_medis'], '{:.0f}')} | {spread(100 * d['shared_tracer'] / d['L_tracer'], '{:.0f}%')} | "
+                     f"{spread(100 * d['shared_medis'] / d['L_medis'], '{:.0f}%')} |")
 
     L += ["\n## Bifurcation angle (bifurcation_angle.angle_with_reason on each tree)\n", head]
     if len(P):
