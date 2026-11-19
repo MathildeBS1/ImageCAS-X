@@ -102,8 +102,9 @@ def main():
     A = pd.read_csv(rows / "medis_compare_arteries.csv", dtype={"id": str})
     if "T_tracer" not in A:
         ap.error("the CSV has no curvature columns: rerun medis_compare.py")
-    if "medis_full" in A:  # only where the Medis artery is a reference, as in medis_compare
-        A = A[A["medis_full"].astype(bool)]
+    if "medis_full" in A:  # only where the Medis artery is a reference, the rule of medis_compare
+        from medis_compare import reference_rows
+        A = reference_rows(A)[0]
     A = A.assign(diff=A["T_tracer"] - A["T_medis"]).dropna(subset=["diff"])
     if args.artery:
         A = A[A["artery"] == args.artery]

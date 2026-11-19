@@ -17,7 +17,9 @@ limits described traces the cohort cannot pick out, over stretches the cohort do
 A pair is compared when both trees give a value. For curvature the Medis artery must also be full
 (split_trunks.full_artery, 2026-11-19, set after curvature_view.png showed 14-27 mm Medis fragments compared with
 whole tracer arteries, before the outcome was linked): along its path, the first label of the artery is its
-proximal segment, the last its distal segment, and all its segments occur, with no minimum length. This is a rule
+proximal segment, the last its distal segment, and all its segments occur. It must also be at least as long as the
+shortest tracer artery of the same kind with a curvature value in the run (reference_rows; the tracer sets the
+minimum, decided 2026-11-19 with the user). This is a rule
 on the reference only: a Medis artery that is not full is no reference for a whole-artery average, and the tracer
 side is unchanged. A missing Medis value (an artery missing in the Medis tree, Medis
 lumen that does not reach every cut) only means there is no reference there. A missing tracer value where Medis has one is
@@ -272,6 +274,8 @@ def run(limit=None, src=None, lumen=None, medis=None):
             row = {"id": pid, "artery": a, "T_tracer": trc["T"].get(a, np.nan), "T_medis": med["T"].get(a, np.nan)}
             row["medis_full"], row["medis_full_reason"] = (
                 full_artery(a, med["info"][a]["path_labels"]) if a in ma else (False, "missing in Medis"))
+            row["L_tracer"] = float(ta[a][5][-1]) if a in ta else np.nan  # artery length (mm), from its own start
+            row["L_medis"] = float(ma[a][5][-1]) if a in ma else np.nan
             if a in ta and a in ma:
                 res, err = guarded(artery_offset, *ta[a][4:], *ma[a][4:], cq.nearest)
                 row |= res or {"reason": err}
@@ -316,6 +320,18 @@ def stat_row(label, diff, pid, boot, unit):
             f"{fmt(g['loa_lo'])}{ci('lo_ci')} | {fmt(g['loa_hi'])}{ci('hi_ci')} | {unit} |")
 
 
+def reference_rows(A):
+    """(rows whose Medis artery is a reference for curvature, {artery: minimum length in mm}). A reference is full
+    (split_trunks.full_artery) and at least as long as the shortest tracer artery of the same kind that has a
+    curvature value in A (decided 2026-11-19 with the user: the tracer sets the minimum length Medis must reach).
+    Rules on the Medis side only; the tracer values are those of the cohort."""
+    if not len(A) or "medis_full" not in A:
+        return A.iloc[:0], {}
+    min_len = {a: float(A.loc[(A["artery"] == a) & A["T_tracer"].notna(), "L_tracer"].min()) for a in ARTERIES}
+    keep = A["medis_full"].astype(bool) & (A["L_medis"] >= A["artery"].map(min_len))
+    return A[keep], min_len
+
+
 def coverage(t, m):
     """Pairs with a Medis value, and how many of them also have a tracer value: the tracer's own missingness
     where there is a reference."""
@@ -351,18 +367,24 @@ def report(flow, A, P, boot):
          "## Flow\n", "| step | participants |", "|---|---|"]
     L += [f"| {k} | {count(v)} |" for k, v in flow.items()]
 
+    F, min_len = reference_rows(A)
     L += ["\n## Curvature per artery (average over each tree's whole artery)\n",
           ("Compared only where the Medis artery is full (split_trunks.full_artery, 2026-11-19): along its path the "
            "first label of the artery is its proximal segment, the last its distal segment, and the proximal, mid and "
-           "distal segments all occur (no minimum length). A rule on the reference only; the tracer side is unchanged.\n"),
-          "| artery | Medis artery | full | not full, by reason |", "|---|---|---|---|"]
-    F = A[A["medis_full"].astype(bool)] if len(A) and "medis_full" in A else A.iloc[:0]
+           "distal segments all occur. It must also be at least as long as the shortest tracer artery of the same kind "
+           "with a curvature value in this run (reference_rows): "
+           + ", ".join(f"{NAME[a]} {fmt(min_len.get(a), 3)} mm" for a in ARTERIES)
+           + ". Rules on the reference only; the tracer side is unchanged.\n"),
+          "| artery | Medis artery | reference (full, long enough) | left out, by reason |", "|---|---|---|---|"]
     if len(A):
         for a in ARTERIES:
             d = A[(A["artery"] == a) & A["T_medis"].notna()]
             nf = d[~d["medis_full"].astype(bool)]["medis_full_reason"].value_counts()
-            L.append(f"| {NAME[a]} | {count(len(d))} | {count(int(d['medis_full'].astype(bool).sum()))} | "
-                     + "; ".join(f"{r} {count(n)}" for r, n in nf.items()) + " |")
+            short = int((d["medis_full"].astype(bool) & ~d["id"].isin(F[F["artery"] == a]["id"])).sum())
+            L.append(f"| {NAME[a]} | {count(len(d))} | {count(int(d['medis_full'].astype(bool).sum()) - short)} | "
+                     + "; ".join([f"{r} {count(n)}" for r, n in nf.items()]
+                                 + ([f"full but shorter than the shortest tracer {NAME[a]} {count(short)}"] if short else []))
+                     + " |")
         L += ["", "| artery | full Medis artery with a value | tracer value too (share) |", "|---|---|---|"]
         for a in ARTERIES:
             d = F[F["artery"] == a]
