@@ -236,6 +236,15 @@ angle (aligned on the whole artery, also near O, angle in both, reasons for a mi
 median and 90th percentile of $o$ with the share above 5 mm. The limits describe only the pairs kept; the
 plaque-free cohort uses every trace.
 
+\textbf{Step 20: reliability.} On the same pairs, the report gives the SD of the tracer values, the SD of
+the Medis values, the SD of the differences, and the intraclass correlation of the two methods (McGraw and
+Wong 1996). Both forms are given: consistency, ICC(C,1), and absolute agreement, ICC(A,1). They come from
+the two-way analysis of variance of the pairs, with 95\% intervals from the bootstrap of Step 18. ICC(C,1)
+ignores a constant bias, which does not change a hazard ratio per SD; ICC(A,1) also counts it. For the
+asymmetry, $|a|$ (the model's feature) is also given. With no ground truth, Medis is a second measurement
+with its own error, so the ICC is the share of the variance between pairs that the two methods agree on. It
+is not the share of true variance in the tracer's values.
+
 \textbf{Disclosure.} Counts of 1 to 4 are shown as $<5$. A statistic needs at least 5 pairs, a median at
 least 10 values and a 90th percentile at least 20. Per-pair rows (with study ids) and the Bland--Altman
 plots stay on the server.
@@ -255,6 +264,7 @@ These changes come from the code review, not from the numbers, and they were mad
   other daughter's first 15 mm only. An O placed more than about 3 mm further along the vessel then failed
   the check by itself, which made it a cut on $o$. The left main is now part of the reference.
 \item Steps 14--16: the daughter asymmetry was added (the tracer's lumen was delivered on that day).
+\item Step 20: the reliability table was added.
 \item Step 6 onward: a pair that raises is counted (\code{error:<type>}) instead of stopping the run.
 \end{itemize}
 

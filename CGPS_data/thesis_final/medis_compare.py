@@ -60,6 +60,10 @@ contouring). a = ln(D_LCx / D_LAD); reported as the signed a and as D_LAD and D_
 only diseased segments, so every participant compared has plaque at the bifurcation.
 A pair or participant whose computation raises is kept with the reason error:<type> (2026-11-19).
 
+Reliability per feature (2026-11-19), on the same pairs: SD of each method, SD of the differences and the
+ICC of the two methods, consistency ICC(C,1) and absolute agreement ICC(A,1) (McGraw and Wong 1996), with
+bootstrap intervals over participants; for the asymmetry also abs(a), the model feature. It sets the
+measurement error against the spread between people, which is what weakens a per-SD hazard ratio.
 Agreement per feature: difference tracer - Medis in the feature's own unit, bias, SD of the differences,
 95% limits of agreement (bias +- 1.96 SD) and 95% intervals from a bootstrap over participants. Curvature
 is compared as a plain difference only (fixed 2026-11-18, before the results).
@@ -200,6 +204,36 @@ def agreement(diff, pid, boot=2000, seed=0):
     if boot:
         q = np.percentile(np.array(stats), [2.5, 97.5], axis=0)
         out |= {"bias_ci": q[:, 0], "lo_ci": q[:, 1], "hi_ci": q[:, 2]}
+    return out
+
+
+def icc(x, y):
+    """(consistency, absolute agreement) ICC of two methods measuring the same n subjects: ICC(C,1) and ICC(A,1)
+    of McGraw and Wong 1996, from the two-way ANOVA mean squares (rows = pairs, columns = tracer, Medis)."""
+    X = np.c_[x, y]
+    n, k = X.shape
+    g, r, c = X.mean(), X.mean(axis=1), X.mean(axis=0)
+    msr = k * ((r - g) ** 2).sum() / (n - 1)
+    msc = n * ((c - g) ** 2).sum() / (k - 1)
+    mse = ((X - r[:, None] - c[None] + g) ** 2).sum() / ((n - 1) * (k - 1))
+    return (msr - mse) / (msr + (k - 1) * mse), (msr - mse) / (msr + (k - 1) * mse + k * (msc - mse) / n)
+
+
+def reliability(x, y, pid, boot=2000, seed=0):
+    """SD of each method, SD of the differences and both ICCs, with 95% intervals from a bootstrap over
+    participants (all pairs of a participant together, as in agreement)."""
+    x, y, pid = np.asarray(x, float), np.asarray(y, float), np.asarray(pid)
+    out = {"n": len(x), "sd_t": x.std(ddof=1), "sd_m": y.std(ddof=1), "sd_d": (x - y).std(ddof=1)}
+    out["icc_c"], out["icc_a"] = icc(x, y)
+    idx = [g.to_numpy() for _, g in pd.Series(np.arange(len(x))).groupby(pid, sort=False)]
+    rng = np.random.default_rng(seed)
+    stats = []
+    for _ in range(boot):
+        k = np.concatenate([idx[j] for j in rng.integers(0, len(idx), len(idx))])
+        stats.append(icc(x[k], y[k]))
+    if boot:
+        q = np.percentile(np.array(stats), [2.5, 97.5], axis=0)
+        out |= {"icc_c_ci": q[:, 0], "icc_a_ci": q[:, 1]}
     return out
 
 
@@ -384,6 +418,36 @@ def report(flow, A, P, boot):
         L += [f"| {r} | {count(n)} |" for r, n in P["asym_reason"].value_counts().items()]
         L.append("\nMedis lumen exists only where Medis contoured, almost always diseased segments: every participant "
                  "compared here has plaque at the bifurcation, unlike the plaque-free cohort.")
+
+    L += ["\n## Reliability: measurement error against the spread between people\n",
+          ("Same pairs as the agreement rows above. ICC(C,1) (consistency) ignores a constant bias, which does not "
+           "change a per-SD hazard ratio; ICC(A,1) (absolute agreement) also counts the bias (McGraw and Wong 1996). "
+           "With no ground truth, Medis is a second error-prone measurement, not the truth; the ICC is the share of "
+           "the variance between pairs that the two methods agree on.\n"),
+          "| | pairs | SD tracer | SD Medis | SD of differences | ICC(C,1) (95% CI) | ICC(A,1) (95% CI) | unit |",
+          "|---|---|---|---|---|---|---|---|"]
+    sets = []
+    if len(A) and "T_tracer" in A:
+        kept = A[A["reason"] == "ok"]
+        sets += [(f"curvature, {NAME[a]}", kept[kept["artery"] == a], "T", "1/mm") for a in ARTERIES]
+        sets.append(("curvature, all arteries", kept, "T", "1/mm"))
+    if len(P):
+        sets.append(("LAD-LCx angle", P[P["aligned"]], "theta", "degrees"))
+    if len(P) and "asym_reason" in P:
+        Q = P[P["asym_reason"] == "ok"]
+        Q = Q.assign(absasym_tracer=Q["asym_tracer"].abs(), absasym_medis=Q["asym_medis"].abs())
+        sets += [("asymmetry a", Q, "asym", "ln ratio"), ("abs(a), the model feature", Q, "absasym", "ln ratio"),
+                 ("LAD diameter", Q, "D_LAD", "mm"), ("LCx diameter", Q, "D_CX", "mm")]
+    for label, d, col, unit in sets:
+        x, y = d[f"{col}_tracer"].to_numpy(float), d[f"{col}_medis"].to_numpy(float)
+        ok = np.isfinite(x) & np.isfinite(y)
+        if ok.sum() < MIN_CELL:
+            L.append(f"| {label} | {count(ok.sum())} | | | | | | {unit} |")
+            continue
+        g = reliability(x[ok], y[ok], d["id"].to_numpy()[ok], boot)
+        ci = (lambda k: f" ({fmt(g[k][0], 2)} to {fmt(g[k][1], 2)})") if boot else (lambda _: "")
+        L.append(f"| {label} | {g['n']} | {fmt(g['sd_t'])} | {fmt(g['sd_m'])} | {fmt(g['sd_d'])} | "
+                 f"{fmt(g['icc_c'], 2)}{ci('icc_c_ci')} | {fmt(g['icc_a'], 2)}{ci('icc_a_ci')} | {unit} |")
     return "\n".join(L) + "\n"
 
 
@@ -489,6 +553,13 @@ def check():
     # a raising computation is counted, not a stopped run
     assert guarded(compare_artery, Y[:1], arc(Y[:1]), Y, arc(Y), _nearest)[1].startswith("error:")
     assert guarded(near_o, lad_t, arc(lad_t), lad_t, arc(lad_t), lm_t, np.zeros((2, 2)), _nearest)[1].startswith("error:")
+
+    # ICC on simulated pairs: true SD 1, error SD 0.5 in each method, tracer shifted by 0.3
+    truth = rng.normal(size=4000)
+    xs, ys = truth + 0.3 + rng.normal(0, 0.5, 4000), truth + rng.normal(0, 0.5, 4000)
+    c, a = icc(xs, ys)
+    assert abs(c - 0.8) < 0.02 and a < c, (c, a)  # 1 / (1 + 0.25)
+    print(f"ICC of simulated pairs (true 0.8): consistency {c:.3f}, absolute agreement {a:.3f}")
 
     # agreement on simulated pairs: bias 0.2, SD 1, three pairs per participant
     pid = np.repeat(np.arange(700), 3)
