@@ -58,7 +58,7 @@ use the pairs of the main rows (main_rows).
 
 Agreement per feature: difference tracer - Medis in the feature's own unit, bias, SD of the differences, 95% limits
 of agreement (bias +- 1.96 SD) and 95% intervals from a bootstrap over participants. Reliability per feature, on the
-same pairs: SD of each method, SD of the differences, consistency ICC(C,1) and absolute agreement ICC(A,1) (McGraw
+same pairs: mean and SD of each method, SD of the differences, consistency ICC(C,1) and absolute agreement ICC(A,1) (McGraw
 and Wong 1996), with bootstrap intervals over participants; for the asymmetry also abs(a), the model feature.
 
 Writes medis_compare.md next to this script (aggregates only: counts 1-4 hidden, statistics only from MIN_CELL
@@ -238,10 +238,11 @@ def icc(x, y):
 
 
 def reliability(x, y, pid, boot=2000, seed=0):
-    """SD of each method, SD of the differences and both ICCs, with 95% intervals from a bootstrap over
+    """Mean and SD of each method, SD of the differences and both ICCs, with 95% intervals from a bootstrap over
     participants (all pairs of a participant together, as in agreement)."""
     x, y, pid = np.asarray(x, float), np.asarray(y, float), np.asarray(pid)
-    out = {"n": len(x), "sd_t": x.std(ddof=1), "sd_m": y.std(ddof=1), "sd_d": (x - y).std(ddof=1)}
+    out = {"n": len(x), "mean_t": x.mean(), "mean_m": y.mean(), "sd_t": x.std(ddof=1), "sd_m": y.std(ddof=1),
+           "sd_d": (x - y).std(ddof=1)}
     out["icc_c"], out["icc_a"] = icc(x, y)
     idx = [g.to_numpy() for _, g in pd.Series(np.arange(len(x))).groupby(pid, sort=False)]
     rng = np.random.default_rng(seed)
@@ -489,9 +490,10 @@ def report(flow, A, P, boot):
     L += ["\n## Daughter asymmetry ln(D_LCx / D_LAD) (daughter_ratio.tree_asymmetry on each tree)\n", head]
     if len(P) and "asym_tracer" in P:
         B = both(P, "asym")
+        B = B.assign(absasym_tracer=B["asym_tracer"].abs(), absasym_medis=B["asym_medis"].abs())
         d = B[B["aligned"].astype(bool)]
-        for col, label, unit in (("asym", "asymmetry", "ln ratio"), ("D_LAD", "LAD diameter", "mm"),
-                                 ("D_CX", "LCx diameter", "mm")):
+        for col, label, unit in (("asym", "asymmetry", "ln ratio"), ("absasym", "abs(a), the model feature", "ln ratio"),
+                                 ("D_LAD", "LAD diameter", "mm"), ("D_CX", "LCx diameter", "mm")):
             L.append(stat_row(label, diff(d, col), d["id"].to_numpy(), boot, unit))
         L.append(stat_row("asymmetry, also pairs failing the same-vessel check (sensitivity)", diff(B, "asym"),
                           B["id"].to_numpy(), boot, "ln ratio"))
@@ -534,8 +536,9 @@ def report(flow, A, P, boot):
            "not change a per-SD hazard ratio; ICC(A,1) (absolute agreement) also counts the bias (McGraw and Wong "
            "1996). With no ground truth, Medis is a second error-prone measurement, not the truth; the ICC is the "
            "share of the variance between pairs that the two methods agree on.\n"),
-          "| | pairs | SD tracer | SD Medis | SD of differences | ICC(C,1) (95% CI) | ICC(A,1) (95% CI) | unit |",
-          "|---|---|---|---|---|---|---|---|"]
+          "| | pairs | mean tracer | mean Medis | SD tracer | SD Medis | SD of differences | ICC(C,1) (95% CI) | "
+          "ICC(A,1) (95% CI) | unit |",
+          "|---|---|---|---|---|---|---|---|---|---|"]
     sets = []
     S = F[F["reason"] == "ok"] if len(F) else F
     if len(S):
@@ -556,11 +559,12 @@ def report(flow, A, P, boot):
         x, y = d[f"{col}_tracer"].to_numpy(float), d[f"{col}_medis"].to_numpy(float)
         ok = np.isfinite(x) & np.isfinite(y)
         if ok.sum() < MIN_CELL:
-            L.append(f"| {label} | {count(ok.sum())} | | | | | | {unit} |")
+            L.append(f"| {label} | {count(ok.sum())} | | | | | | | | {unit} |")
             continue
         g = reliability(x[ok], y[ok], d["id"].to_numpy()[ok], boot)
         ci = (lambda k: f" ({fmt(g[k][0], 2)} to {fmt(g[k][1], 2)})") if boot else (lambda _: "")
-        L.append(f"| {label} | {g['n']} | {fmt(g['sd_t'])} | {fmt(g['sd_m'])} | {fmt(g['sd_d'])} | "
+        L.append(f"| {label} | {g['n']} | {fmt(g['mean_t'])} | {fmt(g['mean_m'])} | {fmt(g['sd_t'])} | "
+                 f"{fmt(g['sd_m'])} | {fmt(g['sd_d'])} | "
                  f"{fmt(g['icc_c'], 2)}{ci('icc_c_ci')} | {fmt(g['icc_a'], 2)}{ci('icc_a_ci')} | {unit} |")
     return "\n".join(L) + "\n"
 
