@@ -24,7 +24,8 @@ lumen surface, roots from tracer_io.tracer_ostia, as in medis_compare.tree_featu
 
 Statistics: per group n, mean, SD and median of a, |a|, D_LAD and D_LCx, and how many in the group have no
 asymmetry (the tracer's missingness may differ by dominance). Primary: mean a left - right, 95% interval from a
-bootstrap over participants within each group, and a two-sided permutation test (group labels shuffled). The difference is also given in
+bootstrap over participants within each group, and a one-sided permutation test of left > right (group labels
+shuffled; user, 2026-11-25, as in the plot). The difference is also given in
 units of the SD of a over all participants with a value, the scale of the model feature.
 
 Plot (one dot per participant, allowed off the server: user, 2026-11-25; thesis colours): a by dominance group
@@ -63,16 +64,16 @@ def dominance_group(s):
 
 
 def diff_ci(x, y, boot=2000, seed=0):
-    """(mean(x) - mean(y), 95% bootstrap interval with each group resampled on its own, two-sided permutation p
-    from as many relabellings as bootstrap samples: (1 + #|permuted difference| >= |d|) / (1 + boot))."""
+    """(mean(x) - mean(y), 95% bootstrap interval with each group resampled on its own, one-sided permutation p for
+    mean(x) > mean(y) from as many relabellings as bootstrap samples: (1 + #permuted difference >= d) / (1 + boot))."""
     x, y = np.asarray(x, float), np.asarray(y, float)
     d = x.mean() - y.mean()
     rng = np.random.default_rng(seed)
     b = [rng.choice(x, len(x)).mean() - rng.choice(y, len(y)).mean() for _ in range(boot)]
     lo, hi = np.percentile(b, [2.5, 97.5]) if boot else (np.nan, np.nan)
     z, n = np.r_[x, y], len(x)
-    perm = [abs((q := rng.permutation(z))[:n].mean() - q[n:].mean()) for _ in range(boot)]
-    return d, (lo, hi), (1 + sum(v >= abs(d) for v in perm)) / (1 + boot)
+    perm = [(q := rng.permutation(z))[:n].mean() - q[n:].mean() for _ in range(boot)]
+    return d, (lo, hi), (1 + sum(v >= d for v in perm)) / (1 + boot)
 
 
 # ---------------------------------------------------------------- data run (server)
@@ -109,15 +110,6 @@ def run(cohort="clean", limit=None):
             res = {"reason": f"error:{type(ex).__name__}"}
         rows.append(row | res)
     return flow, pd.DataFrame(rows)
-
-
-def perm_p_greater(x, y, boot=2000, seed=0):
-    """One-sided permutation p for mean(x) - mean(y) > 0: (1 + #permuted difference >= observed) / (1 + boot)."""
-    x, y = np.asarray(x, float), np.asarray(y, float)
-    d, z, n = x.mean() - y.mean(), np.r_[x, y], len(x)
-    rng = np.random.default_rng(seed)
-    perm = [(q := rng.permutation(z))[:n].mean() - q[n:].mean() for _ in range(boot)]
-    return (1 + sum(v >= d for v in perm)) / (1 + boot)
 
 
 # ---------------------------------------------------------------- report
@@ -168,7 +160,7 @@ def report(flow, R, cohort, boot):
             med = np.median(x) if len(x) >= QUARTILE_MIN else None
             L.append(f"| {g} | {name} | {len(x)} | {fmt(x.mean())} | {fmt(x.std(ddof=1))} | {fmt(med)} | {unit} |")
 
-    L += ["\n## Primary: left - right\n", "| feature | left | right | difference (95% CI) | permutation p | difference / SD of a |",
+    L += ["\n## Primary: left - right\n", "| feature | left | right | difference (95% CI) | one-sided p (left > right) | difference / SD of a |",
           "|---|---|---|---|---|---|"]
     for c, name, unit in COLS:
         x = ok.loc[ok["group"] == "left", c].dropna().to_numpy(float)
@@ -181,13 +173,14 @@ def report(flow, R, cohort, boot):
         L.append(f"| {name} | {len(x)} | {len(y)} | {fmt(d)} ({fmt(lo)} to {fmt(hi)}) {unit} | {p:.2g} | {std} |")
     L += ["", ("Primary row: a. The expected direction is a positive difference. The diameters show which daughter "
                "carries it; abs(a), the model feature, has no expected direction (left dominance can make the "
-               "daughters more or less unequal).")]
+               "daughters more or less unequal). The p is one-sided (left > right) in every row and a test only in the "
+               "primary row.")]
 
     if "plaque_free" in ok and ok["plaque_free"].nunique() > 1:  # --cohort all: the primary row by baseline plaque
         L += ["\n## a, left - right, by baseline plaque\n",
               ("Plaque at the bifurcation narrows the lumen, so in participants with plaque a diameter can reflect "
                "disease as well as dominance. Same statistics as the primary row.\n"),
-              "| participants | left | right | difference (95% CI) | permutation p | difference / SD of a |",
+              "| participants | left | right | difference (95% CI) | one-sided p (left > right) | difference / SD of a |",
               "|---|---|---|---|---|---|"]
         for name, sub in (("all", ok), ("plaque-free", ok[ok["plaque_free"].astype(bool)]),
                           ("plaque at baseline", ok[~ok["plaque_free"].astype(bool)])):
@@ -220,8 +213,8 @@ def thesis_rc():
 
 
 def plot(R, path, boot=2000):
-    """Strip plot of a by dominance group (mean and 95% bootstrap interval beside each group) and D_LCx against
-    D_LAD by group, with the one-sided permutation p of mean a left - right."""
+    """Strip plot of a by dominance group (median and interquartile range beside each group, as in
+    hypertension_curvature.py) and D_LCx against D_LAD by group, with the one-sided permutation p of mean a left - right."""
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
@@ -247,19 +240,16 @@ def plot(R, path, boot=2000):
                             facecolors="none" if hollow else COLOR[g], edgecolors=COLOR[g],
                             label=None if hollow else f"{GROUP_LABEL[g]} ($n$ = {len(d)})")
         if len(d) >= 2:
-            v = d["asym"].to_numpy(float)
-            b = [rng.choice(v, len(v)).mean() for _ in range(boot)] if boot else [v.mean()]
-            lo, hi = np.percentile(b, [2.5, 97.5])
-            ax1.errorbar(i + 0.32, v.mean(), yerr=[[v.mean() - lo], [hi - v.mean()]], fmt="o", color=INK,
-                         ms=6, capsize=3, lw=1.5)
+            q1, med, q3 = np.percentile(d["asym"].to_numpy(float), [25, 50, 75])
+            ax1.errorbar(i + 0.3, med, yerr=[[med - q1], [q3 - med]], fmt="o", color=INK, ms=6, capsize=3, lw=1.5)
     ax1.axhline(0, color=INK2, lw=1, ls="--")
     ax1.set_xticks(range(len(ORDER)), [f"{GROUP_LABEL[g]}\n($n$ = {int((ok['group'] == g).sum())})" for g in ORDER])
     ax1.set_xlim(-0.6, len(ORDER) - 0.4)
     ax1.set_ylabel(r"Asymmetry, $a = \ln(D_{\mathrm{LCx}} / D_{\mathrm{LAD}})$")  # cmr10 has no underscore
-    ax1.set_title("LAD/LCx asymmetry by dominance", fontsize=10, color=INK)  # black marker (mean, 95% CI): caption
+    ax1.set_title("LAD/LCx asymmetry by dominance", fontsize=10, color=INK)  # black marker (median, IQR): caption
     x, y = (ok.loc[ok["group"] == g, "asym"].to_numpy(float) for g in ("left", "right"))
     if min(len(x), len(y)) >= 2:
-        ax1.text(0.02, 0.98, "Left vs right: " + p_text(perm_p_greater(x, y, boot)), transform=ax1.transAxes,
+        ax1.text(0.02, 0.98, "Left vs right: " + p_text(diff_ci(x, y, boot)[2]), transform=ax1.transAxes,
                  ha="left", va="top", fontsize=8.5, color=INK,
                  bbox=dict(facecolor="white", edgecolor="none", alpha=0.85, pad=1.5))
 
@@ -293,7 +283,7 @@ def check():
     x, y = rng.normal(0.2, 0.15, 400), rng.normal(-0.1, 0.15, 4000)
     d, (lo, hi), p = diff_ci(x, y, 500)
     assert abs(d - 0.3) < 0.03 and lo < 0.3 < hi and p < 0.01, (d, lo, hi, p)
-    assert perm_p_greater(x, y, 500) < 0.01 and perm_p_greater(y, x, 500) > 0.99
+    assert diff_ci(y, x, 500)[2] > 0.99  # one-sided: the wrong direction gives p near 1
     d, (lo, hi), p = diff_ci(rng.normal(0, 0.15, 400), rng.normal(0, 0.15, 400), 500)
     assert lo < 0 < hi, (d, lo, hi)
 

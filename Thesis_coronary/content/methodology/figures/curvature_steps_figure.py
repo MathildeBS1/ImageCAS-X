@@ -110,16 +110,16 @@ PB, PT = 0.02, 0.98
 t = np.linspace(0, 2 * np.pi, 300)
 
 
-def frame(n, h):
+def frame(n, h, w=W):
     """A figure of n rounded panels side by side; returns the figure and a function placing an axes in panel k."""
-    fig = plt.figure(figsize=(W, h))
+    fig = plt.figure(figsize=(w, h))
     pw = (R - L - (n - 1) * GAP) / n
     bg = fig.add_axes([0, 0, 1, 1], zorder=-5)
     bg.set_axis_off(); bg.set_xlim(0, 1); bg.set_ylim(0, 1)
     for k in range(n):
         bg.add_patch(FancyBboxPatch((L + k * (pw + GAP), PB), pw, PT - PB, transform=fig.transFigure,
                      boxstyle="round,pad=0,rounding_size=0.02", fc=tint(MUTED, 0.08),
-                     ec=tint(MUTED, 0.30), lw=0.8, mutation_aspect=W / h))
+                     ec=tint(MUTED, 0.30), lw=0.8, mutation_aspect=w / h))
 
     def panel(k, left=0.02, right=0.02, bottom=0.10, top=0.10):
         x0 = L + k * (pw + GAP)
@@ -145,9 +145,12 @@ def save(fig, name):
 # A made-up centerline of straight pieces and three circular bends (R 20, 10, 5 mm, alternating sides), read every
 # 0.5 mm. At one straight point and at the middle of each bend, B and F are found 5 mm away and kappa computed with
 # the thesis code; each bend's half-arc is longer than the arc a 5 mm chord needs, so kappa = 1/R exactly.
-PIECES = (("line", 14.0), ("arc", 20.0, np.radians(50)), ("line", 24.0), ("arc", 10.0, -np.radians(110)),
-          ("line", 26.0), ("arc", 5.0, np.radians(140)), ("line", 2.0))
-pts, head, marks, s0 = [np.zeros(2)], 0.0, [7.0], 0.0
+# 2026-11-25 (user: vertical, the circles on top of each other, far fewer drawn points): the centerline starts
+# downwards, so the three bends stack from top to bottom, and only every 4 mm is drawn as a point.
+PIECES = (("line", 20.0), ("arc", 20.0, np.radians(50)), ("line", 24.0), ("arc", 10.0, -np.radians(110)),
+          ("line", 22.0), ("arc", 5.0, np.radians(140)), ("line", 2.0))
+SHOW1 = 8  # every 8th point (4 mm apart)
+pts, head, marks, s0 = [np.zeros(2)], -np.pi / 2, [9.0], 0.0
 for piece in PIECES:
     if piece[0] == "line":
         n = int(piece[1] / 0.01)
@@ -171,11 +174,12 @@ for m in marks:  # put the marked points on the sampling grid
     u[np.argmin(np.abs(u - m))] = m
 C = np.c_[np.interp(u, ds, dense[:, 0]), np.interp(u, ds, dense[:, 1]), np.zeros_like(u)]
 
-fig, panel = frame(1, 3.3)
-ax = panel(0, 0.02, 0.02, 0.03, 0.03)
+# 2026-11-25 (user: smaller, beside the text): narrow and tall for a wrapfigure on the right, smaller labels
+fig, panel = frame(1, 3.55, 2.3)
+ax = panel(0, 0.01, 0.01, 0.01, 0.01)
 ax.set_axis_off(); ax.set_aspect("equal")
-ax.plot(C[:, 0], C[:, 1], color=INK, lw=1.0, zorder=1)
-ax.plot(C[::SHOW, 0], C[::SHOW, 1], "o", ms=1.6, color=INK, zorder=1)
+ax.plot(C[:, 0], C[:, 1], color=INK, lw=0.8, zorder=1)
+ax.plot(C[::SHOW1, 0], C[::SHOW1, 1], "o", ms=1.4, color=INK, zorder=1)
 for k, m in enumerate(marks):
     j = int(np.argmin(np.abs(u - m)))
     bb, pp, ff = chord_point(C, j, CHORD, -1), C[j], chord_point(C, j, CHORD, 1)
@@ -183,7 +187,7 @@ for k, m in enumerate(marks):
     print(f"marked point {k}: kappa {kap:.4f} 1/mm")
     if k == 0:  # straight: the three points lie on a line
         ax.plot([bb[0], ff[0]], [bb[1], ff[1]], color=TRI, lw=1.2, zorder=2)
-        ax.text(pp[0], pp[1] - 2.2, r"$\kappa = 0$", ha="center", va="top", fontsize=8.5)
+        ax.text(pp[0] - 2.5, pp[1], r"$\kappa = 0$", ha="right", va="center", fontsize=6.5)
     else:
         ctr, rad = circumcircle(bb, pp, ff)
         ax.plot(*(ctr[:, None] + rad * np.vstack([np.cos(t), np.sin(t)])), color=MAIN, lw=0.8, ls=DASH, zorder=1)
@@ -192,20 +196,21 @@ for k, m in enumerate(marks):
         ax.annotate("", xy=ctr + rad * away, xytext=ctr, arrowprops=AX, zorder=3)
         dot(ax, ctr, ms=2.2)
         lab = rf"$R = {rad:.0f}$ mm" + "\n" + rf"$\kappa = 1/{rad:.0f} = {kap:.2f}$ mm$^{{-1}}$"
-        if k == 3:  # the tight bend: beside its circle, clear of the centerline arriving from above
-            ax.text(*(ctr + np.array([rad + 3.0, 0.0])), lab, ha="left", va="center", fontsize=8, linespacing=1.3)
+        side = np.sign(away[0])  # beside the circle, on the side away from the centerline
+        if rad > 15:  # the large circle fills the width: its label goes inside, below the centre
+            ax.text(*(ctr - np.array([0.0, 4.0])), lab, ha="center", va="top", fontsize=6, linespacing=1.3)
         else:
-            ax.text(*(ctr + (rad + 2.0) * away), lab, ha="center", va="bottom" if away[1] > 0 else "top",
-                    fontsize=8, linespacing=1.3)
+            ax.text(*(ctr + np.array([side * (rad + 1.5), 0.0])), lab, ha="left" if side > 0 else "right",
+                    va="center", fontsize=6, linespacing=1.3)
     for q, key in ((bb, "B"), (pp, "P"), (ff, "F")):
-        dot(ax, q, ms=4.2, col=PTC[key])
+        dot(ax, q, ms=3.2, col=PTC[key])
     if k == 1:
         for q, lab in ((bb, r"$B_i$"), (pp, r"$P_i$"), (ff, r"$F_i$")):
             v = (q[:2] - ctr) / np.linalg.norm(q[:2] - ctr)  # outwards from the circle, off the centerline
-            ax.text(*(q[:2] + 2.2 * v), lab, ha="center", va="center", fontsize=9, color=PTC[lab[1]])
+            ax.text(*(q[:2] + 3.4 * v), lab, ha="center", va="center", fontsize=7, color=PTC[lab[1]])
 ax.autoscale_view()
 x_lo, x_hi = ax.get_xlim(); y_lo, y_hi = ax.get_ylim()
-ax.set_xlim(x_lo - 3, x_hi + 16); ax.set_ylim(y_lo - 9, y_hi + 9)
+ax.set_xlim(x_lo - 9, x_hi + 3); ax.set_ylim(y_lo - 3, y_hi + 3)
 save(fig, "curvature_radius_figure")
 
 # ================================================================ figure 2: from three points to the average curvature
