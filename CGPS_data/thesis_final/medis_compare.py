@@ -595,9 +595,11 @@ def thesis_rc():
                          "text.color": INK, "pdf.fonttype": 42})
 
 
-def ba_panel(ax, title, D, ct, cm, unit):
+def ba_panel(ax, title, D, ct, cm, unit, scale=1.0):
     """One Bland-Altman panel: difference tracer - Medis against the mean of the two, bias solid, limits of agreement
-    (bias +- 1.96 SD) dashed, zero dotted. Dots coloured by artery when D has one (artery_colours), else grey."""
+    (bias +- 1.96 SD) dashed, zero dotted. Dots coloured by artery when D has one (artery_colours), else grey. Values
+    are multiplied by scale (curvature in 10^-3 mm^-1, the unit of tab:results-medis-curvature). Dot size, fonts and
+    the n box as in the Results figures (hypertension_curvature.panel, dominance_check.plot), 2026-11-25."""
     ax.set_title(title, fontsize=10, color=INK)
     ax.spines[["top", "right"]].set_visible(False)
     ax.tick_params(colors=INK2, labelsize=8)
@@ -607,24 +609,24 @@ def ba_panel(ax, title, D, ct, cm, unit):
     D = D[np.isfinite(D[ct].astype(float)) & np.isfinite(D[cm].astype(float))]
     if len(D) < 3:
         return
-    t, m = D[ct].to_numpy(float), D[cm].to_numpy(float)
+    t, m = scale * D[ct].to_numpy(float), scale * D[cm].to_numpy(float)
     d, mu = t - m, (t + m) / 2
     if "artery" in D:
         colour = artery_colours()
         for a in ARTERIES:
             k = (D["artery"] == a).to_numpy()
-            ax.scatter(mu[k], d[k], s=7, alpha=0.6, linewidths=0, color=colour[a], label=NAME[a])
+            ax.scatter(mu[k], d[k], s=12, alpha=0.7, linewidths=0, color=colour[a], label=NAME[a])
     else:
-        ax.scatter(mu, d, s=10, alpha=0.7, linewidths=0, color=INK2)  # not an artery colour
+        ax.scatter(mu, d, s=12, alpha=0.7, linewidths=0, color=INK2)  # not an artery colour
     b, sd = d.mean(), d.std(ddof=1)
     for y, ls in ((b, "-"), (b - 1.96 * sd, "--"), (b + 1.96 * sd, "--")):
         ax.axhline(y, ls=ls, lw=1, color=INK)
     ax.axhline(0, lw=0.8, color=MUTED, ls=":")
-    ax.text(0.98, 0.98, f"$n$ = {len(d)}", transform=ax.transAxes, ha="right", va="top", fontsize=8, color=INK,
+    ax.text(0.98, 0.98, f"$n$ = {len(d)}", transform=ax.transAxes, ha="right", va="top", fontsize=8.5, color=INK,
             bbox=dict(facecolor="white", edgecolor="none", alpha=0.85, pad=1.5))
     u = f" ({unit})" if unit else ""
-    ax.set_xlabel("Mean of tracer and Medis" + u, fontsize=8.5)
-    ax.set_ylabel("Tracer $-$ Medis" + u, fontsize=8.5)
+    ax.set_xlabel("Mean of tracer and Medis" + u)
+    ax.set_ylabel("Tracer $-$ Medis" + u)
 
 
 def plots(A, P, out):
@@ -638,17 +640,18 @@ def plots(A, P, out):
     thesis_rc()
 
     absa = P.assign(abs_t=P["asym_tracer"].abs(), abs_m=P["asym_medis"].abs()) if "asym_tracer" in P else P
-    figures = {"curvature": [("Curvature", shared_pairs(A), "T_shared_tracer", "T_shared_medis", r"mm$^{-1}$")],
+    figures = {"curvature": [("Curvature", shared_pairs(A), "T_shared_tracer", "T_shared_medis",
+                              r"$10^{-3}$ mm$^{-1}$", 1e3)],
                "angle": [("Bifurcation angle", P, "theta_tracer", "theta_medis", "degrees")],
                "asymmetry": [(r"LAD/LCx asymmetry $|a|$", absa, "abs_t", "abs_m", "")]}
     for name, panels in figures.items():
-        fig, axes = plt.subplots(1, len(panels), figsize=(3.4, 3.2), squeeze=False)
+        fig, axes = plt.subplots(1, len(panels), figsize=(4.8, 4.4), squeeze=False)
         for ax, panel in zip(axes.flat, panels):
             ba_panel(ax, *panel)
         h, l = axes.flat[0].get_legend_handles_labels()
         if h:
-            fig.legend(h, l, loc="lower center", ncol=3, frameon=False, fontsize=8, markerscale=1.8)
-            fig.tight_layout(rect=(0, 0.07, 1, 1))
+            fig.legend(h, l, loc="lower center", ncol=3, frameon=False, fontsize=8, markerscale=1.5)
+            fig.tight_layout(rect=(0, 0.05, 1, 1))
         else:
             fig.tight_layout()
         fig.savefig(out / f"bland_altman_{name}.png", dpi=300)
