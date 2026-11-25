@@ -1,0 +1,219 @@
+% Results 01: the study cohort (outline 2026-11-25, user; written with MOCK DATA 2026-11-25, user).
+% Owns the counts that Methods points to with sec:results-cohort (04_statistical_model, 05_curvature_fpca).
+% MOCK DATA: every number in \mock{} (blue) is made up and consistent only with itself. Every real value comes
+%   from CGPS_data/thesis_final/cohort_tables.py (cohort_tables.md: sections 1-5 = flowchart, tab:results-missing,
+%   tab:results-characteristics, tab:results-location, tab:results-features). Real already: 1,801, 724 and 1,077
+%   (Data chapter, medis_missing_plaque.md). Replace all \mock{} before submission (grep '\\mock').
+% Rules of cohort_tables.py (user, 2026-11-25): FU image quality = whole-scan flag (ct_cag_uneval or
+%   ct_cag_incomplete); complete cases for curvature, the angle and the asymmetry. Its report adds rows the mock
+%   tables lack: participants with a missing risk factor or follow-up, segments without an FU grade.
+% Exclusions are compared by reason: poor follow-up image quality has no outcome, so only baseline
+%   characteristics are compared (Table 1, last column); a missing feature has an outcome, so the share who
+%   developed plaque is compared (sec:results-missing).
+% 2026-11-25: the features are left out of Table 1 (departs from the outline), so the table is not read as an
+%   unadjusted test of geometry; their distributions are in sec:results-features.
+% 2026-11-25 (user): missingness moved to its own subsection sec:results-missing, right after the flow, with one
+%   table; the Missing column, the with/without column and the two missingness sentences left the feature table.
+%   Each feature is compared on the outcome of its model: proximal LAD or LCx for the angle and the asymmetry,
+%   the same segment for curvature (within segment, since distal segments are missing more often and develop
+%   plaque less often, so a pooled comparison would show a difference that no segment has).
+% CAREFUL: equal shares support, but do not prove, that the complete cases are unbiased; missingness that depends
+%   on the geometry itself (tortuous arteries harder to trace) cannot be seen here. Owed to the Discussion.
+% Bifurcation outcome counted twice on purpose: 252 in the analysed cohort (location), 218 in the bifurcation
+%   model (complete cases for the asymmetry).
+% All counts follow MIN_CELL = 5 (CGPS_data/cgps_stats.py); percentages stay next to hidden counts (user).
+% CHECK: why a few participants have no tracer centerlines (dominance_check.md: 1,074 of 1,077 have them).
+% OPEN: whether the miss rate of the segment division (sec:method-split-validation, label without text in
+%   Methods 04) is still reported here.
+\section{Study Cohort}
+\label{sec:results-cohort}
+
+\subsection{Participants and Exclusions}
+\label{sec:results-flow}
+
+Of the 1,801 Herlev--{\O}sterbro participants, 1,077 were free of plaque at baseline (Figure~\ref{fig:results-flow}).
+Of these, \mock{41} were excluded since their follow-up scan was too poor to grade plaque, and the tracer gave no output for \mock{18} more.
+The remaining \mock{1,018} participants formed the analysed cohort.
+Over a median follow-up of \mock{10.2} years (IQR \mock{9.8} to \mock{10.9}), \mock{476} (\mock{46.8}\%) of them developed plaque.
+
+The two models were fitted on different parts of this cohort.
+The curvature model held \mock{8,834} segments of \mock{1,012} participants, with plaque in \mock{785} segments.
+The bifurcation model held the \mock{880} participants with both the bifurcation angle and the LAD/LCx asymmetry, of whom \mock{218} developed plaque in the proximal LAD or the proximal LCx.
+
+\begin{figure}[htbp]
+  \centering
+  \begin{tikzpicture}[
+      font=\footnotesize,
+      box/.style={draw, align=center, text width=5.0cm, inner sep=4pt},
+      excl/.style={draw, align=left, text width=3.7cm, inner sep=4pt},
+      model/.style={draw, align=center, text width=4.4cm, inner sep=4pt, fill=gray!10},
+      arr/.style={-{Stealth[length=2mm]}},
+      node distance=7mm
+    ]
+    \node[box] (all) {Herlev--{\O}sterbro participants\\with baseline and follow-up CCTA\\\mbox{$n = 1{,}801$}};
+    \node[box, below=of all] (free) {Plaque-free at baseline\\\mbox{$n = 1{,}077$}};
+    \node[box, below=of free] (grad) {Follow-up scan gradable\\\mbox{$n = \mock{1{,}036}$}};
+    \node[box, below=of grad, fill=gray!10] (cohort) {Analysed cohort, \mbox{$n = \mock{1{,}018}$}\\developed plaque: \mock{476} (\mock{46.8}\%)};
+
+    \foreach \a/\b/\n/\t in {all/free/e1/{Plaque at baseline\\\mbox{$n = 724$}},
+                             free/grad/e2/{Follow-up image quality too low\\\mbox{$n = \mock{41}$}},
+                             grad/cohort/e3/{No tracer output\\\mbox{$n = \mock{18}$}}} {
+      \draw[arr] (\a) -- (\b);
+      \coordinate (m) at ($(\a.south)!0.5!(\b.north)$);
+      \node[excl, anchor=west] (\n) at ($(m) + (3.1, 0)$) {\t};
+      \draw[arr] (m) -- (\n.west);
+    }
+
+    \node[model, below left=11mm and -18mm of cohort] (curv) {\textbf{Curvature model}\\\mock{1,012} participants\\\mock{8,834} segments\\plaque in \mock{785} segments};
+    \node[model, below right=11mm and -18mm of cohort] (bif) {\textbf{Bifurcation model}\\\mock{880} participants\\plaque in the proximal LAD\\or LCx: \mock{218}};
+    \draw[arr] (cohort.south) -- ++(0, -4mm) -| (curv.north);
+    \draw[arr] (cohort.south) -- ++(0, -4mm) -| (bif.north);
+  \end{tikzpicture}
+  \caption{Selection of the analysed cohort and of the participants in each model. Participants without a curvature value in any segment (\mock{6}) were left out of the curvature model, and participants without the LAD/LCx asymmetry (\mock{138}) out of the bifurcation model. Numbers in blue are mock data.}
+  \label{fig:results-flow}
+\end{figure}
+
+\subsection{Missing Values and Exclusions}
+\label{sec:results-missing}
+
+Participants without the LAD/LCx asymmetry developed plaque in the proximal LAD or LCx as often as those with it (\mock{24.6}\% against \mock{24.8}\%) (Table~\ref{tab:results-missing}).
+The same holds for the bifurcation angle.
+Participants without tracer output developed plaque in \mock{44.4}\% of cases, against \mock{46.8}\% in the analysed cohort.
+For curvature, the share of segments that developed plaque was compared within each segment.
+It differs by at most \mock{7.5} percentage points, and each of these differences rests on fewer than five segments with plaque among those without a value.
+The participants excluded for follow-up image quality have no outcome, so they are compared on their baseline characteristics only (Section~\ref{sec:results-characteristics}).
+
+\begin{table}[htbp]
+  \centering
+  \caption{Participants and segments left out of the analysis, and the share that developed plaque among those kept and those left out. Each group is compared on the outcome of the model it was left out of. Shares based on fewer than five participants with plaque are shown without their count. Numbers in blue are mock data.}
+  \label{tab:results-missing}
+  \footnotesize
+  \setlength{\tabcolsep}{5pt}
+  \begin{tabular}{@{}lrcc@{}}
+    \toprule
+    & Left out & \multicolumn{2}{c}{Developed plaque, \%} \\
+    \cmidrule(l){3-4}
+    & $n$ & Kept & Left out \\
+    \midrule
+    \multicolumn{4}{@{}l}{\emph{Left out of the cohort; plaque in any segment}} \\
+    \quad Follow-up image quality too low & \mock{41} & \mock{46.8} & not graded \\
+    \quad No tracer output & \mock{18} & \mock{46.8} & \mock{44.4} \\
+    \addlinespace
+    \multicolumn{4}{@{}l}{\emph{Left out of the bifurcation model; plaque in the proximal LAD or LCx}} \\
+    \quad No bifurcation angle & \mock{57} & \mock{24.8} & \mock{24.6} \\
+    \quad No LAD/LCx asymmetry & \mock{138} & \mock{24.8} & \mock{24.6} \\
+    \addlinespace
+    \multicolumn{4}{@{}l}{\emph{Left out of the curvature model; plaque in the same segment}} \\
+    \quad Proximal LAD & \mock{14} & \mock{21.8} & \mock{14.3} \\
+    \quad Mid LAD & \mock{17} & \mock{16.6} & \mock{11.8} \\
+    \quad Distal LAD & \mock{40} & \mock{5.1} & \mock{5.0} \\
+    \quad Proximal LCx & \mock{67} & \mock{5.8} & \mock{4.5} \\
+    \quad Mid LCx & \mock{56} & \mock{4.1} & \mock{3.6} \\
+    \quad Distal LCx & \mock{98} & \mock{2.1} & \mock{3.1} \\
+    \quad Proximal RCA & \mock{10} & \mock{9.6} & \mock{10.0} \\
+    \quad Mid RCA & \mock{15} & \mock{8.5} & \mock{13.3} \\
+    \quad Distal RCA & \mock{11} & \mock{5.5} & \mock{9.1} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Participant Characteristics}
+\label{sec:results-characteristics}
+
+Participants who developed plaque are on average \mock{5.8} years older than those who did not (Table~\ref{tab:results-characteristics}).
+They are also more often men (\mock{52.1}\% against \mock{36.2}\%) and more often current smokers (\mock{14.9}\% against \mock{10.7}\%).
+Dominance is distributed alike in the two groups.
+The \mock{41} participants excluded for follow-up image quality lie between the two groups in age and sex.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Baseline characteristics of the analysed cohort by whether the participant developed plaque, and of the participants excluded since their follow-up scan was too poor to grade plaque. Mean (SD) unless stated. Numbers in blue are mock data.}
+  \label{tab:results-characteristics}
+  \footnotesize
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}lccc@{}}
+    \toprule
+    & Developed & Did not develop & Excluded, \\
+    & plaque, $n = \mock{476}$ & plaque, $n = \mock{542}$ & image quality, $n = \mock{41}$ \\
+    \midrule
+    Age, years & \mock{62.1 (8.4)} & \mock{56.3 (8.9)} & \mock{59.8 (9.6)} \\
+    Men, $n$ (\%) & \mock{248 (52.1)} & \mock{196 (36.2)} & \mock{19 (46.3)} \\
+    Current smoking, $n$ (\%) & \mock{71 (14.9)} & \mock{58 (10.7)} & \mock{7 (17.1)} \\
+    Systolic blood pressure, mmHg & \mock{138 (18)} & \mock{131 (17)} & \mock{136 (19)} \\
+    Total cholesterol, mmol/L & \mock{5.6 (1.0)} & \mock{5.4 (1.0)} & \mock{5.5 (1.1)} \\
+    HDL cholesterol, mmol/L & \mock{1.6 (0.5)} & \mock{1.7 (0.5)} & \mock{1.6 (0.5)} \\
+    Follow-up, years, median (IQR) & \mock{10.3 (9.9 to 11.0)} & \mock{10.1 (9.7 to 10.8)} & \mock{10.2 (9.8 to 10.9)} \\
+    \addlinespace
+    \multicolumn{4}{@{}l}{\emph{Dominance}, $n$ (\%)} \\
+    \quad Right & \mock{413 (86.8)} & \mock{470 (86.7)} & \mock{35 (85.4)} \\
+    \quad Co-dominant & \mock{32 (6.7)} & \mock{37 (6.8)} & \mock{<5 (7.3)} \\
+    \quad Left & \mock{31 (6.5)} & \mock{35 (6.5)} & \mock{<5 (7.3)} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Where Plaque Developed}
+\label{sec:results-location}
+
+Of the \mock{476} participants who developed plaque, \mock{447} (\mock{93.9}\%) had it in at least one segment of the LAD, the LCx or the RCA (Table~\ref{tab:results-location}).
+The other \mock{29} (\mock{6.1}\%) had plaque only in the LM or a side branch.
+Plaque developed most often in the proximal LAD (\mock{46.4}\%) and the mid LAD (\mock{35.3}\%), the two segments of the shape analysis (Section~\ref{sec:method-fpca}).
+In \mock{252} participants (\mock{52.9}\%), plaque developed in the proximal LAD or the proximal LCx, which is the outcome of the bifurcation model.
+For \mock{268} participants (\mock{56.3}\%), the plaque was graded mild or worse, which is the outcome of the sensitivity analysis (Section~\ref{sec:method-sensitivity}).
+
+\begin{table}[htbp]
+  \centering
+  \caption{Participants who developed plaque, by the segment in which it developed, as $n$ (\%) of the \mock{476} who developed plaque. A participant can have plaque in more than one segment, so the segments of an artery add up to more than the artery. The two segments of the shape analysis are in bold. Numbers in blue are mock data.}
+  \label{tab:results-location}
+  \footnotesize
+  \setlength{\tabcolsep}{5pt}
+  \begin{tabular}{@{}lcccc@{}}
+    \toprule
+    Artery & Proximal & Mid & Distal & Any segment \\
+    \midrule
+    LAD & \textbf{\mock{221 (46.4)}} & \textbf{\mock{168 (35.3)}} & \mock{52 (10.9)} & \mock{312 (65.5)} \\
+    LCx & \mock{58 (12.2)} & \mock{41 (8.6)} & \mock{22 (4.6)} & \mock{101 (21.2)} \\
+    RCA & \mock{98 (20.6)} & \mock{87 (18.3)} & \mock{56 (11.8)} & \mock{183 (38.4)} \\
+    \midrule
+    LAD, LCx or RCA & & & & \mock{447 (93.9)} \\
+    LM or side branch only & & & & \mock{29 (6.1)} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Geometric Features in the Cohort}
+\label{sec:results-features}
+
+The bifurcation angle could be calculated for \mock{961} participants and the LAD/LCx asymmetry for \mock{880} (Table~\ref{tab:results-features}).
+Curvature was available for between \mock{920} (distal LCx) and \mock{1,008} (proximal RCA) participants per segment.
+In each artery, the average curvature increases from the proximal to the distal segment.
+The SDs in Table~\ref{tab:results-features} are the units of the hazard ratios per SD in Section~\ref{sec:results-models}.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Distribution of the geometric features in the \mock{1,018} participants of the analysed cohort. Curvature in $10^{-3}$\,mm$^{-1}$, the angle in degrees; $a = \ln(D_{\mathrm{LCx}}/D_{\mathrm{LAD}})$. The values left out are in Table~\ref{tab:results-missing}. Numbers in blue are mock data.}
+  \label{tab:results-features}
+  \footnotesize
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}lrcc@{}}
+    \toprule
+    & Available & Mean (SD) & Median (IQR) \\
+    \midrule
+    Bifurcation angle & \mock{961} & \mock{74.8 (24.1)} & \mock{73.0 (57.5 to 90.2)} \\
+    $|a|$ & \mock{880} & \mock{0.172 (0.131)} & \mock{0.145 (0.071 to 0.244)} \\
+    $a$ & \mock{880} & \mock{$-0.031$ (0.214)} & \mock{$-0.040$ ($-0.168$ to 0.097)} \\
+    \addlinespace
+    \multicolumn{4}{@{}l}{\emph{Curvature}} \\
+    \quad Proximal LAD & \mock{1,004} & \mock{58.2 (17.9)} & \mock{55.9 (45.6 to 68.4)} \\
+    \quad Mid LAD & \mock{1,001} & \mock{66.4 (19.5)} & \mock{64.1 (52.8 to 77.9)} \\
+    \quad Distal LAD & \mock{978} & \mock{79.1 (24.8)} & \mock{75.6 (61.7 to 93.0)} \\
+    \quad Proximal LCx & \mock{951} & \mock{61.8 (21.3)} & \mock{58.7 (46.9 to 73.4)} \\
+    \quad Mid LCx & \mock{962} & \mock{70.3 (22.6)} & \mock{67.2 (54.5 to 83.1)} \\
+    \quad Distal LCx & \mock{920} & \mock{74.5 (25.9)} & \mock{70.8 (56.3 to 89.4)} \\
+    \quad Proximal RCA & \mock{1,008} & \mock{50.2 (14.1)} & \mock{48.6 (40.3 to 58.2)} \\
+    \quad Mid RCA & \mock{1,003} & \mock{55.6 (15.8)} & \mock{53.9 (44.8 to 64.5)} \\
+    \quad Distal RCA & \mock{1,007} & \mock{58.9 (18.2)} & \mock{56.7 (46.4 to 69.0)} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\FloatBarrier
