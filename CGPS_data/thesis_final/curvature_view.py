@@ -1,21 +1,23 @@
-"""Overlay the tracer and Medis centerlines of the compared artery for the --n artery pairs whose average curvature
-differs most (largest |T_tracer - T_medis|, either sign), and below them the pair where the two agree best, as a
-reference (server only: the figure shows single participants).
+"""Overlay the tracer and Medis centerlines of the compared artery for the --n artery pairs whose curvature over the
+shared stretch differs most (largest |T_shared_tracer - T_shared_medis|, either sign, the comparison reported since
+2026-11-25), and below them the pair where the two agree best, as a reference (server only: the figure shows single
+participants).
 
     python CGPS_data/thesis_final/curvature_view.py [--n 6] [--artery LAD|CX|RCA] [--rows DIR]
 
 Reuses medis_compare_arteries.csv that medis_compare.py saved in --rows and chooses among every artery pair with a
 value in both trees whose Medis artery is a reference and which pass the same-vessel check, as in the main
-curvature rows of medis_compare (reference_rows, reason ok). Both trees are read again and divided
+curvature rows of medis_compare (reference_rows, reason ok, shared_pairs). Both trees are read again and divided
 with split_trunks.split (the tracer from its own ostia), as in medis_compare.tree_features.
 
 Each row: left, the artery of both trees in one projection (the plane through both lines that shows them best),
-tracer solid and Medis dashed, with each line's start (circle) and end (square), so a trace that stops early or
-follows another vessel shows. Right, the curvature profile of each (curvature_feature.curvature_profile, CHORD mm)
-along its own arc length from its own start, and its average over the whole artery (the compared value,
-curvature_feature.artery_curvature over 0 to end) as a thin line over the same stretch. The row title gives the
-rank, the artery, the two averages and their difference, the two artery lengths, the same-vessel check (reason and
-the same-vessel distance) and the stretch both lines cover on each.
+tracer solid and Medis dashed, the whole artery faint and the compared stretch (medis_compare.shared_stretch less
+CHORD mm at each end) strong, with the compared stretch's start (circle) and end (square). Right, the curvature
+profile of each (curvature_feature.curvature_profile, CHORD mm) along its own arc length from its own start, faint
+outside the compared stretch, and its average over the compared stretch (the compared value,
+medis_compare.shared_curvature) as a thin line over that stretch. The row title gives the rank, the artery, the two
+averages and their difference, the two artery lengths, the same-vessel check (reason and the same-vessel distance)
+and the stretch both lines cover on each.
 Figure: curvature_view.png in --rows. The study ids are printed to the terminal with each row's numbers, not in the
 figure.
 
@@ -34,7 +36,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from curvature_feature import CHORD, artery_curvature, curvature_profile
 
 NAME = {"LAD": "LAD", "CX": "LCx", "RCA": "RCA"}
-from medis_compare import GRID, INK, INK2, PALETTE, thesis_rc  # noqa: E402  (the thesis colour scheme and fonts)
+from medis_compare import GRID, INK, INK2, PALETTE, shared_curvature, shared_stretch, thesis_rc  # noqa: E402
 
 STYLE = {"tracer": {"color": PALETTE[3], "ls": "-"}, "Medis": {"color": PALETTE[2], "ls": "--"}}  # purple, green
 
@@ -51,20 +53,36 @@ def artery(tree, a, roots=None):
     return Y, s, end, artery_curvature(Y, s, (0.0, end), CHORD)[0]
 
 
+def compared(lines):
+    """{method: (start, end, average)} of the compared stretch on each line: the shared stretch less CHORD mm at each
+    end and its average curvature, as medis_compare.shared_curvature."""
+    (Yt, st, *_), (Ym, sm, *_) = lines["tracer"], lines["Medis"]
+    (t0, t1), (m0, m1) = shared_stretch(Yt, st, Ym, sm)
+    T = shared_curvature(Yt, st, Ym, sm)
+    return {"tracer": (t0 + CHORD, t1 - CHORD, T["T_shared_tracer"]),
+            "Medis": (m0 + CHORD, m1 - CHORD, T["T_shared_medis"])}
+
+
 def row(axl, axr, lines, k=1.0):
     """lines: {"tracer": artery(...), "Medis": artery(...)}. k scales lines and markers (thesis figure 0.6)."""
+    part = compared(lines)
     pts = np.concatenate([Y[s <= end] for Y, s, end, _ in lines.values()])
     c = pts.mean(axis=0)
     axes = np.linalg.svd(pts - c)[2][:2]
-    for m, (Y, s, end, T) in lines.items():
-        q = (Y[s <= end] - c) @ axes.T
-        axl.plot(q[:, 0], q[:, 1], lw=1.6 * k, label=f"{m.capitalize()}, {end:.0f} mm", **STYLE[m])
-        axl.plot(*q[0], marker="o", ms=8 * k, color=STYLE[m]["color"], ls="none")
-        axl.plot(*q[-1], marker="s", ms=8 * k, mfc="none", mew=2 * k, color=STYLE[m]["color"], ls="none")
+    for m, (Y, s, end, _) in lines.items():
+        lo, hi, T = part[m]
+        q = (Y - c) @ axes.T
+        whole, inside = s <= end, (s >= lo) & (s <= hi)
+        axl.plot(q[whole, 0], q[whole, 1], lw=0.8 * k, alpha=0.35, color=STYLE[m]["color"], ls=STYLE[m]["ls"])
+        axl.plot(q[inside, 0], q[inside, 1], lw=1.6 * k, label=f"{m.capitalize()}, {hi - lo:.0f} mm", **STYLE[m])
+        if inside.any():
+            axl.plot(*q[inside][0], marker="o", ms=8 * k, color=STYLE[m]["color"], ls="none")
+            axl.plot(*q[inside][-1], marker="s", ms=8 * k, mfc="none", mew=2 * k, color=STYLE[m]["color"], ls="none")
         pos, kappa = curvature_profile(Y, CHORD, s)
-        inside = pos < end
+        whole, inside = pos < end, (pos >= lo) & (pos <= hi)
+        axr.plot(pos[whole], kappa[whole], lw=0.8 * k, alpha=0.35, color=STYLE[m]["color"], ls=STYLE[m]["ls"])
         axr.plot(pos[inside], kappa[inside], lw=1.2 * k, label=f"{m.capitalize()}, average {T:.3f}", **STYLE[m])
-        axr.plot([0, end], [T, T], lw=0.8 * k, color=STYLE[m]["color"])
+        axr.plot([lo, hi], [T, T], lw=0.8 * k, color=STYLE[m]["color"])
     axl.plot([], [], marker="o", ms=8 * k, color=INK2, ls="none", label="Start")
     axl.plot([], [], marker="s", ms=8 * k, mfc="none", mew=2 * k, color=INK2, ls="none", label="End")
     axl.set_aspect("equal", adjustable="datalim")  # same scale on both axes, the panel keeps its size
@@ -125,7 +143,7 @@ def main():
     from cgps_stats import OUT_DIR
 
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--n", type=int, default=6, help="number of worst cases (largest |curvature difference|)")
+    ap.add_argument("--n", type=int, default=6, help="number of worst cases (largest |shared-stretch difference|)")
     ap.add_argument("--artery", choices=("LAD", "CX", "RCA"), default=None, help="only this artery (default all)")
     ap.add_argument("--examples", action="store_true",
                     help="for the thesis: one bad and one good example, each its own figure (see the docstring)")
@@ -136,13 +154,13 @@ def main():
         args.n = 1
     rows = Path(args.rows)
     A = pd.read_csv(rows / "medis_compare_arteries.csv", dtype={"id": str})
-    if "T_tracer" not in A:
-        ap.error("the CSV has no curvature columns: rerun medis_compare.py")
+    if "T_shared_tracer" not in A:
+        ap.error("the CSV has no shared-stretch curvature columns: rerun medis_compare.py")
     if "medis_full" in A:  # only where the Medis artery is a reference, the rule of medis_compare
         from medis_compare import reference_rows
         A = reference_rows(A)[0]
         A = A[A["reason"] == "ok"]  # the same vessel, as in the main rows of medis_compare
-    A = A.assign(diff=A["T_tracer"] - A["T_medis"]).dropna(subset=["diff"])
+    A = A.assign(diff=A["T_shared_tracer"] - A["T_shared_medis"]).dropna(subset=["diff"])  # shared_pairs
     if args.artery:
         A = A[A["artery"] == args.artery]
     worst = A.loc[A["diff"].abs().sort_values(ascending=False).index[:args.n]]
@@ -156,11 +174,13 @@ def main():
         pid, a = r["id"], r["artery"]
         lines = {"tracer": artery(tracer_io.tracer_tree(pid, args.src), a, tracer_io.tracer_ostia(pid, args.src)),
                  "Medis": artery(hq.tree_points(medis[pid]), a)}
-        (_, _, lt, tt), (_, _, lm, tm) = lines["tracer"], lines["Medis"]
+        (_, _, lt, _), (_, _, lm, _) = lines["tracer"], lines["Medis"]
+        part = compared(lines)
+        tt, tm = part["tracer"][2], part["Medis"][2]
         off = f" ({r['offset']:.1f} mm)" if pd.notna(r.get("offset", np.nan)) else ""
         shared = (f"; shared stretch tracer {r['shared_tracer']:.0f} mm, Medis {r['shared_medis']:.0f} mm"
                   if pd.notna(r.get("shared_tracer", np.nan)) else "")
-        text = (f"{label}: {NAME[a]}, average curvature tracer {tt:.3f}, Medis {tm:.3f} 1/mm, difference {tt - tm:+.3f}\n"
+        text = (f"{label}: {NAME[a]}, curvature over the shared stretch tracer {tt:.3f}, Medis {tm:.3f} 1/mm, difference {tt - tm:+.3f}\n"
                 f"length tracer {lt:.0f} mm, Medis {lm:.0f} mm; same-vessel check: {r['reason']}{off}{shared}")
         cases.append((text, lines))
         print(f"id {pid}: {text.replace(chr(10), '; ')}")

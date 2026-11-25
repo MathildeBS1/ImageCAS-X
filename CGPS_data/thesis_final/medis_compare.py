@@ -49,12 +49,11 @@ DEPTHS[-1] mm of the daughter from its own O to the other tree's left main and w
 between the two bifurcation points O, is reported. Curvature needs the artery to pass; the angle and the
 asymmetry need the LAD and the LCx to pass and to pass near_o (aligned). The check only selects pairs: every
 feature value is still the whole-artery value of each tree on its own.
-Stored beside it (descriptive, 2026-11-19): T_shared_tracer and T_shared_medis, each tree's curvature averaged over
-only the stretch both lines cover, less CHORD mm at each end (shared_curvature), and one report row with their
-difference on the main pairs: agreement per artery and for all arteries, the whole-artery row on exactly the
-pairs that have a shared value, reliability rows and a Bland-Altman panel (bland_altman_curvature.png). It
-shows how much of the whole-artery difference comes from the stretches only one line covers. The Bland-Altman figure
-uses the pairs of the main rows (main_rows).
+Curvature over the shared stretch (shared_curvature): T_shared_tracer and T_shared_medis, each tree's curvature
+profile averaged over only the stretch both lines cover, less CHORD mm at each end. Since 2026-11-25 (user) this is
+the curvature comparison the thesis reports: the first curvature table, the first reliability rows and
+bland_altman_curvature.png. The whole-artery rows follow it in the report, for comparison: their difference also
+holds the stretches only one line covers. The Bland-Altman figures use the pairs of the main rows (main_rows).
 
 Agreement per feature: difference tracer - Medis in the feature's own unit, bias, SD of the differences, 95% limits
 of agreement (bias +- 1.96 SD) and 95% intervals from a bootstrap over participants. Reliability per feature, on the
@@ -409,7 +408,7 @@ def report(flow, A, P, boot):
     L += [f"| {k} | {count(v)} |" for k, v in flow.items()]
 
     F, min_len = reference_rows(A)
-    L += ["\n## Curvature per artery (average over each tree's whole artery)\n",
+    L += ["\n## Curvature per artery (average over the stretch both centerlines cover)\n",
           ("Compared only where the Medis artery is full (split_trunks.full_artery, 2026-11-19): along its path the "
            "first label of the artery is its proximal segment, the last its distal segment, and the proximal, mid and "
            "distal segments all occur. It must also be at least as long as the shortest tracer artery of the same kind "
@@ -430,25 +429,29 @@ def report(flow, A, P, boot):
         for a in ARTERIES:
             d = F[F["artery"] == a]
             L.append(f"| {NAME[a]} | {coverage(d['T_tracer'], d['T_medis'])} |")
-        L += ["", head]
         B = both(F, "T")
         S = B[B["reason"] == "ok"]  # same vessel
-        for a in ARTERIES:
-            d = S[S["artery"] == a]
-            L.append(stat_row(NAME[a], diff(d, "T"), d["id"].to_numpy(), boot, "1/mm"))
-        L.append(stat_row("all arteries", diff(S, "T"), S["id"].to_numpy(), boot, "1/mm"))
-        L.append(stat_row("all arteries, also pairs failing the same-vessel check (sensitivity)", diff(B, "T"),
-                          B["id"].to_numpy(), boot, "1/mm"))
         SS = shared_pairs(S)
-        L += [f"\nThe same pairs averaged over the shared stretch only (descriptive; shared_curvature: the stretch both "
-              f"lines cover less {CHORD:g} mm at each end, at least {MIN_SHARED:g} mm). The last row is the whole-artery "
-              f"comparison on exactly these pairs, so any difference between the two comes from the stretch alone.\n",
-              head]
+        L += [f"\nThe reported comparison (2026-11-25, user): each tree's curvature averaged over the stretch both lines "
+              f"cover, less {CHORD:g} mm at each end, at least {MIN_SHARED:g} mm (shared_curvature).\n", head]
         for a in ARTERIES:
             d = SS[SS["artery"] == a]
             L.append(stat_row(f"{NAME[a]}, shared stretch", diff(d, "T_shared"), d["id"].to_numpy(), boot, "1/mm"))
         L.append(stat_row("all arteries, shared stretch", diff(SS, "T_shared"), SS["id"].to_numpy(), boot, "1/mm"))
-        L.append(stat_row("all arteries, whole artery, the same pairs", diff(SS, "T"), SS["id"].to_numpy(), boot, "1/mm"))
+        SB = shared_pairs(B)
+        L.append(stat_row("all arteries, shared stretch, also pairs failing the same-vessel check (sensitivity)",
+                          diff(SB, "T_shared"), SB["id"].to_numpy(), boot, "1/mm"))
+        L += ["\nFor comparison, each tree's whole artery (its own start to its own end, the value the cohort gets). "
+              "The last row is on exactly the shared-stretch pairs, so its difference to the shared-stretch row comes "
+              "from the stretch alone.\n", head]
+        for a in ARTERIES:
+            d = S[S["artery"] == a]
+            L.append(stat_row(f"{NAME[a]}, whole artery", diff(d, "T"), d["id"].to_numpy(), boot, "1/mm"))
+        L.append(stat_row("all arteries, whole artery", diff(S, "T"), S["id"].to_numpy(), boot, "1/mm"))
+        L.append(stat_row("all arteries, whole artery, also pairs failing the same-vessel check (sensitivity)",
+                          diff(B, "T"), B["id"].to_numpy(), boot, "1/mm"))
+        L.append(stat_row("all arteries, whole artery, the shared-stretch pairs", diff(SS, "T"), SS["id"].to_numpy(),
+                          boot, "1/mm"))
         L += ["\nCompared pairs: the same-vessel distance (per pair, the larger 90th percentile of the distances "
               "between the two centerlines, both ways) and the stretch both lines cover, in mm and as a share of each "
               f"tree's whole artery. Median (90th percentile over pairs from {TAIL_MIN} pairs).\n",
@@ -545,12 +548,12 @@ def report(flow, A, P, boot):
     sets = []
     S = F[F["reason"] == "ok"] if len(F) else F
     if len(S):
-        sets += [(f"curvature, {NAME[a]}", S[S["artery"] == a], "T", "1/mm") for a in ARTERIES]
-        sets.append(("curvature, all arteries", S, "T", "1/mm"))
-        SS = shared_pairs(S)
+        SS = shared_pairs(S)  # the reported curvature rows first (2026-11-25), the whole artery for comparison
         sets += [(f"curvature over the shared stretch, {NAME[a]}", SS[SS["artery"] == a], "T_shared", "1/mm")
                  for a in ARTERIES]
         sets.append(("curvature over the shared stretch, all arteries", SS, "T_shared", "1/mm"))
+        sets += [(f"curvature, whole artery, {NAME[a]}", S[S["artery"] == a], "T", "1/mm") for a in ARTERIES]
+        sets.append(("curvature, whole artery, all arteries", S, "T", "1/mm"))
     if len(P):
         sets.append(("LAD-LCx angle", P[P["aligned"].astype(bool)], "theta", "degrees"))
     if len(P) and "asym_tracer" in P:
@@ -626,21 +629,20 @@ def ba_panel(ax, title, D, ct, cm, unit):
 
 def plots(A, P, out):
     """One Bland-Altman figure per feature in the thesis colours (2026-11-25, user: per feature, beside a bad and a
-    good example from the *_view.py scripts): bland_altman_curvature.png (whole artery and shared stretch, the
-    latter on the pairs of its report rows), bland_altman_angle.png and bland_altman_asymmetry.png (|a|, the model
-    feature, as in the ICC row). One dot per pair, no ids."""
+    good example from the *_view.py scripts): bland_altman_curvature.png (the shared stretch, the reported
+    comparison since 2026-11-25, on the pairs of its report rows), bland_altman_angle.png and
+    bland_altman_asymmetry.png (|a|, the model feature, as in the ICC row). One dot per pair, no ids."""
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
     thesis_rc()
 
     absa = P.assign(abs_t=P["asym_tracer"].abs(), abs_m=P["asym_medis"].abs()) if "asym_tracer" in P else P
-    figures = {"curvature": [("Whole artery", A, "T_tracer", "T_medis", r"mm$^{-1}$"),
-                             ("Shared stretch", shared_pairs(A), "T_shared_tracer", "T_shared_medis", r"mm$^{-1}$")],
+    figures = {"curvature": [("Curvature", shared_pairs(A), "T_shared_tracer", "T_shared_medis", r"mm$^{-1}$")],
                "angle": [("Bifurcation angle", P, "theta_tracer", "theta_medis", "degrees")],
                "asymmetry": [(r"LAD/LCx asymmetry $|a|$", absa, "abs_t", "abs_m", "")]}
     for name, panels in figures.items():
-        fig, axes = plt.subplots(1, len(panels), figsize=(3.4 if len(panels) == 1 else 6.3, 3.2), squeeze=False)
+        fig, axes = plt.subplots(1, len(panels), figsize=(3.4, 3.2), squeeze=False)
         for ax, panel in zip(axes.flat, panels):
             ba_panel(ax, *panel)
         h, l = axes.flat[0].get_legend_handles_labels()
