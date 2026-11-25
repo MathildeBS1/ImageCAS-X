@@ -595,9 +595,9 @@ def thesis_rc():
                          "text.color": INK, "pdf.fonttype": 42})
 
 
-def ba_panel(ax, title, D, ct, cm, unit, scale=1.0):
+def ba_panel(ax, title, D, ct, cm, unit, scale=1.0, colour=None):
     """One Bland-Altman panel: difference tracer - Medis against the mean of the two, bias solid, limits of agreement
-    (bias +- 1.96 SD) dashed, zero dotted. Dots coloured by artery when D has one (artery_colours), else grey. Values
+    (bias +- 1.96 SD) dashed, zero dotted. Dots coloured by artery when D has one (artery_colours), else in colour. Values
     are multiplied by scale (curvature in 10^-3 mm^-1, the unit of tab:results-medis-curvature). Dot size, fonts and
     the n box as in the Results figures (hypertension_curvature.panel, dominance_check.plot), 2026-11-25."""
     ax.set_title(title, fontsize=10, color=INK)
@@ -617,7 +617,7 @@ def ba_panel(ax, title, D, ct, cm, unit, scale=1.0):
             k = (D["artery"] == a).to_numpy()
             ax.scatter(mu[k], d[k], s=12, alpha=0.7, linewidths=0, color=colour[a], label=NAME[a])
     else:
-        ax.scatter(mu, d, s=12, alpha=0.7, linewidths=0, color=INK2)  # not an artery colour
+        ax.scatter(mu, d, s=12, alpha=0.7, linewidths=0, color=colour or INK2)
     b, sd = d.mean(), d.std(ddof=1)
     for y, ls in ((b, "-"), (b - 1.96 * sd, "--"), (b + 1.96 * sd, "--")):
         ax.axhline(y, ls=ls, lw=1, color=INK)
@@ -642,8 +642,10 @@ def plots(A, P, out):
     absa = P.assign(abs_t=P["asym_tracer"].abs(), abs_m=P["asym_medis"].abs()) if "asym_tracer" in P else P
     figures = {"curvature": [("Curvature", shared_pairs(A), "T_shared_tracer", "T_shared_medis",
                               r"$10^{-3}$ mm$^{-1}$", 1e3)],
-               "angle": [("Bifurcation angle", P, "theta_tracer", "theta_medis", "degrees")],
-               "asymmetry": [(r"LAD/LCx asymmetry $|a|$", absa, "abs_t", "abs_m", "")]}
+               "angle": [("Bifurcation angle", P, "theta_tracer", "theta_medis", "degrees", 1.0,
+                          darken(PALETTE[1]))],  # dark pink (user, 2026-11-25)
+               "asymmetry": [(r"LAD/LCx asymmetry $|a|$", absa, "abs_t", "abs_m", "", 1.0,
+                              darken(PALETTE[0]))]}  # dark yellow (user, 2026-11-25)
     for name, panels in figures.items():
         fig, axes = plt.subplots(1, len(panels), figsize=(4.8, 4.4), squeeze=False)
         for ax, panel in zip(axes.flat, panels):
@@ -785,11 +787,24 @@ def main():
     ap.add_argument("--medis", default=None, help="Medis contour folder (default <ROOT>/<MEDIS_DIR>)")
     ap.add_argument("--out", default=str(Path(__file__).resolve().parent / "medis_compare.md"))
     ap.add_argument("--rows", default=None, help="folder for the per-pair CSVs and plots (server only)")
+    ap.add_argument("--replot", action="store_true",
+                    help="only redraw the Bland-Altman figures from the CSVs already in --rows (no tracer run)")
     args = ap.parse_args()
     if args.check:
         check()
         return
     from cgps_stats import OUT_DIR
+
+    if args.replot:
+        import pandas as pd
+        rows = Path(args.rows or Path(OUT_DIR) / "medis_compare")
+        A = pd.read_csv(rows / "medis_compare_arteries.csv")
+        P = pd.read_csv(rows / "medis_compare_participants.csv")
+        A["medis_full"] = A["medis_full"].fillna(False).astype(bool)  # NaN would read as True
+        P["aligned"] = P["aligned"].fillna(False).astype(bool)
+        plots(*main_rows(A, P), rows)
+        print(f"Bland-Altman figures redrawn in {rows}")
+        return
 
     flow, A, P = run(args.limit, args.src, args.lumen, args.medis)
     rows = Path(args.rows or Path(OUT_DIR) / "medis_compare")
