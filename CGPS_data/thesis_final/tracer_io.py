@@ -38,7 +38,7 @@ from cgps_stats import count
 TRACER_DIR = "/data/kimbr/centerlines_for_mathilde"
 LUMEN_DIR = "/data/kimbr/predictions_CGPS-10Y_folds_01234"  # same centerlines (lumen_probe.md) plus the lumen surface
 MEDIS_TREES = Path(hq.ROOT) / "Medis" / "Analysis_Processed" / "centerline_tree"
-PATTERN = "BL_{pid}.coronary_{side}_centerline_ostium_pruned.vtk"
+PATTERN = "{visit}_{pid}.coronary_{side}_centerline_ostium_pruned.vtk"  # visit BL or FU
 SIDES = ("left", "right")
 NEAR = 2.0  # mm: a tracer point takes the label of the nearest Medis point only this close
 
@@ -56,23 +56,24 @@ def read_side(path):
     return [(P[np.asarray(c)], code[np.asarray(c)]) for c in v["cells"].get("LINES", []) if len(c) >= 2]
 
 
-def tracer_files(pid, src=TRACER_DIR):
-    return [Path(src) / PATTERN.format(pid=pid, side=s) for s in SIDES]
+def tracer_files(pid, src=TRACER_DIR, visit="BL"):
+    return [Path(src) / PATTERN.format(visit=visit, pid=pid, side=s) for s in SIDES]
 
 
-def tracer_ids(src=TRACER_DIR):
-    """Study ids with both pruned BL files."""
-    have = [{hq.id_from_name(p.name.split(".", 1)[0]) for p in Path(src).glob(PATTERN.format(pid="*", side=s))}
+def tracer_ids(src=TRACER_DIR, visit="BL"):
+    """Study ids with both pruned files of the visit (BL or FU)."""
+    have = [{hq.id_from_name(p.name.split(".", 1)[0])
+             for p in Path(src).glob(PATTERN.format(visit=visit, pid="*", side=s))}
             for s in SIDES]
     return have[0] & have[1]
 
 
-def tracer_ostia(pid, src=TRACER_DIR):
+def tracer_ostia(pid, src=TRACER_DIR, visit="BL"):
     """{"LAD": o, "CX": o, "RCA": q}: the first point of each file's root branch (cell data parent = -1), the
     ostium where the tracer started (the _ostium_pruned files are cut there). Passed to split_trunks.split as
     roots, so the ostium is not guessed from the labels. The first root branch in file order is used."""
     out = {}
-    for side, f in zip(SIDES, tracer_files(pid, src)):
+    for side, f in zip(SIDES, tracer_files(pid, src, visit)):
         v = cq.read_vtk_legacy(Path(f).read_bytes())
         cells = v["cells"].get("LINES", [])
         parent = np.asarray(v["cell_data"]["parent"]).astype(int)
@@ -88,10 +89,10 @@ def tracer_lumen(pid, src=LUMEN_DIR):
     return Path(src) / f"BL_{pid}.lumen_surface_ostium_pruned.vtk"
 
 
-def tracer_tree(pid, src=TRACER_DIR):
-    """Both pruned files of one participant in the structure of hoe10y_qc.tree_points."""
+def tracer_tree(pid, src=TRACER_DIR, visit="BL"):
+    """Both pruned files of one participant and visit in the structure of hoe10y_qc.tree_points."""
     return [(P, [CODES[side].get(int(c)) for c in code])
-            for side, f in zip(SIDES, tracer_files(pid, src)) for P, code in read_side(f)]
+            for side, f in zip(SIDES, tracer_files(pid, src, visit)) for P, code in read_side(f)]
 
 
 def label_table(src=TRACER_DIR, medis=MEDIS_TREES, n=None):
