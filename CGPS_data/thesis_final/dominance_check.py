@@ -27,9 +27,10 @@ asymmetry (the tracer's missingness may differ by dominance). Primary: mean a le
 bootstrap over participants within each group, and a two-sided permutation test (group labels shuffled). The difference is also given in
 units of the SD of a over all participants with a value, the scale of the model feature.
 
-Plot (plot, server only: one dot per participant): a by dominance group with each group's mean and 95% interval,
-and D_LCx against D_LAD coloured by group, the line of equal daughters (a = 0) drawn. With --cohort all the
-participants with plaque at baseline are hollow. Written to --rows (default <OUT_DIR>/dominance_check).
+Plot (one dot per participant, allowed off the server: user, 2026-11-25; thesis colours): a by dominance group
+with each group's mean and 95% interval and the one-sided permutation p of left - right (expected > 0), and D_LCx
+against D_LAD coloured by group, the line of equal daughters (a = 0) drawn. With --cohort all the participants with
+plaque at baseline are hollow. Written to --rows (default <OUT_DIR>/dominance_check).
 
 Writes dominance_check.md next to this script: aggregates only, counts 1-4 shown as <5, statistics only from groups
 of MIN_CELL, medians only from QUARTILE_MIN (cgps_stats).
@@ -44,11 +45,13 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # the shared modules in CGPS_data/
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "Thesis_coronary" / "setup"))
+from figure_colours import GRID, INK, INK2, SERIES  # noqa: E402  (the thesis colour scheme)
 
 GROUPS = ("right", "left", "co-dominant")
 ORDER = ("right", "co-dominant", "left")  # plot order: the expected rise of a
-COLOR = {"right": "#2a78d6", "left": "#eb6834", "co-dominant": "#1baf7a"}  # categorical slots 1-3 (dataviz palette)
-INK, MUTED = "#0b0b0b", "#52514e"
+GROUP_LABEL = {"right": "Right-dominant", "co-dominant": "Co-dominant", "left": "Left-dominant"}
+COLOR = dict(zip(ORDER, SERIES))  # the three series colours of the thesis scheme, in plot order
 FIRST = {"r": "right", "l": "left", "c": "co-dominant", "b": "co-dominant"}  # first letter of ct_cag_dominance
 COLS = (("asym", "a = ln(D_LCx / D_LAD)", ""), ("abs", "abs(a)", ""), ("D_LAD", "D_LAD", "mm"), ("D_CX", "D_LCx", "mm"))
 
@@ -106,6 +109,15 @@ def run(cohort="clean", limit=None):
             res = {"reason": f"error:{type(ex).__name__}"}
         rows.append(row | res)
     return flow, pd.DataFrame(rows)
+
+
+def perm_p_greater(x, y, boot=2000, seed=0):
+    """One-sided permutation p for mean(x) - mean(y) > 0: (1 + #permuted difference >= observed) / (1 + boot)."""
+    x, y = np.asarray(x, float), np.asarray(y, float)
+    d, z, n = x.mean() - y.mean(), np.r_[x, y], len(x)
+    rng = np.random.default_rng(seed)
+    perm = [(q := rng.permutation(z))[:n].mean() - q[n:].mean() for _ in range(boot)]
+    return (1 + sum(v >= d for v in perm)) / (1 + boot)
 
 
 # ---------------------------------------------------------------- report
@@ -189,14 +201,31 @@ def report(flow, R, cohort, boot):
     return "\n".join(L) + "\n"
 
 
-# ---------------------------------------------------------------- plot (server only)
+# ---------------------------------------------------------------- plot
+
+def p_text(p):
+    """One-sided p for a figure: two significant digits, a power of ten below 0.001."""
+    if p >= 0.001:
+        return f"one-sided $p$ = {p:.2g}"
+    m, e = f"{p:.1e}".split("e")
+    return rf"one-sided $p$ = ${m} \times 10^{{{int(e)}}}$"
+
+
+def thesis_rc():
+    """Fonts of the thesis figures (as Thesis_coronary/content/methodology/figures/curvature_steps_figure.py)."""
+    import matplotlib as mpl
+    mpl.rcParams.update({"font.family": "serif", "font.serif": ["cmr10"], "mathtext.fontset": "cm",
+                         "axes.unicode_minus": False, "axes.formatter.use_mathtext": True, "font.size": 9,
+                         "text.color": INK, "pdf.fonttype": 42})
+
 
 def plot(R, path, boot=2000):
     """Strip plot of a by dominance group (mean and 95% bootstrap interval beside each group) and D_LCx against
-    D_LAD by group. One dot per participant, so the file stays on the server."""
+    D_LAD by group, with the one-sided permutation p of mean a left - right."""
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
+    thesis_rc()
 
     R = R.copy()
     for c in ("asym", "D_LAD", "D_CX"):
@@ -212,38 +241,43 @@ def plot(R, path, boot=2000):
         x = i + rng.uniform(-0.18, 0.18, len(d))
         for m, hollow in ((f, False), (~f, True)):
             if m.any():
-                ax1.scatter(x[m.to_numpy()], d.loc[m, "asym"], s=16, alpha=0.6, linewidths=1,
+                ax1.scatter(x[m.to_numpy()], d.loc[m, "asym"], s=16, alpha=0.7, linewidths=1,
                             facecolors="none" if hollow else COLOR[g], edgecolors=COLOR[g])
-                ax2.scatter(d.loc[m, "D_LAD"], d.loc[m, "D_CX"], s=16, alpha=0.6, linewidths=1,
+                ax2.scatter(d.loc[m, "D_LAD"], d.loc[m, "D_CX"], s=16, alpha=0.7, linewidths=1,
                             facecolors="none" if hollow else COLOR[g], edgecolors=COLOR[g],
-                            label=None if hollow else f"{g} ({len(d)})")
+                            label=None if hollow else f"{GROUP_LABEL[g]} ($n$ = {len(d)})")
         if len(d) >= 2:
             v = d["asym"].to_numpy(float)
             b = [rng.choice(v, len(v)).mean() for _ in range(boot)] if boot else [v.mean()]
             lo, hi = np.percentile(b, [2.5, 97.5])
             ax1.errorbar(i + 0.32, v.mean(), yerr=[[v.mean() - lo], [hi - v.mean()]], fmt="o", color=INK,
                          ms=6, capsize=3, lw=1.5)
-    ax1.axhline(0, color=MUTED, lw=1, ls="--")
-    ax1.set_xticks(range(len(ORDER)), [f"{g}\n({int((ok['group'] == g).sum())})" for g in ORDER])
+    ax1.axhline(0, color=INK2, lw=1, ls="--")
+    ax1.set_xticks(range(len(ORDER)), [f"{GROUP_LABEL[g]}\n($n$ = {int((ok['group'] == g).sum())})" for g in ORDER])
     ax1.set_xlim(-0.6, len(ORDER) - 0.4)
-    ax1.set_ylabel("a = ln(D_LCx / D_LAD)")
-    ax1.set_title("Asymmetry by dominance (black: mean, 95% CI)", fontsize=10, color=INK)
+    ax1.set_ylabel(r"Asymmetry, $a = \ln(D_{\mathrm{LCx}} / D_{\mathrm{LAD}})$")  # cmr10 has no underscore
+    ax1.set_title("LAD/LCx asymmetry by dominance", fontsize=10, color=INK)  # black marker (mean, 95% CI): caption
+    x, y = (ok.loc[ok["group"] == g, "asym"].to_numpy(float) for g in ("left", "right"))
+    if min(len(x), len(y)) >= 2:
+        ax1.text(0.02, 0.98, "Left vs right: " + p_text(perm_p_greater(x, y, boot)), transform=ax1.transAxes,
+                 ha="left", va="top", fontsize=8.5, color=INK,
+                 bbox=dict(facecolor="white", edgecolor="none", alpha=0.85, pad=1.5))
 
     lim = [np.nanmin(ok[["D_LAD", "D_CX"]].to_numpy()), np.nanmax(ok[["D_LAD", "D_CX"]].to_numpy())] if len(ok) else [0, 1]
-    ax2.plot(lim, lim, color=MUTED, lw=1, ls="--", label="equal daughters (a = 0)")
-    ax2.set_xlabel("D_LAD (mm)")
-    ax2.set_ylabel("D_LCx (mm)")
+    ax2.plot(lim, lim, color=INK2, lw=1, ls="--", label="equal diameters ($a$ = 0)")
+    ax2.set_xlabel(r"LAD diameter, $D_{\mathrm{LAD}}$ (mm)")
+    ax2.set_ylabel(r"LCx diameter, $D_{\mathrm{LCx}}$ (mm)")
     ax2.set_aspect("equal", adjustable="datalim")
-    ax2.set_title("Daughter diameters by dominance", fontsize=10, color=INK)
+    ax2.set_title("LAD and LCx diameters by dominance", fontsize=10, color=INK)
     if split:
-        ax2.scatter([], [], s=16, facecolors="none", edgecolors=MUTED, label="hollow: plaque at baseline")
+        ax2.scatter([], [], s=16, facecolors="none", edgecolors=INK2, label="hollow: plaque at baseline")
     ax2.legend(frameon=False, fontsize=8, loc="upper left")
     for ax in (ax1, ax2):
         ax.spines[["top", "right"]].set_visible(False)
-        ax.tick_params(colors=MUTED, labelsize=8)
-        ax.grid(alpha=0.25, lw=0.5)
+        ax.tick_params(colors=INK2, labelsize=8)
+        ax.grid(color=GRID, lw=0.5)
     fig.tight_layout()
-    fig.savefig(path, dpi=150)
+    fig.savefig(path, dpi=300)
     plt.close(fig)
 
 
@@ -259,6 +293,7 @@ def check():
     x, y = rng.normal(0.2, 0.15, 400), rng.normal(-0.1, 0.15, 4000)
     d, (lo, hi), p = diff_ci(x, y, 500)
     assert abs(d - 0.3) < 0.03 and lo < 0.3 < hi and p < 0.01, (d, lo, hi, p)
+    assert perm_p_greater(x, y, 500) < 0.01 and perm_p_greater(y, x, 500) > 0.99
     d, (lo, hi), p = diff_ci(rng.normal(0, 0.15, 400), rng.normal(0, 0.15, 400), 500)
     assert lo < 0 < hi, (d, lo, hi)
 
@@ -287,7 +322,7 @@ def main():
     ap.add_argument("--limit", type=int, default=None, help="only the first N participants")
     ap.add_argument("--boot", type=int, default=2000)
     ap.add_argument("--out", default=str(Path(__file__).resolve().parent / "dominance_check.md"))
-    ap.add_argument("--rows", default=None, help="folder for the plot (server only, one dot per participant)")
+    ap.add_argument("--rows", default=None, help="folder for the plot")
     args = ap.parse_args()
     if args.check:
         check()
@@ -302,7 +337,7 @@ def main():
     png = rows / f"dominance_scatter_{args.cohort}.png"
     plot(R, png, args.boot)
     print(text)
-    print(f"written to {args.out}; plot (one dot per participant, keep on the server) in {png}")
+    print(f"written to {args.out}; plot in {png}")
 
 
 if __name__ == "__main__":
