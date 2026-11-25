@@ -622,6 +622,9 @@ def ba_panel(ax, title, D, ct, cm, unit, scale=1.0, colour=None):
     for y, ls in ((b, "-"), (b - 1.96 * sd, "--"), (b + 1.96 * sd, "--")):
         ax.axhline(y, ls=ls, lw=1, color=INK)
     ax.axhline(0, lw=0.8, color=MUTED, ls=":")
+    # y range set here: when no dot lies beyond a limit, autoscale ended the axis on that dashed line (|a|, 2026-11-25)
+    lo, hi = min(d.min(), b - 1.96 * sd, 0), max(d.max(), b + 1.96 * sd, 0)
+    ax.set_ylim(lo - 0.08 * (hi - lo), hi + 0.18 * (hi - lo))  # more room on top for the n box
     ax.text(0.98, 0.98, f"$n$ = {len(d)}", transform=ax.transAxes, ha="right", va="top", fontsize=8.5, color=INK,
             bbox=dict(facecolor="white", edgecolor="none", alpha=0.85, pad=1.5))
     u = f" ({unit})" if unit else ""
