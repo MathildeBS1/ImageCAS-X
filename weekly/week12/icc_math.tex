@@ -1,0 +1,208 @@
+% The ICC step by step, with a made-up example of four people (numbers checked against medis_compare.icc,
+% 2026-11-20: ICC(C,1) 0.899, ICC(A,1) 0.863). Formulas from Koo and Li 2016, Table 3 (papers/).
+\documentclass[11pt]{article}
+\input{setup/preamble}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+
+\begin{document}
+
+\section*{The ICC step by step}
+
+\subsection*{Step 0: the idea}
+
+Every measurement is a value that belongs to the person plus an error of the method:
+\[
+  \text{tracer}_i = T_i + e^{\text{tracer}}_i, \qquad \text{Medis}_i = T_i + c + e^{\text{Medis}}_i .
+\]
+$T_i$ is what the two methods have in common for person $i$, $c$ is a constant bias, and both methods have their
+own error. Nobody knows $T_i$. The ICC only asks how large the spread of $T$ between people is compared with
+the errors (Koo and Li 2016, Introduction):
+\[
+  \text{ICC} = \frac{\text{variance between people}}{\text{variance between people} + \text{error variance}}.
+\]
+
+\subsection*{The example}
+
+Four people, LM angle in degrees:
+
+\begin{center}
+\begin{tabular}{lrrrr}
+  \toprule
+  Person & Tracer & Medis & Pair mean $m_i$ & Difference $d_i$ = tracer $-$ Medis \\
+  \midrule
+  1 & 62 & 58 & 60 & 4 \\
+  2 & 80 & 70 & 75 & 10 \\
+  3 & 66 & 68 & 67 & $-2$ \\
+  4 & 52 & 48 & 50 & 4 \\
+  \midrule
+  Mean & 65 & 61 & 63 & 4 \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+The two columns say everything:
+\begin{itemize}
+  \item the \textbf{pair means} $m_i$ show how the people differ (person 2 has a wide angle, person 4 a narrow one);
+  \item the \textbf{differences} $d_i$ show where the methods disagree.
+\end{itemize}
+
+\subsection*{Step 1: the bias}
+
+The mean difference is $\bar d = 4^\circ$: the tracer is on average $4^\circ$ higher. This is the constant $c$.
+The consistency ICC does not count it (a shift of every angle by $4^\circ$ does not change who has the wider angle).
+
+\subsection*{Step 2: the error variance}
+
+Take the differences around their mean, so the bias is removed: $4-4=0$, $10-4=6$, $-2-4=-6$, $4-4=0$.
+\[
+  \operatorname{var}(d) = \frac{0^2 + 6^2 + (-6)^2 + 0^2}{4-1} = \frac{72}{3} = 24 .
+\]
+A difference holds the error of \emph{two} measurements, $e^{\text{tracer}} - e^{\text{Medis}}$. If the two
+errors are independent, their variances add, so one measurement has on average half of it:
+\[
+  \sigma^2_{\text{error}} = \frac{24}{2} = 12 \qquad (\text{this is } MS_E).
+\]
+Both methods may be wrong; $\sigma^2_{\text{error}}$ is the \emph{average} error variance of the two.
+
+\subsection*{Step 3: the variance between people}
+
+Take the pair means around their mean 63: $-3,\ 12,\ 4,\ -13$.
+\[
+  \operatorname{var}(m) = \frac{9 + 144 + 16 + 169}{4-1} = \frac{338}{3} = 112.7 .
+\]
+A pair mean still carries some error: the mean of two measurements has error variance
+$\sigma^2_{\text{error}}/2 = 6$. Remove it:
+\[
+  \sigma^2_{\text{between}} = 112.7 - 6 = 106.7 .
+\]
+
+\subsection*{Step 4: the ICC}
+
+\[
+  \text{ICC} = \frac{\sigma^2_{\text{between}}}{\sigma^2_{\text{between}} + \sigma^2_{\text{error}}}
+             = \frac{106.7}{106.7 + 12} = 0.90 .
+\]
+90\% of the variance of one measurement is the people differing; 10\% is the methods disagreeing.
+
+\subsection*{The same, in the notation of the paper}
+
+Koo and Li (2016, Table 3) write the two-way mixed, consistency, single-measurement ICC, ICC(3,1), with mean
+squares from an analysis of variance (rows = people, columns = tracer and Medis, $k = 2$ methods, $n = 4$ people):
+\[
+  \text{ICC}(3,1) = \frac{MS_R - MS_E}{MS_R + (k-1)\,MS_E}.
+\]
+With two methods the mean squares are the variances above:
+\[
+  MS_R = 2 \operatorname{var}(m) = 225.3, \qquad MS_E = \tfrac12 \operatorname{var}(d) = 12,
+\]
+\[
+  \text{ICC}(3,1) = \frac{225.3 - 12}{225.3 + 12} = \frac{213.3}{237.3} = 0.90 .
+\]
+It is what \texttt{icc()} in \texttt{medis\_compare.py} computes.
+
+\subsection*{Two routes, one answer}
+
+Both routes remove the error that is still inside the pair means. They differ only in the scale they work on.
+
+\begin{center}
+\begin{tabular}{lll}
+  \toprule
+  & Example (Steps 3 and 4) & Paper (Table 3) \\
+  \midrule
+  Scale & one pair mean (half the error) & one measurement (full error) \\
+  Pair means & $\operatorname{var}(m) = 112.7$ & $MS_R = 2\operatorname{var}(m) = 225.3$ \\
+  Remove the error & $112.7 - \tfrac{12}{2} = 106.7$ & $MS_R - MS_E = 225.3 - 12 = 213.3$ \\
+  Denominator & $106.7 + 12 = 118.7$ & $MS_R + MS_E = 225.3 + 12 = 237.3$ \\
+  ICC & $106.7 / 118.7 = 0.90$ & $213.3 / 237.3 = 0.90$ \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+Every number of the paper route is twice the number of the example route ($213.3 = 2 \times 106.7$,
+$237.3 = 2 \times 118.7$). The 2 is in both the numerator and the denominator, so it cancels:
+\[
+  \frac{MS_R - MS_E}{MS_R + MS_E}
+  = \frac{2\,\sigma^2_{\text{between}}}{2\,\sigma^2_{\text{between}} + 2\,\sigma^2_{\text{error}}}
+  = \frac{\sigma^2_{\text{between}}}{\sigma^2_{\text{between}} + \sigma^2_{\text{error}}} .
+\]
+The paper multiplies by $k$ (here 2) because each person has $k$ values in the table and the pair mean holds only
+$1/k$ of the error. Multiplying by $k$ puts the pair means on the scale of one measurement, so a whole $MS_E$ can
+be subtracted. This gives one formula for any number of methods; the example avoids the factor because
+``subtract half the error'' is easier to follow with two.
+
+\subsection*{If the bias is counted: absolute agreement}
+
+The bias enters through $MS_C = n \cdot \sum (\text{column mean} - \text{grand mean})^2 = 4\,(2^2 + 2^2) = 32$:
+\[
+  \text{ICC}(A,1) = \frac{MS_R - MS_E}{MS_R + (k-1)MS_E + \frac{k}{n}(MS_C - MS_E)}
+                  = \frac{213.3}{237.3 + \frac{2}{4}(32-12)} = \frac{213.3}{247.3} = 0.86 .
+\]
+Lower than 0.90, because the $4^\circ$ bias now counts as disagreement.
+
+\subsection*{Why this form: two-way mixed effects, consistency, single measurement}
+
+McGraw and Wong define 10 forms of the ICC. Koo and Li (2016, section ``How to Select the Correct ICC Form for
+Interrater Reliability Studies'') choose between them with questions about the design. Each part of the name
+answers one.
+
+\textbf{Two-way (the model).} The table varies in two directions: rows (people) and columns (raters), and the
+analysis of variance estimates both, how much people differ ($MS_R$) and how much the raters differ on average
+($MS_C$). In a one-way model each person is measured by different raters (the paper's example is a multicentre
+study with its own raters per centre), so the columns mean nothing and only the rows are modelled. Here every
+artery pair is measured by the same two methods, the tracer and Medis, so the column effect (the bias) can be
+estimated: two-way.
+
+\textbf{Mixed effects (random or fixed raters).} People are always a random sample. The question is the raters.
+In the random model they are a sample from many possible raters (two radiologists standing for all radiologists).
+The paper uses the mixed model ``if the selected raters are the only raters of interest. With this model, the
+results only represent the reliability of the specific raters involved''. Only the tracer and Medis are of
+interest, not centerline software in general: mixed. The random and the mixed model use the same formula; the
+difference ``is not on the calculation but on the experimental design of the reliability study and the
+interpretation of the results''. Mixed changes the claim, not the number.
+
+\textbf{Consistency (does a constant bias count).} ``Consistency definition concerns the degree to which one
+rater's score (y) can be equated to another rater's score (x) plus a systematic error (c) (ie, y = x + c), whereas
+absolute agreement concerns about the extent to which y equals x.'' The model uses geometry per SD, and adding a
+constant to every value changes neither the SD nor anyone's place, so the hazard ratio is unchanged. A bias that
+does not harm the model should not lower the reliability: consistency. The bias is reported on its own (the
+Bland--Altman bias).
+
+\textbf{Single measurement (one method or the mean of both).} ``If we plan to use the measurement from a single
+rater as the basis of the actual measurement, `single rater' type should be selected even though the reliability
+experiment involves 2 or more raters.'' The cohort gets one value per person, the tracer's; Medis does not exist
+for the plaque-free cohort, so there is no average. The mean-of-two ICC is always higher, because averaging cancels
+part of the error, and would overstate the reliability of the values the model uses: single.
+
+\begin{center}
+\small
+\begin{tabular}{lll}
+  \toprule
+  Question & Answer here & Part of the name \\
+  \midrule
+  The same raters for all people? & Yes, tracer and Medis & Two-way \\
+  Raters a sample, or the only ones of interest? & The only ones of interest & Mixed effects \\
+  Does a constant bias matter? & No, the model uses per-SD values & Consistency \\
+  One measurement or the mean of the raters? & One, the tracer value & Single \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+Together this is ICC(3,1) in the notation of Shrout and Fleiss. Consistency is the choice that needs defending:
+the paper says absolute agreement ``should always be chosen'' for test--retest and intrarater studies. This
+comparison is neither (two methods, not one method repeated), and the reason for consistency is the per-SD hazard
+ratio; the absolute-agreement ICC is computed as well and is only slightly lower in the example (0.86 against 0.90).
+
+\subsection*{What the ICC cannot tell}
+
+\begin{itemize}
+  \item \textbf{Which method is wrong.} $\sigma^2_{\text{error}}$ is the average of the two methods' errors. If
+    Medis is the noisier one, the tracer alone is more reliable than the ICC says, and the other way round.
+  \item \textbf{Errors both methods share.} If both stop early in the same faint vessel, the error is the same in
+    both columns, so it ends up in the pair mean, not in the difference. It is then counted as people differing,
+    and the ICC is too high.
+  \item \textbf{Other samples.} With the same error, people who differ more give a higher ICC. These ICCs come
+    from participants with plaque.
+\end{itemize}
+
+\end{document}

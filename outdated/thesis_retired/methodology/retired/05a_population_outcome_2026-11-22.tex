@@ -1,0 +1,44 @@
+% Study cohort and outcome, written for a first-time reader (rewritten 2026-11-02; arteries and
+% segments moved to 02b_segment_split.tex). Definitions only: the counts (flowchart, incident plaque per artery)
+% are in results/00_cohort.tex (sec:results-cohort), what the visual analysis recorded is in
+% data/02_visual_analysis.tex, and the overlap with the Medis trees in data/03_medis_reference.tex.
+% Does not repeat data/01-03: cohort size, segment grading, SIS/SSS, Medis coverage.
+% The choice of arteries (sec:method-population-arteries), why the analysis is per segment and the
+% division into segments (sec:method-split) and its check (sec:method-split-validation) are in
+% 02b_segment_split.tex; the landmark table is in appendix/B_segment_split_details.tex.
+% 2026-11-20 (user: segment division only affects curvature): Choice of Arteries
+%   (sec:method-population-arteries) moved here unchanged from 02b_segment_split.tex, since it defines the
+%   arteries of the outcome; the division and its check moved to 03c_segment_split.tex in the features section.
+% Does not repeat clinical_background_v2 (sec:wss, sec:tree).
+% Still open: follow-up time enters the model as log(years); missing baseline geometry (open
+% decision 9); partly graded FU arteries.
+% [..] and \clarify{} mark information that is not yet available; nothing there is to be guessed.
+% 2026-11-18 (user: two models, a person-level GLM for the bifurcation angle and daughter asymmetry with plaque
+%   in the proximal LAD or proximal LCx as its outcome): one sentence added defining that outcome here, since
+%   the outcome is defined once in this section.
+% 2026-11-20 (user: "move Study Cohort and Outcome into statistical model"): file renamed
+%   02_population_outcome.tex -> 05a_population_outcome.tex and input from 05_statistical_model.tex as its
+%   first subsection; Study Cohort and Outcome -> subsection, Choice of Arteries -> subsubsection. Labels
+%   unchanged. Text moved as the user left it (typos not fixed).
+\providecommand{\clarify}[1]{\textcolor{red}{\textbf{Clarification needed:} #1}}
+\subsection{Study Cohort and Outcome}
+\label{sec:method-population}
+ The study cohort consisted of the Herlev--{\O}sterbro participants who had no coronary plaque at baseline, which was defined by having a segment involvement score (SIS) of zero (Section~\ref{sec:data-plaque-location}).
+Participants whose follow up scans did not have sufficient image quality, decided by the clinician annotating the plaque , was excluded as well. The resulting cohort is described in Section~\ref{sec:results-cohort}.
+The primary outcome was incident coronary plaque.  defined at the segment level as a stenosis grade of minimal or worse and at the participant level as plaque in at least one of the analysed segments (Section~\ref{sec:method-population-arteries}).
+For the features of the left main bifurcation, the participant outcome was plaque in the proximal LAD or the proximal LCx (Section~\ref{sec:method-models}).
+In a sensitivity analysis, the outcome was restricted to plaque with mild or worse stenosis.
+% Counts (65 RCAs, 5 LCxs, <5 LADs) belong in results/00_cohort.tex, not yet there.
+
+\clarify{The outcome could still change!!!}
+
+\subsubsection{Choice of Arteries}
+\label{sec:method-population-arteries}
+
+The analysis covered the three main coronary arteries, the left anterior descending (LAD), the left circumflex (LCx) and the right coronary artery (RCA), both for the outcome and for the geometric features.
+These arteries are present in every heart, whereas the number and size of the side branches vary between individuals and with dominance (Section~\ref{sec:dominance}).
+Their larger diameter also makes the measurements less sensitive to error: with a voxel size of [..]\,mm, an error of one voxel at the lumen boundary corresponds to about [..]\% of the diameter of a main artery \cite{dodge1992diameter}, compared with [..]\% for a side branch \clarify{voxel size; side-branch diameter and its citation}.
+The left main (LM) was also left out.
+None of the studies in the literature review related LM geometry to plaque in the LM itself; the angle of the LM bifurcation was instead related to disease at the start of the LAD and LCx, just beyond the bifurcation (Chapter~\ref{ch:literature}).
+A participant who developed plaque only in the LM or in a side branch was therefore counted as without the outcome.
+This applied to a small proportion of participants (Section~\ref{sec:results-cohort}), and the implications of this misclassification are addressed in Section~[..] \clarify{discussion section on this misclassification, not yet written}.

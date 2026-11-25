@@ -111,30 +111,44 @@
 % CHECK: on tracer trees (no "lm" label) the root is the most superior LAD/CX/unlabelled end
 %   (split_trunks.trunk_path). If a side-branch tip lies above the ostium, O is not the LM bifurcation.
 %   Confirm on the first tracer trees.
+% 2026-11-19 (user: replace fig:method-angle with the new figure, no panel letters): figure now from
+%   figures/angle_steps_figure.py (same style as the plane-cut figure of sec:method-ratio; made-up planar
+%   bifurcation, real code: point_at_depth, artery_direction, lm_angle; theta 61.9 deg). Panels: lumen and
+%   centerlines with the points 5 to 10 mm from O; close-up of the fitted lines (dashed back towards O) and the
+%   unit vectors; the two vectors from one point with theta and eq:method-angle. The panel references (A, B)
+%   in the text are removed; the opener cites the figure once. bifurcation_angle_figure.py stays on disk.
+% 2026-11-20 (user: smoother transition after the opener): opener and method joined into one paragraph;
+%   O is introduced as where the measurement starts, then distances from it. Facts and cite unchanged.
+% 2026-11-20 (user: "shared by the two arteries" misleads, O is not labelled LAD or LCx). Checked on Kit's
+%   delivered files (CGPS_data/thesis_final/bifurcation_point_probe.md, 1,650 participants with O): O is the
+%   first point of both the LAD and the LCx branch in 1,280 (78%); the LM branch ends about one 0.5 mm step
+%   before it (O is the LM's last point in 36 only); raw code at O is LM in 1,526 (92%), LCx 82, LAD 41; in
+%   about 13% the LM is stored in pieces and LM codes run a few mm into one daughter. O is defined by the paths
+%   (split_trunks.shared_prefix), not by labels, so the text now says "the last centerline point before the LAD
+%   and the LCx separate". The header line "the tracer labels only the artery" above is outdated: the tracer
+%   codes the LM and the side branches too (tracer_io.CODES).
 \subsection{Bifurcation Angle}
 \label{sec:method-angle}
 
-The bifurcation angle between the LAD and the LCx was measured in 3D on the centerlines, following the method used by Medrano-Gracia et al.\ \cite{medranogracia2016atlas} (Figure~\ref{fig:method-angle}).
+The first feature describes the bifurcation angle between the LAD and the LCx, measured in 3D on the centerlines. The method used in this thesis follow a close adoption of the method used by Medrano-Gracia et al.\ \cite{medranogracia2016atlas} (Figure~\ref{fig:method-angle}).
+The method starts by finding the last centerline point before the LAD and the LCx separate, defined as the bifurcation point $O$.
+Along each artery, eleven points were placed every 0.5\,mm between 5 and 10\,mm away from $O$.
+A straight line was then fitted through these points by least squares to give the direction the artery leaves the bifurcation. 
+Using a stretch of points rather than a single one makes the measurement more robust.
 
-
-Distances were measured along the centerline from the bifurcation point $O$, the last centerline point shared by the two arteries.
-Along each artery, points were placed every 0.5\,mm between 5 and 10\,mm from $O$ (Figure~\ref{fig:method-angle}A), and a straight line was fitted through them by least squares to give the direction in which the artery leaves the bifurcation.
-Using a stretch of points rather than a single one makes the measurement more robust, as Medrano-Gracia et al.\ noted for their average over the same interval \cite{medranogracia2016atlas}.
-The point $O$ can only be placed approximately (Appendix~\ref{app:angle-origin}).
-Since the line starts 5\,mm from $O$ and does not pass through it, the angle hardly depends on the exact position of $O$ as long as the arteries run straight between 5 and 10\,mm.
-With $\mathbf{u}_{\mathrm{LAD}}$ and $\mathbf{u}_{\mathrm{LCx}}$ the unit vectors along the two lines, pointing away from the bifurcation (Figure~\ref{fig:method-angle}B), the angle is
+Finally, the angle $\theta$ was computed from the unit vectors $\mathbf{u}{\mathrm{LAD}}$ and $\mathbf{u}{\mathrm{LCx}}$ along the directions in which the arteries leave the bifurcation:
 \begin{equation}
   \theta = \arccos\left( \mathbf{u}_{\mathrm{LAD}} \cdot \mathbf{u}_{\mathrm{LCx}} \right) ,
   \label{eq:method-angle}
 \end{equation}
 where $\cdot$ denotes the dot product.
-$\theta$ was recorded as missing when the LAD and the LCx share no centerline point or either is shorter than 10\,mm.
+$\theta$ was recorded as missing when no centerline point was labelled as the left main or when either artery was missing or shorter than 10\,mm.
 
-% Figure from figures/bifurcation_angle_figure.py (made-up bifurcation, no patient data, real thesis code).
+% Figure from figures/angle_steps_figure.py (made-up bifurcation, no patient data, real thesis code).
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=\textwidth]{content/methodology/figures/bifurcation_angle_figure.pdf}
-  \caption{Bifurcation angle on a made-up left main bifurcation, computed with the thesis code. (A) The lumen in grey with its centerline; points are placed every 0.5\,mm between 5 and 10\,mm from the bifurcation point $O$, measured along the centerline. (B) Close-up of the dotted region: a line is fitted through each set of points (dashed back towards $O$), and $\theta$ is the angle between their directions $\mathbf{u}_{\mathrm{LAD}}$ and $\mathbf{u}_{\mathrm{LCx}}$.}
+  \includegraphics[width=\textwidth]{content/methodology/figures/angle_steps_figure.pdf}
+  \caption{Bifurcation angle on a made-up left main bifurcation, computed with the thesis code. Along the LAD and the LCx, points are placed every 0.5\,mm between 5 and 10\,mm from the bifurcation point $O$, measured along the centerline. A line fitted through each set of points, dashed back towards $O$, gives the direction $\mathbf{u}_{\mathrm{LAD}}$ or $\mathbf{u}_{\mathrm{LCx}}$ in which the artery leaves the bifurcation, and $\theta$ is the angle between the two directions.}
   \label{fig:method-angle}
 \end{figure}
 
@@ -142,5 +156,4 @@ $\theta$ was recorded as missing when the LAD and the LCx share no centerline po
 \label{sec:method-angle-other}
 
 Three other angles at the left main bifurcation were also considered: the angle between the left main and the LAD, the angle between the left main and the LCx, and the inflow angle, at which the left main enters the plane of its two daughters.
-The first two were not used, as only the LAD--LCx angle was associated with stenosis when all three angles between the vessels were measured in the same patients \cite{cui2017bifurcation}.
-The inflow angle was not used either, as it did not differ between stenosed and stenosis-free bifurcations \cite{zhang2024curvature}.
+None of them was chosen to report in this thesis, since earlier papers found no association \cite{zhang2024curvature} \cite{cui2017bifurcation}. 

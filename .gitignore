@@ -31,3 +31,7 @@ thesis/**/*.fls
 thesis/**/*.log
 thesis/**/*.out
 thesis/**/*.run.xml
+
+# PDFs and archives (code and .tex only)
+*.pdf
+*.zip

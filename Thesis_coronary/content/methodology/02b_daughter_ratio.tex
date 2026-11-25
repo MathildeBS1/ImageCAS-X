@@ -27,8 +27,31 @@
 %   from O, upstream for the LM; median over the points in the window; nan when the vessel does not
 %   reach 10 mm or fewer than 2 points have a diameter there; no shared O -> both nan; short LM ->
 %   Finet nan, asymmetry kept. Not in the text: the 3D polygon area (cross products about the centroid).
-% Figure: content/methodology/figures/daughter_ratio_figure.py (made-up bifurcation, run through the
-%   same code).
+% Figure: content/methodology/figures/surface_cut_figure.py since 2026-11-19 (user: replace fig:method-ratio;
+%   made-up lumen meshes run through daughter_ratio.section, contour_area, contour_diameter). The old
+%   contour-based daughter_ratio_figure.py is no longer included. CAREFUL: the figure shows plane cuts of
+%   the lumen surface (the code since 2026-11-19), while the body text above still says the tracer gives a
+%   contour at each centerline point and states the two-contour missing rule; the body must be rewritten
+%   to the surface cuts and the strict 11-cut rule before this section is approved.
+% 2026-11-19 (user: no panel letters, as fig:method-curvature and fig:method-angle): letters removed from
+%   surface_cut_figure.py, the panel references (B and C, D) cut from the text, the caption names the steps
+%   in order and now names p_i, p_{i+1}.
+% 2026-11-19 (user: rewrite the body to the surface cuts). Matches daughter_ratio.tree_asymmetry,
+%   daughter_asymmetry, surface_diameters and section (read 2026-11-19): the tracer lumen is a triangle mesh
+%   (lumen_probe.md), cut by the plane through the centerline point perpendicular to the centerline at the 11
+%   depths SECTION_DEPTHS (5 to 10 mm from O, every 0.5 mm); the closed loop enclosing the point is the
+%   cross-section (the smallest if several); no diameter when no loop encloses the point or the loop also
+%   encloses the other daughter's crossing; strict rule: D = median of the 11 only when all 11 have a diameter;
+%   missing as the angle (no LM label, LAD or LCx missing, no shared O, a daughter under 10 mm). Resolves the
+%   CHECK on the tracer contour format and the CAREFUL of the figure entry above.
+%   Cut: "To keep closely spaced contours from counting more, D was read every 0.5 mm" (the cuts are at fixed
+%   depths, so no interpolation); the two-contour missing rule (superseded by the strict rule).
+%   Not in the text (code level, methods-not-code-level rule): the tangent from the points 1 mm before and
+%   after, CUT_RADIUS 10 mm, the smallest of several enclosing loops, the triangle-fan area (in the figure).
+%   Gharleghi still "adapted": their median is over 0 to 10 mm sampled every 0.01 mm (arXiv 2311.18489, 2.3,
+%   reread 2026-11-19); how their cross-sections were cut is not stated there.
+% CAREFUL: tree_asymmetry is not yet called by progression_who_pooled.py, which still builds the old
+%   narrower-row coding; the model and this text disagree until it does.
 % Sources: medranogracia2016atlas ("effective radius", A = pi R^2, read 2026-11-10 for 05b);
 %   finet2008fractal (0.678 as the reported mean of D_mother / (D_d1 + D_d2)).
 % CHECK: Garcha full text not read (Nature redirect); abstract: "diameter ratio between left coronary
@@ -131,36 +154,80 @@
 %   so the model no longer ties |a| to the narrower daughter's own segment; do not write that it does.
 %   CODE: daughter_ratio.narrower_rows and the asymmetry rows in progression_who_pooled.design() still use
 %   the old coding; no person-level GLM exists yet.
+% 2026-11-20 (user: write the reason for the ln into the section): one sentence after eq:method-asymmetry. A plain
+%   ratio puts "twice as wide" at 2 and 0.5 (distance 1 vs 0.5 from equal); the log puts both at ln 2 from 0,
+%   so |a| treats a wider LAD and a wider LCx alike and the order of the ratio does not matter. Own reasoning,
+%   no cite. Garcha (papers/s41598-025-85781-x (1).pdf, read 2026-11-20) uses R_D = D_LAD/D_LCx, set in
+%   synthetic models, with "skewed dominance" at R_D <= 0.65 or >= 1.40 and a quadratic fit of ALWSS on R_D;
+%   the paper never says "asymmetry" or "daughter", so the term stays the thesis's own (no "referred to as").
+% 2026-11-20 (user, /plan approved: rewrite to the tone and depth of sec:method-angle). Opener names the feature and
+%   points to the angle's eleven points instead of restating the stretch; steps in order (cut, diameter, median,
+%   "Finally" the asymmetry); inserted clauses split; "referred to as a triangle mesh" dropped (term unused, the
+%   caption explains the area). Facts, labels, equations and cites unchanged; checked against daughter_ratio.py
+%   (SECTION_DEPTHS, contour_diameter, daughter_asymmetry strict rule, tree_asymmetry = the angle's rules).
+%   medranogracia2016atlas reopened (~/Downloads/web139_EIJ-D-16-00111_MedranoGraciaCR104.pdf, Computation: "From
+%   the area (A), effective radius (R) and diameter were determined (A = pi R^2)"): supports the diameter.
+% CHECK: gharleghi2025sex (median over 0 to 10 mm, "adapted") could not be reopened on 2026-11-20: no local PDF;
+%   put it in papers/ to confirm before submission.
+% 2026-11-20 (user: inform the reader first how the diameter is estimated). Order now: opener, diameter (cut,
+%   area-equivalent D, the eleven points, median), then the asymmetry. Medrano-Gracia et al. credited for the whole
+%   diameter estimate: Methods, "Computation of diameters": "the mesh was intersected with a plane normal to the
+%   centreline ... polygon shape from which the area was calculated. From the area (A), effective radius (R) and
+%   diameter were determined (A = pi R^2)", every 0.5 mm (reopened 2026-11-20). Not theirs: the 5 to 10 mm stretch for
+%   diameters (they use it for angles), the 1 mm tangent, the 10 mm cut radius, the smallest enclosing loop, the
+%   other-daughter and all-eleven rules, the median (gharleghi2025sex, CHECK above). The sentence "the method to
+%   quantify this feature on real lumens was designed for this thesis" was cut: the core of the measurement is
+%   borrowed. Garcha now cited at the asymmetry, for varying the diameter ratio (R_D = D_LAD/D_LCx, Design of
+%   computational experiments), not for the ln or the measurement.
+% 2026-11-20 (user): caption "plane normal to" -> "plane perpendicular to", the word of the body text.
+% 2026-11-20 (user: follow the figure, explain first how the area was found): the body now runs in the order of the
+%   panels (cut, area, D, median). One sentence on the triangle-fan area added before eq:method-diameter (overrides the
+%   earlier "not in the text" note for it, by request); the "where A is ..." line folded into it. Matches
+%   daughter_ratio.contour_area (cross products about the vertex mean). Grammar of the circle sentence fixed.
+% 2026-11-20 (user: write better and finish "Following the same idea ... the mean"): merged with the next sentence
+%   (placement of the cuts) into one reason-first sentence. "mean" not used: the code takes the median
+%   (daughter_ratio.tree_asymmetry, np.median), stated two sentences later; "robust" is on the banned list.
+% 2026-11-20 (user): typos fixed ("rea-equivalent" -> "area-equivalent diameter was", "combing" -> "combining").
+%   Caption rewritten to the four-panel surface_cut_figure.py (mesh and plane, one cut triangle, the cut triangles
+%   with the fan from c, the circle of equal area); the panel with the eleven cuts and their medians was dropped
+%   from the figure (user), so the caption no longer names the median or the 5 to 10 mm stretch.
+% 2026-11-20 (user: finish "The logarithm ... the absolute value |a| .."): joined with the dangling "therefore
+%   entered the model" line; the reason for |a| points back to sec:lit-wss (01_geometry_wss.tex: "This low WSS
+%   formed in the narrower of the two branches", Garcha), no new citation.
+% 2026-11-20 (user: "make this a note for me to remember, not text in the thesis"): the |a| reason and the
+%   missing rules moved out of the body into one \todonote, in the user's wording ("so the logarithm and |a|").
+%   Until they are written back, the section does not state why |a| is used or when a is missing.
+% 2026-11-25 (user): opener says why Garcha is named (the feature follows their study, where the diameters were
+%   set in simulated trees) and why a measurement method was needed (CCTA scans). Reinstates the "developed for
+%   this thesis" sentence cut on 2026-11-20, now as "combining different published approaches". Garcha checked
+%   (papers/s41598-025-85781-x (1).pdf): R_D = D_LAD/D_LCx set in synthetic models, Design of computational experiments.
 \subsection{Daughter Asymmetry}
 \label{sec:method-ratio}
 
-How the lumen is shared between the two branches at the left main bifurcation was described by the daughter asymmetry (Figure~\ref{fig:method-ratio}).
+The second feature describes the asymmetry between the lumen diameters of the LAD and the LCx just after the left main bifurcation (Figure~\ref{fig:method-ratio}). It is zero when the two lumens have the same diameter and moves further from zero the larger the difference between them. The feature follows Garcha and Grande Guti\'errez \cite{garcha2025sensitivity}, who chose the diameters freely in simulated coronary trees. To measure it in CCTA scans, the following method was developed for this thesis by combining different published approaches.
 
-The tracer gives a lumen contour at each centerline point.
-As the contours are rarely circular, each was reduced to its area-equivalent diameter, following Medrano-Gracia et al.\ \cite{medranogracia2016atlas},
+The diameter of each artery was estimated using the same method as Medrano-Gracia et al.\ \cite{medranogracia2016atlas}.
+First, the mesh was cut with a plane perpendicular to the centerline. The plane crosses the edges of the mesh at a series of points $p_i$, which together form a polygon-shaped contour.
+The area $A$ was then found by summing the areas of the triangles formed by the centroid $c$ and each pair of neighbouring points $p_i$ and $p_{i+1}$. The centroid is the average position of the contour points.
+The area-equivalent diameter was calculated:
 \begin{equation}
-  D = 2 \sqrt{A / \pi} ,
+  D = 2 \sqrt{A / \pi} .
   \label{eq:method-diameter}
 \end{equation}
-where $A$ is the area enclosed by the contour (Figure~\ref{fig:method-ratio}A).
-Each vessel was then given one diameter, the median of $D$ over a fixed stretch of its centerline, adapted from Gharleghi et al.\ \cite{gharleghi2025sex}, and the median keeps a single cross-section widened by a side-branch origin from moving the value.
-For the LAD and the LCx the stretch was 5 to 10\,mm downstream of the bifurcation point $O$, the same stretch as for the bifurcation angle, which leaves out the widened lumen where the vessels join.
-To keep closely spaced contours from counting more, $D$ was read every 0.5\,mm along the stretch, at the same depths as the points of the bifurcation angle (Section~\ref{sec:method-angle}).
 
-From the two diameters (Figure~\ref{fig:method-ratio}B), the daughter asymmetry
+To make the diameter less sensitive to a single cross-section, the artery was cut at the same eleven points as the bifurcation angle (Section~\ref{sec:method-angle}).
+The median of the 11 diameters was used as the final estimate to keep one value from dominating.
+
+Finally, the daughter asymmetry could be computed from the two diameters:
 \begin{equation}
-  a = \ln \frac{D_{\mathrm{LCx}}}{D_{\mathrm{LAD}}}
+  a = \ln \frac{D_{\mathrm{LCx}}}{D_{\mathrm{LAD}}} .
   \label{eq:method-asymmetry}
 \end{equation}
-was computed.
-In simulated trees, low WSS formed in the narrower of the two daughters (Section~\ref{sec:lit-wss}).
-The absolute value $|a|$ therefore entered the model, which relates it to plaque in the proximal segment of either daughter (Section~\ref{sec:method-models}).
-
-The asymmetry was missing whenever the angle was, or when the LAD or the LCx had fewer than two contours in its stretch.
+%{Remember the logarithm places the two directions at equal distances from zero, so the absolute value $|a|$ gives the size of the asymmetry whichever daughter is the narrower. Low WSS formed in the narrower of the two daughters (Section~\ref{sec:lit-wss}), so the logarithm and $|a|$ entered the model, which relates it to plaque in the proximal segment of either daughter (Section~\ref{sec:method-models}). A cut gave no diameter when no closed contour enclosed the centerline point, or when the contour also enclosed the other daughter, as it does where the two vessels still share one lumen. $a$ was recorded as missing whenever the angle was, or when any of the eleven cuts of the LAD or the LCx gave no diameter.}
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=\textwidth]{content/methodology/figures/daughter_ratio_figure.pdf}
-  \caption{Daughter asymmetry on a made-up left main bifurcation, computed with the thesis code. Each lumen contour is reduced to the diameter $D$ of the circle with the same area, and the LAD and the LCx each to the median of $D$ over the shaded stretch 5 to 10\,mm from the bifurcation point $O$, which leaves out the widened lumen near $O$ and is not moved by the one cross-section widened at a side-branch origin (A). The two diameters, drawn to scale, give the daughter asymmetry (B).}
+  \includegraphics[width=\textwidth]{content/methodology/figures/surface_cut_figure.pdf}
+  \caption{Area-equivalent diameter of one cross-section, computed with the thesis code on a made-up lumen surface. The plane perpendicular to the centerline crosses two edges of each mesh triangle it cuts, and the crossing points $p_i$, $p_{i+1}$ form the contour of the cross-section. The area $A$ is the sum of the triangles from the centroid $c$ to each pair of neighbouring contour points, and $D$ is the diameter of the circle with the same area.}
   \label{fig:method-ratio}
 \end{figure}

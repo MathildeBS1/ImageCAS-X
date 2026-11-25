@@ -1,0 +1,3420 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.2 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated by
+% biber as required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+
+\refsection{0}
+  \datalist[entry]{none/global//global/global}
+    \entry{stark2025gbd}{article}{}
+      \true{moreauthor}
+      \true{morelabelname}
+      \name{author}{5}{}{%
+        {{hash=67325db2db40e95e76f43298237d508d}{%
+           family={Stark},
+           familyi={S\bibinitperiod},
+           given={Benjamin\bibnamedelima A.},
+           giveni={B\bibinitperiod\bibinitdelim A\bibinitperiod}}}%
+        {{hash=f4ece13d209530829986393895f0a33b}{%
+           family={DeCleene},
+           familyi={D\bibinitperiod},
+           given={Nicole\bibnamedelima K.},
+           giveni={N\bibinitperiod\bibinitdelim K\bibinitperiod}}}%
+        {{hash=538a4db20834b5f1f14061e703729fa2}{%
+           family={Desai},
+           familyi={D\bibinitperiod},
+           given={Emily\bibnamedelima C.},
+           giveni={E\bibinitperiod\bibinitdelim C\bibinitperiod}}}%
+        {{hash=301a99188ac380473377484229799442}{%
+           family={Hsu},
+           familyi={H\bibinitperiod},
+           given={Johnathan\bibnamedelima M.},
+           giveni={J\bibinitperiod\bibinitdelim M\bibinitperiod}}}%
+        {{hash=66b76a2901dacc3c981a4553c2decdc1}{%
+           family={Johnson},
+           familyi={J\bibinitperiod},
+           given={Catherine\bibnamedelima O.},
+           giveni={C\bibinitperiod\bibinitdelim O\bibinitperiod}}}%
+      }
+      \strng{namehash}{332da2c01b0429c4a6da53ddbb8e8189}
+      \strng{fullhash}{2a2564d6265541d8c098c2ba9124d352}
+      \strng{bibnamehash}{2a2564d6265541d8c098c2ba9124d352}
+      \strng{authorbibnamehash}{2a2564d6265541d8c098c2ba9124d352}
+      \strng{authornamehash}{332da2c01b0429c4a6da53ddbb8e8189}
+      \strng{authorfullhash}{2a2564d6265541d8c098c2ba9124d352}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Journal of the American College of Cardiology}
+      \field{number}{22}
+      \field{title}{Global, Regional, and National Burden of Cardiovascular Diseases and Risk Factors in 204 Countries and Territories, 1990--2023}
+      \field{volume}{86}
+      \field{year}{2025}
+      \field{pages}{2167\bibrangedash 2243}
+      \range{pages}{77}
+      \verb{doi}
+      \verb 10.1016/j.jacc.2025.08.015
+      \endverb
+    \endentry
+    \entry{libby2019atherosclerosis}{article}{}
+      \name{author}{8}{}{%
+        {{hash=2054b50323a9d194672ec9870bcf39fa}{%
+           family={Libby},
+           familyi={L\bibinitperiod},
+           given={Peter},
+           giveni={P\bibinitperiod}}}%
+        {{hash=5d5257decb07138da0ddba5ed9786297}{%
+           family={Buring},
+           familyi={B\bibinitperiod},
+           given={Julie\bibnamedelima E.},
+           giveni={J\bibinitperiod\bibinitdelim E\bibinitperiod}}}%
+        {{hash=41d2b3e6dbc6cc1dd7ee98e7feec6014}{%
+           family={Badimon},
+           familyi={B\bibinitperiod},
+           given={Lina},
+           giveni={L\bibinitperiod}}}%
+        {{hash=0c8ef22e2657d9d8eb0a4f68a7637012}{%
+           family={Hansson},
+           familyi={H\bibinitperiod},
+           given={Göran\bibnamedelima K.},
+           giveni={G\bibinitperiod\bibinitdelim K\bibinitperiod}}}%
+        {{hash=e504c4e44d8aaf036fd74c489b18a3ac}{%
+           family={Deanfield},
+           familyi={D\bibinitperiod},
+           given={John},
+           giveni={J\bibinitperiod}}}%
+        {{hash=f0fd9c8095d0fddcc73c2506c8e9f07d}{%
+           family={Bittencourt},
+           familyi={B\bibinitperiod},
+           given={Marcio\bibnamedelima Sommer},
+           giveni={M\bibinitperiod\bibinitdelim S\bibinitperiod}}}%
+        {{hash=c560ca1e41c3707708a3c57784395676}{%
+           family={Tokgözoğlu},
+           familyi={T\bibinitperiod},
+           given={Lale},
+           giveni={L\bibinitperiod}}}%
+        {{hash=4c7a12076e64b4cf646fa47ed4502290}{%
+           family={Lewis},
+           familyi={L\bibinitperiod},
+           given={Eldrin\bibnamedelima F.},
+           giveni={E\bibinitperiod\bibinitdelim F\bibinitperiod}}}%
+      }
+      \strng{namehash}{d069c49b3496354bbc11ecd1e848ccdb}
+      \strng{fullhash}{d0136437facb0bf73528aa9af81b8e69}
+      \strng{bibnamehash}{d069c49b3496354bbc11ecd1e848ccdb}
+      \strng{authorbibnamehash}{d069c49b3496354bbc11ecd1e848ccdb}
+      \strng{authornamehash}{d069c49b3496354bbc11ecd1e848ccdb}
+      \strng{authorfullhash}{d0136437facb0bf73528aa9af81b8e69}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Nature Reviews Disease Primers}
+      \field{title}{Atherosclerosis}
+      \field{volume}{5}
+      \field{year}{2019}
+      \field{pages}{56}
+      \range{pages}{1}
+      \verb{doi}
+      \verb 10.1038/s41572-019-0106-z
+      \endverb
+    \endentry
+    \entry{chatzizisis2007ess}{article}{}
+      \name{author}{6}{}{%
+        {{hash=6bd8c975ef82461ad8529c9545cc7424}{%
+           family={Chatzizisis},
+           familyi={C\bibinitperiod},
+           given={Yiannis\bibnamedelima S.},
+           giveni={Y\bibinitperiod\bibinitdelim S\bibinitperiod}}}%
+        {{hash=687a85741dfcee8827b5378edb9b7a72}{%
+           family={Coskun},
+           familyi={C\bibinitperiod},
+           given={Ahmet\bibnamedelima Umit},
+           giveni={A\bibinitperiod\bibinitdelim U\bibinitperiod}}}%
+        {{hash=5e3898d4c3e9111b89d595cb247cadcd}{%
+           family={Jonas},
+           familyi={J\bibinitperiod},
+           given={Michael},
+           giveni={M\bibinitperiod}}}%
+        {{hash=d1529e4bc4a49b1d95decb9e79c67bcd}{%
+           family={Edelman},
+           familyi={E\bibinitperiod},
+           given={Elazer\bibnamedelima R.},
+           giveni={E\bibinitperiod\bibinitdelim R\bibinitperiod}}}%
+        {{hash=977d10de8ac74d89425e8be3699b86cb}{%
+           family={Feldman},
+           familyi={F\bibinitperiod},
+           given={Charles\bibnamedelima L.},
+           giveni={C\bibinitperiod\bibinitdelim L\bibinitperiod}}}%
+        {{hash=2cb124d4622752c4b5e1416e06bb2951}{%
+           family={Stone},
+           familyi={S\bibinitperiod},
+           given={Peter\bibnamedelima H.},
+           giveni={P\bibinitperiod\bibinitdelim H\bibinitperiod}}}%
+      }
+      \strng{namehash}{976c13f4785f9d02aa3d94d176e0f341}
+      \strng{fullhash}{7b0a27054ee7ec41be3c8b367d17787b}
+      \strng{bibnamehash}{7b0a27054ee7ec41be3c8b367d17787b}
+      \strng{authorbibnamehash}{7b0a27054ee7ec41be3c8b367d17787b}
+      \strng{authornamehash}{976c13f4785f9d02aa3d94d176e0f341}
+      \strng{authorfullhash}{7b0a27054ee7ec41be3c8b367d17787b}
+      \field{sortinit}{4}
+      \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Journal of the American College of Cardiology}
+      \field{number}{25}
+      \field{title}{Role of endothelial shear stress in the natural history of coronary atherosclerosis and vascular remodeling: molecular, cellular, and vascular behavior}
+      \field{volume}{49}
+      \field{year}{2007}
+      \field{pages}{2379\bibrangedash 2393}
+      \range{pages}{15}
+      \verb{doi}
+      \verb 10.1016/j.jacc.2007.02.059
+      \endverb
+    \endentry
+    \entry{asakura1990flow}{article}{}
+      \name{author}{2}{}{%
+        {{hash=6467c9ab186d76449063378f66f235b0}{%
+           family={Asakura},
+           familyi={A\bibinitperiod},
+           given={Toshio},
+           giveni={T\bibinitperiod}}}%
+        {{hash=365d4f1bf44ee9c391062553500aa7ab}{%
+           family={Karino},
+           familyi={K\bibinitperiod},
+           given={Takeshi},
+           giveni={T\bibinitperiod}}}%
+      }
+      \strng{namehash}{147f5fd083746944a876f4117074ce8d}
+      \strng{fullhash}{147f5fd083746944a876f4117074ce8d}
+      \strng{bibnamehash}{147f5fd083746944a876f4117074ce8d}
+      \strng{authorbibnamehash}{147f5fd083746944a876f4117074ce8d}
+      \strng{authornamehash}{147f5fd083746944a876f4117074ce8d}
+      \strng{authorfullhash}{147f5fd083746944a876f4117074ce8d}
+      \field{sortinit}{5}
+      \field{sortinithash}{20e9b4b0b173788c5dace24730f47d8c}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Circulation Research}
+      \field{number}{4}
+      \field{title}{Flow patterns and spatial distribution of atherosclerotic lesions in human coronary arteries}
+      \field{volume}{66}
+      \field{year}{1990}
+      \field{pages}{1045\bibrangedash 1066}
+      \range{pages}{22}
+      \verb{doi}
+      \verb 10.1161/01.RES.66.4.1045
+      \endverb
+    \endentry
+    \entry{temov2016bifurcation}{article}{}
+      \name{author}{2}{}{%
+        {{hash=65dd1aeaaafb9b3123e1e6f4f0042215}{%
+           family={Temov},
+           familyi={T\bibinitperiod},
+           given={Kayla},
+           giveni={K\bibinitperiod}}}%
+        {{hash=4dc58c41cc9657e95822ed6a0d7d9d39}{%
+           family={Sun},
+           familyi={S\bibinitperiod},
+           given={Zhonghua},
+           giveni={Z\bibinitperiod}}}%
+      }
+      \strng{namehash}{12346bca06ce5d97c47ec5af323631b2}
+      \strng{fullhash}{12346bca06ce5d97c47ec5af323631b2}
+      \strng{bibnamehash}{12346bca06ce5d97c47ec5af323631b2}
+      \strng{authorbibnamehash}{12346bca06ce5d97c47ec5af323631b2}
+      \strng{authornamehash}{12346bca06ce5d97c47ec5af323631b2}
+      \strng{authorfullhash}{12346bca06ce5d97c47ec5af323631b2}
+      \field{sortinit}{6}
+      \field{sortinithash}{b33bc299efb3c36abec520a4c896a66d}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{The International Journal of Cardiovascular Imaging}
+      \field{number}{Suppl 1}
+      \field{title}{Coronary computed tomography angiography investigation of the association between left main coronary artery bifurcation angle and risk factors of coronary artery disease}
+      \field{volume}{32}
+      \field{year}{2016}
+      \field{pages}{129\bibrangedash 137}
+      \range{pages}{9}
+      \verb{doi}
+      \verb 10.1007/s10554-016-0884-2
+      \endverb
+    \endentry
+    \entry{score2_2021}{article}{}
+      \name{author}{1}{}{%
+        {{hash=963cd59194a5ef033a75a6740e821d4e}{%
+           family={{SCORE2 working group and ESC Cardiovascular risk collaboration}},
+           familyi={S\bibinitperiod}}}%
+      }
+      \strng{namehash}{963cd59194a5ef033a75a6740e821d4e}
+      \strng{fullhash}{963cd59194a5ef033a75a6740e821d4e}
+      \strng{bibnamehash}{963cd59194a5ef033a75a6740e821d4e}
+      \strng{authorbibnamehash}{963cd59194a5ef033a75a6740e821d4e}
+      \strng{authornamehash}{963cd59194a5ef033a75a6740e821d4e}
+      \strng{authorfullhash}{963cd59194a5ef033a75a6740e821d4e}
+      \field{sortinit}{7}
+      \field{sortinithash}{108d0be1b1bee9773a1173443802c0a3}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{European Heart Journal}
+      \field{number}{25}
+      \field{title}{{SCORE2} risk prediction algorithms: new models to estimate 10-year risk of cardiovascular disease in {Europe}}
+      \field{volume}{42}
+      \field{year}{2021}
+      \field{pages}{2439\bibrangedash 2454}
+      \range{pages}{16}
+      \verb{doi}
+      \verb 10.1093/eurheartj/ehab309
+      \endverb
+    \endentry
+    \entry{cui2017bifurcation}{article}{}
+      \name{author}{9}{}{%
+        {{hash=db69b67448ca791287a8d79842c14a40}{%
+           family={Cui},
+           familyi={C\bibinitperiod},
+           given={Yue},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=51048fc699b103f16887a70a26d96fb3}{%
+           family={Zeng},
+           familyi={Z\bibinitperiod},
+           given={Wenjuan},
+           giveni={W\bibinitperiod}}}%
+        {{hash=f833275ec96740e157e5397ded247c1c}{%
+           family={Yu},
+           familyi={Y\bibinitperiod},
+           given={Jie},
+           giveni={J\bibinitperiod}}}%
+        {{hash=56a36a3757d48ad98c5d9f736c9f69d3}{%
+           family={Lu},
+           familyi={L\bibinitperiod},
+           given={Jing},
+           giveni={J\bibinitperiod}}}%
+        {{hash=34ae409c498ef892cec1a68c5e8d16da}{%
+           family={Hu},
+           familyi={H\bibinitperiod},
+           given={Yuannan},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=81c44398b948e5f0b601c26ad0be4345}{%
+           family={Diao},
+           familyi={D\bibinitperiod},
+           given={Nan},
+           giveni={N\bibinitperiod}}}%
+        {{hash=12bf1706b44f91e5f2ed401e266fd2b8}{%
+           family={Liang},
+           familyi={L\bibinitperiod},
+           given={Bo},
+           giveni={B\bibinitperiod}}}%
+        {{hash=086ede4ce894b03aa58fe98e4e11b1c2}{%
+           family={Han},
+           familyi={H\bibinitperiod},
+           given={Ping},
+           giveni={P\bibinitperiod}}}%
+        {{hash=6e74feca4a10150cfc9f0f5126ffe6ae}{%
+           family={Shi},
+           familyi={S\bibinitperiod},
+           given={Heshui},
+           giveni={H\bibinitperiod}}}%
+      }
+      \strng{namehash}{53b1aecece5d6d7412e9d08e0d6b6350}
+      \strng{fullhash}{029add7e0dbf8babcd0b7aa3effcbd2b}
+      \strng{bibnamehash}{53b1aecece5d6d7412e9d08e0d6b6350}
+      \strng{authorbibnamehash}{53b1aecece5d6d7412e9d08e0d6b6350}
+      \strng{authornamehash}{53b1aecece5d6d7412e9d08e0d6b6350}
+      \strng{authorfullhash}{029add7e0dbf8babcd0b7aa3effcbd2b}
+      \field{sortinit}{8}
+      \field{sortinithash}{a231b008ebf0ecbe0b4d96dcc159445f}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{PLoS ONE}
+      \field{number}{3}
+      \field{title}{Quantification of left coronary bifurcation angles and plaques by coronary computed tomography angiography for prediction of significant coronary stenosis: A preliminary study with dual-source {CT}}
+      \field{volume}{12}
+      \field{year}{2017}
+      \field{pages}{e0174352}
+      \range{pages}{-1}
+      \verb{doi}
+      \verb 10.1371/journal.pone.0174352
+      \endverb
+    \endentry
+    \entry{kashyap2022tortuosity}{article}{}
+      \name{author}{8}{}{%
+        {{hash=1ce9200c43ccc292ecd4c24891663d1f}{%
+           family={Kashyap},
+           familyi={K\bibinitperiod},
+           given={Vikas},
+           giveni={V\bibinitperiod}}}%
+        {{hash=0a70faacb489d3c5b4cd45b3cd76cc01}{%
+           family={Gharleghi},
+           familyi={G\bibinitperiod},
+           given={Ramtin},
+           giveni={R\bibinitperiod}}}%
+        {{hash=46e113e1ad63431dcc5e574d6f11a65b}{%
+           family={Li},
+           familyi={L\bibinitperiod},
+           given={Donna\bibnamedelima D.},
+           giveni={D\bibinitperiod\bibinitdelim D\bibinitperiod}}}%
+        {{hash=2ed27dd1877212c719ce0b0a483c1445}{%
+           family={McGrath-Cadell},
+           familyi={M\bibinithyphendelim C\bibinitperiod},
+           given={Lucy},
+           giveni={L\bibinitperiod}}}%
+        {{hash=3a5e2ce7f7205aa78412c136bf12644b}{%
+           family={Graham},
+           familyi={G\bibinitperiod},
+           given={Robert\bibnamedelima M.},
+           giveni={R\bibinitperiod\bibinitdelim M\bibinitperiod}}}%
+        {{hash=3b52d4b29ccf140e98bf18ec30d40dce}{%
+           family={Ellis},
+           familyi={E\bibinitperiod},
+           given={Chris},
+           giveni={C\bibinitperiod}}}%
+        {{hash=3a493b82436fa295ae36e027190ed913}{%
+           family={Webster},
+           familyi={W\bibinitperiod},
+           given={Mark},
+           giveni={M\bibinitperiod}}}%
+        {{hash=aa2c9e3b0ab08e7b4bd2ec6f1ac87eee}{%
+           family={Beier},
+           familyi={B\bibinitperiod},
+           given={Susann},
+           giveni={S\bibinitperiod}}}%
+      }
+      \strng{namehash}{d257d4acd19cb736cf27c880f1ce2df6}
+      \strng{fullhash}{719145f57de260b26b9211620768b0f2}
+      \strng{bibnamehash}{d257d4acd19cb736cf27c880f1ce2df6}
+      \strng{authorbibnamehash}{d257d4acd19cb736cf27c880f1ce2df6}
+      \strng{authornamehash}{d257d4acd19cb736cf27c880f1ce2df6}
+      \strng{authorfullhash}{719145f57de260b26b9211620768b0f2}
+      \field{sortinit}{8}
+      \field{sortinithash}{a231b008ebf0ecbe0b4d96dcc159445f}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Scientific Reports}
+      \field{number}{1}
+      \field{title}{Accuracy of vascular tortuosity measures using computational modelling}
+      \field{volume}{12}
+      \field{year}{2022}
+      \field{pages}{865}
+      \range{pages}{1}
+      \verb{doi}
+      \verb 10.1038/s41598-022-04796-w
+      \endverb
+    \endentry
+    \entry{han2022plaque}{article}{}
+      \true{moreauthor}
+      \true{morelabelname}
+      \name{author}{12}{}{%
+        {{hash=61024d9ddb1de4ee8a912c4a99a05bb5}{%
+           family={Han},
+           familyi={H\bibinitperiod},
+           given={Donghee},
+           giveni={D\bibinitperiod}}}%
+        {{hash=e6a82323be35483fe43e15ac3996a020}{%
+           family={Lin},
+           familyi={L\bibinitperiod},
+           given={Andrew},
+           giveni={A\bibinitperiod}}}%
+        {{hash=33bfeab60a6884be3577939b9f469e9d}{%
+           family={Kuronuma},
+           familyi={K\bibinitperiod},
+           given={Keiichiro},
+           giveni={K\bibinitperiod}}}%
+        {{hash=0b08cc47413b9c12187472d325c50e4a}{%
+           family={Tzolos},
+           familyi={T\bibinitperiod},
+           given={Evangelos},
+           giveni={E\bibinitperiod}}}%
+        {{hash=1335f52df56724090f928ee810e97ce6}{%
+           family={Kwan},
+           familyi={K\bibinitperiod},
+           given={Alan\bibnamedelima C.},
+           giveni={A\bibinitperiod\bibinitdelim C\bibinitperiod}}}%
+        {{hash=eab62cd631b5763dff0177fb1095ff9c}{%
+           family={Klein},
+           familyi={K\bibinitperiod},
+           given={Eyal},
+           giveni={E\bibinitperiod}}}%
+        {{hash=8c7636a0595b10d7bdf9b602515a3f50}{%
+           family={Andreini},
+           familyi={A\bibinitperiod},
+           given={Daniele},
+           giveni={D\bibinitperiod}}}%
+        {{hash=91836ff9856257503c96f3ad85193a98}{%
+           family={Bax},
+           familyi={B\bibinitperiod},
+           given={Jeroen\bibnamedelima J.},
+           giveni={J\bibinitperiod\bibinitdelim J\bibinitperiod}}}%
+        {{hash=b7905fb2c074afe58292d2d2ba9e6eca}{%
+           family={Cademartiri},
+           familyi={C\bibinitperiod},
+           given={Filippo},
+           giveni={F\bibinitperiod}}}%
+        {{hash=c455bf624967587095a3e65f5566e683}{%
+           family={Chinnaiyan},
+           familyi={C\bibinitperiod},
+           given={Kavitha},
+           giveni={K\bibinitperiod}}}%
+        {{hash=644f07610a96cf72fe0102e4715c3071}{%
+           family={Dey},
+           familyi={D\bibinitperiod},
+           given={Damini},
+           giveni={D\bibinitperiod}}}%
+        {{hash=3f7dc66639560114ec4755c84abe8ef7}{%
+           family={Berman},
+           familyi={B\bibinitperiod},
+           given={Daniel\bibnamedelima S.},
+           giveni={D\bibinitperiod\bibinitdelim S\bibinitperiod}}}%
+      }
+      \strng{namehash}{e1639d9055a6c64dfb3e7457496954ab}
+      \strng{fullhash}{d82d336fe55663a27acb83d344dfb105}
+      \strng{bibnamehash}{e1639d9055a6c64dfb3e7457496954ab}
+      \strng{authorbibnamehash}{e1639d9055a6c64dfb3e7457496954ab}
+      \strng{authornamehash}{e1639d9055a6c64dfb3e7457496954ab}
+      \strng{authorfullhash}{d82d336fe55663a27acb83d344dfb105}
+      \field{sortinit}{9}
+      \field{sortinithash}{0a5ebc79d83c96b6579069544c73c7d4}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{JAMA Cardiology}
+      \field{number}{3}
+      \field{title}{Association of plaque location and vessel geometry determined by coronary computed tomographic angiography with future acute coronary syndrome--causing culprit lesions}
+      \field{volume}{7}
+      \field{year}{2022}
+      \field{pages}{309\bibrangedash 319}
+      \range{pages}{11}
+      \verb{doi}
+      \verb 10.1001/jamacardio.2021.5705
+      \endverb
+    \endentry
+    \entry{fuchs2023cgps}{article}{}
+      \name{author}{11}{}{%
+        {{hash=3bf0d54fc4490233b8f183357f70251d}{%
+           family={Fuchs},
+           familyi={F\bibinitperiod},
+           given={Andreas},
+           giveni={A\bibinitperiod}}}%
+        {{hash=c9774b9c741f28490210c5fe59780408}{%
+           family={Kühl},
+           familyi={K\bibinitperiod},
+           given={J{ø}rgen\bibnamedelima Tobias},
+           giveni={J\bibinitperiod\bibinitdelim T\bibinitperiod}}}%
+        {{hash=013af9e89d3bd5918b66541edc005572}{%
+           family={Sigvardsen},
+           familyi={S\bibinitperiod},
+           given={Per\bibnamedelima Ejlstrup},
+           giveni={P\bibinitperiod\bibinitdelim E\bibinitperiod}}}%
+        {{hash=eb5a05a7a64c83840a552b8916870d75}{%
+           family={Afzal},
+           familyi={A\bibinitperiod},
+           given={Shoaib},
+           giveni={S\bibinitperiod}}}%
+        {{hash=9d52e7fe9b0a3dbb1254af0b574de7c2}{%
+           family={Knudsen},
+           familyi={K\bibinitperiod},
+           given={Andreas\bibnamedelima Dehlb{æ}k},
+           giveni={A\bibinitperiod\bibinitdelim D\bibinitperiod}}}%
+        {{hash=2aa6399294f805bc736b220a245da8bb}{%
+           family={M{ø}ller},
+           familyi={M\bibinitperiod},
+           given={Mathias\bibnamedelima Bech},
+           giveni={M\bibinitperiod\bibinitdelim B\bibinitperiod}}}%
+        {{hash=790982aec87a130834ac3de589081759}{%
+           family={Knegt},
+           familyi={K\bibinitperiod},
+           given={Martina\bibnamedelima Chantal},
+           giveni={M\bibinitperiod\bibinitdelim C\bibinitperiod},
+           prefix={de},
+           prefixi={d\bibinitperiod}}}%
+        {{hash=fed34455b6eba0fd5d799dc40f523083}{%
+           family={S{ø}rgaard},
+           familyi={S\bibinitperiod},
+           given={Mathias\bibnamedelima Holm},
+           giveni={M\bibinitperiod\bibinitdelim H\bibinitperiod}}}%
+        {{hash=d538b7edd87bd7f622118021260878c2}{%
+           family={Nordestgaard},
+           familyi={N\bibinitperiod},
+           given={B{ø}rge\bibnamedelima Gr{ø}nne},
+           giveni={B\bibinitperiod\bibinitdelim G\bibinitperiod}}}%
+        {{hash=349f43f1c5a106b3a3eb460809cdf95c}{%
+           family={K{ø}ber},
+           familyi={K\bibinitperiod},
+           given={Lars\bibnamedelima Valeur},
+           giveni={L\bibinitperiod\bibinitdelim V\bibinitperiod}}}%
+        {{hash=27a57eb8b176b15fc96798314b5431ad}{%
+           family={Kofoed},
+           familyi={K\bibinitperiod},
+           given={Klaus\bibnamedelima Fuglsang},
+           giveni={K\bibinitperiod\bibinitdelim F\bibinitperiod}}}%
+      }
+      \strng{namehash}{eae59fbe7a28aae1a100c960d23a98df}
+      \strng{fullhash}{2491fccb79d31d046882b35163fd5edb}
+      \strng{bibnamehash}{eae59fbe7a28aae1a100c960d23a98df}
+      \strng{authorbibnamehash}{eae59fbe7a28aae1a100c960d23a98df}
+      \strng{authornamehash}{eae59fbe7a28aae1a100c960d23a98df}
+      \strng{authorfullhash}{2491fccb79d31d046882b35163fd5edb}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Annals of Internal Medicine}
+      \field{number}{4}
+      \field{title}{Subclinical coronary atherosclerosis and risk for myocardial infarction in a Danish cohort: A prospective observational cohort study}
+      \field{volume}{176}
+      \field{year}{2023}
+      \field{pages}{433\bibrangedash 442}
+      \range{pages}{10}
+      \verb{doi}
+      \verb 10.7326/M22-3027
+      \endverb
+    \endentry
+    \entry{gijsen2019wss}{article}{}
+      \true{moreauthor}
+      \true{morelabelname}
+      \name{author}{5}{}{%
+        {{hash=8956400db82f40f0c171a62baded36f4}{%
+           family={Gijsen},
+           familyi={G\bibinitperiod},
+           given={Frank},
+           giveni={F\bibinitperiod}}}%
+        {{hash=c67475ceb98fb6efcf580a5caa771826}{%
+           family={Katagiri},
+           familyi={K\bibinitperiod},
+           given={Yuki},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=5cf6b04a4c9f7fce496e951794af3289}{%
+           family={Barlis},
+           familyi={B\bibinitperiod},
+           given={Peter},
+           giveni={P\bibinitperiod}}}%
+        {{hash=0e7e794bf5a2de72ee6f7e6177971fd5}{%
+           family={Bourantas},
+           familyi={B\bibinitperiod},
+           given={Christos},
+           giveni={C\bibinitperiod}}}%
+        {{hash=49f77186757d603e1e0cc34e0d73aaaf}{%
+           family={Collet},
+           familyi={C\bibinitperiod},
+           given={Carlos},
+           giveni={C\bibinitperiod}}}%
+      }
+      \strng{namehash}{13107979c221953c7bfb08d163e0c7ea}
+      \strng{fullhash}{91385470bbe9a62656d946c13a3882fb}
+      \strng{bibnamehash}{91385470bbe9a62656d946c13a3882fb}
+      \strng{authorbibnamehash}{91385470bbe9a62656d946c13a3882fb}
+      \strng{authornamehash}{13107979c221953c7bfb08d163e0c7ea}
+      \strng{authorfullhash}{91385470bbe9a62656d946c13a3882fb}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{European Heart Journal}
+      \field{number}{41}
+      \field{title}{Expert recommendations on the assessment of wall shear stress in human coronary arteries: existing methodologies, technical considerations, and clinical applications}
+      \field{volume}{40}
+      \field{year}{2019}
+      \field{pages}{3421\bibrangedash 3433}
+      \range{pages}{13}
+      \verb{doi}
+      \verb 10.1093/eurheartj/ehz551
+      \endverb
+    \endentry
+    \entry{zhang2024curvature}{article}{}
+      \name{author}{4}{}{%
+        {{hash=1b817b65460a4401478164e299596fbd}{%
+           family={Zhang},
+           familyi={Z\bibinitperiod},
+           given={Mingzi},
+           giveni={M\bibinitperiod}}}%
+        {{hash=0a70faacb489d3c5b4cd45b3cd76cc01}{%
+           family={Gharleghi},
+           familyi={G\bibinitperiod},
+           given={Ramtin},
+           giveni={R\bibinitperiod}}}%
+        {{hash=a2851824a0c5d48f6018358a23af841f}{%
+           family={Shen},
+           familyi={S\bibinitperiod},
+           given={Chi},
+           giveni={C\bibinitperiod}}}%
+        {{hash=aa2c9e3b0ab08e7b4bd2ec6f1ac87eee}{%
+           family={Beier},
+           familyi={B\bibinitperiod},
+           given={Susann},
+           giveni={S\bibinitperiod}}}%
+      }
+      \strng{namehash}{83e17e8d580472cc65d1fbda0061666a}
+      \strng{fullhash}{b43ca348ccd353e42fa4950f873dcb86}
+      \strng{bibnamehash}{b43ca348ccd353e42fa4950f873dcb86}
+      \strng{authorbibnamehash}{b43ca348ccd353e42fa4950f873dcb86}
+      \strng{authornamehash}{83e17e8d580472cc65d1fbda0061666a}
+      \strng{authorfullhash}{b43ca348ccd353e42fa4950f873dcb86}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Royal Society Open Science}
+      \field{title}{A New Understanding of Coronary Curvature and Haemodynamic Impact on the Course of Plaque Onset and Progression}
+      \field{volume}{11}
+      \field{year}{2024}
+      \field{pages}{241267}
+      \range{pages}{1}
+      \verb{doi}
+      \verb 10.1098/rsos.241267
+      \endverb
+    \endentry
+    \entry{garcha2025sensitivity}{article}{}
+      \name{author}{2}{}{%
+        {{hash=8e538f78d051a3aba14b3977edb08614}{%
+           family={Garcha},
+           familyi={G\bibinitperiod},
+           given={A.},
+           giveni={A\bibinitperiod}}}%
+        {{hash=f1550d7096f3c3582b26eef3d7178718}{%
+           family={Grande\bibnamedelima Gutiérrez},
+           familyi={G\bibinitperiod\bibinitdelim G\bibinitperiod},
+           given={N.},
+           giveni={N\bibinitperiod}}}%
+      }
+      \strng{namehash}{4d482ba52fc5c6d2fc0320528b733290}
+      \strng{fullhash}{4d482ba52fc5c6d2fc0320528b733290}
+      \strng{bibnamehash}{4d482ba52fc5c6d2fc0320528b733290}
+      \strng{authorbibnamehash}{4d482ba52fc5c6d2fc0320528b733290}
+      \strng{authornamehash}{4d482ba52fc5c6d2fc0320528b733290}
+      \strng{authorfullhash}{4d482ba52fc5c6d2fc0320528b733290}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Scientific Reports}
+      \field{number}{1}
+      \field{title}{Sensitivity of coronary hemodynamics to vascular structure variations in health and disease}
+      \field{volume}{15}
+      \field{year}{2025}
+      \field{pages}{3325}
+      \range{pages}{1}
+      \verb{doi}
+      \verb 10.1038/s41598-025-85781-x
+      \endverb
+    \endentry
+    \entry{ramsay2005fda}{book}{}
+      \name{author}{2}{}{%
+        {{hash=741fcd931c694bc2a335abea7c9e086e}{%
+           family={Ramsay},
+           familyi={R\bibinitperiod},
+           given={James\bibnamedelima O.},
+           giveni={J\bibinitperiod\bibinitdelim O\bibinitperiod}}}%
+        {{hash=a4382e6b2a00123dfd0676e54180141c}{%
+           family={Silverman},
+           familyi={S\bibinitperiod},
+           given={Bernard\bibnamedelima W.},
+           giveni={B\bibinitperiod\bibinitdelim W\bibinitperiod}}}%
+      }
+      \list{location}{1}{%
+        {New York}%
+      }
+      \list{publisher}{1}{%
+        {Springer}%
+      }
+      \strng{namehash}{0d67f55ba694c7bbad87701fde1a94c6}
+      \strng{fullhash}{0d67f55ba694c7bbad87701fde1a94c6}
+      \strng{bibnamehash}{0d67f55ba694c7bbad87701fde1a94c6}
+      \strng{authorbibnamehash}{0d67f55ba694c7bbad87701fde1a94c6}
+      \strng{authornamehash}{0d67f55ba694c7bbad87701fde1a94c6}
+      \strng{authorfullhash}{0d67f55ba694c7bbad87701fde1a94c6}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{annotation}{[VERIFIED] DOI on Crossref 2026-11-06. FPCA ch. 8, registration ch. 7; ch. 8 seen only via secondary notes, check section 8.4 before citing the grid equations.}
+      \field{edition}{2}
+      \field{series}{Springer Series in Statistics}
+      \field{title}{Functional Data Analysis}
+      \field{year}{2005}
+      \verb{doi}
+      \verb 10.1007/b98888
+      \endverb
+    \endentry
+    \entry{grisan2008tortuosity}{article}{}
+      \name{author}{3}{}{%
+        {{hash=868c6127a057ad65fa6ed01cd5c32f99}{%
+           family={Grisan},
+           familyi={G\bibinitperiod},
+           given={Enrico},
+           giveni={E\bibinitperiod}}}%
+        {{hash=b6da203d1aaa0fdc366e70057d725eea}{%
+           family={Foracchia},
+           familyi={F\bibinitperiod},
+           given={Marco},
+           giveni={M\bibinitperiod}}}%
+        {{hash=c5a67a0eef61a57d17b838fc5008d426}{%
+           family={Ruggeri},
+           familyi={R\bibinitperiod},
+           given={Alfredo},
+           giveni={A\bibinitperiod}}}%
+      }
+      \strng{namehash}{68f93955374be339e063baba242c2686}
+      \strng{fullhash}{68f93955374be339e063baba242c2686}
+      \strng{bibnamehash}{68f93955374be339e063baba242c2686}
+      \strng{authorbibnamehash}{68f93955374be339e063baba242c2686}
+      \strng{authornamehash}{68f93955374be339e063baba242c2686}
+      \strng{authorfullhash}{68f93955374be339e063baba242c2686}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{IEEE Transactions on Medical Imaging}
+      \field{number}{3}
+      \field{title}{A novel method for the automatic grading of retinal vessel tortuosity}
+      \field{volume}{27}
+      \field{year}{2008}
+      \field{pages}{310\bibrangedash 319}
+      \range{pages}{10}
+      \verb{doi}
+      \verb 10.1109/TMI.2007.904657
+      \endverb
+    \endentry
+    \entry{li2011tortuosity}{article}{}
+      \name{author}{6}{}{%
+        {{hash=cf1f0547c288eff0857572dcc12516bb}{%
+           family={Li},
+           familyi={L\bibinitperiod},
+           given={Yi},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=39964d5b44077a5d391b940d602a6d29}{%
+           family={Shen},
+           familyi={S\bibinitperiod},
+           given={Chengxing},
+           giveni={C\bibinitperiod}}}%
+        {{hash=b39422c44127020c7d715a5263ac9349}{%
+           family={Ji},
+           familyi={J\bibinitperiod},
+           given={Yong},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=d166c7b4714ea981053dfa329edbf2b6}{%
+           family={Feng},
+           familyi={F\bibinitperiod},
+           given={Yiming},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=a86bd19b6cfc46d66c523740530ef27a}{%
+           family={Ma},
+           familyi={M\bibinitperiod},
+           given={Genshan},
+           giveni={G\bibinitperiod}}}%
+        {{hash=4773cbd3fba6df02287569e231032c59}{%
+           family={Liu},
+           familyi={L\bibinitperiod},
+           given={Naifeng},
+           giveni={N\bibinitperiod}}}%
+      }
+      \strng{namehash}{677a69f08dadda0d77c611bf2804acaa}
+      \strng{fullhash}{8928a71aef97eeb9fff279f09345041e}
+      \strng{bibnamehash}{8928a71aef97eeb9fff279f09345041e}
+      \strng{authorbibnamehash}{8928a71aef97eeb9fff279f09345041e}
+      \strng{authornamehash}{677a69f08dadda0d77c611bf2804acaa}
+      \strng{authorfullhash}{8928a71aef97eeb9fff279f09345041e}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{PLoS ONE}
+      \field{number}{8}
+      \field{title}{Clinical implication of coronary tortuosity in patients with coronary artery disease}
+      \field{volume}{6}
+      \field{year}{2011}
+      \field{pages}{e24232}
+      \range{pages}{-1}
+      \verb{doi}
+      \verb 10.1371/journal.pone.0024232
+      \endverb
+    \endentry
+    \entry{telloayala2026tortuosity}{article}{}
+      \name{author}{12}{}{%
+        {{hash=df429975b24c4fa5144999e8bfbafdfb}{%
+           family={Tello\bibnamedelima Ayala},
+           familyi={T\bibinitperiod\bibinitdelim A\bibinitperiod},
+           given={Jose\bibnamedelima Roberto},
+           giveni={J\bibinitperiod\bibinitdelim R\bibinitperiod}}}%
+        {{hash=cc0caa38e858eee4bf4f89ede90037b6}{%
+           family={Supriami},
+           familyi={S\bibinitperiod},
+           given={Kelvin},
+           giveni={K\bibinitperiod}}}%
+        {{hash=771955dcbdc2410f23444f2e534a3568}{%
+           family={Swaroop},
+           familyi={S\bibinitperiod},
+           given={Siddharth},
+           giveni={S\bibinitperiod}}}%
+        {{hash=5a432438b04bf2e2660074e733f97841}{%
+           family={Friedman},
+           familyi={F\bibinitperiod},
+           given={Samuel\bibnamedelima F.},
+           giveni={S\bibinitperiod\bibinitdelim F\bibinitperiod}}}%
+        {{hash=b3e57b80f7f5049819fea4df80cb9135}{%
+           family={Unlu},
+           familyi={U\bibinitperiod},
+           given={Ozan},
+           giveni={O\bibinitperiod}}}%
+        {{hash=0aed6bafcf314517360b8833c3d9b793}{%
+           family={Halford},
+           familyi={H\bibinitperiod},
+           given={Jennifer},
+           giveni={J\bibinitperiod}}}%
+        {{hash=e5c796f6856fb3e7bb153e8102b1949f}{%
+           family={Maddah},
+           familyi={M\bibinitperiod},
+           given={Mahnaz},
+           giveni={M\bibinitperiod}}}%
+        {{hash=f843532271f73fada966226a54577bde}{%
+           family={Abou-Karam},
+           familyi={A\bibinithyphendelim K\bibinitperiod},
+           given={Roukoz},
+           giveni={R\bibinitperiod}}}%
+        {{hash=8351d8a6894e44713924da0af18761dd}{%
+           family={Pomerantsev},
+           familyi={P\bibinitperiod},
+           given={Eugene},
+           giveni={E\bibinitperiod}}}%
+        {{hash=f66439929a95109d7912306caa769bcd}{%
+           family={Ellinor},
+           familyi={E\bibinitperiod},
+           given={Patrick\bibnamedelima T.},
+           giveni={P\bibinitperiod\bibinitdelim T\bibinitperiod}}}%
+        {{hash=b01a5e92cd39a5551d74ab2393c7b9fd}{%
+           family={Doshi-Velez},
+           familyi={D\bibinithyphendelim V\bibinitperiod},
+           given={Finale},
+           giveni={F\bibinitperiod}}}%
+        {{hash=82892d252f94a4eda5a2bf468d643bdf}{%
+           family={Fahed},
+           familyi={F\bibinitperiod},
+           given={Akl\bibnamedelima C.},
+           giveni={A\bibinitperiod\bibinitdelim C\bibinitperiod}}}%
+      }
+      \strng{namehash}{165f3bb16ee922c620c0f74bc2ae15e6}
+      \strng{fullhash}{994140dcef6f6aa0424369976ea4fa3e}
+      \strng{bibnamehash}{165f3bb16ee922c620c0f74bc2ae15e6}
+      \strng{authorbibnamehash}{165f3bb16ee922c620c0f74bc2ae15e6}
+      \strng{authornamehash}{165f3bb16ee922c620c0f74bc2ae15e6}
+      \strng{authorfullhash}{994140dcef6f6aa0424369976ea4fa3e}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{JACC: Advances}
+      \field{number}{6}
+      \field{title}{A Machine Learning Driven Approach to Quantifying Coronary Artery Tortuosity}
+      \field{volume}{5}
+      \field{year}{2026}
+      \field{pages}{102829}
+      \range{pages}{1}
+      \verb{doi}
+      \verb 10.1016/j.jacadv.2026.102829
+      \endverb
+    \endentry
+    \entry{sangalli2009aneurisk}{article}{}
+      \name{author}{4}{}{%
+        {{hash=8906a8f4441e6a9e200f97c19467d981}{%
+           family={Sangalli},
+           familyi={S\bibinitperiod},
+           given={Laura\bibnamedelima M.},
+           giveni={L\bibinitperiod\bibinitdelim M\bibinitperiod}}}%
+        {{hash=4c1630858c3c30f274fac5f1dde6e05a}{%
+           family={Secchi},
+           familyi={S\bibinitperiod},
+           given={Piercesare},
+           giveni={P\bibinitperiod}}}%
+        {{hash=b1648e6d14214fcb260b8b3e5ca8450b}{%
+           family={Vantini},
+           familyi={V\bibinitperiod},
+           given={Simone},
+           giveni={S\bibinitperiod}}}%
+        {{hash=208f5793fba9a23a322eea9dd4372d91}{%
+           family={Veneziani},
+           familyi={V\bibinitperiod},
+           given={Alessandro},
+           giveni={A\bibinitperiod}}}%
+      }
+      \strng{namehash}{0959a88aed6255aa7b14501c274f2bed}
+      \strng{fullhash}{1f8cf15742a4c27d5b9ddadfd2487071}
+      \strng{bibnamehash}{1f8cf15742a4c27d5b9ddadfd2487071}
+      \strng{authorbibnamehash}{1f8cf15742a4c27d5b9ddadfd2487071}
+      \strng{authornamehash}{0959a88aed6255aa7b14501c274f2bed}
+      \strng{authorfullhash}{1f8cf15742a4c27d5b9ddadfd2487071}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Journal of the American Statistical Association}
+      \field{number}{485}
+      \field{title}{A Case Study in Exploratory Functional Data Analysis: Geometrical Features of the Internal Carotid Artery}
+      \field{volume}{104}
+      \field{year}{2009}
+      \field{pages}{37\bibrangedash 48}
+      \range{pages}{12}
+      \verb{doi}
+      \verb 10.1198/jasa.2009.0002
+      \endverb
+    \endentry
+    \entry{goldsmith2011pfr}{article}{}
+      \name{author}{4}{}{%
+        {{hash=1e725b50859e5359bb3c22b54ab55ddf}{%
+           family={Goldsmith},
+           familyi={G\bibinitperiod},
+           given={Jeff},
+           giveni={J\bibinitperiod}}}%
+        {{hash=3957322d290a7f8c9d1720ba655a36de}{%
+           family={Crainiceanu},
+           familyi={C\bibinitperiod},
+           given={Ciprian\bibnamedelima M.},
+           giveni={C\bibinitperiod\bibinitdelim M\bibinitperiod}}}%
+        {{hash=4f589afb697a7475bab19b5204e287da}{%
+           family={Caffo},
+           familyi={C\bibinitperiod},
+           given={Brian\bibnamedelima S.},
+           giveni={B\bibinitperiod\bibinitdelim S\bibinitperiod}}}%
+        {{hash=3f54812f9dd52cc5a35befc27e5d2be1}{%
+           family={Reich},
+           familyi={R\bibinitperiod},
+           given={Daniel\bibnamedelima S.},
+           giveni={D\bibinitperiod\bibinitdelim S\bibinitperiod}}}%
+      }
+      \strng{namehash}{adb6a37d1fb0084bbd59fb0180c96201}
+      \strng{fullhash}{a31debb59590188feda4f8d195010fdb}
+      \strng{bibnamehash}{a31debb59590188feda4f8d195010fdb}
+      \strng{authorbibnamehash}{a31debb59590188feda4f8d195010fdb}
+      \strng{authornamehash}{adb6a37d1fb0084bbd59fb0180c96201}
+      \strng{authorfullhash}{a31debb59590188feda4f8d195010fdb}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{annotation}{[VERIFIED] Crossref 2026-11-07. Full text PMC3114268 (read by Claude). 115 MS cases, 42 volunteers; whole profile vs tract mean, up to 15\% (mean 6.4\%) better discrimination.}
+      \field{journaltitle}{NeuroImage}
+      \field{number}{2}
+      \field{title}{Penalized Functional Regression Analysis of White-Matter Tract Profiles in Multiple Sclerosis}
+      \field{volume}{57}
+      \field{year}{2011}
+      \field{pages}{431\bibrangedash 439}
+      \range{pages}{9}
+      \verb{doi}
+      \verb 10.1016/j.neuroimage.2011.04.044
+      \endverb
+    \endentry
+    \entry{glagov1987remodeling}{article}{}
+      \name{author}{5}{}{%
+        {{hash=babec5ef42aefbf1cb0462f2809f745f}{%
+           family={Glagov},
+           familyi={G\bibinitperiod},
+           given={S.},
+           giveni={S\bibinitperiod}}}%
+        {{hash=4c481370cb985bbb70ed2e009e65879e}{%
+           family={Weisenberg},
+           familyi={W\bibinitperiod},
+           given={E.},
+           giveni={E\bibinitperiod}}}%
+        {{hash=c4d4aedc101d20a151f4692c3bd40922}{%
+           family={Zarins},
+           familyi={Z\bibinitperiod},
+           given={C.\bibnamedelimi K.},
+           giveni={C\bibinitperiod\bibinitdelim K\bibinitperiod}}}%
+        {{hash=55de32313f260642ce14282dfe0c6106}{%
+           family={Stankunavicius},
+           familyi={S\bibinitperiod},
+           given={R.},
+           giveni={R\bibinitperiod}}}%
+        {{hash=d7ca6eee2f38ed0d526b140f75cef4b6}{%
+           family={Kolettis},
+           familyi={K\bibinitperiod},
+           given={G.\bibnamedelimi J.},
+           giveni={G\bibinitperiod\bibinitdelim J\bibinitperiod}}}%
+      }
+      \strng{namehash}{0101a7f6734d715c77d6ce249a05d134}
+      \strng{fullhash}{01d8d2d7ceb125ffed1a0aa8902295f0}
+      \strng{bibnamehash}{01d8d2d7ceb125ffed1a0aa8902295f0}
+      \strng{authorbibnamehash}{01d8d2d7ceb125ffed1a0aa8902295f0}
+      \strng{authornamehash}{0101a7f6734d715c77d6ce249a05d134}
+      \strng{authorfullhash}{01d8d2d7ceb125ffed1a0aa8902295f0}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{The New England Journal of Medicine}
+      \field{number}{22}
+      \field{title}{Compensatory enlargement of human atherosclerotic coronary arteries}
+      \field{volume}{316}
+      \field{year}{1987}
+      \field{pages}{1371\bibrangedash 1375}
+      \range{pages}{5}
+      \verb{doi}
+      \verb 10.1056/NEJM198705283162204
+      \endverb
+    \endentry
+    \entry{tommasino2024clap}{article}{}
+      \name{author}{12}{}{%
+        {{hash=f4757618c784a6cd622c00555eabc64a}{%
+           family={Tommasino},
+           familyi={T\bibinitperiod},
+           given={Antonella},
+           giveni={A\bibinitperiod}}}%
+        {{hash=a0f7713c72ed1f05f1d47f8a92c2f7ba}{%
+           family={Dell'Aquila},
+           familyi={D\bibinitperiod},
+           given={Federico},
+           giveni={F\bibinitperiod}}}%
+        {{hash=ae22214eeaa04e4697dc63eec85748a1}{%
+           family={Redivo},
+           familyi={R\bibinitperiod},
+           given={Marco},
+           giveni={M\bibinitperiod}}}%
+        {{hash=19489d50b9e4f9e9368166822852e54e}{%
+           family={Pittorino},
+           familyi={P\bibinitperiod},
+           given={Luca},
+           giveni={L\bibinitperiod}}}%
+        {{hash=251563af4c816ac5f1d80eb99e9a01cd}{%
+           family={Mattaroccia},
+           familyi={M\bibinitperiod},
+           given={Giulia},
+           giveni={G\bibinitperiod}}}%
+        {{hash=0b69e1dd9d59fa30d2a3596796860f30}{%
+           family={Tempestini},
+           familyi={T\bibinitperiod},
+           given={Federica},
+           giveni={F\bibinitperiod}}}%
+        {{hash=d8a52dea3aacd0649ca9b7c019e17d52}{%
+           family={Santucci},
+           familyi={S\bibinitperiod},
+           given={Stefano},
+           giveni={S\bibinitperiod}}}%
+        {{hash=266b986d689de81dec5b90f44a986a4a}{%
+           family={Casenghi},
+           familyi={C\bibinitperiod},
+           given={Matteo},
+           giveni={M\bibinitperiod}}}%
+        {{hash=133a76c4893a48e846b1708db8e1ba48}{%
+           family={Giovannelli},
+           familyi={G\bibinitperiod},
+           given={Francesca},
+           giveni={F\bibinitperiod}}}%
+        {{hash=85000bd516c516bc9e9f1929405745da}{%
+           family={Rigattieri},
+           familyi={R\bibinitperiod},
+           given={Stefano},
+           giveni={S\bibinitperiod}}}%
+        {{hash=b11a6f58c830cd7914b291fadb8053bc}{%
+           family={Berni},
+           familyi={B\bibinitperiod},
+           given={Andrea},
+           giveni={A\bibinitperiod}}}%
+        {{hash=6e172e8470a90d2cde2e225eea3f2b57}{%
+           family={Barbato},
+           familyi={B\bibinitperiod},
+           given={Emanuele},
+           giveni={E\bibinitperiod}}}%
+      }
+      \strng{namehash}{500d98848d0d7ff30bb7d51dc53adddd}
+      \strng{fullhash}{b773baac6a2dcde12dadc8db8b74846a}
+      \strng{bibnamehash}{500d98848d0d7ff30bb7d51dc53adddd}
+      \strng{authorbibnamehash}{500d98848d0d7ff30bb7d51dc53adddd}
+      \strng{authornamehash}{500d98848d0d7ff30bb7d51dc53adddd}
+      \strng{authorfullhash}{b773baac6a2dcde12dadc8db8b74846a}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Journal of Cardiovascular Development and Disease}
+      \field{number}{11}
+      \field{title}{Comprehensive risk assessment of {LAD} disease progression in {CCTA}: The {CLAP} score study}
+      \field{volume}{11}
+      \field{year}{2024}
+      \field{pages}{338}
+      \range{pages}{1}
+      \verb{doi}
+      \verb 10.3390/jcdd11110338
+      \endverb
+    \endentry
+    \entry{won2022paradigm}{article}{}
+      \name{author}{29}{}{%
+        {{hash=511a402d3e0bde049237dcfe7780a588}{%
+           family={Won},
+           familyi={W\bibinitperiod},
+           given={Ki-Bum},
+           giveni={K\bibinithyphendelim B\bibinitperiod}}}%
+        {{hash=0414ced1be666ae52cd4138ff57b0068}{%
+           family={Lee},
+           familyi={L\bibinitperiod},
+           given={Byoung\bibnamedelima Kwon},
+           giveni={B\bibinitperiod\bibinitdelim K\bibinitperiod}}}%
+        {{hash=5d751b0f65b445331326bb51b3696fdf}{%
+           family={Lin},
+           familyi={L\bibinitperiod},
+           given={Fay\bibnamedelima Y.},
+           giveni={F\bibinitperiod\bibinitdelim Y\bibinitperiod}}}%
+        {{hash=30238028b1c432f99dfa1095008e45f0}{%
+           family={Hadamitzky},
+           familyi={H\bibinitperiod},
+           given={Martin},
+           giveni={M\bibinitperiod}}}%
+        {{hash=a8dc79075b9ab4112450cf36d6e7ffd5}{%
+           family={Kim},
+           familyi={K\bibinitperiod},
+           given={Yong-Jin},
+           giveni={Y\bibinithyphendelim J\bibinitperiod}}}%
+        {{hash=a940bf2719fd38276a13170aae569353}{%
+           family={Sung},
+           familyi={S\bibinitperiod},
+           given={Ji\bibnamedelima Min},
+           giveni={J\bibinitperiod\bibinitdelim M\bibinitperiod}}}%
+        {{hash=563ba3300781e0a6901907c352f662b4}{%
+           family={Conte},
+           familyi={C\bibinitperiod},
+           given={Edoardo},
+           giveni={E\bibinitperiod}}}%
+        {{hash=8c7636a0595b10d7bdf9b602515a3f50}{%
+           family={Andreini},
+           familyi={A\bibinitperiod},
+           given={Daniele},
+           giveni={D\bibinitperiod}}}%
+        {{hash=12d18c5665355f372e7d78439c90e60d}{%
+           family={Pontone},
+           familyi={P\bibinitperiod},
+           given={Gianluca},
+           giveni={G\bibinitperiod}}}%
+        {{hash=ae0a9de318feec33d742558b4a057991}{%
+           family={Budoff},
+           familyi={B\bibinitperiod},
+           given={Matthew\bibnamedelima J.},
+           giveni={M\bibinitperiod\bibinitdelim J\bibinitperiod}}}%
+        {{hash=6207236b4b8f714c5af79b6ba695fab4}{%
+           family={Gottlieb},
+           familyi={G\bibinitperiod},
+           given={Ilan},
+           giveni={I\bibinitperiod}}}%
+        {{hash=2319f0e7788050da9f32b820224bd8e9}{%
+           family={Chun},
+           familyi={C\bibinitperiod},
+           given={Eun\bibnamedelima Ju},
+           giveni={E\bibinitperiod\bibinitdelim J\bibinitperiod}}}%
+        {{hash=b7905fb2c074afe58292d2d2ba9e6eca}{%
+           family={Cademartiri},
+           familyi={C\bibinitperiod},
+           given={Filippo},
+           giveni={F\bibinitperiod}}}%
+        {{hash=bd4eebc67bd63cffb370195fb39cd20d}{%
+           family={Maffei},
+           familyi={M\bibinitperiod},
+           given={Erica},
+           giveni={E\bibinitperiod}}}%
+        {{hash=d445531c4f8f11625e14210790eeecd2}{%
+           family={Marques},
+           familyi={M\bibinitperiod},
+           given={Hugo},
+           giveni={H\bibinitperiod}}}%
+        {{hash=9abaa0ce179e978e7e66e2fa4270453f}{%
+           family={Araújo\bibnamedelima Gonçalves},
+           familyi={A\bibinitperiod\bibinitdelim G\bibinitperiod},
+           given={Pedro},
+           giveni={P\bibinitperiod},
+           prefix={de},
+           prefixi={d\bibinitperiod}}}%
+        {{hash=f5d5c8cb751108c258482a7ba180b793}{%
+           family={Leipsic},
+           familyi={L\bibinitperiod},
+           given={Jonathon\bibnamedelima A.},
+           giveni={J\bibinitperiod\bibinitdelim A\bibinitperiod}}}%
+        {{hash=677b8d052cbf151cd963033517b5c34a}{%
+           family={Lee},
+           familyi={L\bibinitperiod},
+           given={Sang-Eun},
+           giveni={S\bibinithyphendelim E\bibinitperiod}}}%
+        {{hash=794281d7b8c128fee54fb0b017e8bbe4}{%
+           family={Shin},
+           familyi={S\bibinitperiod},
+           given={Sanghoon},
+           giveni={S\bibinitperiod}}}%
+        {{hash=abf3067e2e656c403730ac5e5053256d}{%
+           family={Choi},
+           familyi={C\bibinitperiod},
+           given={Jung\bibnamedelima Hyun},
+           giveni={J\bibinitperiod\bibinitdelim H\bibinitperiod}}}%
+        {{hash=200812a6f19e6ca0613a6bc0f330d8bc}{%
+           family={Virmani},
+           familyi={V\bibinitperiod},
+           given={Renu},
+           giveni={R\bibinitperiod}}}%
+        {{hash=8131c8cf49d9202441ea07b827b43801}{%
+           family={Samady},
+           familyi={S\bibinitperiod},
+           given={Habib},
+           giveni={H\bibinitperiod}}}%
+        {{hash=c455bf624967587095a3e65f5566e683}{%
+           family={Chinnaiyan},
+           familyi={C\bibinitperiod},
+           given={Kavitha},
+           giveni={K\bibinitperiod}}}%
+        {{hash=3f7dc66639560114ec4755c84abe8ef7}{%
+           family={Berman},
+           familyi={B\bibinitperiod},
+           given={Daniel\bibnamedelima S.},
+           giveni={D\bibinitperiod\bibinitdelim S\bibinitperiod}}}%
+        {{hash=4b89f79f962c2fedcb47878416fafaba}{%
+           family={Narula},
+           familyi={N\bibinitperiod},
+           given={Jagat},
+           giveni={J\bibinitperiod}}}%
+        {{hash=549db642a82eb14096f495987e13ac87}{%
+           family={Shaw},
+           familyi={S\bibinitperiod},
+           given={Leslee\bibnamedelima J.},
+           giveni={L\bibinitperiod\bibinitdelim J\bibinitperiod}}}%
+        {{hash=91836ff9856257503c96f3ad85193a98}{%
+           family={Bax},
+           familyi={B\bibinitperiod},
+           given={Jeroen\bibnamedelima J.},
+           giveni={J\bibinitperiod\bibinitdelim J\bibinitperiod}}}%
+        {{hash=b7c94e129eacf8947fdbce44378d5253}{%
+           family={Min},
+           familyi={M\bibinitperiod},
+           given={James\bibnamedelima K.},
+           giveni={J\bibinitperiod\bibinitdelim K\bibinitperiod}}}%
+        {{hash=af6e196f54533bbdef9a02a69fdb0123}{%
+           family={Chang},
+           familyi={C\bibinitperiod},
+           given={Hyuk-Jae},
+           giveni={H\bibinithyphendelim J\bibinitperiod}}}%
+      }
+      \strng{namehash}{ad728a370a57a8f009ddf99a0770406a}
+      \strng{fullhash}{2f7be5bf5048976b25f4dda206e30175}
+      \strng{bibnamehash}{ad728a370a57a8f009ddf99a0770406a}
+      \strng{authorbibnamehash}{ad728a370a57a8f009ddf99a0770406a}
+      \strng{authornamehash}{ad728a370a57a8f009ddf99a0770406a}
+      \strng{authorfullhash}{2f7be5bf5048976b25f4dda206e30175}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Cardiovascular Diabetology}
+      \field{number}{1}
+      \field{title}{Glycemic control is independently associated with rapid progression of coronary atherosclerosis in the absence of a baseline coronary plaque burden: a retrospective case-control study from the {PARADIGM} registry}
+      \field{volume}{21}
+      \field{year}{2022}
+      \field{pages}{239}
+      \range{pages}{1}
+      \verb{doi}
+      \verb 10.1186/s12933-022-01656-9
+      \endverb
+    \endentry
+    \entry{lee2024radiomics}{article}{}
+      \true{moreauthor}
+      \true{morelabelname}
+      \name{author}{6}{}{%
+        {{hash=677b8d052cbf151cd963033517b5c34a}{%
+           family={Lee},
+           familyi={L\bibinitperiod},
+           given={Sang-Eun},
+           giveni={S\bibinithyphendelim E\bibinitperiod}}}%
+        {{hash=15ba633bc3442676a2963f2f762c02de}{%
+           family={Hong},
+           familyi={H\bibinitperiod},
+           given={Youngtaek},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=b8397cb578cfcf057f3211e86e630b1f}{%
+           family={Hong},
+           familyi={H\bibinitperiod},
+           given={Jongsoo},
+           giveni={J\bibinitperiod}}}%
+        {{hash=ca6560c851039446310759857d77d2f7}{%
+           family={Jung},
+           familyi={J\bibinitperiod},
+           given={Juyeong},
+           giveni={J\bibinitperiod}}}%
+        {{hash=a940bf2719fd38276a13170aae569353}{%
+           family={Sung},
+           familyi={S\bibinitperiod},
+           given={Ji\bibnamedelima Min},
+           giveni={J\bibinitperiod\bibinitdelim M\bibinitperiod}}}%
+        {{hash=af6e196f54533bbdef9a02a69fdb0123}{%
+           family={Chang},
+           familyi={C\bibinitperiod},
+           given={Hyuk-Jae},
+           giveni={H\bibinithyphendelim J\bibinitperiod}}}%
+      }
+      \strng{namehash}{309e4afe7382fd788cb50ca1788ddb88}
+      \strng{fullhash}{191408a438f16ea30257e5425d9f83bd}
+      \strng{bibnamehash}{191408a438f16ea30257e5425d9f83bd}
+      \strng{authorbibnamehash}{191408a438f16ea30257e5425d9f83bd}
+      \strng{authornamehash}{309e4afe7382fd788cb50ca1788ddb88}
+      \strng{authorfullhash}{191408a438f16ea30257e5425d9f83bd}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Journal of Cardiovascular Computed Tomography}
+      \field{number}{3}
+      \field{title}{Prediction of the development of new coronary atherosclerotic plaques with radiomics}
+      \field{volume}{18}
+      \field{year}{2024}
+      \field{pages}{274\bibrangedash 280}
+      \range{pages}{7}
+      \verb{doi}
+      \verb 10.1016/j.jcct.2024.02.003
+      \endverb
+    \endentry
+    \entry{bergstrom2021scapis}{article}{}
+      \true{moreauthor}
+      \true{morelabelname}
+      \name{author}{8}{}{%
+        {{hash=073cc4b9f9f92422a61b8b6071b4c5f5}{%
+           family={Bergström},
+           familyi={B\bibinitperiod},
+           given={Göran},
+           giveni={G\bibinitperiod}}}%
+        {{hash=001100490108217c1a88f6c6561e6d4f}{%
+           family={Persson},
+           familyi={P\bibinitperiod},
+           given={Margaretha},
+           giveni={M\bibinitperiod}}}%
+        {{hash=952f4c4d7c68f3cb4f3dab919e0c03ad}{%
+           family={Adiels},
+           familyi={A\bibinitperiod},
+           given={Martin},
+           giveni={M\bibinitperiod}}}%
+        {{hash=718a6fed07a0a6d43f0e9d82ce1acf27}{%
+           family={Björnson},
+           familyi={B\bibinitperiod},
+           given={Elias},
+           giveni={E\bibinitperiod}}}%
+        {{hash=50599dc8b9292a139e32c4b5d148ce11}{%
+           family={Bonander},
+           familyi={B\bibinitperiod},
+           given={Carl},
+           giveni={C\bibinitperiod}}}%
+        {{hash=d4e1cf67393413e9be137532dd757b50}{%
+           family={Ahlström},
+           familyi={A\bibinitperiod},
+           given={H{å}kan},
+           giveni={H\bibinitperiod}}}%
+        {{hash=e7626e65f16b043785a2741f52357159}{%
+           family={Alfredsson},
+           familyi={A\bibinitperiod},
+           given={Joakim},
+           giveni={J\bibinitperiod}}}%
+        {{hash=fdbaa3a3acc046aa5a3adeb513d08d75}{%
+           family={Anger{å}s},
+           familyi={A\bibinitperiod},
+           given={Oskar},
+           giveni={O\bibinitperiod}}}%
+      }
+      \strng{namehash}{b074bd1d2229f0ad2960163de9d20b75}
+      \strng{fullhash}{a1f56d51b5aa6058397bb3f059a495fd}
+      \strng{bibnamehash}{b074bd1d2229f0ad2960163de9d20b75}
+      \strng{authorbibnamehash}{b074bd1d2229f0ad2960163de9d20b75}
+      \strng{authornamehash}{b074bd1d2229f0ad2960163de9d20b75}
+      \strng{authorfullhash}{a1f56d51b5aa6058397bb3f059a495fd}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Circulation}
+      \field{number}{12}
+      \field{title}{Prevalence of subclinical coronary artery atherosclerosis in the general population}
+      \field{volume}{144}
+      \field{year}{2021}
+      \field{pages}{916\bibrangedash 929}
+      \range{pages}{14}
+      \verb{doi}
+      \verb 10.1161/CIRCULATIONAHA.121.055340
+      \endverb
+    \endentry
+    \entry{good2026scapis}{article}{}
+      \true{moreauthor}
+      \true{morelabelname}
+      \name{author}{4}{}{%
+        {{hash=f3b94144ac431650f1ec65312a19fca1}{%
+           family={Good},
+           familyi={G\bibinitperiod},
+           given={Elin},
+           giveni={E\bibinitperiod}}}%
+        {{hash=073cc4b9f9f92422a61b8b6071b4c5f5}{%
+           family={Bergström},
+           familyi={B\bibinitperiod},
+           given={Göran},
+           giveni={G\bibinitperiod}}}%
+        {{hash=ea570df118a28f4dfea56975380a5e05}{%
+           family={Blomberg},
+           familyi={B\bibinitperiod},
+           given={Anders},
+           giveni={A\bibinitperiod}}}%
+        {{hash=4a94baa4c4cb4030a812e1dbb797e71f}{%
+           family={Hagström},
+           familyi={H\bibinitperiod},
+           given={Emil},
+           giveni={E\bibinitperiod}}}%
+      }
+      \strng{namehash}{e09ce19bf3cfebb79a922a2339279988}
+      \strng{fullhash}{27b7dcc6d9717a133e5899b042ae0941}
+      \strng{bibnamehash}{27b7dcc6d9717a133e5899b042ae0941}
+      \strng{authorbibnamehash}{27b7dcc6d9717a133e5899b042ae0941}
+      \strng{authornamehash}{e09ce19bf3cfebb79a922a2339279988}
+      \strng{authorfullhash}{27b7dcc6d9717a133e5899b042ae0941}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Journal of Internal Medicine}
+      \field{number}{4}
+      \field{title}{The {S}wedish {CA}rdio{P}ulmonary bio{I}mage {S}tudy re-examination: rationale, design, methods, and management of incidental findings}
+      \field{volume}{299}
+      \field{year}{2026}
+      \field{pages}{467\bibrangedash 480}
+      \range{pages}{14}
+      \verb{doi}
+      \verb 10.1111/joim.70068
+      \endverb
+    \endentry
+    \entry{hageman2023score2}{article}{}
+      \true{moreauthor}
+      \true{morelabelname}
+      \name{author}{5}{}{%
+        {{hash=d888721e89b6f409ff6e4aee454ef2fe}{%
+           family={Hageman},
+           familyi={H\bibinitperiod},
+           given={Steven\bibnamedelimb H.\bibnamedelimi J.},
+           giveni={S\bibinitperiod\bibinitdelim H\bibinitperiod\bibinitdelim J\bibinitperiod}}}%
+        {{hash=40631eae34f3adb939252e76ed5989b2}{%
+           family={Petitjean},
+           familyi={P\bibinitperiod},
+           given={Carmen},
+           giveni={C\bibinitperiod}}}%
+        {{hash=b900f7806fdb821b747e2e44ad131be0}{%
+           family={Pennells},
+           familyi={P\bibinitperiod},
+           given={Lisa},
+           giveni={L\bibinitperiod}}}%
+        {{hash=66b2207151eea8529c182d51d60c9428}{%
+           family={Kaptoge},
+           familyi={K\bibinitperiod},
+           given={Stephen},
+           giveni={S\bibinitperiod}}}%
+        {{hash=fb7263854e77f6003da3e28b987fd798}{%
+           family={Dorresteijn},
+           familyi={D\bibinitperiod},
+           given={Jannick\bibnamedelimb A.\bibnamedelimi N.},
+           giveni={J\bibinitperiod\bibinitdelim A\bibinitperiod\bibinitdelim N\bibinitperiod}}}%
+      }
+      \strng{namehash}{467bb1329e9a59817b3a6c2425ab0452}
+      \strng{fullhash}{8aa3acbbb721ddb9beb9aacda73f463b}
+      \strng{bibnamehash}{8aa3acbbb721ddb9beb9aacda73f463b}
+      \strng{authorbibnamehash}{8aa3acbbb721ddb9beb9aacda73f463b}
+      \strng{authornamehash}{467bb1329e9a59817b3a6c2425ab0452}
+      \strng{authorfullhash}{8aa3acbbb721ddb9beb9aacda73f463b}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{European Journal of Preventive Cardiology}
+      \field{number}{15}
+      \field{title}{Improving 10-year cardiovascular risk prediction in apparently healthy people: flexible addition of risk modifiers on top of {SCORE2}}
+      \field{volume}{30}
+      \field{year}{2023}
+      \field{pages}{1705\bibrangedash 1714}
+      \range{pages}{10}
+      \verb{doi}
+      \verb 10.1093/eurjpc/zwad187
+      \endverb
+    \endentry
+    \entry{shah2009heart}{incollection}{}
+      \name{author}{4}{}{%
+        {{hash=c05a8eb29347cb501453e03ca907c3a3}{%
+           family={Shah},
+           familyi={S\bibinitperiod},
+           given={Syed},
+           giveni={S\bibinitperiod}}}%
+        {{hash=3ea6b1b04cfec932f590d4bfd44f6a98}{%
+           family={Gnanasegaran},
+           familyi={G\bibinitperiod},
+           given={Gopinath},
+           giveni={G\bibinitperiod}}}%
+        {{hash=341dadb8ff61131e6c10006cae66ef01}{%
+           family={Sundberg-Cohon},
+           familyi={S\bibinithyphendelim C\bibinitperiod},
+           given={Jeanette},
+           giveni={J\bibinitperiod}}}%
+        {{hash=e935b35cefd71ea5979c66bcf7112b53}{%
+           family={Buscombe},
+           familyi={B\bibinitperiod},
+           given={John\bibnamedelima R.},
+           giveni={J\bibinitperiod\bibinitdelim R\bibinitperiod}}}%
+      }
+      \list{location}{1}{%
+        {Berlin, Heidelberg}%
+      }
+      \list{publisher}{1}{%
+        {Springer Berlin Heidelberg}%
+      }
+      \strng{namehash}{1b63305423de318b986b77dc6a860cfe}
+      \strng{fullhash}{be459a00dbc61495aa9f07fceb4b291d}
+      \strng{bibnamehash}{be459a00dbc61495aa9f07fceb4b291d}
+      \strng{authorbibnamehash}{be459a00dbc61495aa9f07fceb4b291d}
+      \strng{authornamehash}{1b63305423de318b986b77dc6a860cfe}
+      \strng{authorfullhash}{be459a00dbc61495aa9f07fceb4b291d}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{Integrating Cardiology for Nuclear Medicine Physicians}
+      \field{title}{The Heart: Anatomy, Physiology and Exercise Physiology}
+      \field{year}{2009}
+      \field{pages}{3\bibrangedash 22}
+      \range{pages}{20}
+      \verb{doi}
+      \verb 10.1007/978-3-540-78674-0_1
+      \endverb
+    \endentry
+    \entry{weinhaus2024anatomy}{incollection}{}
+      \name{author}{1}{}{%
+        {{hash=c0765b195fe788ad64ede565188624c3}{%
+           family={Weinhaus},
+           familyi={W\bibinitperiod},
+           given={Anthony\bibnamedelima J.},
+           giveni={A\bibinitperiod\bibinitdelim J\bibinitperiod}}}%
+      }
+      \name{editor}{1}{}{%
+        {{hash=207a363ef117376dd685973db7e3f188}{%
+           family={Iaizzo},
+           familyi={I\bibinitperiod},
+           given={Paul\bibnamedelima A.},
+           giveni={P\bibinitperiod\bibinitdelim A\bibinitperiod}}}%
+      }
+      \list{location}{1}{%
+        {Cham}%
+      }
+      \list{publisher}{1}{%
+        {Springer Nature Switzerland}%
+      }
+      \strng{namehash}{c0765b195fe788ad64ede565188624c3}
+      \strng{fullhash}{c0765b195fe788ad64ede565188624c3}
+      \strng{bibnamehash}{c0765b195fe788ad64ede565188624c3}
+      \strng{authorbibnamehash}{c0765b195fe788ad64ede565188624c3}
+      \strng{authornamehash}{c0765b195fe788ad64ede565188624c3}
+      \strng{authorfullhash}{c0765b195fe788ad64ede565188624c3}
+      \strng{editorbibnamehash}{207a363ef117376dd685973db7e3f188}
+      \strng{editornamehash}{207a363ef117376dd685973db7e3f188}
+      \strng{editorfullhash}{207a363ef117376dd685973db7e3f188}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{Handbook of Cardiac Anatomy, Physiology, and Devices}
+      \field{title}{Anatomy of the Human Heart}
+      \field{year}{2024}
+      \field{pages}{51\bibrangedash 77}
+      \range{pages}{27}
+      \verb{doi}
+      \verb 10.1007/978-3-031-72581-4_4
+      \endverb
+    \endentry
+    \entry{devos2024coronary}{incollection}{}
+      \name{author}{4}{}{%
+        {{hash=6691855ca95a7cd906b7150b3d281d8a}{%
+           family={DeVos},
+           familyi={D\bibinitperiod},
+           given={Amanda\bibnamedelima N.},
+           giveni={A\bibinitperiod\bibinitdelim N\bibinitperiod}}}%
+        {{hash=e6ea188e32f137b3d065e7781038902f}{%
+           family={Spencer},
+           familyi={S\bibinitperiod},
+           given={Julianne\bibnamedelima H.},
+           giveni={J\bibinitperiod\bibinitdelim H\bibinitperiod}}}%
+        {{hash=11599aec5866b33eab291aaa3f0a586c}{%
+           family={Anderson},
+           familyi={A\bibinitperiod},
+           given={Sara\bibnamedelima E.},
+           giveni={S\bibinitperiod\bibinitdelim E\bibinitperiod}}}%
+        {{hash=207a363ef117376dd685973db7e3f188}{%
+           family={Iaizzo},
+           familyi={I\bibinitperiod},
+           given={Paul\bibnamedelima A.},
+           giveni={P\bibinitperiod\bibinitdelim A\bibinitperiod}}}%
+      }
+      \name{editor}{1}{}{%
+        {{hash=207a363ef117376dd685973db7e3f188}{%
+           family={Iaizzo},
+           familyi={I\bibinitperiod},
+           given={Paul\bibnamedelima A.},
+           giveni={P\bibinitperiod\bibinitdelim A\bibinitperiod}}}%
+      }
+      \list{location}{1}{%
+        {Cham}%
+      }
+      \list{publisher}{1}{%
+        {Springer Nature Switzerland}%
+      }
+      \strng{namehash}{b34eeef83211f7dcf0f7ecd5d5e21eca}
+      \strng{fullhash}{693139fb94f59419e528c4cca81c403c}
+      \strng{bibnamehash}{693139fb94f59419e528c4cca81c403c}
+      \strng{authorbibnamehash}{693139fb94f59419e528c4cca81c403c}
+      \strng{authornamehash}{b34eeef83211f7dcf0f7ecd5d5e21eca}
+      \strng{authorfullhash}{693139fb94f59419e528c4cca81c403c}
+      \strng{editorbibnamehash}{207a363ef117376dd685973db7e3f188}
+      \strng{editornamehash}{207a363ef117376dd685973db7e3f188}
+      \strng{editorfullhash}{207a363ef117376dd685973db7e3f188}
+      \field{sortinit}{4}
+      \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{Handbook of Cardiac Anatomy, Physiology, and Devices}
+      \field{title}{The Coronary Vascular System and Associated Anatomical Features}
+      \field{year}{2024}
+      \field{pages}{177\bibrangedash 201}
+      \range{pages}{25}
+      \verb{doi}
+      \verb 10.1007/978-3-031-72581-4_10
+      \endverb
+    \endentry
+    \entry{obrien2007anatomy}{article}{}
+      \name{author}{5}{}{%
+        {{hash=e9ccd4192df74126ecf12e57b74d1912}{%
+           family={O'Brien},
+           familyi={O\bibinitperiod},
+           given={James\bibnamedelima P.},
+           giveni={J\bibinitperiod\bibinitdelim P\bibinitperiod}}}%
+        {{hash=aeb8a62e2f5bab759077016c1b4eded0}{%
+           family={Srichai},
+           familyi={S\bibinitperiod},
+           given={Monvadi\bibnamedelima B.},
+           giveni={M\bibinitperiod\bibinitdelim B\bibinitperiod}}}%
+        {{hash=818a21a138f8fad22596acf60a9743e6}{%
+           family={Hecht},
+           familyi={H\bibinitperiod},
+           given={Elizabeth\bibnamedelima M.},
+           giveni={E\bibinitperiod\bibinitdelim M\bibinitperiod}}}%
+        {{hash=a4ba6a78e11881205961cccb6fe0080d}{%
+           family={Kim},
+           familyi={K\bibinitperiod},
+           given={Danny\bibnamedelima C.},
+           giveni={D\bibinitperiod\bibinitdelim C\bibinitperiod}}}%
+        {{hash=0bfd961dd936d370e6ec42029213d1b6}{%
+           family={Jacobs},
+           familyi={J\bibinitperiod},
+           given={Jill\bibnamedelima E.},
+           giveni={J\bibinitperiod\bibinitdelim E\bibinitperiod}}}%
+      }
+      \strng{namehash}{267fa9817edd11c080b61c920d99a8bf}
+      \strng{fullhash}{36b818626494b4f8c0fb987cfc0bd3ec}
+      \strng{bibnamehash}{36b818626494b4f8c0fb987cfc0bd3ec}
+      \strng{authorbibnamehash}{36b818626494b4f8c0fb987cfc0bd3ec}
+      \strng{authornamehash}{267fa9817edd11c080b61c920d99a8bf}
+      \strng{authorfullhash}{36b818626494b4f8c0fb987cfc0bd3ec}
+      \field{sortinit}{4}
+      \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{RadioGraphics}
+      \field{number}{6}
+      \field{title}{Anatomy of the heart at multidetector {CT}: what the radiologist needs to know}
+      \field{volume}{27}
+      \field{year}{2007}
+      \field{pages}{1569\bibrangedash 1582}
+      \range{pages}{14}
+      \verb{doi}
+      \verb 10.1148/rg.276065747
+      \endverb
+    \endentry
+    \entry{allwork1987applied}{article}{}
+      \name{author}{1}{}{%
+        {{hash=2abc9df7c5bf4c33e699cb7aaf2748ab}{%
+           family={Allwork},
+           familyi={A\bibinitperiod},
+           given={Sally\bibnamedelima P.},
+           giveni={S\bibinitperiod\bibinitdelim P\bibinitperiod}}}%
+      }
+      \strng{namehash}{2abc9df7c5bf4c33e699cb7aaf2748ab}
+      \strng{fullhash}{2abc9df7c5bf4c33e699cb7aaf2748ab}
+      \strng{bibnamehash}{2abc9df7c5bf4c33e699cb7aaf2748ab}
+      \strng{authorbibnamehash}{2abc9df7c5bf4c33e699cb7aaf2748ab}
+      \strng{authornamehash}{2abc9df7c5bf4c33e699cb7aaf2748ab}
+      \strng{authorfullhash}{2abc9df7c5bf4c33e699cb7aaf2748ab}
+      \field{sortinit}{4}
+      \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Journal of Anatomy}
+      \field{title}{The applied anatomy of the arterial blood supply to the heart in man}
+      \field{volume}{153}
+      \field{year}{1987}
+      \field{pages}{1\bibrangedash 16}
+      \range{pages}{16}
+    \endentry
+    \entry{ihdayhid2021ethnic}{article}{}
+      \name{author}{14}{}{%
+        {{hash=702005d314780bd5b3060876bf333940}{%
+           family={Ihdayhid},
+           familyi={I\bibinitperiod},
+           given={Abdul\bibnamedelima Rahman},
+           giveni={A\bibinitperiod\bibinitdelim R\bibinitperiod}}}%
+        {{hash=e269656a8e52eee534e5df023a9076ef}{%
+           family={Thakur},
+           familyi={T\bibinitperiod},
+           given={Udit},
+           giveni={U\bibinitperiod}}}%
+        {{hash=71176f51bbf996042ea9109f6a3025da}{%
+           family={Yap},
+           familyi={Y\bibinitperiod},
+           given={Gerald},
+           giveni={G\bibinitperiod}}}%
+        {{hash=a6b46eeb2ef2ba842276194af0c0c72a}{%
+           family={Goeller},
+           familyi={G\bibinitperiod},
+           given={Markus},
+           giveni={M\bibinitperiod}}}%
+        {{hash=ba8464ec1e3dba570afe316f0a735521}{%
+           family={Nerlekar},
+           familyi={N\bibinitperiod},
+           given={Nitesh},
+           giveni={N\bibinitperiod}}}%
+        {{hash=9de95c3ed47f3e47f25afe8a3e012683}{%
+           family={Adams},
+           familyi={A\bibinitperiod},
+           given={Danielle},
+           giveni={D\bibinitperiod}}}%
+        {{hash=cf98a5f3a6f666091f91dd3cf7611bfb}{%
+           family={Isa},
+           familyi={I\bibinitperiod},
+           given={Muhammad},
+           giveni={M\bibinitperiod}}}%
+        {{hash=96fae957d91a56117b856d36089006a5}{%
+           family={Joshi},
+           familyi={J\bibinitperiod},
+           given={Mithilesh},
+           giveni={M\bibinitperiod}}}%
+        {{hash=7f10d6bc05300526be256a0d5335a83d}{%
+           family={Cameron},
+           familyi={C\bibinitperiod},
+           given={James},
+           giveni={J\bibinitperiod}}}%
+        {{hash=0aa9ed26ab0caa28cd4b69f714153a1e}{%
+           family={Seneviratne},
+           familyi={S\bibinitperiod},
+           given={Sujith},
+           giveni={S\bibinitperiod}}}%
+        {{hash=644f07610a96cf72fe0102e4715c3071}{%
+           family={Dey},
+           familyi={D\bibinitperiod},
+           given={Damini},
+           giveni={D\bibinitperiod}}}%
+        {{hash=1a73bb376e613e595d8258941fded1d8}{%
+           family={Achenbach},
+           familyi={A\bibinitperiod},
+           given={Stephan},
+           giveni={S\bibinitperiod}}}%
+        {{hash=ade984aab8572efd9e16726ab0a70c34}{%
+           family={Leipsic},
+           familyi={L\bibinitperiod},
+           given={Jonathon},
+           giveni={J\bibinitperiod}}}%
+        {{hash=4230fa271d519082ae538583c9fc40bb}{%
+           family={Ko},
+           familyi={K\bibinitperiod},
+           given={Brian\bibnamedelima S.},
+           giveni={B\bibinitperiod\bibinitdelim S\bibinitperiod}}}%
+      }
+      \strng{namehash}{6a5573cda8752321b69a4e6d31a502fc}
+      \strng{fullhash}{1a15351e4fe5b30008d7c72be5cf6e45}
+      \strng{bibnamehash}{6a5573cda8752321b69a4e6d31a502fc}
+      \strng{authorbibnamehash}{6a5573cda8752321b69a4e6d31a502fc}
+      \strng{authornamehash}{6a5573cda8752321b69a4e6d31a502fc}
+      \strng{authorfullhash}{1a15351e4fe5b30008d7c72be5cf6e45}
+      \field{sortinit}{5}
+      \field{sortinithash}{20e9b4b0b173788c5dace24730f47d8c}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Journal of Cardiovascular Computed Tomography}
+      \field{number}{3}
+      \field{title}{Ethnic differences in coronary anatomy, left ventricular mass and {CT}-derived fractional flow reserve}
+      \field{volume}{15}
+      \field{year}{2021}
+      \field{pages}{249\bibrangedash 257}
+      \range{pages}{9}
+      \verb{doi}
+      \verb 10.1016/j.jcct.2020.09.004
+      \endverb
+    \endentry
+    \entry{dodge1992diameter}{article}{}
+      \name{author}{4}{}{%
+        {{hash=31750702789fc480fba2c6e0d6a1dd29}{%
+           family={Dodge},
+           familyi={D\bibinitperiod},
+           given={J.\bibnamedelimi T.},
+           giveni={J\bibinitperiod\bibinitdelim T\bibinitperiod}}}%
+        {{hash=8e235951ea50630e28ae0004929ef8cb}{%
+           family={Brown},
+           familyi={B\bibinitperiod},
+           given={B.\bibnamedelimi G.},
+           giveni={B\bibinitperiod\bibinitdelim G\bibinitperiod}}}%
+        {{hash=68d68cb05d7923691246b65bcb9c4c66}{%
+           family={Bolson},
+           familyi={B\bibinitperiod},
+           given={E.\bibnamedelimi L.},
+           giveni={E\bibinitperiod\bibinitdelim L\bibinitperiod}}}%
+        {{hash=8876265c089644ba1fc7276d78fb152e}{%
+           family={Dodge},
+           familyi={D\bibinitperiod},
+           given={H.\bibnamedelimi T.},
+           giveni={H\bibinitperiod\bibinitdelim T\bibinitperiod}}}%
+      }
+      \strng{namehash}{4109436b154e45b6473e42bbd568816e}
+      \strng{fullhash}{be0f1d3173e489c1eb9ec7535f742e85}
+      \strng{bibnamehash}{be0f1d3173e489c1eb9ec7535f742e85}
+      \strng{authorbibnamehash}{be0f1d3173e489c1eb9ec7535f742e85}
+      \strng{authornamehash}{4109436b154e45b6473e42bbd568816e}
+      \strng{authorfullhash}{be0f1d3173e489c1eb9ec7535f742e85}
+      \field{sortinit}{5}
+      \field{sortinithash}{20e9b4b0b173788c5dace24730f47d8c}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Circulation}
+      \field{number}{1}
+      \field{title}{Lumen diameter of normal human coronary arteries. Influence of age, sex, anatomic variation, and left ventricular hypertrophy or dilation}
+      \field{volume}{86}
+      \field{year}{1992}
+      \field{pages}{232\bibrangedash 246}
+      \range{pages}{15}
+      \verb{doi}
+      \verb 10.1161/01.CIR.86.1.232
+      \endverb
+    \endentry
+    \entry{duncker2015regulation}{article}{}
+      \name{author}{4}{}{%
+        {{hash=38d3fbe3b65ae8208ceee0e1b828ca99}{%
+           family={Duncker},
+           familyi={D\bibinitperiod},
+           given={Dirk\bibnamedelima J.},
+           giveni={D\bibinitperiod\bibinitdelim J\bibinitperiod}}}%
+        {{hash=7cae3c35efaade3eb09b03180f0a45cf}{%
+           family={Koller},
+           familyi={K\bibinitperiod},
+           given={Akos},
+           giveni={A\bibinitperiod}}}%
+        {{hash=0de335605cd50bf5cb11476c1055961c}{%
+           family={Merkus},
+           familyi={M\bibinitperiod},
+           given={Daphne},
+           giveni={D\bibinitperiod}}}%
+        {{hash=049fd4c724d860d921f28d3ec081ef16}{%
+           family={Canty},
+           familyi={C\bibinitperiod},
+           given={John\bibnamedelima M.},
+           giveni={J\bibinitperiod\bibinitdelim M\bibinitperiod}}}%
+      }
+      \strng{namehash}{19288b9a1c1a3eb65079d95a33f3af1b}
+      \strng{fullhash}{e6b731aa2d34d26d2c00dedbaaf5c32c}
+      \strng{bibnamehash}{e6b731aa2d34d26d2c00dedbaaf5c32c}
+      \strng{authorbibnamehash}{e6b731aa2d34d26d2c00dedbaaf5c32c}
+      \strng{authornamehash}{19288b9a1c1a3eb65079d95a33f3af1b}
+      \strng{authorfullhash}{e6b731aa2d34d26d2c00dedbaaf5c32c}
+      \field{sortinit}{5}
+      \field{sortinithash}{20e9b4b0b173788c5dace24730f47d8c}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Progress in Cardiovascular Diseases}
+      \field{number}{5}
+      \field{title}{Regulation of coronary blood flow in health and ischemic heart disease}
+      \field{volume}{57}
+      \field{year}{2015}
+      \field{pages}{409\bibrangedash 422}
+      \range{pages}{14}
+      \verb{doi}
+      \verb 10.1016/j.pcad.2014.12.002
+      \endverb
+    \endentry
+    \entry{rampidis2022geometry}{article}{}
+      \name{author}{10}{}{%
+        {{hash=d559db69f0001114b95158fa9b14fb38}{%
+           family={Rampidis},
+           familyi={R\bibinitperiod},
+           given={Georgios},
+           giveni={G\bibinitperiod}}}%
+        {{hash=47edbcad7c0ed509cc76a45b973b479e}{%
+           family={Rafailidis},
+           familyi={R\bibinitperiod},
+           given={Vasileios},
+           giveni={V\bibinitperiod}}}%
+        {{hash=d0c163a9d9d31b62b3be10417310b4c2}{%
+           family={Kouskouras},
+           familyi={K\bibinitperiod},
+           given={Konstantinos},
+           giveni={K\bibinitperiod}}}%
+        {{hash=6c274f603692cfa6267a8616095d5a5b}{%
+           family={Davidhi},
+           familyi={D\bibinitperiod},
+           given={Andjoli},
+           giveni={A\bibinitperiod}}}%
+        {{hash=acf0c4b68a31cd25251365772b246742}{%
+           family={Papachristodoulou},
+           familyi={P\bibinitperiod},
+           given={Angeliki},
+           giveni={A\bibinitperiod}}}%
+        {{hash=6a70863935e6c72a70ca15c2776692a2}{%
+           family={Samaras},
+           familyi={S\bibinitperiod},
+           given={Athanasios},
+           giveni={A\bibinitperiod}}}%
+        {{hash=6ac67aea823c191f410bd7be1ad87b85}{%
+           family={Giannakoulas},
+           familyi={G\bibinitperiod},
+           given={George},
+           giveni={G\bibinitperiod}}}%
+        {{hash=d096407cc0f242e3fb08259e762950c1}{%
+           family={Ziakas},
+           familyi={Z\bibinitperiod},
+           given={Antonios},
+           giveni={A\bibinitperiod}}}%
+        {{hash=f64710ae78940b09b6b18c6a518a578d}{%
+           family={Prassopoulos},
+           familyi={P\bibinitperiod},
+           given={Panagiotis},
+           giveni={P\bibinitperiod}}}%
+        {{hash=a5c2506fc6cfa38124dba3d5c44d45ed}{%
+           family={Karvounis},
+           familyi={K\bibinitperiod},
+           given={Haralambos},
+           giveni={H\bibinitperiod}}}%
+      }
+      \strng{namehash}{93a3df3c7e4c45475e4718db229e338f}
+      \strng{fullhash}{48b1a9864e2b5526978c4a9b16409caf}
+      \strng{bibnamehash}{93a3df3c7e4c45475e4718db229e338f}
+      \strng{authorbibnamehash}{93a3df3c7e4c45475e4718db229e338f}
+      \strng{authornamehash}{93a3df3c7e4c45475e4718db229e338f}
+      \strng{authorfullhash}{48b1a9864e2b5526978c4a9b16409caf}
+      \field{sortinit}{5}
+      \field{sortinithash}{20e9b4b0b173788c5dace24730f47d8c}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Diagnostics}
+      \field{number}{9}
+      \field{title}{Relationship between coronary arterial geometry and the presence and extend of atherosclerotic plaque burden: A review discussing methodology and findings in the era of cardiac computed tomography angiography}
+      \field{volume}{12}
+      \field{year}{2022}
+      \field{pages}{2178}
+      \range{pages}{1}
+    \endentry
+    \entry{samady2011wss}{article}{}
+      \name{author}{9}{}{%
+        {{hash=8131c8cf49d9202441ea07b827b43801}{%
+           family={Samady},
+           familyi={S\bibinitperiod},
+           given={Habib},
+           giveni={H\bibinitperiod}}}%
+        {{hash=695f07b0524efe09ece6ef8dd359f201}{%
+           family={Eshtehardi},
+           familyi={E\bibinitperiod},
+           given={Parham},
+           giveni={P\bibinitperiod}}}%
+        {{hash=bdfb62a3651ee5f2bd73b51b59340d44}{%
+           family={McDaniel},
+           familyi={M\bibinitperiod},
+           given={Michael\bibnamedelima C.},
+           giveni={M\bibinitperiod\bibinitdelim C\bibinitperiod}}}%
+        {{hash=1269cea03b31d21f8ffd67c84529c54f}{%
+           family={Suo},
+           familyi={S\bibinitperiod},
+           given={Jin},
+           giveni={J\bibinitperiod}}}%
+        {{hash=e517b6d4bb726c6233604caa73f3a107}{%
+           family={Dhawan},
+           familyi={D\bibinitperiod},
+           given={Saurabh\bibnamedelima S.},
+           giveni={S\bibinitperiod\bibinitdelim S\bibinitperiod}}}%
+        {{hash=765d8933a5d6691a787ea9906989f663}{%
+           family={Maynard},
+           familyi={M\bibinitperiod},
+           given={Charles},
+           giveni={C\bibinitperiod}}}%
+        {{hash=646514752a78a4c2fe7a22f6674c1cc0}{%
+           family={Timmins},
+           familyi={T\bibinitperiod},
+           given={Lucas\bibnamedelima H.},
+           giveni={L\bibinitperiod\bibinitdelim H\bibinitperiod}}}%
+        {{hash=6711e6f162f26e69f89e8dd451998556}{%
+           family={Quyyumi},
+           familyi={Q\bibinitperiod},
+           given={Arshed\bibnamedelima A.},
+           giveni={A\bibinitperiod\bibinitdelim A\bibinitperiod}}}%
+        {{hash=de38874455d3cb645345f93eec69ecf7}{%
+           family={Giddens},
+           familyi={G\bibinitperiod},
+           given={Don\bibnamedelima P.},
+           giveni={D\bibinitperiod\bibinitdelim P\bibinitperiod}}}%
+      }
+      \strng{namehash}{015792b553d74a2c8fc1717ba54abdee}
+      \strng{fullhash}{55f104f092c63a37cbaace9d2f8c9b35}
+      \strng{bibnamehash}{015792b553d74a2c8fc1717ba54abdee}
+      \strng{authorbibnamehash}{015792b553d74a2c8fc1717ba54abdee}
+      \strng{authornamehash}{015792b553d74a2c8fc1717ba54abdee}
+      \strng{authorfullhash}{55f104f092c63a37cbaace9d2f8c9b35}
+      \field{sortinit}{5}
+      \field{sortinithash}{20e9b4b0b173788c5dace24730f47d8c}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Circulation}
+      \field{number}{7}
+      \field{title}{Coronary artery wall shear stress is associated with progression and transformation of atherosclerotic plaque and arterial remodeling in patients with coronary artery disease}
+      \field{volume}{124}
+      \field{year}{2011}
+      \field{pages}{779\bibrangedash 788}
+      \range{pages}{10}
+      \verb{doi}
+      \verb 10.1161/CIRCULATIONAHA.111.021824
+      \endverb
+    \endentry
+    \entry{yamamoto2017ess}{article}{}
+      \name{author}{6}{}{%
+        {{hash=4b89131b107ce8393df4fe1f29fbc593}{%
+           family={Yamamoto},
+           familyi={Y\bibinitperiod},
+           given={Erika},
+           giveni={E\bibinitperiod}}}%
+        {{hash=0f8f8e1625745e3b34ba673507d62e29}{%
+           family={Siasos},
+           familyi={S\bibinitperiod},
+           given={Gerasimos},
+           giveni={G\bibinitperiod}}}%
+        {{hash=09eb660f8dcd1662711bce2f7fe6cb44}{%
+           family={Zaromytidou},
+           familyi={Z\bibinitperiod},
+           given={Marina},
+           giveni={M\bibinitperiod}}}%
+        {{hash=11c67747de347ffadd42590466c89463}{%
+           family={Coskun},
+           familyi={C\bibinitperiod},
+           given={Ahmet\bibnamedelima U.},
+           giveni={A\bibinitperiod\bibinitdelim U\bibinitperiod}}}%
+        {{hash=e0b7e525a0d93bb4b5b20e01c39282b6}{%
+           family={Xing},
+           familyi={X\bibinitperiod},
+           given={Lei},
+           giveni={L\bibinitperiod}}}%
+        {{hash=9e0d53fc3196b80b9c2927cf8eec6f4c}{%
+           family={Bryniarski},
+           familyi={B\bibinitperiod},
+           given={Krzysztof},
+           giveni={K\bibinitperiod}}}%
+      }
+      \strng{namehash}{1d00f86d6dfc3c05f350302e5882ef4a}
+      \strng{fullhash}{44b3c1492a7c4814018957f5d7789ff6}
+      \strng{bibnamehash}{44b3c1492a7c4814018957f5d7789ff6}
+      \strng{authorbibnamehash}{44b3c1492a7c4814018957f5d7789ff6}
+      \strng{authornamehash}{1d00f86d6dfc3c05f350302e5882ef4a}
+      \strng{authorfullhash}{44b3c1492a7c4814018957f5d7789ff6}
+      \field{sortinit}{5}
+      \field{sortinithash}{20e9b4b0b173788c5dace24730f47d8c}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Circulation: Cardiovascular Interventions}
+      \field{number}{8}
+      \field{title}{Low endothelial shear stress predicts evolution to high-risk coronary plaque phenotype in the future: a serial optical coherence tomography and computational fluid dynamics study}
+      \field{volume}{10}
+      \field{year}{2017}
+      \field{pages}{e005455}
+      \range{pages}{-1}
+      \verb{doi}
+      \verb 10.1161/CIRCINTERVENTIONS.117.005455
+      \endverb
+    \endentry
+    \entry{peiffer2013wss}{article}{}
+      \name{author}{3}{}{%
+        {{hash=e9fb7437fb651c5c2f4216a991cb71fd}{%
+           family={Peiffer},
+           familyi={P\bibinitperiod},
+           given={Véronique},
+           giveni={V\bibinitperiod}}}%
+        {{hash=c7769d92fa26fb5e71e6ab162274e680}{%
+           family={Sherwin},
+           familyi={S\bibinitperiod},
+           given={Spencer\bibnamedelima J.},
+           giveni={S\bibinitperiod\bibinitdelim J\bibinitperiod}}}%
+        {{hash=2856ed46ed5ad1e1d2b151f6b4d9d583}{%
+           family={Weinberg},
+           familyi={W\bibinitperiod},
+           given={Peter\bibnamedelima D.},
+           giveni={P\bibinitperiod\bibinitdelim D\bibinitperiod}}}%
+      }
+      \strng{namehash}{8bbe2c1833095ca50fa0731e1c209bc3}
+      \strng{fullhash}{8bbe2c1833095ca50fa0731e1c209bc3}
+      \strng{bibnamehash}{8bbe2c1833095ca50fa0731e1c209bc3}
+      \strng{authorbibnamehash}{8bbe2c1833095ca50fa0731e1c209bc3}
+      \strng{authornamehash}{8bbe2c1833095ca50fa0731e1c209bc3}
+      \strng{authorfullhash}{8bbe2c1833095ca50fa0731e1c209bc3}
+      \field{sortinit}{5}
+      \field{sortinithash}{20e9b4b0b173788c5dace24730f47d8c}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Cardiovascular Research}
+      \field{number}{2}
+      \field{title}{Does low and oscillatory wall shear stress correlate spatially with early atherosclerosis? A systematic review}
+      \field{volume}{99}
+      \field{year}{2013}
+      \field{pages}{242\bibrangedash 250}
+      \range{pages}{9}
+      \verb{doi}
+      \verb 10.1093/cvr/cvt044
+      \endverb
+    \endentry
+    \entry{bajraktari2021highwss}{article}{}
+      \name{author}{3}{}{%
+        {{hash=ebee69accf8ccd48cb5d82d92e0518b3}{%
+           family={Bajraktari},
+           familyi={B\bibinitperiod},
+           given={Artan},
+           giveni={A\bibinitperiod}}}%
+        {{hash=6971e179350ade90a8c2495c1130609e}{%
+           family={Bytyçi},
+           familyi={B\bibinitperiod},
+           given={Ibadete},
+           giveni={I\bibinitperiod}}}%
+        {{hash=777238d74625aa8cbbf863e33766d9e6}{%
+           family={Henein},
+           familyi={H\bibinitperiod},
+           given={Michael\bibnamedelima Y.},
+           giveni={M\bibinitperiod\bibinitdelim Y\bibinitperiod}}}%
+      }
+      \strng{namehash}{66b9bafcaa8cc7592b54f1431696e4c6}
+      \strng{fullhash}{66b9bafcaa8cc7592b54f1431696e4c6}
+      \strng{bibnamehash}{66b9bafcaa8cc7592b54f1431696e4c6}
+      \strng{authorbibnamehash}{66b9bafcaa8cc7592b54f1431696e4c6}
+      \strng{authornamehash}{66b9bafcaa8cc7592b54f1431696e4c6}
+      \strng{authorfullhash}{66b9bafcaa8cc7592b54f1431696e4c6}
+      \field{sortinit}{6}
+      \field{sortinithash}{b33bc299efb3c36abec520a4c896a66d}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Angiology}
+      \field{number}{8}
+      \field{title}{High coronary wall shear stress worsens plaque vulnerability: a systematic review and meta-analysis}
+      \field{volume}{72}
+      \field{year}{2021}
+      \field{pages}{706\bibrangedash 714}
+      \range{pages}{9}
+      \verb{doi}
+      \verb 10.1177/0003319721991722
+      \endverb
+    \endentry
+    \entry{davies2009shear}{article}{}
+      \name{author}{1}{}{%
+        {{hash=d973c8ad03b80bb597fcd724d43cb6a1}{%
+           family={Davies},
+           familyi={D\bibinitperiod},
+           given={Peter\bibnamedelima F.},
+           giveni={P\bibinitperiod\bibinitdelim F\bibinitperiod}}}%
+      }
+      \strng{namehash}{d973c8ad03b80bb597fcd724d43cb6a1}
+      \strng{fullhash}{d973c8ad03b80bb597fcd724d43cb6a1}
+      \strng{bibnamehash}{d973c8ad03b80bb597fcd724d43cb6a1}
+      \strng{authorbibnamehash}{d973c8ad03b80bb597fcd724d43cb6a1}
+      \strng{authornamehash}{d973c8ad03b80bb597fcd724d43cb6a1}
+      \strng{authorfullhash}{d973c8ad03b80bb597fcd724d43cb6a1}
+      \field{sortinit}{6}
+      \field{sortinithash}{b33bc299efb3c36abec520a4c896a66d}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Nature Clinical Practice Cardiovascular Medicine}
+      \field{number}{1}
+      \field{title}{Hemodynamic shear stress and the endothelium in cardiovascular pathophysiology}
+      \field{volume}{6}
+      \field{year}{2009}
+      \field{pages}{16\bibrangedash 26}
+      \range{pages}{11}
+      \verb{doi}
+      \verb 10.1038/ncpcardio1397
+      \endverb
+    \endentry
+    \entry{chiu2011disturbed}{article}{}
+      \name{author}{2}{}{%
+        {{hash=74f61f3db020c2b2cc16c9fa3d6301db}{%
+           family={Chiu},
+           familyi={C\bibinitperiod},
+           given={Jeng-Jiann},
+           giveni={J\bibinithyphendelim J\bibinitperiod}}}%
+        {{hash=f664d3de1bdec2920c0e2bff57f53f51}{%
+           family={Chien},
+           familyi={C\bibinitperiod},
+           given={Shu},
+           giveni={S\bibinitperiod}}}%
+      }
+      \strng{namehash}{e1d2590139142573ae92299a3604bd34}
+      \strng{fullhash}{e1d2590139142573ae92299a3604bd34}
+      \strng{bibnamehash}{e1d2590139142573ae92299a3604bd34}
+      \strng{authorbibnamehash}{e1d2590139142573ae92299a3604bd34}
+      \strng{authornamehash}{e1d2590139142573ae92299a3604bd34}
+      \strng{authorfullhash}{e1d2590139142573ae92299a3604bd34}
+      \field{sortinit}{6}
+      \field{sortinithash}{b33bc299efb3c36abec520a4c896a66d}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Physiological Reviews}
+      \field{number}{1}
+      \field{title}{Effects of disturbed flow on vascular endothelium: pathophysiological basis and clinical perspectives}
+      \field{volume}{91}
+      \field{year}{2011}
+      \field{pages}{327\bibrangedash 387}
+      \range{pages}{61}
+      \verb{doi}
+      \verb 10.1152/physrev.00047.2009
+      \endverb
+    \endentry
+    \entry{ku1997blood}{article}{}
+      \name{author}{1}{}{%
+        {{hash=5aa6a06d173e5d3858f9b623f422737f}{%
+           family={Ku},
+           familyi={K\bibinitperiod},
+           given={David\bibnamedelima N.},
+           giveni={D\bibinitperiod\bibinitdelim N\bibinitperiod}}}%
+      }
+      \strng{namehash}{5aa6a06d173e5d3858f9b623f422737f}
+      \strng{fullhash}{5aa6a06d173e5d3858f9b623f422737f}
+      \strng{bibnamehash}{5aa6a06d173e5d3858f9b623f422737f}
+      \strng{authorbibnamehash}{5aa6a06d173e5d3858f9b623f422737f}
+      \strng{authornamehash}{5aa6a06d173e5d3858f9b623f422737f}
+      \strng{authorfullhash}{5aa6a06d173e5d3858f9b623f422737f}
+      \field{sortinit}{6}
+      \field{sortinithash}{b33bc299efb3c36abec520a4c896a66d}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Annual Review of Fluid Mechanics}
+      \field{title}{Blood flow in arteries}
+      \field{volume}{29}
+      \field{year}{1997}
+      \field{pages}{399\bibrangedash 434}
+      \range{pages}{36}
+      \verb{doi}
+      \verb 10.1146/annurev.fluid.29.1.399
+      \endverb
+    \endentry
+    \entry{dean1927curved}{article}{}
+      \name{author}{1}{}{%
+        {{hash=37f801fb7437e043a20ee858227c6151}{%
+           family={Dean},
+           familyi={D\bibinitperiod},
+           given={W.\bibnamedelimi R.},
+           giveni={W\bibinitperiod\bibinitdelim R\bibinitperiod}}}%
+      }
+      \strng{namehash}{37f801fb7437e043a20ee858227c6151}
+      \strng{fullhash}{37f801fb7437e043a20ee858227c6151}
+      \strng{bibnamehash}{37f801fb7437e043a20ee858227c6151}
+      \strng{authorbibnamehash}{37f801fb7437e043a20ee858227c6151}
+      \strng{authornamehash}{37f801fb7437e043a20ee858227c6151}
+      \strng{authorfullhash}{37f801fb7437e043a20ee858227c6151}
+      \field{sortinit}{6}
+      \field{sortinithash}{b33bc299efb3c36abec520a4c896a66d}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{The London, Edinburgh, and Dublin Philosophical Magazine and Journal of Science}
+      \field{number}{20}
+      \field{series}{7}
+      \field{title}{Note on the motion of fluid in a curved pipe}
+      \field{volume}{4}
+      \field{year}{1927}
+      \field{pages}{208\bibrangedash 223}
+      \range{pages}{16}
+      \verb{doi}
+      \verb 10.1080/14786440708564324
+      \endverb
+    \endentry
+    \entry{qiu2000compliant}{article}{}
+      \name{author}{2}{}{%
+        {{hash=7e2e89a6bf8bad20dccc9781f4d77ccd}{%
+           family={Qiu},
+           familyi={Q\bibinitperiod},
+           given={Yuchen},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=475234da76137714b4cab3914b2b540a}{%
+           family={Tarbell},
+           familyi={T\bibinitperiod},
+           given={John\bibnamedelima M.},
+           giveni={J\bibinitperiod\bibinitdelim M\bibinitperiod}}}%
+      }
+      \strng{namehash}{f039ec47ac2951e6b9a2fa4ea729355a}
+      \strng{fullhash}{f039ec47ac2951e6b9a2fa4ea729355a}
+      \strng{bibnamehash}{f039ec47ac2951e6b9a2fa4ea729355a}
+      \strng{authorbibnamehash}{f039ec47ac2951e6b9a2fa4ea729355a}
+      \strng{authornamehash}{f039ec47ac2951e6b9a2fa4ea729355a}
+      \strng{authorfullhash}{f039ec47ac2951e6b9a2fa4ea729355a}
+      \field{sortinit}{6}
+      \field{sortinithash}{b33bc299efb3c36abec520a4c896a66d}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Journal of Biomechanical Engineering}
+      \field{number}{1}
+      \field{title}{Numerical simulation of pulsatile flow in a compliant curved tube model of a coronary artery}
+      \field{volume}{122}
+      \field{year}{2000}
+      \field{pages}{77\bibrangedash 85}
+      \range{pages}{9}
+      \verb{doi}
+      \verb 10.1115/1.429629
+      \endverb
+    \endentry
+    \entry{zarins1983carotid}{article}{}
+      \name{author}{6}{}{%
+        {{hash=c4d4aedc101d20a151f4692c3bd40922}{%
+           family={Zarins},
+           familyi={Z\bibinitperiod},
+           given={C.\bibnamedelimi K.},
+           giveni={C\bibinitperiod\bibinitdelim K\bibinitperiod}}}%
+        {{hash=37cf7c77b07bf2b75242291d721c91f8}{%
+           family={Giddens},
+           familyi={G\bibinitperiod},
+           given={D.\bibnamedelimi P.},
+           giveni={D\bibinitperiod\bibinitdelim P\bibinitperiod}}}%
+        {{hash=733e1002efe321e80f34eda2ad135474}{%
+           family={Bharadvaj},
+           familyi={B\bibinitperiod},
+           given={B.\bibnamedelimi K.},
+           giveni={B\bibinitperiod\bibinitdelim K\bibinitperiod}}}%
+        {{hash=6187189fbb90075a9213e6e80926b05f}{%
+           family={Sottiurai},
+           familyi={S\bibinitperiod},
+           given={V.\bibnamedelimi S.},
+           giveni={V\bibinitperiod\bibinitdelim S\bibinitperiod}}}%
+        {{hash=f138509528bfe72fe1c9de0b17121502}{%
+           family={Mabon},
+           familyi={M\bibinitperiod},
+           given={R.\bibnamedelimi F.},
+           giveni={R\bibinitperiod\bibinitdelim F\bibinitperiod}}}%
+        {{hash=babec5ef42aefbf1cb0462f2809f745f}{%
+           family={Glagov},
+           familyi={G\bibinitperiod},
+           given={S.},
+           giveni={S\bibinitperiod}}}%
+      }
+      \strng{namehash}{4b492f5d38a8befe52ee314e403ccdc2}
+      \strng{fullhash}{a1ffb3119b2a9de727e66fe133b9908d}
+      \strng{bibnamehash}{a1ffb3119b2a9de727e66fe133b9908d}
+      \strng{authorbibnamehash}{a1ffb3119b2a9de727e66fe133b9908d}
+      \strng{authornamehash}{4b492f5d38a8befe52ee314e403ccdc2}
+      \strng{authorfullhash}{a1ffb3119b2a9de727e66fe133b9908d}
+      \field{sortinit}{7}
+      \field{sortinithash}{108d0be1b1bee9773a1173443802c0a3}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Circulation Research}
+      \field{number}{4}
+      \field{title}{Carotid bifurcation atherosclerosis. Quantitative correlation of plaque localization with flow velocity profiles and wall shear stress}
+      \field{volume}{53}
+      \field{year}{1983}
+      \field{pages}{502\bibrangedash 514}
+      \range{pages}{13}
+      \verb{doi}
+      \verb 10.1161/01.res.53.4.502
+      \endverb
+    \endentry
+    \entry{antoniadis2015bifurcation}{article}{}
+      \name{author}{7}{}{%
+        {{hash=1102b932ef875dbecd6ed2172530f451}{%
+           family={Antoniadis},
+           familyi={A\bibinitperiod},
+           given={Antonios\bibnamedelima P.},
+           giveni={A\bibinitperiod\bibinitdelim P\bibinitperiod}}}%
+        {{hash=783bb5d44b94bb6788bb07fc0b8032aa}{%
+           family={Giannopoulos},
+           familyi={G\bibinitperiod},
+           given={Andreas\bibnamedelima A.},
+           giveni={A\bibinitperiod\bibinitdelim A\bibinitperiod}}}%
+        {{hash=db8e28ca96232d64ca1667a8bc0a1d7d}{%
+           family={Wentzel},
+           familyi={W\bibinitperiod},
+           given={Jolanda\bibnamedelima J.},
+           giveni={J\bibinitperiod\bibinitdelim J\bibinitperiod}}}%
+        {{hash=5bff2e45185e9c88db50092f481b5c7b}{%
+           family={Joner},
+           familyi={J\bibinitperiod},
+           given={Michael},
+           giveni={M\bibinitperiod}}}%
+        {{hash=e6ccd8e6509d40d3a74d58164dc490ea}{%
+           family={Giannoglou},
+           familyi={G\bibinitperiod},
+           given={George\bibnamedelima D.},
+           giveni={G\bibinitperiod\bibinitdelim D\bibinitperiod}}}%
+        {{hash=200812a6f19e6ca0613a6bc0f330d8bc}{%
+           family={Virmani},
+           familyi={V\bibinitperiod},
+           given={Renu},
+           giveni={R\bibinitperiod}}}%
+        {{hash=6bd8c975ef82461ad8529c9545cc7424}{%
+           family={Chatzizisis},
+           familyi={C\bibinitperiod},
+           given={Yiannis\bibnamedelima S.},
+           giveni={Y\bibinitperiod\bibinitdelim S\bibinitperiod}}}%
+      }
+      \strng{namehash}{7427e7d276942760d4ebce4ed14d98a8}
+      \strng{fullhash}{2873f607822e4e9c4d00fb750a7584fd}
+      \strng{bibnamehash}{7427e7d276942760d4ebce4ed14d98a8}
+      \strng{authorbibnamehash}{7427e7d276942760d4ebce4ed14d98a8}
+      \strng{authornamehash}{7427e7d276942760d4ebce4ed14d98a8}
+      \strng{authorfullhash}{2873f607822e4e9c4d00fb750a7584fd}
+      \field{sortinit}{7}
+      \field{sortinithash}{108d0be1b1bee9773a1173443802c0a3}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{EuroIntervention}
+      \field{number}{Suppl V}
+      \field{title}{Impact of local flow haemodynamics on atherosclerosis in coronary artery bifurcations}
+      \field{volume}{11}
+      \field{year}{2015}
+      \field{pages}{V18\bibrangedash V22}
+      \range{pages}{-1}
+      \verb{doi}
+      \verb 10.4244/EIJV11SVA4
+      \endverb
+    \endentry
+    \entry{vandergiessen2009bifurcation}{article}{}
+      \name{author}{8}{}{%
+        {{hash=2c381e60bec8650542196f9036079b8f}{%
+           family={Giessen},
+           familyi={G\bibinitperiod},
+           given={A.\bibnamedelimi G.},
+           giveni={A\bibinitperiod\bibinitdelim G\bibinitperiod},
+           prefix={van\bibnamedelima der},
+           prefixi={v\bibinitperiod\bibinitdelim d\bibinitperiod}}}%
+        {{hash=f4c35e0508d2fe34affcdc7b5611fb1e}{%
+           family={Wentzel},
+           familyi={W\bibinitperiod},
+           given={J.\bibnamedelimi J.},
+           giveni={J\bibinitperiod\bibinitdelim J\bibinitperiod}}}%
+        {{hash=bd6d2249dab3a5d9a962d30fb14604de}{%
+           family={Meijboom},
+           familyi={M\bibinitperiod},
+           given={W.\bibnamedelimi B.},
+           giveni={W\bibinitperiod\bibinitdelim B\bibinitperiod}}}%
+        {{hash=2affe03ba698b5a899598b902eb27146}{%
+           family={Mollet},
+           familyi={M\bibinitperiod},
+           given={N.\bibnamedelimi R.},
+           giveni={N\bibinitperiod\bibinitdelim R\bibinitperiod}}}%
+        {{hash=0b334f14c44f064efe28eb8e45fe9683}{%
+           family={Steen},
+           familyi={S\bibinitperiod},
+           given={A.\bibnamedelimi F.\bibnamedelimi W.},
+           giveni={A\bibinitperiod\bibinitdelim F\bibinitperiod\bibinitdelim W\bibinitperiod},
+           prefix={van\bibnamedelima der},
+           prefixi={v\bibinitperiod\bibinitdelim d\bibinitperiod}}}%
+        {{hash=86350cf9abd8ea10c3ad0097c58b399a}{%
+           family={Vosse},
+           familyi={V\bibinitperiod},
+           given={F.\bibnamedelimi N.},
+           giveni={F\bibinitperiod\bibinitdelim N\bibinitperiod},
+           prefix={van\bibnamedelima de},
+           prefixi={v\bibinitperiod\bibinitdelim d\bibinitperiod}}}%
+        {{hash=b9bcab7771b61d11e0518298c7cb33d7}{%
+           family={Feyter},
+           familyi={F\bibinitperiod},
+           given={P.\bibnamedelimi J.},
+           giveni={P\bibinitperiod\bibinitdelim J\bibinitperiod},
+           prefix={de},
+           prefixi={d\bibinitperiod}}}%
+        {{hash=51471423bf1277497e34cf6eb352dd62}{%
+           family={Gijsen},
+           familyi={G\bibinitperiod},
+           given={F.\bibnamedelimi J.\bibnamedelimi H.},
+           giveni={F\bibinitperiod\bibinitdelim J\bibinitperiod\bibinitdelim H\bibinitperiod}}}%
+      }
+      \strng{namehash}{a8354069db152380c2908fed803a4e18}
+      \strng{fullhash}{23eef93b95cab4fe91e84fb2a3713a69}
+      \strng{bibnamehash}{a8354069db152380c2908fed803a4e18}
+      \strng{authorbibnamehash}{a8354069db152380c2908fed803a4e18}
+      \strng{authornamehash}{a8354069db152380c2908fed803a4e18}
+      \strng{authorfullhash}{23eef93b95cab4fe91e84fb2a3713a69}
+      \field{sortinit}{7}
+      \field{sortinithash}{108d0be1b1bee9773a1173443802c0a3}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{EuroIntervention}
+      \field{number}{5}
+      \field{title}{Plaque and shear stress distribution in human coronary bifurcations: a multislice computed tomography study}
+      \field{volume}{4}
+      \field{year}{2009}
+      \field{pages}{654\bibrangedash 661}
+      \range{pages}{8}
+      \verb{doi}
+      \verb 10.4244/EIJV4I5A109
+      \endverb
+    \endentry
+    \entry{nakazawa2010pathological}{article}{}
+      \name{author}{6}{}{%
+        {{hash=98980c9635c0e53c00788bd747159ef5}{%
+           family={Nakazawa},
+           familyi={N\bibinitperiod},
+           given={Gaku},
+           giveni={G\bibinitperiod}}}%
+        {{hash=d11ae1f562407dd914ee23919ee3e7be}{%
+           family={Yazdani},
+           familyi={Y\bibinitperiod},
+           given={Saami\bibnamedelima K.},
+           giveni={S\bibinitperiod\bibinitdelim K\bibinitperiod}}}%
+        {{hash=ba190f22533f0e329497aaac04ce3e43}{%
+           family={Finn},
+           familyi={F\bibinitperiod},
+           given={Aloke\bibnamedelima V.},
+           giveni={A\bibinitperiod\bibinitdelim V\bibinitperiod}}}%
+        {{hash=2d0d615aa7fd609845f4803b879f7398}{%
+           family={Vorpahl},
+           familyi={V\bibinitperiod},
+           given={Marc},
+           giveni={M\bibinitperiod}}}%
+        {{hash=12a3ef669970cb63f77a5db957355b55}{%
+           family={Kolodgie},
+           familyi={K\bibinitperiod},
+           given={Frank\bibnamedelima D.},
+           giveni={F\bibinitperiod\bibinitdelim D\bibinitperiod}}}%
+        {{hash=200812a6f19e6ca0613a6bc0f330d8bc}{%
+           family={Virmani},
+           familyi={V\bibinitperiod},
+           given={Renu},
+           giveni={R\bibinitperiod}}}%
+      }
+      \strng{namehash}{79e0dc32e0be9e9f9162b92b5d466935}
+      \strng{fullhash}{2eaf3498b529b200ff63e6ef442e4be4}
+      \strng{bibnamehash}{2eaf3498b529b200ff63e6ef442e4be4}
+      \strng{authorbibnamehash}{2eaf3498b529b200ff63e6ef442e4be4}
+      \strng{authornamehash}{79e0dc32e0be9e9f9162b92b5d466935}
+      \strng{authorfullhash}{2eaf3498b529b200ff63e6ef442e4be4}
+      \field{sortinit}{7}
+      \field{sortinithash}{108d0be1b1bee9773a1173443802c0a3}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Journal of the American College of Cardiology}
+      \field{number}{16}
+      \field{title}{Pathological findings at bifurcation lesions: the impact of flow distribution on atherosclerosis and arterial healing after stent implantation}
+      \field{volume}{55}
+      \field{year}{2010}
+      \field{pages}{1679\bibrangedash 1687}
+      \range{pages}{9}
+      \verb{doi}
+      \verb 10.1016/j.jacc.2010.01.021
+      \endverb
+    \endentry
+    \entry{knuuti2019esc}{article}{}
+      \name{author}{10}{}{%
+        {{hash=1549aa30bf5cf397e8cb0d91d49ca098}{%
+           family={Knuuti},
+           familyi={K\bibinitperiod},
+           given={Juhani},
+           giveni={J\bibinitperiod}}}%
+        {{hash=9cb96b0d666613039e202dd48b355bd9}{%
+           family={Wijns},
+           familyi={W\bibinitperiod},
+           given={William},
+           giveni={W\bibinitperiod}}}%
+        {{hash=1930b2bff718e9fc452eea724f745eaa}{%
+           family={Saraste},
+           familyi={S\bibinitperiod},
+           given={Antti},
+           giveni={A\bibinitperiod}}}%
+        {{hash=f05b388fc1ab086da73e6d5baa4842e2}{%
+           family={Capodanno},
+           familyi={C\bibinitperiod},
+           given={Davide},
+           giveni={D\bibinitperiod}}}%
+        {{hash=6e172e8470a90d2cde2e225eea3f2b57}{%
+           family={Barbato},
+           familyi={B\bibinitperiod},
+           given={Emanuele},
+           giveni={E\bibinitperiod}}}%
+        {{hash=883eccb2d01fedd580d94e4e505a04cb}{%
+           family={Funck-Brentano},
+           familyi={F\bibinithyphendelim B\bibinitperiod},
+           given={Christian},
+           giveni={C\bibinitperiod}}}%
+        {{hash=6593a06dabe3428151cf5edf7800cc42}{%
+           family={Prescott},
+           familyi={P\bibinitperiod},
+           given={Eva},
+           giveni={E\bibinitperiod}}}%
+        {{hash=5a23c78fe000b4e3caac128a1d930ec1}{%
+           family={Storey},
+           familyi={S\bibinitperiod},
+           given={Robert\bibnamedelima F.},
+           giveni={R\bibinitperiod\bibinitdelim F\bibinitperiod}}}%
+        {{hash=dfddcf62e29db1d12fe7b2e345be1fc8}{%
+           family={Deaton},
+           familyi={D\bibinitperiod},
+           given={Christi},
+           giveni={C\bibinitperiod}}}%
+        {{hash=0cb377749fc99a41f178018a50a57e1b}{%
+           family={Cuisset},
+           familyi={C\bibinitperiod},
+           given={Thomas},
+           giveni={T\bibinitperiod}}}%
+      }
+      \strng{namehash}{13a8e72dbf452b108a8f835499bd7642}
+      \strng{fullhash}{0b6c860c2d0b6425ef6f5491f81975c4}
+      \strng{bibnamehash}{13a8e72dbf452b108a8f835499bd7642}
+      \strng{authorbibnamehash}{13a8e72dbf452b108a8f835499bd7642}
+      \strng{authornamehash}{13a8e72dbf452b108a8f835499bd7642}
+      \strng{authorfullhash}{0b6c860c2d0b6425ef6f5491f81975c4}
+      \field{sortinit}{7}
+      \field{sortinithash}{108d0be1b1bee9773a1173443802c0a3}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{European Heart Journal}
+      \field{number}{3}
+      \field{title}{2019 {ESC} guidelines for the diagnosis and management of chronic coronary syndromes}
+      \field{volume}{41}
+      \field{year}{2019}
+      \field{pages}{407\bibrangedash 477}
+      \range{pages}{71}
+      \verb{doi}
+      \verb 10.1093/eurheartj/ehz425
+      \endverb
+    \endentry
+    \entry{abbara2016scct}{article}{}
+      \true{moreauthor}
+      \true{morelabelname}
+      \name{author}{3}{}{%
+        {{hash=a3d4a51e747217e1c949848f78584333}{%
+           family={Abbara},
+           familyi={A\bibinitperiod},
+           given={Suhny},
+           giveni={S\bibinitperiod}}}%
+        {{hash=99f50a4cb892379806951b4efbaa3ec6}{%
+           family={Blanke},
+           familyi={B\bibinitperiod},
+           given={Philipp},
+           giveni={P\bibinitperiod}}}%
+        {{hash=bd486374e9b9a9c087ebd2550f16198d}{%
+           family={Maroules},
+           familyi={M\bibinitperiod},
+           given={Christopher\bibnamedelima D.},
+           giveni={C\bibinitperiod\bibinitdelim D\bibinitperiod}}}%
+      }
+      \strng{namehash}{ea970dedae8cc5361dfbfa6e8fb8d9d2}
+      \strng{fullhash}{ea970dedae8cc5361dfbfa6e8fb8d9d2}
+      \strng{bibnamehash}{ea970dedae8cc5361dfbfa6e8fb8d9d2}
+      \strng{authorbibnamehash}{ea970dedae8cc5361dfbfa6e8fb8d9d2}
+      \strng{authornamehash}{ea970dedae8cc5361dfbfa6e8fb8d9d2}
+      \strng{authorfullhash}{ea970dedae8cc5361dfbfa6e8fb8d9d2}
+      \field{sortinit}{7}
+      \field{sortinithash}{108d0be1b1bee9773a1173443802c0a3}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Journal of Cardiovascular Computed Tomography}
+      \field{number}{6}
+      \field{title}{{SCCT} guidelines for the performance and acquisition of coronary computed tomographic angiography: A report of the Society of Cardiovascular Computed Tomography Guidelines Committee}
+      \field{volume}{10}
+      \field{year}{2016}
+      \field{pages}{435\bibrangedash 449}
+      \range{pages}{15}
+      \verb{doi}
+      \verb 10.1016/j.jcct.2016.10.002
+      \endverb
+    \endentry
+    \entry{dobson2002glm}{book}{}
+      \name{author}{1}{}{%
+        {{hash=7d60421b5821d4118e1cab42189875aa}{%
+           family={Dobson},
+           familyi={D\bibinitperiod},
+           given={Annette\bibnamedelima J.},
+           giveni={A\bibinitperiod\bibinitdelim J\bibinitperiod}}}%
+      }
+      \list{location}{1}{%
+        {Boca Raton, FL}%
+      }
+      \list{publisher}{2}{%
+        {Chapman}%
+        {Hall/CRC}%
+      }
+      \strng{namehash}{7d60421b5821d4118e1cab42189875aa}
+      \strng{fullhash}{7d60421b5821d4118e1cab42189875aa}
+      \strng{bibnamehash}{7d60421b5821d4118e1cab42189875aa}
+      \strng{authorbibnamehash}{7d60421b5821d4118e1cab42189875aa}
+      \strng{authornamehash}{7d60421b5821d4118e1cab42189875aa}
+      \strng{authorfullhash}{7d60421b5821d4118e1cab42189875aa}
+      \field{sortinit}{7}
+      \field{sortinithash}{108d0be1b1bee9773a1173443802c0a3}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{annotation}{[READ] PDF of the 2nd edition in the repo root, read 2026-11-14. Section 3.4: GLM = exponential-family response and a monotone link function; Section 7.2: link restricts a probability to [0,1]; complementary log-log link. Re-read 2026-11-16 for the citation audit of technical/01_mixed_model.tex: 5.7 (difference of deviances of nested models, chi2(p - q), independent outcomes), 7.3 (cloglog from an extreme value tolerance distribution, dose response), 9.2 (offset and exposure, Poisson regression), 10.2 (hazard, Eq. 10.4), 10.2.2 (Eq. 10.7 hazard ratio, Eq. 10.8 proportional hazards), 11.1 (correlation within clusters), 11.5 (random effects, mixed models, g(mu) = X beta + Z u), 11.6 (Table 11.7), 11.7 (likelihood ratio statistics for nested multilevel models). The book never says "block" or "adjusted hazard ratio".}
+      \field{edition}{2}
+      \field{isbn}{1-58488-165-8}
+      \field{title}{An Introduction to Generalized Linear Models}
+      \field{year}{2002}
+    \endentry
+    \entry{austin2017mhr}{article}{}
+      \name{author}{3}{}{%
+        {{hash=72bb99ace345dcf7ae8b3e877ab1dc2f}{%
+           family={Austin},
+           familyi={A\bibinitperiod},
+           given={Peter\bibnamedelima C.},
+           giveni={P\bibinitperiod\bibinitdelim C\bibinitperiod}}}%
+        {{hash=5bd266934cd865c751aaafee5951baee}{%
+           family={Wagner},
+           familyi={W\bibinitperiod},
+           given={Philippe},
+           giveni={P\bibinitperiod}}}%
+        {{hash=b0fa509e52faa9aa3c1f2460396bc8e0}{%
+           family={Merlo},
+           familyi={M\bibinitperiod},
+           given={Juan},
+           giveni={J\bibinitperiod}}}%
+      }
+      \strng{namehash}{f3f16a3d1516784344f7c6e799545718}
+      \strng{fullhash}{f3f16a3d1516784344f7c6e799545718}
+      \strng{bibnamehash}{f3f16a3d1516784344f7c6e799545718}
+      \strng{authorbibnamehash}{f3f16a3d1516784344f7c6e799545718}
+      \strng{authornamehash}{f3f16a3d1516784344f7c6e799545718}
+      \strng{authorfullhash}{f3f16a3d1516784344f7c6e799545718}
+      \field{sortinit}{8}
+      \field{sortinithash}{a231b008ebf0ecbe0b4d96dcc159445f}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{annotation}{[VERIFIED] Full text via Europe PMC (PMC5299617), 2026-10-31. Section 2.2 re-read 2026-11-16 (web fetch of PMC5299617): Cox proportional hazards model with cluster-specific random effects; "the term e^{alpha_j} is referred to as a frailty term", "a multiplicative effect on the hazard function"; MHR for log-normal frailty (Lanke). Setting is a Cox frailty model, not a cloglog GLMM.}
+      \field{journaltitle}{Statistics in Medicine}
+      \field{number}{6}
+      \field{title}{The median hazard ratio: a useful measure of variance and general contextual effects in multilevel survival analysis}
+      \field{volume}{36}
+      \field{year}{2017}
+      \field{pages}{928\bibrangedash 938}
+      \range{pages}{11}
+      \verb{doi}
+      \verb 10.1002/sim.7188
+      \endverb
+    \endentry
+    \entry{wang2016fda}{article}{}
+      \name{author}{3}{}{%
+        {{hash=aa884172ef3f1964c2ce99286817647e}{%
+           family={Wang},
+           familyi={W\bibinitperiod},
+           given={Jane-Ling},
+           giveni={J\bibinithyphendelim L\bibinitperiod}}}%
+        {{hash=2854fe5f02588292587fc0d48cb92270}{%
+           family={Chiou},
+           familyi={C\bibinitperiod},
+           given={Jeng-Min},
+           giveni={J\bibinithyphendelim M\bibinitperiod}}}%
+        {{hash=9ad62fbb452f711d6f27e73e9b612ebe}{%
+           family={Müller},
+           familyi={M\bibinitperiod},
+           given={Hans-Georg},
+           giveni={H\bibinithyphendelim G\bibinitperiod}}}%
+      }
+      \strng{namehash}{02a16fa1c537ed5ff46c6fb51478af76}
+      \strng{fullhash}{02a16fa1c537ed5ff46c6fb51478af76}
+      \strng{bibnamehash}{02a16fa1c537ed5ff46c6fb51478af76}
+      \strng{authorbibnamehash}{02a16fa1c537ed5ff46c6fb51478af76}
+      \strng{authornamehash}{02a16fa1c537ed5ff46c6fb51478af76}
+      \strng{authorfullhash}{02a16fa1c537ed5ff46c6fb51478af76}
+      \field{sortinit}{8}
+      \field{sortinithash}{a231b008ebf0ecbe0b4d96dcc159445f}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{annotation}{[VERIFIED] Crossref 2026-11-06. Read as arXiv:1507.05135.}
+      \field{journaltitle}{Annual Review of Statistics and Its Application}
+      \field{title}{Functional Data Analysis}
+      \field{volume}{3}
+      \field{year}{2016}
+      \field{pages}{257\bibrangedash 295}
+      \range{pages}{39}
+      \verb{doi}
+      \verb 10.1146/annurev-statistics-041715-033624
+      \endverb
+    \endentry
+    \entry{song2018stability}{article}{}
+      \name{author}{2}{}{%
+        {{hash=004ba452b0201f15e58b12dd94b0911d}{%
+           family={Song},
+           familyi={S\bibinitperiod},
+           given={Jiyeon},
+           giveni={J\bibinitperiod}}}%
+        {{hash=3e60305a32bfe511107f775d212b044d}{%
+           family={Shin},
+           familyi={S\bibinitperiod},
+           given={Seung\bibnamedelima Jun},
+           giveni={S\bibinitperiod\bibinitdelim J\bibinitperiod}}}%
+      }
+      \strng{namehash}{5c9be21edf9f5d901a523d84df4382a1}
+      \strng{fullhash}{5c9be21edf9f5d901a523d84df4382a1}
+      \strng{bibnamehash}{5c9be21edf9f5d901a523d84df4382a1}
+      \strng{authorbibnamehash}{5c9be21edf9f5d901a523d84df4382a1}
+      \strng{authornamehash}{5c9be21edf9f5d901a523d84df4382a1}
+      \strng{authorfullhash}{5c9be21edf9f5d901a523d84df4382a1}
+      \field{sortinit}{9}
+      \field{sortinithash}{0a5ebc79d83c96b6579069544c73c7d4}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{annotation}{NOT OPENED (Springer paywall, 2026-11-16); bibliographic details from Crossref 2026-11-16. Cited in technical/03_fpca.tex for the principle only (stability of the components under resampling as a guide to their number). Abstract level: ordinary PCA under subsampling, not FPCA. Verify against the PDF before submission.}
+      \field{journaltitle}{Computational Statistics}
+      \field{number}{4}
+      \field{title}{Stability approach to selecting the number of principal components}
+      \field{volume}{33}
+      \field{year}{2018}
+      \field{pages}{1923\bibrangedash 1938}
+      \range{pages}{16}
+      \verb{doi}
+      \verb 10.1007/s00180-018-0826-7
+      \endverb
+    \endentry
+    \entry{medranogracia2016atlas}{article}{}
+      \name{author}{9}{}{%
+        {{hash=e48bd0ff6406ba178645f1038ab0e65a}{%
+           family={Medrano-Gracia},
+           familyi={M\bibinithyphendelim G\bibinitperiod},
+           given={Pau},
+           giveni={P\bibinitperiod}}}%
+        {{hash=7e7a33e9061ad9323547c61cc171231c}{%
+           family={Ormiston},
+           familyi={O\bibinitperiod},
+           given={John},
+           giveni={J\bibinitperiod}}}%
+        {{hash=3a493b82436fa295ae36e027190ed913}{%
+           family={Webster},
+           familyi={W\bibinitperiod},
+           given={Mark},
+           giveni={M\bibinitperiod}}}%
+        {{hash=aa2c9e3b0ab08e7b4bd2ec6f1ac87eee}{%
+           family={Beier},
+           familyi={B\bibinitperiod},
+           given={Susann},
+           giveni={S\bibinitperiod}}}%
+        {{hash=c0b6b0d5fc87bf82e539a2ab90358581}{%
+           family={Young},
+           familyi={Y\bibinitperiod},
+           given={Alistair},
+           giveni={A\bibinitperiod}}}%
+        {{hash=3b52d4b29ccf140e98bf18ec30d40dce}{%
+           family={Ellis},
+           familyi={E\bibinitperiod},
+           given={Chris},
+           giveni={C\bibinitperiod}}}%
+        {{hash=0fac13adc759a6ca5487259020889b77}{%
+           family={Wang},
+           familyi={W\bibinitperiod},
+           given={Chunliang},
+           giveni={C\bibinitperiod}}}%
+        {{hash=93f99e1d157f64031bf9fe072293eab9}{%
+           family={Smedby},
+           familyi={S\bibinitperiod},
+           given={Örjan},
+           giveni={Ö\bibinitperiod}}}%
+        {{hash=92d399729bfdd578bfbac3c233139937}{%
+           family={Cowan},
+           familyi={C\bibinitperiod},
+           given={Brett},
+           giveni={B\bibinitperiod}}}%
+      }
+      \strng{namehash}{38016cc78ef32e10159863514b74669d}
+      \strng{fullhash}{6e30d0e1e211ad7144d5f8022b90a0bc}
+      \strng{bibnamehash}{38016cc78ef32e10159863514b74669d}
+      \strng{authorbibnamehash}{38016cc78ef32e10159863514b74669d}
+      \strng{authornamehash}{38016cc78ef32e10159863514b74669d}
+      \strng{authorfullhash}{6e30d0e1e211ad7144d5f8022b90a0bc}
+      \field{sortinit}{9}
+      \field{sortinithash}{0a5ebc79d83c96b6579069544c73c7d4}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{EuroIntervention}
+      \field{number}{7}
+      \field{title}{A computational atlas of normal coronary artery anatomy}
+      \field{volume}{12}
+      \field{year}{2016}
+      \field{pages}{845\bibrangedash 854}
+      \range{pages}{10}
+      \verb{doi}
+      \verb 10.4244/EIJV12I7A139
+      \endverb
+    \endentry
+    \entry{vanzandwijk2019curvature}{article}{}
+      \name{author}{7}{}{%
+        {{hash=e8911f528bd4b82d77e639aca2d90c0e}{%
+           family={Zandwijk},
+           familyi={Z\bibinitperiod},
+           given={Jordy\bibnamedelima K.},
+           giveni={J\bibinitperiod\bibinitdelim K\bibinitperiod},
+           prefix={van},
+           prefixi={v\bibinitperiod}}}%
+        {{hash=72fe217b6dc08aad5fe99f1a02cba2e5}{%
+           family={Tuncay},
+           familyi={T\bibinitperiod},
+           given={Volkan},
+           giveni={V\bibinitperiod}}}%
+        {{hash=c14b1e373bfc397733cdd85577c491c1}{%
+           family={Vliegenthart},
+           familyi={V\bibinitperiod},
+           given={Rozemarijn},
+           giveni={R\bibinitperiod}}}%
+        {{hash=826a01d59964ef64a4b440f2b8339420}{%
+           family={Pelgrim},
+           familyi={P\bibinitperiod},
+           given={Gert\bibnamedelima Jan},
+           giveni={G\bibinitperiod\bibinitdelim J\bibinitperiod}}}%
+        {{hash=e6dfbab204c6a2637e25cbb2b159f1cf}{%
+           family={Slump},
+           familyi={S\bibinitperiod},
+           given={Cornelis\bibnamedelima H.},
+           giveni={C\bibinitperiod\bibinitdelim H\bibinitperiod}}}%
+        {{hash=f42c7952bd46bc309695203cad975bcd}{%
+           family={Oudkerk},
+           familyi={O\bibinitperiod},
+           given={Matthijs},
+           giveni={M\bibinitperiod}}}%
+        {{hash=54482ec824a9935d9ce1c283809b17da}{%
+           family={Ooijen},
+           familyi={O\bibinitperiod},
+           given={Peter\bibnamedelimb M.\bibnamedelimi A.},
+           giveni={P\bibinitperiod\bibinitdelim M\bibinitperiod\bibinitdelim A\bibinitperiod},
+           prefix={van},
+           prefixi={v\bibinitperiod}}}%
+      }
+      \strng{namehash}{8560803780a86214b584c3f789973ba9}
+      \strng{fullhash}{1479601d647a6ffcd7403042577f2310}
+      \strng{bibnamehash}{8560803780a86214b584c3f789973ba9}
+      \strng{authorbibnamehash}{8560803780a86214b584c3f789973ba9}
+      \strng{authornamehash}{8560803780a86214b584c3f789973ba9}
+      \strng{authorfullhash}{1479601d647a6ffcd7403042577f2310}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Journal of Digital Imaging}
+      \field{number}{2}
+      \field{title}{Assessment of Dynamic Change of Coronary Artery Geometry and Its Relationship to Coronary Artery Disease, Based on Coronary {CT} Angiography}
+      \field{volume}{33}
+      \field{year}{2020}
+      \field{pages}{480\bibrangedash 489}
+      \range{pages}{10}
+      \verb{doi}
+      \verb 10.1007/s10278-019-00300-5
+      \endverb
+    \endentry
+    \entry{prentice1978grouped}{article}{}
+      \name{author}{2}{}{%
+        {{hash=60a8bdbad761448d56b54e75a14b3dde}{%
+           family={Prentice},
+           familyi={P\bibinitperiod},
+           given={R.\bibnamedelimi L.},
+           giveni={R\bibinitperiod\bibinitdelim L\bibinitperiod}}}%
+        {{hash=849179036f582af297a3592054924c78}{%
+           family={Gloeckler},
+           familyi={G\bibinitperiod},
+           given={L.\bibnamedelimi A.},
+           giveni={L\bibinitperiod\bibinitdelim A\bibinitperiod}}}%
+      }
+      \strng{namehash}{da3d94581af81b205a764bae152ab74e}
+      \strng{fullhash}{da3d94581af81b205a764bae152ab74e}
+      \strng{bibnamehash}{da3d94581af81b205a764bae152ab74e}
+      \strng{authorbibnamehash}{da3d94581af81b205a764bae152ab74e}
+      \strng{authornamehash}{da3d94581af81b205a764bae152ab74e}
+      \strng{authorfullhash}{da3d94581af81b205a764bae152ab74e}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{annotation}{[READ] Full text read 2026-11-14 (pasted by the user). p. 58: logistic coefficient depends on the choice of grouping intervals; pp. 58--59, Eqs. 2--5: grouped proportional hazards, event probability 1 - exp(-exp(gamma + z beta)); p. 66: relative risk interpretation independent of the grouping. CHECK 2026-11-16: no PDF in the repository, could not be re-opened in the citation audit of technical/01_mixed_model.tex; PDF requested from the user (papers/).}
+      \field{journaltitle}{Biometrics}
+      \field{number}{1}
+      \field{title}{Regression analysis of grouped survival data with application to breast cancer data}
+      \field{volume}{34}
+      \field{year}{1978}
+      \field{pages}{57\bibrangedash 67}
+      \range{pages}{11}
+      \verb{doi}
+      \verb 10.2307/2529588
+      \endverb
+    \endentry
+    \entry{liu1994gausshermite}{article}{}
+      \name{author}{2}{}{%
+        {{hash=38189fe02b562b8892bd694420804211}{%
+           family={Liu},
+           familyi={L\bibinitperiod},
+           given={Qing},
+           giveni={Q\bibinitperiod}}}%
+        {{hash=aacec898241dab756fcab1bdf0d5f4d7}{%
+           family={Pierce},
+           familyi={P\bibinitperiod},
+           given={Donald\bibnamedelima A.},
+           giveni={D\bibinitperiod\bibinitdelim A\bibinitperiod}}}%
+      }
+      \strng{namehash}{6ee975b0b60bebb8462265be8dd01595}
+      \strng{fullhash}{6ee975b0b60bebb8462265be8dd01595}
+      \strng{bibnamehash}{6ee975b0b60bebb8462265be8dd01595}
+      \strng{authorbibnamehash}{6ee975b0b60bebb8462265be8dd01595}
+      \strng{authornamehash}{6ee975b0b60bebb8462265be8dd01595}
+      \strng{authorfullhash}{6ee975b0b60bebb8462265be8dd01595}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{annotation}{[BIBLIOGRAPHY VERIFIED via Crossref] Full text not read.}
+      \field{journaltitle}{Biometrika}
+      \field{number}{3}
+      \field{title}{A note on {Gauss--Hermite} quadrature}
+      \field{volume}{81}
+      \field{year}{1994}
+      \field{pages}{624\bibrangedash 629}
+      \range{pages}{6}
+      \verb{doi}
+      \verb 10.2307/2337136
+      \endverb
+    \endentry
+    \entry{pinheiro1995approximations}{article}{}
+      \name{author}{2}{}{%
+        {{hash=e5166a8d30c5e8bdb2ae36273ae0e7dd}{%
+           family={Pinheiro},
+           familyi={P\bibinitperiod},
+           given={José\bibnamedelima C.},
+           giveni={J\bibinitperiod\bibinitdelim C\bibinitperiod}}}%
+        {{hash=360dc0972db106db1f3c633e3c95e02e}{%
+           family={Bates},
+           familyi={B\bibinitperiod},
+           given={Douglas\bibnamedelima M.},
+           giveni={D\bibinitperiod\bibinitdelim M\bibinitperiod}}}%
+      }
+      \strng{namehash}{d95ee54c06b3ac709f1e1e13fcb5f017}
+      \strng{fullhash}{d95ee54c06b3ac709f1e1e13fcb5f017}
+      \strng{bibnamehash}{d95ee54c06b3ac709f1e1e13fcb5f017}
+      \strng{authorbibnamehash}{d95ee54c06b3ac709f1e1e13fcb5f017}
+      \strng{authornamehash}{d95ee54c06b3ac709f1e1e13fcb5f017}
+      \strng{authorfullhash}{d95ee54c06b3ac709f1e1e13fcb5f017}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{annotation}{[BIBLIOGRAPHY VERIFIED via Crossref] Full text not read.}
+      \field{journaltitle}{Journal of Computational and Graphical Statistics}
+      \field{number}{1}
+      \field{title}{Approximations to the log-likelihood function in the nonlinear mixed-effects model}
+      \field{volume}{4}
+      \field{year}{1995}
+      \field{pages}{12\bibrangedash 35}
+      \range{pages}{24}
+      \verb{doi}
+      \verb 10.1080/10618600.1995.10474663
+      \endverb
+    \endentry
+    \entry{joe2008laplace}{article}{}
+      \name{author}{1}{}{%
+        {{hash=438020d479e6d0d1136e66bfddeccd5a}{%
+           family={Joe},
+           familyi={J\bibinitperiod},
+           given={Harry},
+           giveni={H\bibinitperiod}}}%
+      }
+      \strng{namehash}{438020d479e6d0d1136e66bfddeccd5a}
+      \strng{fullhash}{438020d479e6d0d1136e66bfddeccd5a}
+      \strng{bibnamehash}{438020d479e6d0d1136e66bfddeccd5a}
+      \strng{authorbibnamehash}{438020d479e6d0d1136e66bfddeccd5a}
+      \strng{authornamehash}{438020d479e6d0d1136e66bfddeccd5a}
+      \strng{authorfullhash}{438020d479e6d0d1136e66bfddeccd5a}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{annotation}{[BIBLIOGRAPHY VERIFIED via Crossref] Abstract only: bias depends mainly on discreteness of the response, worse for binary, decreasing with cluster size.}
+      \field{journaltitle}{Computational Statistics \& Data Analysis}
+      \field{number}{12}
+      \field{title}{Accuracy of {Laplace} approximation for discrete response mixed models}
+      \field{volume}{52}
+      \field{year}{2008}
+      \field{pages}{5066\bibrangedash 5074}
+      \range{pages}{9}
+      \verb{doi}
+      \verb 10.1016/j.csda.2008.05.002
+      \endverb
+    \endentry
+    \entry{statacorp2025mecloglog}{manual}{}
+      \name{author}{1}{}{%
+        {{hash=8402f20eb2f83aacb569a915446f09f6}{%
+           family={{StataCorp}},
+           familyi={S\bibinitperiod}}}%
+      }
+      \list{location}{1}{%
+        {College Station, TX}%
+      }
+      \list{organization}{1}{%
+        {Stata Press}%
+      }
+      \strng{namehash}{8402f20eb2f83aacb569a915446f09f6}
+      \strng{fullhash}{8402f20eb2f83aacb569a915446f09f6}
+      \strng{bibnamehash}{8402f20eb2f83aacb569a915446f09f6}
+      \strng{authorbibnamehash}{8402f20eb2f83aacb569a915446f09f6}
+      \strng{authornamehash}{8402f20eb2f83aacb569a915446f09f6}
+      \strng{authorfullhash}{8402f20eb2f83aacb569a915446f09f6}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{annotation}{[VERIFIED] PDF read 2026-10-31. Laplace ``equivalent to mode-curvature adaptive Gaussian quadrature with one integration point'' and biased mostly in the variance components}
+      \field{note}{In Stata Multilevel Mixed-Effects Reference Manual, Release 19}
+      \field{title}{mecloglog: Multilevel mixed-effects complementary log-log regression}
+      \field{year}{2025}
+      \verb{urlraw}
+      \verb https://www.stata.com/manuals/memecloglog.pdf
+      \endverb
+      \verb{url}
+      \verb https://www.stata.com/manuals/memecloglog.pdf
+      \endverb
+    \endentry
+    \entry{moineddin2007multilevel}{article}{}
+      \name{author}{3}{}{%
+        {{hash=85fc26ad02719c314edf8e3b640bfed0}{%
+           family={Moineddin},
+           familyi={M\bibinitperiod},
+           given={Rahim},
+           giveni={R\bibinitperiod}}}%
+        {{hash=53056ec3ba3900513a63c64c2d11f0ec}{%
+           family={Matheson},
+           familyi={M\bibinitperiod},
+           given={Flora\bibnamedelima I.},
+           giveni={F\bibinitperiod\bibinitdelim I\bibinitperiod}}}%
+        {{hash=0c1ba250bdf4e744d401f7a95d213b1b}{%
+           family={Glazier},
+           familyi={G\bibinitperiod},
+           given={Richard\bibnamedelima H.},
+           giveni={R\bibinitperiod\bibinitdelim H\bibinitperiod}}}%
+      }
+      \strng{namehash}{8dcaab3959163ba4bc0030d5c06b323b}
+      \strng{fullhash}{8dcaab3959163ba4bc0030d5c06b323b}
+      \strng{bibnamehash}{8dcaab3959163ba4bc0030d5c06b323b}
+      \strng{authorbibnamehash}{8dcaab3959163ba4bc0030d5c06b323b}
+      \strng{authornamehash}{8dcaab3959163ba4bc0030d5c06b323b}
+      \strng{authorfullhash}{8dcaab3959163ba4bc0030d5c06b323b}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{annotation}{[BIBLIOGRAPHY VERIFIED via Crossref 2026-11-13] Evidence relayed by a summarising tool, not yet checked in the PDF: variance of the random intercept is poorly estimated with small binary clusters. Re-read before submission.}
+      \field{journaltitle}{BMC Medical Research Methodology}
+      \field{title}{A simulation study of sample size for multilevel logistic regression models}
+      \field{volume}{7}
+      \field{year}{2007}
+      \field{pages}{34}
+      \range{pages}{1}
+      \verb{doi}
+      \verb 10.1186/1471-2288-7-34
+      \endverb
+    \endentry
+    \entry{austin2010clusters}{article}{}
+      \name{author}{1}{}{%
+        {{hash=72bb99ace345dcf7ae8b3e877ab1dc2f}{%
+           family={Austin},
+           familyi={A\bibinitperiod},
+           given={Peter\bibnamedelima C.},
+           giveni={P\bibinitperiod\bibinitdelim C\bibinitperiod}}}%
+      }
+      \strng{namehash}{72bb99ace345dcf7ae8b3e877ab1dc2f}
+      \strng{fullhash}{72bb99ace345dcf7ae8b3e877ab1dc2f}
+      \strng{bibnamehash}{72bb99ace345dcf7ae8b3e877ab1dc2f}
+      \strng{authorbibnamehash}{72bb99ace345dcf7ae8b3e877ab1dc2f}
+      \strng{authornamehash}{72bb99ace345dcf7ae8b3e877ab1dc2f}
+      \strng{authorfullhash}{72bb99ace345dcf7ae8b3e877ab1dc2f}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{annotation}{[BIBLIOGRAPHY VERIFIED via Crossref 2026-11-13] Evidence relayed by a summarising tool: variance components poor with five subjects per cluster. Re-read before submission.}
+      \field{journaltitle}{The International Journal of Biostatistics}
+      \field{number}{1}
+      \field{title}{Estimating multilevel logistic regression models when the number of clusters is low: a comparison of different statistical software procedures}
+      \field{volume}{6}
+      \field{year}{2010}
+      \verb{doi}
+      \verb 10.2202/1557-4679.1195
+      \endverb
+    \endentry
+    \entry{self1987boundary}{article}{}
+      \name{author}{2}{}{%
+        {{hash=f00a90cfb61356c2271e3bd8ed27cf4d}{%
+           family={Self},
+           familyi={S\bibinitperiod},
+           given={Steven\bibnamedelima G.},
+           giveni={S\bibinitperiod\bibinitdelim G\bibinitperiod}}}%
+        {{hash=3259647b1e22a631b8fee654fb161889}{%
+           family={Liang},
+           familyi={L\bibinitperiod},
+           given={Kung-Yee},
+           giveni={K\bibinithyphendelim Y\bibinitperiod}}}%
+      }
+      \strng{namehash}{78257426dfa6eb0e89c8b9ff6a22d4b5}
+      \strng{fullhash}{78257426dfa6eb0e89c8b9ff6a22d4b5}
+      \strng{bibnamehash}{78257426dfa6eb0e89c8b9ff6a22d4b5}
+      \strng{authorbibnamehash}{78257426dfa6eb0e89c8b9ff6a22d4b5}
+      \strng{authornamehash}{78257426dfa6eb0e89c8b9ff6a22d4b5}
+      \strng{authorfullhash}{78257426dfa6eb0e89c8b9ff6a22d4b5}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{annotation}{[TO VERIFY] Added 2026-11-13 from memory, details not checked against Crossref or the PDF. Cited for the 50:50 chi2(0)/chi2(1) mixture when testing one variance at zero.}
+      \field{journaltitle}{Journal of the American Statistical Association}
+      \field{number}{398}
+      \field{title}{Asymptotic properties of maximum likelihood estimators and likelihood ratio tests under nonstandard conditions}
+      \field{volume}{82}
+      \field{year}{1987}
+      \field{pages}{605\bibrangedash 610}
+      \range{pages}{6}
+    \endentry
+    \entry{stram1994variance}{article}{}
+      \name{author}{2}{}{%
+        {{hash=5ca76b9361f757f0946cabbb644a2ce2}{%
+           family={Stram},
+           familyi={S\bibinitperiod},
+           given={Daniel\bibnamedelima O.},
+           giveni={D\bibinitperiod\bibinitdelim O\bibinitperiod}}}%
+        {{hash=d9cb30d705112a9c7038b42ebe56b312}{%
+           family={Lee},
+           familyi={L\bibinitperiod},
+           given={Jae\bibnamedelima Won},
+           giveni={J\bibinitperiod\bibinitdelim W\bibinitperiod}}}%
+      }
+      \strng{namehash}{625edc6064885a063b43a8f85deb3711}
+      \strng{fullhash}{625edc6064885a063b43a8f85deb3711}
+      \strng{bibnamehash}{625edc6064885a063b43a8f85deb3711}
+      \strng{authorbibnamehash}{625edc6064885a063b43a8f85deb3711}
+      \strng{authornamehash}{625edc6064885a063b43a8f85deb3711}
+      \strng{authorfullhash}{625edc6064885a063b43a8f85deb3711}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{annotation}{[TO VERIFY] Added 2026-11-13 from memory, details not checked against Crossref or the PDF. Cited for the boundary LR test of a random-effect variance.}
+      \field{journaltitle}{Biometrics}
+      \field{number}{4}
+      \field{title}{Variance components testing in the longitudinal mixed effects model}
+      \field{volume}{50}
+      \field{year}{1994}
+      \field{pages}{1171\bibrangedash 1177}
+      \range{pages}{7}
+    \endentry
+    \entry{pavlou2015marginal}{article}{}
+      \name{author}{4}{}{%
+        {{hash=2a395764a1e6b9644934fd483c19a32e}{%
+           family={Pavlou},
+           familyi={P\bibinitperiod},
+           given={Menelaos},
+           giveni={M\bibinitperiod}}}%
+        {{hash=f8e884bbbe32c6130579c9d57fa2a6b2}{%
+           family={Ambler},
+           familyi={A\bibinitperiod},
+           given={Gareth},
+           giveni={G\bibinitperiod}}}%
+        {{hash=f848adc8f6868df704e4b4e83fe9a167}{%
+           family={Seaman},
+           familyi={S\bibinitperiod},
+           given={Shaun},
+           giveni={S\bibinitperiod}}}%
+        {{hash=2b305dab7718b9e0392d6e76e8d26682}{%
+           family={Omar},
+           familyi={O\bibinitperiod},
+           given={Rumana\bibnamedelima Z.},
+           giveni={R\bibinitperiod\bibinitdelim Z\bibinitperiod}}}%
+      }
+      \strng{namehash}{6c053cdca7d72c4d4abb728d84c5f413}
+      \strng{fullhash}{cb573884c106bfcaba83d4ec510b5d34}
+      \strng{bibnamehash}{cb573884c106bfcaba83d4ec510b5d34}
+      \strng{authorbibnamehash}{cb573884c106bfcaba83d4ec510b5d34}
+      \strng{authornamehash}{6c053cdca7d72c4d4abb728d84c5f413}
+      \strng{authorfullhash}{cb573884c106bfcaba83d4ec510b5d34}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{annotation}{[VERIFIED] Full text via Europe PMC (PMC4525751), 2026-10-31. Marginal risks for a new cluster integrate over the random-effect distribution; fixed-effect-only predictions are incorrect; logistic simulations only.}
+      \field{journaltitle}{BMC Medical Research Methodology}
+      \field{title}{A note on obtaining correct marginal predictions from a random intercepts model for binary outcomes}
+      \field{volume}{15}
+      \field{year}{2015}
+      \field{pages}{59}
+      \range{pages}{1}
+      \verb{doi}
+      \verb 10.1186/s12874-015-0046-6
+      \endverb
+    \endentry
+    \entry{skrondal2009prediction}{article}{}
+      \name{author}{2}{}{%
+        {{hash=ada58485b5fa02cbe84dc9e35d15e7f4}{%
+           family={Skrondal},
+           familyi={S\bibinitperiod},
+           given={Anders},
+           giveni={A\bibinitperiod}}}%
+        {{hash=008bffe1f788da09116b223e2510c847}{%
+           family={Rabe-Hesketh},
+           familyi={R\bibinithyphendelim H\bibinitperiod},
+           given={Sophia},
+           giveni={S\bibinitperiod}}}%
+      }
+      \strng{namehash}{154f99bdb064bc25c82215468beea82d}
+      \strng{fullhash}{154f99bdb064bc25c82215468beea82d}
+      \strng{bibnamehash}{154f99bdb064bc25c82215468beea82d}
+      \strng{authorbibnamehash}{154f99bdb064bc25c82215468beea82d}
+      \strng{authornamehash}{154f99bdb064bc25c82215468beea82d}
+      \strng{authorfullhash}{154f99bdb064bc25c82215468beea82d}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{annotation}{[BIBLIOGRAPHY VERIFIED via Crossref] Abstract level only.}
+      \field{journaltitle}{Journal of the Royal Statistical Society: Series A (Statistics in Society)}
+      \field{number}{3}
+      \field{title}{Prediction in multilevel generalized linear models}
+      \field{volume}{172}
+      \field{year}{2009}
+      \field{pages}{659\bibrangedash 687}
+      \range{pages}{29}
+      \verb{doi}
+      \verb 10.1111/j.1467-985X.2009.00587.x
+      \endverb
+    \endentry
+    \entry{koo2016icc}{article}{}
+      \name{author}{2}{}{%
+        {{hash=8d48828622b1e30942f012ea2bb855ef}{%
+           family={Koo},
+           familyi={K\bibinitperiod},
+           given={Terry\bibnamedelima K.},
+           giveni={T\bibinitperiod\bibinitdelim K\bibinitperiod}}}%
+        {{hash=96b94476b9eab7816e695f073608338a}{%
+           family={Li},
+           familyi={L\bibinitperiod},
+           given={Mae\bibnamedelima Y.},
+           giveni={M\bibinitperiod\bibinitdelim Y\bibinitperiod}}}%
+      }
+      \strng{namehash}{820a2ed666913e28e792d240c5e762f8}
+      \strng{fullhash}{820a2ed666913e28e792d240c5e762f8}
+      \strng{bibnamehash}{820a2ed666913e28e792d240c5e762f8}
+      \strng{authorbibnamehash}{820a2ed666913e28e792d240c5e762f8}
+      \strng{authornamehash}{820a2ed666913e28e792d240c5e762f8}
+      \strng{authorfullhash}{820a2ed666913e28e792d240c5e762f8}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{annotation}{Read in full 2026-11-21 (papers/, PMC). Table 3: ICC(3,1) two-way mixed, consistency, single measurement; ICC Interpretation: bands 0.5/0.75/0.9. Erratum J Chiropr Med 2017;16(4):346.}
+      \field{journaltitle}{Journal of Chiropractic Medicine}
+      \field{number}{2}
+      \field{title}{A Guideline of Selecting and Reporting Intraclass Correlation Coefficients for Reliability Research}
+      \field{volume}{15}
+      \field{year}{2016}
+      \field{pages}{155\bibrangedash 163}
+      \range{pages}{9}
+      \verb{doi}
+      \verb 10.1016/j.jcm.2016.02.012
+      \endverb
+    \endentry
+  \enddatalist
+  \missing{menger1930metrik}
+\endrefsection
+\endinput
+

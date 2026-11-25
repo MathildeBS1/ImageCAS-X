@@ -130,32 +130,59 @@
 %   outcome plaque in the proximal LAD or LCx): "entered the model only in" -> "were related only to plaque
 %   in"; table column "Segments" -> "Outcome segments", asymmetry row "proximal LAD and LCx" (the narrower-row
 %   coding is gone); caption to match.
+% 2026-11-20 (user: "introduce the bifurcation angle, asymmetry and then curvature and move segment_split
+%   to there; now the segment split only affects curvature"): order angle (03a), asymmetry (03b), division
+%   into segments (03c, was 02b_segment_split), curvature (03d). The opener now names the two bifurcation
+%   features first and points to sec:method-split for the curvature segments; the table rows follow the order.
+% 2026-11-20 (user: /plan, rewrite in the tone of technical/01_glm.tex): same facts, now three paragraphs
+%   (selection; where each feature is measured and which outcome it is related to; input). The three features
+%   named in the first sentence in section order; "prior hypothesis; that" -> comma; "found in by the
+%   literature review" -> "that the literature review found"; the purpose clause split into a reason sentence
+%   and "They were therefore ..."; curvature contrast sentence added ("varies along each artery") and "related
+%   to plaque in the same segment" (the curvature GLMM, root CLAUDE.md); "produced by ... described in" ->
+%   "from". "Prior hypothesis" and "most closely tied" kept (see the 2026-11-09 entries).
+% 2026-11-20 (user: combine the hypothesis with the line that the papers guided the measure): sentences 2-4
+%   merged into one; "lower the WSS" -> "create plaque-prone regions" (user's wording, hyphenated). The user's
+%   "most likely to have a significant association" written as "most closely tied to low WSS or plaque": the
+%   review's evidence is mostly simulated low WSS, not significance tests against plaque (CAREFUL above).
+% 2026-11-20 (user: "some of the measuring methods is my own invention"): split again in two. The review
+%   gave the measure (what is measured: average curvature, LAD-LCx angle, daughter diameter ratio); how each
+%   is computed (5 mm Menger circle, least-squares line, plane cuts and median of 11) is partly the author's
+%   own, so the sentence credits the review with the measure only and points to the subsections for the rest.
+% 2026-11-20 (user): "lumen contours" -> "surface mesh" (user) -> "lumen surface": the tracer delivers a triangle
+%   mesh of the lumen (lumen_probe.md); "lumen" kept since it also outputs an outer-wall surface. "Triangle mesh"
+%   is introduced in sec:method-ratio.
+% 2026-11-20 (user: "use based on"): "Furthermore the exact measure chosen was based on e the literature review
+%   found ..." -> "The exact measure of each feature was chosen based on the literature review, as the one most
+%   closely tied to low WSS or plaque"; the computation clause moved to its own sentence.
+% 2026-11-21 (user): table column "Computed on" removed; where each feature is measured moved into its name
+%   ("LM bifurcation angle", "LAD/LCx asymmetry"; curvature already says "segment average"). Caption: "where each
+%   is measured" cut.
 \providecommand{\clarify}[1]{\textcolor{red}{\textbf{Clarification needed:} #1}}
 \section{Geometric Features}
 \label{sec:method-features}
 
-The geometry of the coronary tree was summarised by the three features presented in Table~\ref{tab:method-features}.
-The features were selected on the basis of a prior hypothesis; that bends and branching of the arteries disturb flow and lower the WSS (Section~\ref{sec:wss}).
-Each of these properties can be quantified in several ways, so the measure used for each was the one most closely tied to low WSS or plaque found in by the literature review (Section~\ref{sec:lit-wss}).
-Curvature was computed for each of the nine segments defined in Section~\ref{sec:method-split}, whereas the bifurcation angle and the daughter asymmetry were computed once per participant at the left main bifurcation.
-To avoid diluting an effect expected just downstream of the bifurcation, where the flow is disturbed (Section~\ref{sec:wss}), the latter two were related only to plaque in the proximal LAD and the proximal LCx (Section~\ref{sec:method-models}).
-All three features were computed on the centerlines and lumen contours produced by the in-house tracer described in Section~\ref{sec:method-tracer}.
+The geometry of the coronary tree was described by three features: the LM bifurcation angle, the LAD/LCx asymmetry and curvature (Table~\ref{tab:method-features}).
+The features were selected from the hypothesis, that bends and branching of the arteries especially disturb the flow and create plaque-prone regions (Section~\ref{sec:wss}).
+Each feature can be quantified in several ways, so the literature review was used to find the measure that had shown the strongest association to low WSS or plaque in earlier studies (Section~\ref{sec:lit-wss}).
 
 \begin{table}[htbp]
   \centering
-  \caption{Summary of the geometric features computed from the in-house tracer output, including where each is measured and the segments whose outcome it is related to.}
+  \caption{Summary of the geometric features computed from the in-house tracer output, including the segments whose outcome each is related to.}
   \label{tab:method-features}
-  \begin{tabular}{llll}
+  \begin{tabular}{lll}
     \toprule
-    Feature & Computed on & Outcome segments & Section \\
+    Feature & Outcome segments & Section \\
     \midrule
-    Curvature (segment average) & each segment & all nine & \ref{sec:method-curvature} \\
-    Bifurcation angle & left main bifurcation & proximal LAD and LCx & \ref{sec:method-angle} \\
-    Daughter asymmetry & left main bifurcation & proximal LAD and LCx & \ref{sec:method-ratio} \\
+    LM bifurcation angle & proximal LAD and LCx & \ref{sec:method-angle} \\
+    LAD/LCx asymmetry & proximal LAD and LCx & \ref{sec:method-ratio} \\
+    Curvature (segment average) & all nine & \ref{sec:method-curvature} \\
     \bottomrule
   \end{tabular}
 \end{table}
 
-\input{content/methodology/03a_curvature}
-\input{content/methodology/03b_bifurcation_angle}
-\input{content/methodology/03c_daughter_ratio}
+\input{content/methodology/02a_bifurcation_angle}
+\input{content/methodology/02b_daughter_ratio}
+\input{content/methodology/02c_curvature}
+
+

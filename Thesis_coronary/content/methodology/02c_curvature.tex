@@ -25,7 +25,7 @@
 % CAREFUL: kashyap2022tortuosity is a simulation study of the LM bifurcation in CAD-free
 %   individuals and the relation was weak; keep "although weakly", never "predicts plaque".
 % CHECK: "No further smoothing" assumes the tracer centerlines arrive smoothed. The question to Kit
-%   is not in 01a_inhouse_tracker.tex yet (content map); add it there.
+%   is not in 01_inhouse_tracker.tex yet (content map); add it there.
 % CHECK: CGPS_data/thesis_final/README.md pointer to this file fixed 2026-11-09.
 % Spelling British (normalised, neighbouring, millimetre), as in the Literature Review; Methods 02b
 %   still writes "millimeters".
@@ -435,56 +435,114 @@
 %   A proximal segment shorter than about 6 mm then has fewer than two profile points and is missing (the
 %   existing missing sentence covers it). progression_who_pooled.py now uses this module
 %   (curvature_feature.artery_curvature) instead of the turning-angle mean_T5.
+% 2026-11-19 (user: replace fig:method-curvature with the new figure, no panel letters): figure now from
+%   figures/curvature_steps_figure.py (same style as the plane-cut figure of sec:method-ratio; made-up planar
+%   artery, real code: chord_point, menger_curvature, curvature_profile, segment_mean). Panels: kappa = 1/R;
+%   the triangle B_i, P_i, F_i at a tight bend with its circle; straight, gentle and tight at the same 5 mm
+%   (kappa 0, 0.08, 0.20 mm^-1); the profile with T per segment. Segment boundaries in the figure are at thirds
+%   of the made-up artery (said in the caption), not the landmark rule of sec:method-split. The panel
+%   references (A to D) in the text are removed; the opener cites the figure once. curvature_figure.py stays
+%   on disk, out of the text.
+% 2026-11-20 (user: rewrite to the tone and length of 02a/02b and to the current code, which does not respace
+%   the points). Checked against curvature_feature.py (chord_point, menger_curvature, curvature_profile,
+%   segment_mean, CHORD = 5 mm) and tracer_probe.md (steps median about 0.48 mm, 95th pct 0.5 mm). Removed:
+%   the "despite the uneven spacing" reason for the 5 mm points (from the respacing era; the tracer points are
+%   used as given, no respacing, no smoothing), the "any three points lie in one plane" sentence, the long
+%   reading of T, and the opener "The feature chosen". The reason for the 5 mm points is now the fixed scale.
+%   Caption cut to three sentences; figure redrawn with points 0.5 mm apart (curvature_steps_figure.py).
+%   sec:method-curvature-other shortened to three sentences (user), as sec:method-angle-other; the tortuosity
+%   definition, the "single measure" sentence and the "low WSS or existing CAD" caveat were cut.
+% CHECK (2026-11-20, no PDF in papers/, so none of these was reopened for this rewrite; kept from earlier text):
+%   vanzandwijk2019curvature (5 mm scale on coronary CCTA); menger1930metrik (Menger's formula; also missing from
+%   refs.bib); kashyap2022tortuosity (average absolute curvature recommended; tortuosity index unrelated to low
+%   WSS); li2011tortuosity and telloayala2026tortuosity (bend counts vs average turning angle, opposite direction).
+% 2026-11-20 (user: introduce Menger quickly like 02a/02b; carry the reasoning that the points are used as given).
+%   Menger's formula and the 5 mm scale (van Zandwijk) now named in the opener, as 02a names Medrano-Gracia; the
+%   steps follow ("The method starts at ..."). New scale paragraph: the 5 mm distance, not the point spacing, sets
+%   the scale and the noise sensitivity (error of about 2 delta / l^2 at the centre point), so the tracer points
+%   are used as given. Arc-length sentence restored after eq:method-tl (segment_mean, trapezoid over arc length).
+%   curvature_feature.py --check: T spread 1.9% across mean spacings 0.125 to 0.5 mm (not in the text; for
+%   sec:method-validity-accuracy if written). Code unchanged.
+%   Citations reopened in important_papers/: vanzandwijk2019curvature (s10278-019-00300-5.pdf, p. 483: "Local
+%   curvature was defined as reverse radius ... calculated using Menger's formula (Eq. 1), at every 5 mm";
+%   Discussion: "Menger's curvature with a 5 mm scale between points"; their segment mean is unweighted, hence
+%   "following"). kashyap2022tortuosity (s41598-022-04796-w.pdf, abstract: "We thus recommend the use of
+%   average-absolute-curvature"; Table 1: integral of kappa over L; CFD low TAWSS at the LM bifurcation).
+%   CHECK stands for menger1930metrik only (no PDF in papers/, missing from refs.bib).
+% 2026-11-21 (user: best order of the illustrations, clearer, two figures?): fig:method-curvature split in two,
+%   one per step of the text, both from curvature_steps_figure.py. fig:method-curvature (curvature_point_figure):
+%   B_i, P_i, F_i with the circle and R on the made-up artery, then straight / gentle / tight bends through one P_i;
+%   placed after the scale paragraph, cited at the circle sentence (the opener's figure citation removed). New
+%   fig:method-curvature-segment (curvature_segment_figure): the artery by segment with the grey ends without
+%   profile values, then the profile with T; cited at the T sentence. The kappa = 1/R circle panel was dropped:
+%   the left panel now marks R, and the nested circles show the same.
+% 2026-11-21 (user: put the 1/R derivation in the thesis): three sentences after the where sentence of
+%   eq:method-profile: law of sines d_1 / sin(gamma) = 2R and A = d_2 d_3 sin(gamma) / 2 give R = d_1 d_2 d_3 / (4A).
+%   Sides named d_1 to d_3 (a is the daughter asymmetry of sec:method-ratio). Classical triangle geometry, uncited.
+%   Numerically: curvature_feature.py --check gives 1/R to 1e-4 on circles of radius 3 to 40 mm.
+% 2026-11-21 (user: the old circles of 20, 10 and 5 mm as one illustration, and one with 1/R, the two 5 mm points and
+%   the averaging): two figures, both from figures/curvature_steps_figure.py. New fig:method-curvature-radius
+%   (curvature_radius_figure, after panel A of curvature_figure.py, user's choice), cited at the circle sentence.
+%   fig:method-curvature (curvature_steps_figure) now has three panels: triangle and circle with R_i at P_i, the artery
+%   by segment with grey ends, the profile with T; cited at the B_i/F_i sentence and at T. The nested-circle panel and
+%   fig:method-curvature-segment of earlier today are gone.
+% 2026-11-21 (user: more detail in fig:method-curvature-radius): now one made-up centerline (0.5 mm points) with a
+%   straight stretch and bends on R 20, 10 and 5 mm, each with B_i, P_i, F_i 5 mm apart, triangle, circle and
+%   kappa from the thesis code (0, 0.050, 0.100, 0.200 mm^-1). Caption rewritten to match.
+% 2026-11-21 (user: no proximal, mid, distal in fig:method-curvature, since segments come later; show the triangle
+%   sides and the integral): left panel with the three sides in three colours and Menger's formula below, each length
+%   in its side's colour; middle panel the artery with s_first and s_last; right panel the profile with the area under
+%   it and the rectangle of height T (same area; checked, 4.0631 both). Caption rewritten, no segments.
+%   Same day (user: "it should just be in here"): the three derivation sentences cut again; eq:method-profile now
+%   reads kappa_i = 1/R_i = 4A_i / (...), with R_i named in the where sentence. Derivation (law of sines) kept here
+%   only: 2R = d_1 / sin(gamma), A = d_2 d_3 sin(gamma) / 2, so R = d_1 d_2 d_3 / (4A).
+% 2026-11-21 (user: name in the first line who the method was adopted from): "with a method adapted from van
+%   Zandwijk et al." added to the opener (Menger at 5 mm on coronary CCTA, p. 483, read 2026-11-20). "Adapted",
+%   not "following": their segment value is an unweighted mean of points every 5 mm, the thesis takes a
+%   sliding 5 mm window at every tracer point and an arc-length mean.
 \subsection{Curvature}
 \label{sec:method-curvature}
 
 
-The feature chosen to quantify how much each segment bends was average curvature, computed with Menger's formula (Figure~\ref{fig:method-curvature}).
-
-First, to ensure that every value covers the same length of artery despite the uneven spacing of the centerline points, the points $B_i$ and $F_i$ were placed on the centerline 5\,mm behind and 5\,mm ahead of every centerline point $P_i$ in a straight line (Figure~\ref{fig:method-curvature}B).
-The 5\,mm scale follows van Zandwijk et al.\ \cite{vanzandwijk2019curvature}, who also used it for coronary curvature on CCTA.
-This scale keeps the false curvature caused by errors in the point positions low, but does not capture bends shorter than 5\,mm.
-Exactly one circle passes through the three points, and the more sharply the centerline bends at $P_i$, the smaller this circle is (Figure~\ref{fig:method-curvature}A and C).
-The curvature $\kappa_i$ was therefore taken as the inverse of its radius, computed with Menger's formula \cite{menger1930metrik} as
+The third feature describes how much each segment of an arterie bends, quantified as the average curvature. The method was closely adapted from van Zandwijk et al.\ \cite{vanzandwijk2019curvature}.
+First the curvature at each centerline point was found with Menger's formula \cite{menger1930metrik}. Two points $B_i$ and $F_i$ were placed on the centerline 5\,mm behind and 5\,mm ahead of every centerline point $P_i$ in a straight line (Figure~\ref{fig:method-curvature}).
+Exactly one circle passes through the three points, and the more sharply the artery bends at $P_i$, the smaller this circle is (Figure~\ref{fig:method-curvature-radius}).
+The curvature $\kappa_i$ can then be calculated as the inverse of the radius:
 \begin{equation}
-  \kappa_i = \frac{4 A_i}{\lVert P_i - B_i \rVert \, \lVert F_i - P_i \rVert \, \lVert F_i - B_i \rVert} ,
+  \kappa_i = \frac{1}{R_i} = \frac{4 A_i}{\lVert P_i - B_i \rVert \, \lVert F_i - P_i \rVert \, \lVert F_i - B_i \rVert} ,
   \label{eq:method-profile}
 \end{equation}
-where $A_i$ is the area of the triangle with corners $B_i$, $P_i$ and $F_i$, and $\lVert \cdot \rVert$ denotes the distance between two points, so $\kappa_i$ is in mm$^{-1}$.
-On a straight stretch the three points lie on a line, so the triangle has no area and $\kappa_i = 0$.
-Since any three points lie in one plane, the formula applies directly to a 3D centerline.
+where $A_i$ is the area of the triangle with corners $B_i$, $P_i$ and $F_i$, and $\lVert \cdot \rVert$ is the distance between two points, so $\kappa_i$ is in mm$^{-1}$.
 
-Subsequently, the values $\kappa_i$ along an artery formed its curvature profile, which has no value within about 5\,mm of either end (Figure~\ref{fig:method-curvature}D).
-To capture bends that cross a segment boundary, the profile was computed along the whole artery and only then divided at the segment boundaries.
-The average of each proximal segment therefore starts about 5\,mm into the segment, at the left main bifurcation for the LAD and the LCx and at the ostium for the RCA.
+The 5\,mm scale was taken from van Zandwijk et al.\ \cite{vanzandwijk2019curvature} and keeps the false curvature from small point errors low, at the cost of missing bends shorter than 5\,mm.
 
-Finally, each segment was summarised to its average curvature $T$ (Figure~\ref{fig:method-curvature}D):
+% Figures from figures/curvature_steps_figure.py (made-up artery, no patient data, real thesis code).
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{content/methodology/figures/curvature_radius_figure.pdf}
+  \caption{Curvature along a made-up centerline, computed with the thesis code. At a point $P_i$ on each bend, the points $B_i$ and $F_i$ lie 5\,mm in a straight line behind and ahead of it, and $\kappa_i$ is the inverse of the radius of the circle through the three points. The tighter the bend, the smaller the circle and the larger $\kappa$, while on a straight stretch the three points lie on a line and $\kappa = 0$.}
+  \label{fig:method-curvature-radius}
+\end{figure}
+
+Finally, the average curvature $T$ was calculated (Figure~\ref{fig:method-curvature}):
 \begin{equation}
   T = \frac{1}{s_{\mathrm{last}} - s_{\mathrm{first}}} \int_{s_{\mathrm{first}}}^{s_{\mathrm{last}}} \kappa(s)\,\mathrm{d}s ,
   \label{eq:method-tl}
 \end{equation}
-where $s_{\mathrm{first}}$ and $s_{\mathrm{last}}$ are the arc lengths of the segment's first and last profile point, which are distances along the centerline, summed point by point.
-$T$ is the area under the segment's profile divided by the length $s_{\mathrm{last}} - s_{\mathrm{first}}$ it covers, in mm$^{-1}$, which is the average absolute curvature recommended by Kashyap et al.\ \cite{kashyap2022tortuosity}.
-Segments with fewer than two profile points were recorded as missing, and the shape of the whole profile is analysed in Section~\ref{sec:method-fpca}.
+where $s_{\mathrm{first}}$ and $s_{\mathrm{last}}$ are the distances along the centerline to the segment's first and last profile point.
+The integral runs over the distance along the centerline, independent of the amount of centerline points.
+Segments with fewer than two profile points were recorded as missing.
+The shape of the whole curvature profile was analysed in Section~\ref{sec:method-fpca}.
 
-% Figure from figures/curvature_figure.py (made-up artery, no patient data, real thesis code).
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=\textwidth]{content/methodology/figures/curvature_figure.pdf}
-  \caption{Average curvature on a made-up artery with unevenly spaced points, computed with the thesis code. The curvature is the inverse radius $1/R$ of a circle (A), and at each point $P_i$ it is computed with Menger's formula from the triangle of $P_i$ and the points $B_i$ and $F_i$ 5\,mm away (B), so a straight stretch gives 0 and a tighter bend gives a smaller circle and a larger curvature (C). The values form the curvature profile, which has no value near the ends of the artery, and the average curvature $T$ of each segment is the area under its profile divided by the length it covers (D).}
+  \includegraphics[width=\textwidth]{content/methodology/figures/curvature_steps_figure.pdf}
+  \caption{From three centerline points to the average curvature, on a made-up artery computed with the thesis code. At $P_i$, the points $B_i$ and $F_i$ lie 5\,mm in a straight line behind and ahead of it, and $\kappa_i$ follows from the area $A_i$ of their triangle and the lengths of its three sides, each shown in the colour of its term in the formula (left). Repeated at every centerline point, this gives the curvature profile, which has no value within about 5\,mm of either end of the artery (grey) (middle). The average curvature $T$ is the area under the profile divided by the length it covers, so a rectangle of height $T$ over the same stretch has the same area (right).}
   \label{fig:method-curvature}
 \end{figure}
 
 \subsubsection{Other Measures of Tortuosity}
 \label{sec:method-curvature-other}
 
-Tortuosity is used here for any measure of how much an artery bends, of which average curvature is one.
-Several other tortuosity measures were considered.
-Curvature was represented in the model by a single measure, so measures with a reported association were preferred.
-These associations were found with low WSS or with existing CAD, which may differ from the risk of developing plaque.
-
-The tortuosity index is the length of an artery divided by the straight distance between its ends.
-It was not used, as it was unrelated to low WSS in the study by Kashyap et al.\ \cite{kashyap2022tortuosity}.
-Counts of sharp bends were not used, as they have been associated with CAD in the opposite direction to the average turning angle (Section~\ref{sec:lit-measure}) \cite{li2011tortuosity,telloayala2026tortuosity}.
-Torsion measures how much the centerline twists out of the plane it bends in.
-It was not used, as it depends on the third derivative of the centerline and is therefore sensitive to small errors in the point positions \clarify{citation}.
+Two other measures of how much an artery bends were considered: the tortuosity index and counts of sharp bends.
+The tortuosity index was unrelated to low WSS in the study by Kashyap et al.\ \cite{kashyap2022tortuosity}, and counts of sharp bends have been associated with CAD in the opposite direction to the average turning angle (Section~\ref{sec:lit-measure}) \cite{li2011tortuosity,telloayala2026tortuosity}.

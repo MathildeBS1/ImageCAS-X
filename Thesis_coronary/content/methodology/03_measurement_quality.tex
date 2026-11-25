@@ -1,0 +1,205 @@
+% Agreement of the three features between the in-house tracer (sec:method-tracer) and the Medis reference
+% (sec:data-medis). Methods only; the counts, bias, limits and ICCs go to Results.
+% 2026-11-21 (user: complete rewrite from weekly/week12/week12.tex; one line before two; say from the start that
+%   features are compared; ICC(3,1) beside the other measures, details in the appendix): rewritten from week 12 and
+%   the docstring of CGPS_data/thesis_final/medis_compare.py. Replaced the retired design of 2026-11-18 (curvature
+%   cut to the shared stretch, tracer cut at the first and last Medis contour with schaap2009cat08), which the
+%   code no longer does (honest reference, root CLAUDE.md, 2026-11-19). "Semi-manual" stays out (how Medis was
+%   made is open). Earlier history: git log of 01b_medis_reference.tex / 04a_medis_reference.tex.
+% Code steps behind each sentence: tree_features (same functions on both trees), split_trunks.full_artery and
+%   reference_rows (full Medis artery, at least the shortest tracer artery of its kind), shared_stretch and
+%   artery_offset (MIN_SHARED 10 mm, MAX_OFFSET 2 mm, 90th percentile both ways), near_o (first DEPTHS[-1] = 10 mm
+%   of each daughter from its own O against the other tree's left main and daughter), shared_curvature (shared
+%   stretch less CHORD = 5 mm at each end, at least 10 mm left), agreement and reliability (boot = 2000 over
+%   participants), icc (consistency form = ICC(3,1); the code also gives ICC(A,1), left out of the text, user
+%   2026-11-21). The asymmetry is compared as |a|, the model feature (week 12; the code also reports a).
+% koo2016icc read 2026-11-21 (papers/, PMC full text): Table 3 gives ICC(3,1) as "two-way mixed effects,
+%   consistency, single rater/measurement", (MSR - MSE) / (MSR + (k - 1) MSE), the form in medis_compare.icc.
+% CHECK / CITATION WANTED: limits of agreement (Bland and Altman 1986); no PDF in papers/ and no bib entry.
+% 2026-11-21 (user: open with the missing ground truth): opening paragraph rewritten from the user's draft. How
+%   Medis was made is now stated (user, 2026-11-21): centerlines and contours extracted automatically, a clinician
+%   reviewed and edited only the segments with plaque; the \clarify on it is removed. No source behind this beyond
+%   the user; the clarify in data/03_medis_reference.tex (sec:data-medis) still asks the same question.
+% Limitations (single reader, plaque-only reference, shared imaging errors) go in the Discussion.
+% 2026-11-22 (user: "make the section shorter", one heading over the Medis reference and the feature validity, "my
+%   way of trying to quantify how honest a representation my features are", explained like technical/01_glm.tex,
+%   one line instead of two): renamed 03a_medis_reference.tex -> 03_measurement_quality.tex and merged with
+%   03b_feature_validity.tex (deleted; it held notes only). Heading "Measurement Quality of the Geometric Features"
+%   and content "Medis only" chosen by the user. Cut: the "cannot be checked against a reference known to be correct /
+%   Instead" pair (one sentence now), "Only these segments were edited" (folded into the clinician sentence), "The
+%   agreement therefore gives an indirect estimate of the quality of the tracer" (said by the heading and the last
+%   sentence), the full ICC form name (stated in app:icc), the separate "Only the LAD, LCx and RCA" sentence (folded
+%   into the joining sentence). Added: one sentence on what the bias, the limits and the ICC mean, and the 10 mm that
+%   must remain for the shared-stretch curvature (shared_curvature). Checked against medis_compare.py docstring and
+%   constants (MIN_SHARED 10, MAX_OFFSET 2, CHORD 5, boot 2000) and appendix/icc.tex (consistency form: 1 when the
+%   methods differ by a constant shift). Labels sec:method-validity-{accuracy,definitions,sensitivity,groups,evidence,
+%   split,reading} dropped (no reference outside 03b); sec:method-validity now labels this section.
+% PLANNED, NOT WRITTEN (moved from 03b_feature_validity.tex, 2026-11-22). No code behind them except the --check
+%   runs on synthetic shapes in bifurcation_angle.py, curvature_feature.py and daughter_ratio.py. COSMIN taxonomy
+%   (mokkink2010cosmin), QIBA terminology (kessler2015qib, raunig2015qib). Full draft: git commit e4eb857.
+%   - Technical accuracy on synthetic shapes: arcs, helices, sines, Y-tubes; smooth centerline displacement and
+%     radius perturbation incl. a bias growing as the vessel narrows; bias, linearity, error SD scaled by the
+%     between-participant spread. Tests the computation, not the tracer.
+%   - Definitional choices: primary and alternative definitions per feature, chosen on accuracy and literature,
+%     never on the hypotheses; every hypothesis recomputed per alternative. Open: diameter window (5 to 10 mm),
+%     the angle's fitted stretch (app:angle-origin).
+%   - Construct validity: prespecified known-groups, internal-relationship and discriminant hypotheses with size and
+%     direction (BL/FU header variables only); no-difference by a 90% CI within +-0.2 SD (lakens2017equivalence);
+%     caveats: referral cohorts, gharleghi2024leftmain is a preprint, noise in narrow arteries can mimic sex
+%     differences.
+%   - Variance explained: R^2 of each feature on the base covariates; 1 - R^2 cannot be split into anatomy and
+%     error without rescans. Repeatability not assessable (sec:disc-validity-repeatability).
+%   - Decision rules: keep if all strong hypotheses confirmed; else check extraction, then the alternative with the
+%     smallest scale-free error, never the best-fitting one.
+% 2026-11-22 (user: /mathilde-writer rewrite): flow rewrite, same facts and numbers. User's own cut of the opening
+%   sentence ("A feature can only show ...") kept. New: "Medis is no ground truth either" and "On the tracer side,
+%   nothing changes" as short turn sentences; the short-fragment reason for the full-artery rule (14-27 mm fragments,
+%   see the 2026-11-19 note in medis_compare.py); the shared-stretch curvature as its own paragraph; the last sentence
+%   states that the distance of either method from the true geometry is unknown.
+% 2026-11-22 (user: "be aware of the usually used measures in machine learning for a segmentation task"): opening names
+%   the Dice similarity coefficient and the Hausdorff distance as the usual measures against a ground truth.
+% CHECK: the "usually evaluated ... Dice ... Hausdorff" sentence has no citation yet. Intended source taha2015metrics
+%   (in refs.bib); the full text could not be fetched (Springer login redirect) and there is no PDF in papers/.
+%   Do not cite papers/ImageCAS-X_... for it: it reports CAS-Net results (root CLAUDE.md: never cite CAS-Net).
+% 2026-11-22 (user: put the opening in): the user's raw draft replaced by three paragraphs. Features no better than
+%   the tracer (user's idea), with the extraction settings of 02a-02c (5 mm points, 11 points 5 to 10 mm, median
+%   of 11 diameters); out of distribution; a null result is ambiguous. The checks on synthetic shapes and known
+%   groups from the draft opening are left out (this section holds Medis only). Cut: "What matters for this thesis
+%   is the features ..." (said by the first paragraph).
+%   CHECK: "trained on CCTA data from other scanners and acquisition protocols" is the user's statement, not yet
+%   confirmed by Kit; 01_inhouse_tracer.tex has no training-data text yet.
+%   CITATION WANTED: random error in a covariate biases its association towards zero (classical error; only
+%   approximately in a cloglog model), e.g. Carroll et al., Measurement Error in Nonlinear Models; open it first.
+% 2026-11-22 (user: warmer and shorter, give the reader credit): opening cut to two paragraphs; the gloss of ground
+%   truth, what Dice and Hausdorff measure, the "applied outside its training distribution" sentence and the two
+%   readings of a null result are left to the reader. The 5 mm settings stay cut (user's own edit).
+% 2026-11-22 (user: new heading; "two methods trying to predict the same thing on the same data"; Medis was already
+%   available on the plaque part of Herlev-Osterbro, a clinician edited only the segments with plaque): subsection
+%   renamed "Comparison with another extraction" -> "Two Extractions of the Same Scans" (label kept); the two draft
+%   fragments replaced by one opening paragraph pointing to sec:data-medis. Cut: "On the tracer side, nothing
+%   changes." (folded into the same-functions sentence). No new citations.
+%   Same day, from the user's draft: opener now ends on the second extraction; subsection opens on the Medis subset,
+%   then the clinician edit, then "two methods ... neither is ground truth". The user's "and same group" in the
+%   opener left out (unclear; this section holds Medis only).
+% 2026-11-22 (user: "also mention the other indirect way and have the same group comparison in a subsection of its
+%   own"): opener names both checks; new subsection sec:method-validity-dominance from CGPS_data/thesis_final/
+%   dominance_check.py (set 2026-11-20, before the outcome was linked): plaque-free cohort, a from
+%   daughter_ratio.tree_asymmetry as in the cohort, BL ct_cag_dominance, diff_ci (bootstrap within each group,
+%   boot 2000, permutation with as many relabellings), difference / SD of a. Numbers (dominance_check.md) go to
+%   Results. LCx size by dominance points back to sec:dominance (dodge1992diameter); no new citation. Not described:
+%   the |a|, D_LAD and D_LCx rows and the --cohort all row by baseline plaque.
+% Red clarification notes; needs \usepackage{xcolor} in the preamble. Remove before submission.
+% 2026-11-22 (user: "concise and natural", depth of the feature sections): "two methods predicting" -> "two
+%   extractions" (Medis does not predict); "neither of them is ground truth" cut (the opener says it); curvature
+%   stated as compared per artery (the feature section defines it per segment); "referred to as the bias" -> bias
+%   named inline; label and ICC sentences split. Numbers re-checked against medis_compare.py (MIN_SHARED 10,
+%   MAX_OFFSET 2, DEPTHS[-1] 10, CHORD 5, boot 2000).
+% 2026-11-22 (user: rewrite both subsections from the user's opening paragraph, "so it does not sound AI"; mathilde-writer):
+%   user's opener kept (typo fixed, "independent" cut: both extractions come from the same images); leftover draft
+%   lines removed; cohort named with a pointer to sec:method-population (defined later). Facts unchanged, checked
+%   against medis_compare.py (MIN_SHARED 10, MAX_OFFSET 2, near_o 10 mm, CHORD 5, boot 2000).
+% 2026-11-22 (user: write the comparison from weekly/week12/week12.tex after the opening paragraph): per feature in
+%   the order of Methods 02 (angle, asymmetry, curvature); numbers left to Results. Rests on medis_compare.py:
+%   tree_features, artery_offset (MIN_SHARED 10, MAX_OFFSET 2, 90th percentile both ways), near_o (DEPTHS[-1] 10 mm,
+%   other tree's left main + daughter), o_dist reported only, split_trunks.full_artery + reference_rows,
+%   shared_curvature (CHORD 5, >= 10 mm left), boot 2000 over participants. "Nearly all" after sec:data-medis (599/600).
+% 2026-11-22 (user: from the draft notes and week 12, concise, no new subsection): the notes replaced by two
+%   paragraphs, which pairs exist (contours only with plaque; centerlines whole tree) and bias / SD / ICC; label
+%   sec:method-medis-agreement (cited by app:icc) put back beside sec:method-medis-pairs. No numbers (Results).
+% 2026-11-22 (user: known-groups check, asymmetry only, same voice, methods only): sec:method-validity-dominance
+%   written from weekly/week12/week12.tex and the dominance_check.py docstring (plaque-free cohort, tree_asymmetry,
+%   BL ct_cag_dominance, signed a, left - right, bootstrap within groups boot 2000, permutation test, expectations set
+%   2026-11-20 before the outcome was linked). Numbers (dominance_check.md) go to Results. Not described: the |a|
+%   row, missingness by group, the --cohort all run. Same day (user): general known-groups subsection
+%   sec:method-validity-groups first, asymmetry as its first subsubsection. No COSMIN citation (not opened; CHECK
+%   mokkink2010cosmin before citing "known-groups").
+% 2026-11-22: the rewrite of sec:method-validity-groups from the repo research was reverted (user); the earlier
+%   text is kept under the heading "Known Groups".
+% 2026-11-22 (user: /article-flow, known groups from outdated/thesis_retired/methodology/06_feature_validity.tex, "the
+%   second way of indirectly measuring the reliability"; without it a null result cannot be told apart from a failed
+%   measurement): sec:method-validity-groups opener + sec:method-validity-dominance written. Rests on dominance_check.py
+%   only (plaque-free cohort, tree_asymmetry with tracer_ostia and own lumen surface, BL ct_cag_dominance by first
+%   letter, "balanced" -> codominant, missing/unevaluable left out, signed a, left - right, diff_ci boot 2000 within
+%   groups + permutation 2000, difference / SD of a over all with a value, D_LAD and D_LCx rows, missingness by group;
+%   expectations set 2026-11-20). Numbers (dominance_check.md) go to Results. Not described: the |a| row, the
+%   --cohort all run by baseline plaque. "LAD does not change" is reasoned from sec:dominance (dominance = RCA or
+%   LCx to the crux), not from a source; dodge1992diameter gives the LCx sizes only.
+%   Left out of the retired 06 draft (no code): curvature by sex and hypertension, discriminant hypotheses, angle by
+%   sex and ramus, Finet scaling law, the +-0.2 SD equivalence rule, evidence grades, decision rules.
+%   CHECK: "known-groups check" used without citation; mokkink2010cosmin (COSMIN) not opened.
+%   Opener typo "gorup" fixed; the wording "known groups ... group together" left as the user wrote it.
+% 2026-11-22 (user: use a version of the user's three sentences as the opening): sec:method-validity-groups opener
+%   replaced by them ("differ anatomically in their coronary trees" -> "differ in the anatomy of their coronary
+%   trees"), plus the dominance bridge sentence. Cut: "This is referred to as a known-groups check" and the two
+%   null-result sentences. Last sentence of the dominance check shortened so it does not repeat the opener's
+%   "difference in the expected direction" verdict.
+% 2026-11-22 (user: "make it better, same kind of phrases as the section above"): known groups rewritten in the voice
+%   of the Medis subsection (plain verbs, "does not, however,", short turn sentences). New: the check runs in the
+%   plaque-free cohort on the model's own values (it needs no second extraction), the contrast with Medis. "|a| has no
+%   expected direction" taken from the dominance_check.md note. Facts unchanged (boot 2000, permutation 2000, SD of a
+%   over all with a value, D_LAD/D_LCx rows, missingness by group).
+% 2026-11-22 (user: one subsection for known groups): subsubsection "Asymmetry by Coronary Dominance" removed; its
+%   label sec:method-validity-dominance kept beside sec:method-validity-groups. "Coronary dominance changes" ->
+%   "Dominance changes" (the sentence before already names it).
+% 2026-11-22 (user: write the closing academically, rounding off the section): closing paragraph from the user's draft
+%   (dominance strongest, hypertension far less established, asymmetry the feature Medis could assess least).
+%   CITATION WANTED: "The link between hypertension and curvature is far less certain" (candidate telloayala2026tortuosity,
+%   li2011tortuosity; open them first). Medis-limited asymmetry rests on sec:method-medis-pairs (contours only with plaque).
+%   CAREFUL: the curvature-by-hypertension placeholder ("For curvature, $T$ was plotted against hypertension ...") has no
+%   code in CGPS_data/thesis_final/; write it only once the check exists.
+% 2026-11-22 (user): closing paragraph replaced by the user's two sentences (dominance best established; check most
+%   important for the asymmetry, fewest Medis pairs). The earlier closing and its hypertension sentence removed, so the
+%   CITATION WANTED for it lapses. The curvature-by-hypertension placeholder stays (user's); still no code behind it.
+\providecommand{\clarify}[1]{\textcolor{red}{\textbf{Clarification needed:} #1}}
+\section{Reliability the Geometric Features}
+\label{sec:method-validity}
+\label{sec:method-medis}
+
+The three geometric features were computed directly from the centerlines and lumen surfaces predicted by the in-house tracer (Section~\ref{sec:method-features}).
+Each feature was designed to be robust to small errors in these predictions, but a large segmentation error still carries through.
+How large the errors are is unknown.
+No ground truth existed for the Herlev--{\O}sterbro scans, so the usual comparison by the Dice similarity coefficient or the Hausdorff distance could not be made.
+In addition, the tracer was trained on CCTA data from other scanners, so the Herlev--{\O}sterbro scans were out of distribution and larger errors are more likely.
+The reliability of the features could therefore only be estimated indirectly, first by comparing them with a second extraction of the same scans, and then by checking whether the features differ between groups of participants whose characteristics are known to affect the geometry that the features describe.
+
+
+\subsection{Comparison with Medis}
+\label{sec:method-medis-pairs}
+\label{sec:method-medis-agreement}
+
+For part of the Herlev--{\O}sterbro dataset, centerlines and lumen contours had already been extracted from the volumes with the commercial software Medis (Section~\ref{sec:data-medis}).
+The extraction was automatic, and a clinician afterwards went in and corrected it, but only around the segments with plaque.
+The rest of each vessel was left uncorrected, so the Medis extraction cannot be treated as ground truth.
+It does, however, give a second extraction of the same vessels from the same images, against which the tracer can be compared.
+This comparison was only made on the three geometric features, since these are what the models use.
+
+The number of participants available for comparison differed between the features.
+The Medis centerlines cover the whole coronary tree, so the angle and the curvature could be compared in most participants.
+Medis contours, in contrast, exist only for segments with plaque, which restricted the asymmetry to participants with plaque at the left main bifurcation.
+
+For each pair, the Medis value was subtracted from the tracer value, and these differences were summarised by their mean and standard deviation (SD).
+Whether this disagreement is a concern depends on how much the feature varies between participants, and the intraclass correlation coefficient (ICC) was used to weigh the two against each other.
+It is the proportion of the total variance that lies between participants, and it equals 1 when the two extractions differ only by a constant.
+The consistency form of the ICC was used, as a constant offset does not change a hazard ratio per SD (Appendix~\ref{app:icc}).
+As neither extraction is known to be correct, a difference between them shows only that they disagree, not which of them is wrong, or whether both are.
+Close agreement is nonetheless informative.
+Medis and the in-house tracer were developed independently, so it is less likely that they agree only because both are wrong in the same way.
+Errors that arise from the images themselves are a different matter.
+Motion artefacts or limited resolution in narrow arteries would affect both extractions.
+
+
+\subsection{Known Groups}
+\label{sec:method-validity-groups}
+\label{sec:method-validity-dominance}
+
+The second indirect estimate of the reliability of the features uses known groups.
+Some characteristics of a participant are known to change the coronary geometry in predictable ways, and these changes can be tied directly to the features.
+If a feature differs in the expected direction between participants who differ in such a characteristic, this is a good indication that it captures the geometry it is intended to describe.
+
+For the LAD/LCx asymmetry, $a$ was plotted by dominance group.
+In left-dominant hearts the LCx is larger on average (Section~\ref{sec:dominance}), so if the asymmetry captures the relative size of the two daughters, $a$ should be higher in left-dominant than in right-dominant hearts.
+
+For curvature, $T$ was plotted against hypertension ...
+
+Of the characteristics known to influence coronary geometry, coronary dominance has the most direct and best-established effect.
+The known-groups check was particularly important for the asymmetry, as it was the feature that could be compared with Medis in the fewest participants.

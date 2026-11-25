@@ -1,0 +1,29 @@
+% TotalSegmentator -> start points -> in-house tracer (Kit Mills Bransby). Not the author's
+% contribution, so only outputs and how it was run on CGPS; the author's check is sec:method-medis.
+% Questions for Kit are in the red note below; write the section from his answers, then delete the note.
+% Red notes need \usepackage{xcolor}. Remove before submission.
+
+\newpage
+
+\providecommand{\clarify}[1]{\textcolor{red}{\textbf{Clarification needed:} #1}}
+\providecommand{\ask}[1]{\textcolor{red}{[#1]}}
+\section{Coronary Centerline and Lumen Extraction}
+\label{sec:method-tracer}
+
+To extract the coronary centerlines and lumen from the baseline CCTA volumes, an in-house tracer was applied to all scans of the Herlev--{\O}sterbro cohort (Section~\ref{sec:data-cohort}). The in-house tracer was developed and run by Kit Mills Bransby. The method is described here so that the full pipeline is shown. 
+
+
+\clarify{Questions for Kit (for a description of 1--2 pages).\\
+\textit{Method}\\
+-- Overall pipeline, from CT volume to centerlines and lumen surface, in a few steps.\\
+-- Name of the method: what should I call it instead of ``in-house tracer''?\\
+-- Type of network (e.g.\ nnU-Net, 3D U-Net), its size and main settings.\\
+\textit{Training}\\
+-- Exactly which data (datasets, number of scans, scanners)?\\
+-- How were the labels made, and what are they (only artery vs background, or more classes)?\\
+\textit{Output}\\
+-- Are the centerlines made from a predicted segmentation, or predicted directly? The final centerlines will have smoothing right? How is that made?\\
+-- How are the arteries labelled (LM, LAD, LCx and so on)?\\
+-- How is the lumen surface made?\\
+\textit{Performance}\\
+-- Did you measure the performance, so I have an upper bound of how good we expect the predictions to be}

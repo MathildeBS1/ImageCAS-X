@@ -1,4 +1,4 @@
-"""Left main diameter ratios: the two ratio features of the who model (sec:method-ratio, 03c_daughter_ratio.tex).
+"""Left main diameter ratios: the two ratio features of the who model (sec:method-ratio, 03b_daughter_ratio.tex).
 
     from daughter_ratio import tree_ratios
     tree_ratios(tree, rings_of)  # {"asymmetry": ln(D_LCx / D_LAD), "finet": D_LM / (D_LAD + D_LCx)}, nan where missing
@@ -33,7 +33,7 @@ daughter, 0 on the wider one, so pLAD = max(a, 0) and pCX = max(-a, 0). Garcha a
 (p. 6, Fig. 4) found low wall shear stress "in the smaller-of-the-two branches". The model scales the value
 by its SD over persons but does not centre it, so 0 keeps meaning equal daughters or the wider one.
 
-Not used (header of 03c_daughter_ratio.tex): the LM->LAD and LM->LCx ratios planned before 2026-11-11.
+Not used (header of 03b_daughter_ratio.tex): the LM->LAD and LM->LCx ratios planned before 2026-11-11.
 Diameters from a lumen surface (surface_diameters, 2026-11-19). The lumen predictions hold no contour per
 step, only a triangle mesh (lumen_probe.md: lumen_surface_ostium_pruned.vtk). The surface is cut with the plane
 through the centerline point at each depth of SECTION_DEPTHS (5 to 10 mm from O every STEP mm), perpendicular

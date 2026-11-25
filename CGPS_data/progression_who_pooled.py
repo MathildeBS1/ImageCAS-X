@@ -6,8 +6,8 @@
 
 Rows: the 9 split trunk segments of each Medis tree (build: split_trunks.split, segments under 1 mm dropped) with a
 visual grade at BL and FU; occluded-at-BL segments are dropped. Segment outcome: higher grade at FU than at BL.
-Person outcome: any of the person's graded trunk segments progressed. People without SCORE2, dominance or follow-up
-are dropped.
+Person outcome: any of the person's graded trunk segments progressed. People without SCORE2 or follow-up are
+dropped.
 
 Geometry from thesis_final/ (the Methods modules): average curvature per segment (curvature_feature.artery_curvature,
 Menger, 5 mm chords) and the LM bifurcation angle (bifurcation_angle.lm_angle, fitted lines 5 to 10 mm from O).
@@ -17,7 +17,7 @@ the Medis trees and the term is left out with a note in the report.
 Engine (experiments/who-progression/pooled_score2/pooling.md): a segment-level cloglog GLMM with a person random
 intercept b ~ N(0, s^2), fitted by Gauss-Hermite quadrature with an analytic gradient, then pooled to person risk
     P_i = 1 - int exp(-e^b sum_j exp(eta_ij)) phi(b; 0, s^2) db.
-  B2  = log follow-up + log SCORE2 (score2, else score2_op; z) + dominance (right vs not)
+  B2  = log follow-up + log SCORE2 (score2, else score2_op; z)
         + segment position (ref pLAD) + log length + BL grade;
         --person factors replaces log SCORE2 by the refitted factors: age, male, current smoking, SBP, total
         cholesterol, HDL (continuous ones z-scored).
@@ -135,7 +135,7 @@ def dummies(d, col, levels):
 
 
 def person_covariates():
-    """Person table indexed like build: SCORE2 factors and right dominance (NaN = unknown)."""
+    """Person table indexed like build: SCORE2 factors, and dominance for the report only (NaN = unknown)."""
     bl = hq.load_sheets(hq.ROOT)["BL"]
     bl = bl.assign(id=bl["study_id"].map(hq.norm_id)).drop_duplicates("id").set_index("id")
     P = pd.DataFrame({k: num(bl[c]) for k, c in SCORE2_COLS.items()})
@@ -157,7 +157,7 @@ def starts_of(ids):
 
 def person_columns(person):
     """Person columns a row must have for the chosen person block."""
-    return (list(SCORE2_COLS) if person == "factors" else ["score2"]) + ["right"]
+    return list(SCORE2_COLS) if person == "factors" else ["score2"]
 
 
 def design(d, train, terms, segs, grades, person):
@@ -174,8 +174,6 @@ def design(d, train, terms, segs, grades, person):
         ls2 = np.log(people["score2"])
         X.append(((np.log(d["score2"]) - ls2.mean()) / ls2.std()).to_numpy())
         names.append("log SCORE2 (per SD)")
-    X.append(d["right"].to_numpy(float))
-    names.append("right dominance")
     X += dummies(d, "segment", [s for s in segs if s != REF_SEG])
     names += [s for s in segs if s != REF_SEG]
     X.append(np.log(d["length"].clip(lower=1.0)).to_numpy())
@@ -618,7 +616,7 @@ def main():
            f"with a higher grade at FU): {count(n_events)}; did not: {count(len(Y) - n_events)}.",
            f"- Left out: {count(int((~graded).sum()))} segment rows without a usable BL/FU grade or occluded at BL; "
            f"{count(int((graded & ~cov_ok).sum()))} rows of {count(d0.loc[graded & ~cov_ok, 'id'].nunique())} people "
-           f"without {'all SCORE2 factors' if args.person == 'factors' else 'SCORE2'}, dominance or follow-up. Trees that could not be split: {count(skipped)}.",
+           f"without {'all SCORE2 factors' if args.person == 'factors' else 'SCORE2'} or follow-up. Trees that could not be split: {count(skipped)}.",
            f"- Missing geometry is set to the training mean (z = 0): average curvature on "
            f"{count(int(d['curvature'].isna().sum()))} rows, LM angle for "
            f"{count(int(d.drop_duplicates('id')['angle'].isna().sum()))} people.",

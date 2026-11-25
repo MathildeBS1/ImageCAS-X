@@ -20,6 +20,8 @@ SCRIPTS = (
     "content/methodology/figures/turning_angle_3d.py",
     "content/methodology/figures/turning_feature_schematic.py",
     "content/methodology/figures/curvature_shape_figure.py",
+    "content/methodology/figures/model_design_figure.py",
+    "content/methodology/figures/model_evaluation_figure.py",
     "content/technical/figures/fpca_figures.py",
     "content/technical/figures/mixed_model_figures.py",
     "content/technical/figures/mixed_model_illustrations.py",

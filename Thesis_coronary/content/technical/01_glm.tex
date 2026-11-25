@@ -84,22 +84,15 @@
 \section{Generalised Linear Models}
 \label{sec:tech-glmi}
 
-Linear regression describes how a continuous outcome $y$ depends on one or more independent
-variables, also referred to as features. It assumes that the expected value of $y$ changes along a
-straight line in each feature when the other features are held fixed.
-
-However, linear regression does not work for many types of outcome, an example being Bernoulli distributed outcomes. A
-Bernoulli outcome is not continuous. It is 1 if an event occurs and 0 if it does not, so its expected
-value is the probability of the event, also known as the risk $p$. The risk lies between 0 and 1,
-whereas the weighted sum of the features,
+Linear regression models a continuous outcome as a weighted sum of the features, but it is unsuitable for Bernoulli outcomes, which are 1 if an event occurs and 0 if it does not.
+The expected value of a Bernoulli outcome is the probability of the event, referred to as the risk $p$, which lies between 0 and 1, whereas the weighted sum of the features,
 \begin{equation}
   \eta_i = \beta_0 + \sum_k \beta_k x_{ik},
   \label{eq:tech-lp}
 \end{equation}
-can in principel take any value from minus to plus infinity (Figure~\ref{fig:tech-glmi-link}, left). Here $x_{ik}$
-is feature $k$ of unit $i$, $\beta_0$ is the intercept and $\beta_k$ is the coefficient of feature
-$k$. The weighted sum $\eta_i$ is referred to as the linear predictor, and $\beta_k$ gives how much it
-changes when $x_{ik}$ increases by one.
+can take any value from minus to plus infinity (Figure~\ref{fig:tech-glmi-link}, left).
+Here $x_{ik}$ is feature $k$ of unit $i$, $\beta_0$ is the intercept and $\beta_k$ is the coefficient of feature $k$.
+The weighted sum $\eta_i$ is referred to as the linear predictor, and $\beta_k$ gives its change when $x_{ik}$ increases by one.
 
 The generalised linear model (GLM) solves this problem while keeping the model linear in the features. The GLM maps the linear predicotr onto the interval from 0 to 1
 with an inverse link function $g^{-1}$ (Figure~\ref{fig:tech-glmi-link}, right),

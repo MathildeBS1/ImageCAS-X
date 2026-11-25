@@ -1,4 +1,9 @@
 % Methods, last section: secondary, descriptive FPCA of the curvature profile in the proximal and mid LAD.
+% 2026-11-20 (user: rewrite the grid sentence "this way"): the reason for the 50 positions is now the different
+%   length and point count of the segments, not "unevenly spaced" points (the tracer points are about 0.5 mm
+%   apart and curvature_feature.py uses them as given). Only the profile values are interpolated onto the grid;
+%   the centerline points are not respaced. Matches on_grid (copy in figures/curvature_shape_figure.py); the
+%   FPCA script itself is still missing from thesis_final/ (CHECK below).
 % 2026-11-16: WRITTEN as prose from the notes (plan sunny-sleeping-thimble.md, decided with the user: the full
 %   decided design in the past tense, including the per-segment model and the coefficient function; gaps to the
 %   code as CHECK below, undecided settings as red \clarify; one figure). The full notes this replaces are in git
@@ -72,8 +77,9 @@ It was restricted to the proximal and the mid LAD, where plaque developed most o
 \subsection{Curvature Profiles as Curves}
 
 Following the computation of the curvature profile (Eq.~\eqref{eq:method-profile}), the part of the profile inside the proximal or the mid LAD of participant $i$ formed the curve $x_i(t)$ of Section~\ref{sec:tech-fpca}.
+Segments differ in length and in their number of centerline points, so the curves were first brought onto a common set of positions.
 The position $t$ ran from 0 at the first to 1 at the last profile point of the segment, which removed the length of the segment from the curve.
-The profile values sit at the centerline points, which are unevenly spaced, so each curve was linearly interpolated along the centerline onto 50 equally spaced positions (Figure~\ref{fig:method-fpca}).
+Each curve was then read off at the same 50 equally spaced positions by linear interpolation between its profile values, which stay at the centerline points as given (Figure~\ref{fig:method-fpca}).
 Segments shorter than 10\,mm or with fewer than five profile points were left out.
 FPCA was then run separately in each of the two segments, which gave each segment its own mean, eigenfunctions and scores.
 

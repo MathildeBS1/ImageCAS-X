@@ -1,0 +1,58 @@
+% Appendix to sec:method-medis-agreement (content/methodology/03a_medis_reference.tex): the ICC(3,1) of the
+%   tracer against Medis, how it is computed and how it is read.
+% Written 2026-11-21 (user: "Refer to appendix for a deeper explanation of the intraclass correlation"), from the
+%   Agreement section of weekly/week12/week12.tex. Formula as in CGPS_data/thesis_final/medis_compare.icc
+%   (consistency form; the absolute-agreement ICC(A,1) the code also gives is left out, user 2026-11-21) and the
+%   participant bootstrap of medis_compare.reliability (boot = 2000).
+% koo2016icc read 2026-11-21 (papers/, PMC full text). Supports: Table 3, ICC(3,1) = "two-way mixed effects,
+%   consistency, single rater/measurement" = (MSR - MSE) / (MSR + (k - 1) MSE), with MSR the mean square for rows,
+%   MSE the mean square for error, k the number of raters/measurements; section "Definition Selection":
+%   consistency asks whether y = x + c, absolute agreement whether y = x; section "ICC Interpretation": a low ICC
+%   can also reflect little variability among the subjects, and the bands < 0.5 poor, 0.5 to 0.75 moderate,
+%   0.75 to 0.9 good, > 0.9 excellent (stated for at least 30 heterogeneous samples and 3 raters; here 2 methods).
+%   The source speaks of raters; the text says methods. The two mean-square definitions are the standard two-way
+%   ANOVA ones (Koo and Li name them, they do not write them out).
+% CAREFUL: the bands are Koo and Li's suggestion, not a standard; the source itself says there are no standard
+%   values. Used here only to name a value, never as a pass mark.
+\chapter{Intraclass Correlation Coefficient}
+\label{app:icc}
+
+The agreement of each feature between the tracer and Medis was summarised by ICC(3,1), the two-way mixed-effects, consistency, single-measurement intraclass correlation coefficient \cite{koo2016icc}.
+Each of the $n$ pairs is one artery or one participant measured twice, once by each method.
+The values were arranged in a table with the pairs as rows and the $k = 2$ methods as columns, and a two-way analysis of variance split their variation into the part between rows, the part between columns and the remainder.
+
+\section{Computation}
+\label{app:icc-computation}
+
+Let $x_{ij}$ be the value of pair $i$ from method $j$, $\bar{x}_{i\cdot}$ the mean of pair $i$, $\bar{x}_{\cdot j}$ the mean of method $j$ and $\bar{x}$ the overall mean.
+The mean square for rows and the mean square for error are
+\begin{equation}
+  \mathrm{MS}_R = \frac{k}{n-1} \sum_{i=1}^{n} \left(\bar{x}_{i\cdot} - \bar{x}\right)^2 ,
+  \qquad
+  \mathrm{MS}_E = \frac{1}{(n-1)(k-1)} \sum_{i=1}^{n} \sum_{j=1}^{k} \left(x_{ij} - \bar{x}_{i\cdot} - \bar{x}_{\cdot j} + \bar{x}\right)^2 ,
+  \label{eq:app-icc-ms}
+\end{equation}
+and the coefficient is \cite[Table~3]{koo2016icc}
+\begin{equation}
+  \mathrm{ICC}(3,1) = \frac{\mathrm{MS}_R - \mathrm{MS}_E}{\mathrm{MS}_R + (k-1)\,\mathrm{MS}_E} .
+  \label{eq:app-icc}
+\end{equation}
+$\mathrm{MS}_R$ grows with the differences between people, and $\mathrm{MS}_E$ with the disagreement within pairs once the mean of each method is removed.
+The coefficient is therefore the share of the variation that lies between people.
+It is 1 when the two methods give the same value for every pair, 0.5 when the disagreement within pairs is as large as the differences between people, and near 0 when the disagreement swamps them.
+
+\section{Choice of Form}
+\label{app:icc-form}
+
+The consistency form asks whether one method's value equals the other's plus a constant, while the absolute-agreement form asks whether the two values are equal \cite{koo2016icc}.
+A constant shift of a feature does not change its hazard ratio per SD, so the consistency form was used, and the shift is reported as the bias (Section~\ref{sec:method-medis-agreement}).
+The single-measurement form was used, since the cohort gets one value per feature, from the tracer alone.
+
+\section{Reading the Value}
+\label{app:icc-reading}
+
+Koo and Li suggest that values below 0.5 indicate poor, 0.5 to 0.75 moderate, 0.75 to 0.9 good and above 0.9 excellent reliability, while noting that no standard values exist \cite{koo2016icc}.
+The ICC also grows with the spread of the feature between people \cite{koo2016icc}.
+All participants in the comparison had plaque at baseline, so a value from them need not hold in the plaque-free cohort.
+
+One participant gives up to three curvature pairs, one per artery, so the 95\% confidence interval came from 2,000 bootstrap samples of participants, with all pairs of a participant drawn together.

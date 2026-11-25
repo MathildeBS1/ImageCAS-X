@@ -3,12 +3,19 @@
 % back to the features it uses. Files renamed the same day to follow this order (old -> new):
 % 05_features -> 03_features (05a/05b/05c -> 03a/03b/03c), 06_feature_validity -> 04,
 % 03_statistical_model -> 05, 04_model_size -> 06 (retired the same day, see 05_statistical_model header). Bare numbers in older header comments are the old ones.
+% 2026-11-20 (user: "yes"): the Medis comparison moved after the features, since it compares the
+% features. Renamed: 01a_inhouse_tracker -> 01_inhouse_tracker, 01b_medis_reference -> 04a_medis_reference,
+% 04_feature_validity -> 04b_feature_validity.
+% 2026-11-20 (user: "introduce the bifurcation angle, asymmetry and then curvature and move segment_split
+% to there; now the segment split only affects curvature"): 02b_segment_split -> 03c_segment_split, input
+% from 03_features before the curvature; its Choice of Arteries moved into 02_population_outcome.
+% Feature files renamed: 03b_bifurcation_angle -> 03a, 03c_daughter_ratio -> 03b, 03a_curvature -> 03d.
+% 2026-11-20 (user): 02_population_outcome -> 05a_population_outcome, input from 05_statistical_model.
+% 2026-11-22: inputs follow the files on disk: 02_features (renamed from 03 earlier), and 03_measurement_quality,
+%   which merges 03a_medis_reference and 03b_feature_validity (user, one section on the measurement quality).
 \input{content/methodology/00_chapter_intro}
-\input{content/methodology/01a_inhouse_tracker}
-\input{content/methodology/01b_medis_reference}
-\input{content/methodology/02_population_outcome}
-\input{content/methodology/02b_segment_split}
-\input{content/methodology/03_features}
-\input{content/methodology/04_feature_validity}
-\input{content/methodology/05_statistical_model}
-\input{content/methodology/07_curvature_fpca}
+\input{content/methodology/01_inhouse_tracer}
+\input{content/methodology/02_features}
+\input{content/methodology/03_measurement_quality}
+\input{content/methodology/04_statistical_model}
+\input{content/methodology/05_curvature_fpca}

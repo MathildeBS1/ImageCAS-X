@@ -1,0 +1,335 @@
+% 2026-11-23 (user: "make the changes", after a review for a top grade): ADDED a missing-data paragraph to
+%   sec:method-population (all exclusions in one place; the complete-case sentence of the Bifurcation Model moved
+%   there). Code (progression_who_pooled.py): people without a risk factor, dominance or follow-up are dropped, a
+%   tree that split() cannot divide is skipped, a missing curvature is set to the training mean (z = 0).
+%   CHECK: the mean-imputation rule is marked open in the code docstring; the bifurcation GLM is not written, so its
+%   complete-case rule for the angle follows the decision, not code.
+%   ADDED to sec:method-test: models, tests and alpha fixed before the features were related to the outcome
+%   (replaces "prespecified" and the covariate-only claim of sec:method-covariates). CAREFUL: true only if the open
+%   \clarify notes are settled before the outcome is linked.
+%   ADDED: curvature HR combines between- and within-participant variation (no person-mean term in the code);
+%   attenuation of HRs by random measurement error, pointing to the Medis ICC. CITATION WANTED for regression
+%   dilution in nonlinear models (e.g. Carroll et al., Measurement Error in Nonlinear Models); not cited until read.
+%   ADDED: software (Python, NumPy, SciPy; L-BFGS-B left out as code-level). CHECK: versions; SciPy citation not
+%   added (not read). Participants and events per model: pointer to the results.
+%   REWORDED: random-intercept reason (shared unmeasured traits only; the risk factors are fixed effects),
+%   "proportional odds" -> constant odds ratio over follow-up (term belongs to ordinal regression), the curvature
+%   dilution sentence, Eq.~ spacing.
+%   NOT DONE (needs code): profile-likelihood intervals (code uses Wald, wald_se), a linearity check of the
+%   continuous risk factors, a person-mean split of curvature.
+% 2026-11-23 (user: "make the two figures described ... same style as the figures in the feature chapter"): ADDED
+%   fig:method-models (model_design_figure.py, after the outcome paragraph of sec:method-population) and
+%   fig:method-evaluation (model_evaluation_figure.py, after the cross-validation paragraph); referenced from the
+%   outcome paragraph, sec:method-test and, through the float, sec:method-added-value. Schematics, nothing computed.
+% 2026-11-23 (user: "rewrite the entire section ... trimmed down to half the size"): rewritten from the body of
+%   05_statistical_model.tex (whose header holds the full history, the CHECK list against
+%   progression_who_pooled.py and the open decisions; all still apply). About 3,450 -> 1,750 words.
+%   All labels kept. Opener taken from the user's draft in 05 (two models by level).
+%   CUT, theory already in the Technical Background: the Weibull reading of gamma and its citation
+%   \cite[Section~10.2.3]{dobson2002glm} (exposure is sec:tech-segment-glmm); the logit comparisons (Appendix B);
+%   the sentence on a participant-level covariate multiplying the participant hazard; the reading of a hazard
+%   ratio by the level of its covariate (now one pointer to sec:tech-glmm); definitions of the Brier score and
+%   log loss.
+%   CUT as repetition: the double cohort purpose, the restatement of the outcome in the bifurcation model, the
+%   standardisation sentences (the table holds the form of every covariate), "These are the only two tests",
+%   the sentence that the intervals are not further tests, the Medis-name sentence of the division check.
+%   MERGED: Division into Segments and Validation of the Division are one subsubsection (both labels kept).
+%   MOVED: the mild-or-worse sensitivity outcome is stated once, in sec:method-sensitivity.
+%   SOFTENED: the LM sentence of Choice of Arteries no longer claims what the review shows (cui2017bifurcation was
+%   cut from the review, CHECK of 2026-11-09); it now gives the reason from the bifurcation model's outcome.
+% 2026-11-23 (user: "should they be in the opening, they apply to both models"; "also are entered as of the
+%   technical background"): new subsection sec:method-covariates before the two models holds what both share:
+%   the cloglog link and its reason, the six risk factors (SCORE2 as the reason for the set), per-SD
+%   standardisation of the continuous factors, follow-up as exposure, dominance, and the base/extended fits.
+%   Both models point back to it. The opener keeps only "the established risk factors".
+% 2026-11-23 (user: "it needs fewer subsections"): 8 subsections + 3 subsubsections -> 5 subsections, none below.
+%   Choice of Arteries, Division into Segments, Mixed Model of the Segments and Cross-Validation are now
+%   paragraphs; the shared link and risk factors and the two models form "Bifurcation and Curvature Models".
+%   All labels kept, set at the start of their paragraph (they now resolve to the enclosing subsection).
+% 2026-11-23 (user): centring clause cut from the Bifurcation Model text. Kept here so text and code stay in line:
+%   the angle is centred and divided by its SD, |a| only divided by its SD (progression_who_pooled.py), so zero
+%   keeps meaning equal daughters. Centring changes only what the intercept refers to, not a hazard ratio or the LR test.
+% 2026-11-23 (plan majestic-wishing-sonnet, repetition): Bifurcation Model cut to what is new. CUT: what the model
+%   relates and its outcome (section opener; outcome paragraph of sec:method-population), "one outcome per
+%   participant, so independent" (section opener; only the sec:tech-glmi pointer kept), "the base model omitted the
+%   two geometric terms" (Association Models opener). Standardisation merged into one sentence; complete cases
+%   stated as what was done.
+% 2026-11-23 (user: "something about grouped survival? we assumed that plaque could not regress", then "write the
+%   full. with aida style"): the link paragraph now names grouped survival data (term defined in
+%   technical/01_glm.tex, sec:tech-segment-glmm; "grouped" kept for consistency with it and prentice1978grouped,
+%   although each participant has an own window, strictly current-status data) and states the no-regression
+%   assumption. No citation: it is stated as an assumption, not a fact. OWED TO THE DISCUSSION: how plausible it is
+%   (statin-related regression, reader disagreement on minimal plaque), with a source; missed events would most
+%   likely weaken the hazard ratios.
+%   Cut "the base model with the covariates of Section~\ref{sec:method-covariates}" pointer was removed on disk by
+%   the user before this edit; not restored.
+% 2026-11-23 (plan majestic-wishing-sonnet; user: "a better introduction ... without repetition"): opening of
+%   Association Models rewritten as two paragraphs. (1) Purpose of the two fits first, pointing to sec:method-test.
+%   (2) The link: grouped survival data (each segment checked once, whether but not when) -> cloglog as the PH
+%   model (derivation stays in sec:tech-segment-glmm; prentice1978grouped still CHECK, so not cited here); the HR
+%   is the same whatever the segment's baseline risk or the follow-up length (week10 cloglog_pooled.tex, pLAD vs
+%   dLCx; Appendix B app:link-logit supports both halves); hazards add -> one participant risk
+%   (sec:method-added-value owns the equation). Follow-up varies only about +-12% (cloglog_vs_logit.md), so the
+%   baseline-risk half is the stronger one.
+%   CUT as repetition: "adjusted for the covariates" (section opener), "follow-up time as the exposure"
+%   (sec:method-covariates), and "the base model left out ..." in both subsubsections.
+%   Honest limit, not in the text: model fit cannot tell cloglog from logit (cloglog_vs_logit.md); the reasons are
+%   interpretive. A logit refit as sensitivity analysis is still undecided and not added.
+% 2026-11-23 (user: "write better for a methodology section. use the best reasons"): link paragraph rewritten.
+%   Main reason now: different follow-up times -> cloglog with follow-up as exposure gives a hazard ratio that,
+%   under proportional hazards, is the same for any follow-up length, while the logit odds ratio is not
+%   (Appendix B, app:link-logit). Second reason: segment hazards add, so the nine segment risks pool to the
+%   participant risk (eq:method-agg-conditional). CUT: "This ties the two models together" (a consequence, not a
+%   reason for the link). Proportional hazards is named as the condition; that it cannot be checked with one
+%   follow-up scan stays a Discussion point.
+% 2026-11-23 (user: "should i split them ... and call associations models", then "yes"): subsection renamed
+%   "Association Models" and split into two subsubsections, Bifurcation Model and Curvature Model (partly reverses
+%   "none below" of the same day: the two models are separate units). Division into Segments stays a paragraph
+%   inside Curvature Model, between "why per segment" and the mixed model, so the segments are made before the
+%   model uses them. Labels sec:method-split, -split-validation and -estimation now resolve to Curvature Model.
+%   The link paragraph and the covariate table stay at the subsection level.
+% 2026-11-23 (plan iterative-sparking-zephyr): "Bifurcation and Curvature Models" rewritten. The link paragraph now
+%   gives the two design reasons for the cloglog link (event seen only at follow-up of differing length -> hazard
+%   ratio over the follow-up; hazards add over segments, which ties the two models together). The derivation stays
+%   in sec:tech-segment-glmm, the logit comparison in Appendix B. Cut: "does not depend on the length of the
+%   follow-up" (holds only under proportional hazards). The "hazards add" sentence of the mixed-model paragraph moved
+%   up into the link paragraph. Restored: the meaning of the within-segment standardisation (code:
+%   progression_who_pooled.zscore, mean and SD per segment on the training rows). Covariates: gamma is estimated
+%   (code: log follow-up is a free column), now said.
+%   CHECK, code vs text: the person-level bifurcation GLM is not in the code yet (the code has the angle and |a| on
+%   the proximal rows of the GLMM); the code uses plain Gauss-Hermite (hermgauss), Appendix C says adaptive, so the
+%   text says only "Gauss--Hermite quadrature". The --check refits with doubled nodes (60).
+%   CHECK: "the risk of plaque in either segment keeps the cloglog form with hazards summed" is derived from the
+%   equations (independence of the segments given the covariates), uncited.
+%   Not added: a logit refit as sensitivity analysis (recommended in the notes, not decided). Model fit cannot tell
+%   cloglog from logit; the reason given is interpretive, so no fit claim. Proportional hazards being untestable
+%   with one follow-up scan stays a Discussion point.
+% 2026-11-23 (user, article-flow: "make it more concise. only focus on why it needs mixed model. why computing
+%   curvature per segment makes sense. dont explain stuff already covered above"): Curvature Model trimmed.
+%   Why per segment: local effect -> segment value related to the same segment's outcome. Why mixed: per-segment
+%   outcomes of a participant are correlated (theory in sec:tech-glmm, not repeated). Landmark details (side
+%   branches, crux, fixed fraction) left to the appendix. Cut: "Both fits held b_i" (folded into the model
+%   sentence), "The other covariates are those of the bifurcation model" (now a pointer in the where sentence),
+%   the likelihood-averaging clause (sec:tech-glmm-likelihood). Standardisation sentence now says what it gives.
+%   Then (user: "this will not be done"): the Medis check of the division is dropped; replaced by the argument
+%   that even with imperfect agreement with the readers' boundaries, the local relation dilutes less than the
+%   whole-artery average (reasoning, uncited). sec:method-split-validation label kept for now.
+%   Kept from code: 30/60 nodes, 18/19 fixed effects. NOTE: fig:method-segments and sec:app-split have no
+%   \label anywhere in content/ (undefined references, as before this edit).
+% 2026-11-23 (user: "do this alpha = 0.05"): significance \clarify replaced; each LR test at 0.05, not adjusted
+%   for the two tests.
+% 2026-11-23 (user: "segment length stays in the base curvature model"): its \clarify removed; the table
+%   already lists it in both curvature models.
+% 2026-11-23 (user): artery choice in Curvature Model: plaque share first (pointer to sec:results-cohort, number
+%   still to fill: the retired cohort table gave 452/483), width/tracing second, LM last. CHECK: "nearly straight"
+%   for the LM is uncited; the pointer to sec:method-curvature was dropped, as that section does not state it.
+% 2026-11-23 (plan floating-tumbling-candy: "make Curvature Model as concise as Bifurcation Model ... easy
+%   understanding on the first read ... no repetition"): Curvature Model follows the user's shortened
+%   Bifurcation Model (equation, where sentence, counts, data rule). Cut: "its effect on wall shear stress is
+%   local" (Study Cohort says it), "no longer independent" lead-in (chapter opener), the tech-glmm equation
+%   pointer, "rather than one segment with another" (the intercept sentence covers it), the pointer to the
+%   undefined fig:method-segments. Missing-angle half of the curvature \clarify dropped (bifurcation model now
+%   uses complete cases). Covariate table + lead-in moved from Curvature Model to the end of sec:method-covariates
+%   (applies to both models). "fit(s)" -> "model(s)" for base/extended throughout the chapter and table.
+%   STILL UNDEFINED: sec:app-split.
+% 2026-11-23 (user: "why is cross validation so late ... yes"): in Added Predictive Value the cross-validation
+%   (sec:method-cv) moved up to follow the opener, so "held-out participant" and the measures read after it. The
+%   50-repeat sentence and its \clarify stay after the measures they summarise. "this risk" -> "the risk of plaque".
+%   CV stays inside this subsection: it applies only to the secondary measures, not to the LR tests or HRs.
+% 2026-11-23 (user, article-flow: "more concise ... fit the chapter, especially after Test of the Geometric
+%   Features"): Added Predictive Value opens "To estimate ..." in parallel with the Test opener ("To assess ...");
+%   "also compared" ties it to that test. CUT: "before b_i is applied" (eta_ij holds no b_i, Eq. method-lp), the
+%   separate "difference ... reported as an estimate" sentence (folded into the 50-repeat sentence), the second
+%   sentence of the curvature dilution (folded into one). ADDED as the reason for averaging: the intercept of a
+%   held-out participant is unknown.
+% 2026-11-23 (user: "make it the minimal and best, be harsh ... more interesting with my geometric like curvature
+%   depending on position"): sec:method-sensitivity cut to the curvature x artery term (secondary, estimates only)
+%   and one sensitivity analysis on the outcome grade. CUT: recalibrated SCORE2 (the six refitted factors already
+%   adjust more closely, so the feature HRs would barely move; Appendix D app:score2-recal is now unreferenced),
+%   diabetes (outside the externally fixed set, few cases in a population cohort), height and BMI (log segment
+%   length in the base curvature model already scales with heart size). Outcome grade: the user's draft said
+%   moderate or worse; set to mild or worse, since incident moderate stenosis in a plaque-free population over
+%   ~10 years is expected to be rare (count not yet seen). Revert if the count allows moderate.
+% 2026-11-23 (user): follow-up time stays in both base models; dominance dropped from both (not an established
+%   risk factor, and itself part of the coronary geometry). Coefficients: bifurcation 8/10, curvature 17/18.
+\section{Statistical Model and Evaluation}
+\label{sec:method-models}
+
+Following the computation of the geometric features, the features were related to incident coronary plaque in two models, both adjusted for the established risk factors.
+The bifurcation angle and the daughter asymmetry were measured once per participant, so they were analysed in a generalised linear model with one outcome per participant, referred to as the bifurcation model.
+Curvature was measured in each of the nine segments of a participant, so it was analysed in a generalised linear mixed model with one outcome per segment, referred to as the curvature model.
+
+\subsection{Study Cohort, Outcome and Covariates}
+\label{sec:method-population}
+
+The study cohort consisted of the Herlev--{\O}sterbro participants without coronary plaque at baseline, defined by a segment involvement score (SIS) of zero (Section~\ref{sec:data-plaque-location}).
+Plaque can itself alter the geometry of an artery (Section~\ref{sec:lit-risk}).
+Measuring the features in plaque-free coronary trees ensured that an association with plaque at follow-up could not be explained by geometry already altered by the disease.
+Participants whose follow-up scan had too low image quality for the plaque to be graded confidently were also excluded.
+The cohort that remained is described in Section~\ref{sec:results-cohort}.
+
+The primary outcome was incident coronary plaque. A segment had incident coronary plaque when the visual analysis graded its stenosis at follow-up as minimal or worse (Section~\ref{sec:data-plaque-location}).
+
+The geometry is thought to lower wall shear stress in the region near a bend or a branch (Section~\ref{sec:wss}).
+Plaque further away could weaken an association, so each model only used the outcome in the segments closest to its features.
+For the bifurcation model, these were the proximal LAD and the proximal LCx.
+For the curvature model, these were all nine segments, each related to its own curvature (Figure~\ref{fig:method-models}).
+
+% Figure from figures/model_design_figure.py (made-up tree, no patient data, nothing computed).
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{content/methodology/figures/model_design_figure.pdf}
+  \caption{The two association models on a made-up coronary tree, with the centerline inside each artery and a plaque on the wall of the LAD. In the bifurcation model, the angle $\theta$ at the bifurcation point $O$ and the daughter asymmetry from the diameters $D_{\mathrm{LAD}}$ and $D_{\mathrm{LCx}}$ are related to one outcome per participant, plaque in the proximal LAD or the proximal LCx (shaded) (left). In the curvature model, the LAD, the LCx and the RCA are divided into proximal, mid and distal segments. The average curvature of each segment is related to the outcome of that segment, and the nine segments of a participant share the random intercept $b_i$ (right).}
+  \label{fig:method-models}
+\end{figure}
+
+\label{sec:method-covariates}%
+An association with the features should not simply stand in for age or another established risk factor.
+Both models were therefore adjusted for six risk factors: age, sex, current smoking, systolic blood pressure, total cholesterol and HDL cholesterol.
+These exact risk factors were chosen since they are the ones in SCORE2 \cite{score2_2021}, so the set was fixed in advance by an external source.
+Each factor entered as its own linear term with a weight estimated for incident coronary plaque, and the continuous factors were standardised so that their hazard ratios are per SD (Section~\ref{sec:tech-segment-glmm}).
+The chance of developing plaque grows with the time between the two scans, so the follow-up time entered as the exposure of Section~\ref{sec:tech-segment-glmm}, and its coefficient $\gamma$ was estimated from the data.
+\clarify{whether the bifurcation model should hold the length of the proximal LAD and LCx is not yet decided.}
+The covariates of both models are summarised in Table~\ref{tab:method-covariates}.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Summary of the covariates of the bifurcation and the curvature model, including the level at which each is measured, the form in which it entered and the models that held it.}
+  \label{tab:method-covariates}
+  \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}X l >{\raggedright\arraybackslash}p{2.5cm} >{\raggedright\arraybackslash}p{2.5cm}}
+    \toprule
+    Covariate & Level & Form & Model \\
+    \midrule
+    Age, systolic blood pressure & participant & linear, per SD & all models \\
+    Total and HDL cholesterol & participant & linear, per SD & all models \\
+    Sex, current smoking & participant & yes or no & all models \\
+    Follow-up time & participant & logarithm & all models \\
+    Bifurcation angle & participant & linear, per SD & bifurcation, extended \\
+    Daughter asymmetry & participant & absolute value, per SD & bifurcation, extended \\
+    Segment & segment & nine intercepts & curvature, base and extended \\
+    Segment length & segment & logarithm & curvature, base and extended \\
+    Curvature & segment & linear, per SD within segment & curvature, extended \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\subsection{Association Models}
+
+To assess what the geometric features add beyond the established risk factors, each model was fitted twice, as a base model with the covariates and as an extended model that added its geometric features (Section~\ref{sec:method-test}).
+The geometric features entered as linear terms divided by their SD over the participants, so that their hazard ratios are per SD and could be compared between features measured in the different units (Table~\ref{tab:method-covariates}).
+All models were fitted in Python with NumPy and SciPy, and the number of participants and events behind each model is reported with the results.
+
+The models were fitted with the complementary log-log link, which gives a proportional hazards model for grouped survival data (Section~\ref{sec:tech-segment-glmm}).
+The outcome was treated as grouped survival data, since plaque developed at an unobserved time between the two scans and was assumed not to regress once formed.
+The link was also chosen since the different follow-up times enter the linear predictor simply as their logarithm (Section~\ref{sec:method-covariates}), and the segment hazards add, so the nine segment risks of the curvature model combine easily into the risk that the participant developed plaque (Section~\ref{sec:method-added-value}).
+
+Under this link, each coefficient is a hazard ratio, which multiplies the rate at which plaque develops by the same factor whatever the baseline risk of the segment or the length of the follow-up (Appendix~\ref{app:link}).
+Both models therefore assume proportional hazards (Section~\ref{sec:tech-segment-glmm}).
+This assumption cannot be checked with one follow-up scan per participant, but the same holds for the logit link, which assumes that the odds ratio is the same for any length of follow-up (Appendix~\ref{app:link-logit}).
+
+\subsubsection{Bifurcation Model}
+\label{sec:method-model-spec}
+
+The bifurcation model was a generalised linear model (Section~\ref{sec:tech-glmi}).
+For participant $i$, the extended bifurcation model had the linear predictor
+\begin{equation}
+  \eta_{i} = \alpha + \sum_{k=1}^{6} \beta_k r_{ik} + \gamma \log E_i + \beta_\theta \tilde{\theta}_i + \beta_a \tilde{a}_i ,
+  \label{eq:method-lp-bif}
+\end{equation}
+where $\alpha$ is the intercept, $r_{ik}$ are the six risk factors (Section~\ref{sec:method-covariates}) and $E_i$ is the follow-up time in years.
+The geometric features are the bifurcation angle $\theta_i$ and the absolute daughter asymmetry $a_i$ (Eqs.~\eqref{eq:method-angle} and~\eqref{eq:method-asymmetry}), with the tilde denoting standardisation.
+The base model held 8 coefficients and the extended model 10.
+
+\subsubsection{Curvature Model}
+\label{sec:method-curvature-model}
+
+\label{sec:method-split}%
+\label{sec:method-split-validation}%
+Unlike the bifurcation angle and the daughter asymmetry, curvature could be measured continuously along each artery (Section~\ref{sec:lit-measure}).
+The curvature model included the LAD, the LCx and the RCA, since most participants who developed plaque had it in one of these arteries (Section~\ref{sec:results-cohort}).
+After the LM, they are also the widest arteries, and they were therefore expected to be traced most reliably.
+The LM itself was left out, as it is short and nearly straight, so its curvature was not expected to be informative.
+
+To limit dilution of a local association, curvature was averaged within each proximal, mid and distal segment, as the outcome was graded down to the segment.
+Since the visual analysis does not record where one segment ends and the next begins, the boundaries were placed with a landmark method (Appendix~\ref{sec:app-split}).
+Although these boundaries may not fully agree with those used by the clinician who graded the plaque, the curvature of a segment still lies closer to its outcome than an average over the whole artery.
+
+\label{sec:method-estimation}%
+The nine segments of a participant share traits that the covariates do not capture, so the curvature model was a generalised linear mixed model with a random intercept $b_i$ for each participant (Section~\ref{sec:tech-glmm}).
+For segment $j$ of participant $i$, the extended curvature model had the linear predictor
+\begin{equation}
+  \eta_{ij} = \alpha_j + \sum_{k=1}^{6} \beta_k r_{ik} + \gamma \log E_i + \beta_L \log L_{ij} + \beta_T \tilde{T}_{ij} ,
+  \label{eq:method-lp}
+\end{equation}
+where $\alpha_j$ is the intercept of segment $j$, $L_{ij}$ is the segment length in mm, $\tilde{T}_{ij}$ is the standardised average curvature (Eq.~\eqref{eq:method-tl}) and the other terms are those of Eq.~\eqref{eq:method-lp-bif}.
+The log length was included, as a longer segment had more wall on which plaque could develop.
+Like the log follow-up time, its coefficient was estimated rather than fixed at one.
+For curvature, the mean and SD were taken within each segment, so its hazard ratio compares bends within the same segment.
+The base model held 17 coefficients and the extended model 18.
+Since the participant intercepts are not observed, the likelihood of each participant was averaged over their distribution (Section~\ref{sec:tech-glmm-likelihood}).
+This average has no closed form and was approximated by Gauss--Hermite quadrature with 30 nodes (Appendix~\ref{app:glmm-fitting}).
+Refitting with 60 nodes changed the estimates by less than 0.001.
+
+
+\subsection{Test of the Geometric Features}
+\label{sec:method-test}
+
+To assess whether the geometric features are associated with incident coronary plaque beyond the established risk factors, the base and the extended model were compared with a likelihood ratio test (Eq.~\eqref{eq:tech-lr}, Figure~\ref{fig:method-evaluation}).
+The models, both tests and their significance level of 0.05 were fixed before the geometric features were related to the outcome, with $q = 2$ degrees of freedom in the bifurcation model and $q = 1$ in the curvature model.
+
+The size of each association was reported as the hazard ratio per SD of the feature, with a 95\% confidence interval from the standard error of its coefficient.
+In the curvature model, this hazard ratio compares segments with the same participant intercept (Section~\ref{sec:tech-glmm}), and the median hazard ratio summarised how much the participants differed beyond their covariates (Eq.~\eqref{eq:tech-mhr}).
+Curvature differs both between participants and between the segments of one participant, and its hazard ratio combines the two.
+Random error in a feature tends to pull its hazard ratio towards one, so a feature that agreed poorly with Medis (Section~\ref{sec:method-medis-agreement}) may show a weaker association than it would if measured without error.
+
+The test in the curvature model assumes that the participant intercept captures the dependence between the nine segments, although segments of the same artery may be more alike than segments of different arteries (Appendix~\ref{app:glmm-variance}).
+\clarify{whether an artery-level random effect is fitted, or the single participant intercept is kept and discussed as a limitation, is not yet decided.}
+
+\subsection{Added Predictive Value}
+\label{sec:method-added-value}
+
+To estimate how much the geometric features add to the prediction of who develops plaque, the risks of the base and the extended model were compared with the observed outcome.
+\label{sec:method-cv}%
+The risks were obtained by 10-fold cross-validation, which used every participant for both fitting and testing.
+The folds were divided by participant, ensuring that the nine segments of a participant were never split between fitting and testing.
+They were stratified on the outcome of each model to give every fold a similar share of participants who developed plaque.
+Everything estimated from the data, including the standardisation, was estimated on the training folds alone, so that the held-out participants did not inform the model that predicted them.
+The same folds were used for the base and the extended model, so that the two were compared on the same division of the participants.
+
+% Figure from figures/model_evaluation_figure.py (schematic, made-up numbers, no patient data).
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{content/methodology/figures/model_evaluation_figure.pdf}
+  \caption{The test of the geometric features and the estimate of their added predictive value, shown with made-up numbers. The base model holds the covariates (grey) and the extended model adds the geometric features (coloured). The two are compared by a likelihood ratio test, and each association is reported as a hazard ratio per SD with its 95\% confidence interval (left). In the cross-validation, each column is one participant with the nine segments of the curvature model, and the model is fitted on nine folds and predicts the held-out fold, repeated 50 times (middle). The cross-validated risks of the two models are shown as back-to-back histograms and compared by the C-statistic, calibration, the Brier score and the log loss (right).}
+  \label{fig:method-evaluation}
+\end{figure}
+
+For a held-out participant, the bifurcation model gives the risk of plaque directly (Eq.~\eqref{eq:tech-cloglog}).
+In the curvature model, the risk of plaque in at least one of the nine segments was derived from the segment hazards.
+Let $A_i = 0$ denote that no segment of participant $i$ developed plaque.
+Given $b_i$, the segments were taken as independent, so the segment hazards $H_{ij} = \exp(\eta_{ij})$ add to one participant hazard,
+\begin{equation}
+  P(A_i = 0 \mid b_i) = \exp\!\left(-e^{b_i} H_i\right),
+  \qquad
+  H_i = \sum_{j=1}^{9} H_{ij} .
+  \label{eq:method-agg-conditional}
+\end{equation}
+The intercept of the held-out participant is unknown, so this probability was averaged over the distribution of the intercepts (Eq.~\eqref{eq:tech-agg-marginal}, Figure~\ref{fig:tech-glmm-marginal}).
+
+The C-statistic gave the probability that a participant who developed plaque had a higher risk than one who did not, and the calibration slope and intercept showed how well the risks matched the observed share of participants who developed plaque.
+The Brier score and the log loss measured how far the risks lay from the outcomes and so reflect both.
+These measures were computed on the pooled held-out risks of all ten folds, so that no single test fold could drive the result.
+The cross-validation was repeated 50 times, so that no single division of the participants could drive it either.
+The difference between the two models in each measure was reported as the mean with the 2.5th and 97.5th percentiles over the repeats, and the two sets of risks were shown as back-to-back histograms.
+\clarify{intervals that reflect the sampling of participants (a bootstrap of the whole procedure) are not yet decided.}
+A small difference was expected for curvature, since the curvature of a segment changes only its own term among the nine terms of $H_i$.
+
+\subsection{Secondary and Sensitivity Analyses}
+\label{sec:method-sensitivity}
+
+To examine whether the association of curvature differs between the arteries, a term was added to an extended curvature model that gives curvature its own hazard ratio in the LAD, the LCx and the RCA.
+These three hazard ratios were reported per SD with 95\% confidence intervals, as descriptive estimates.
+\clarify{the curvature $\times$ artery term is not yet in the code (\texttt{progression\_who\_pooled.py}).}
+
+To assess whether the associations with the geometric features depended on minimal plaque, both models were refitted with the outcome restricted to plaque graded as mild or worse stenosis (Section~\ref{sec:method-population}).
+\clarify{the bifurcation model may have too few participants with mild or worse plaque in the proximal LAD or LCx; count them before the features are related to the outcome.}
