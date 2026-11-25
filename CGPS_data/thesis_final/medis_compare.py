@@ -640,7 +640,7 @@ def plots(A, P, out):
                "angle": [("Bifurcation angle", P, "theta_tracer", "theta_medis", "degrees")],
                "asymmetry": [(r"LAD/LCx asymmetry $|a|$", absa, "abs_t", "abs_m", "")]}
     for name, panels in figures.items():
-        fig, axes = plt.subplots(1, len(panels), figsize=(3.4 * len(panels), 3.2), squeeze=False)
+        fig, axes = plt.subplots(1, len(panels), figsize=(3.4 if len(panels) == 1 else 6.3, 3.2), squeeze=False)
         for ax, panel in zip(axes.flat, panels):
             ba_panel(ax, *panel)
         h, l = axes.flat[0].get_legend_handles_labels()
