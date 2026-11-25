@@ -161,7 +161,8 @@ def cohort(bl, fu, have, F):
     for s in SEGS:
         P[f"y_{s}"] = (R[s] >= MINIMAL).astype(float).where(R[s].notna() & ~bad)
 
-    F = F.copy()
+    feats = [f"{k}_{s}" for s in SEGS for k in ("T", "L")] + ["angle", "asym", "D_LAD", "D_CX"]
+    F = F.reindex(columns=list(dict.fromkeys(["id", *feats, *F.columns])))  # all columns, also with no rows yet (run)
     F["id"] = F["id"].astype(str)
     P = P.join(F.set_index("id"), how="left")
     A = P[P["status"] == "analysed"]
@@ -393,6 +394,8 @@ def synthetic(seed=0, n=120):
 def check():
     bl, fu, have, F = synthetic()
     flow, P, S = cohort(bl, fu, have, F)
+    _, P0, _ = cohort(bl, fu, have, pd.DataFrame({"id": []}))  # as run calls it, before any features exist
+    assert (P0["status"] == "analysed").sum() == (P["status"] == "analysed").sum(), "cohort without features"
     assert flow["BL participants"] == 120 and flow["plaque at baseline"] == 20 and flow["plaque-free at baseline"] == 100
     assert flow["follow-up image quality too low (or no FU row)"] == 4 and flow["no tracer centerlines"] == 2
     assert flow["analysed cohort"] == 94 == 100 - 4 - 2, flow
