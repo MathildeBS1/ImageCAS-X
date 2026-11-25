@@ -1,23 +1,26 @@
 """Draw the lumen cross-sections behind the daughter asymmetry, tracer and Medis side by side, for the --n
-participants whose asymmetry differs most (largest |a_tracer - a_medis|) and, below them, the one where the
+participants whose asymmetry differs most (largest ||a_tracer| - |a_medis||, the model feature) and, below them, the one where the
 two agree best (server only: the figure shows single participants).
 
     python CGPS_data/thesis_final/asymmetry_view.py [--n 6] [--rows DIR]
 
 Reuses the participants CSV of medis_compare.py (--rows) and chooses among the participants whose asymmetry
-was compared (asym_reason ok). Both trees and both lumen surfaces are read again and divided as in
+was compared in the main rows (asym_reason ok and aligned). Both trees and both lumen surfaces are read again and divided as in
 medis_compare.py (split_trunks.split; the tracer's lumen_surface_ostium_pruned.vtk, the Medis lumen meshes of
 the left tree merged), and the cross-sections are those of daughter_ratio.section, so the figure shows exactly
 what was measured.
 
 Each row has three panels. Tracer and Medis: the lumen surface near O (grey points: the mesh vertices within
 ZOOM mm of O), the LM, the LAD and the LCx centerlines, O, and the cross-section loop at each of the 11 depths
-(5 to 10 mm from that tree's own O) in the daughter's colour; a depth without a cross-section is a red x. Both
+(5 to 10 mm from that tree's own O) in the daughter's colour; a depth without a cross-section is a black x. Both
 panels use the same projection (the plane through that participant's O and depth points that shows them best)
 and the same scale; a loop perpendicular to the vessel shows as a rung across it. Third panel: the diameter
-at each depth, tracer solid and Medis dashed, LAD blue and LCx orange, with each daughter's median (the D of
+at each depth, tracer solid and Medis dashed, LAD purple and LCx dark pink, with each daughter's median (the D of
 the asymmetry). Each row title gives a = ln(D_LCx / D_LAD) for both trees, the difference and abs(a).
 Figure: asymmetry_view.png in --rows. The study ids are printed to the terminal, not in the figure.
+
+--examples (2026-11-25, user: Bland-Altman, a bad and a good example per feature in the thesis): the largest
+difference and the closest agreement, one row each, as asymmetry_bad.png and asymmetry_good.png in --rows.
 """
 import argparse
 import sys
@@ -28,7 +31,8 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # the shared modules in CGPS_data/
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from bifurcation_view import COLOUR, ZOOM, bifurcation, draw, plane
+from bifurcation_view import COLOUR, ZOOM, bifurcation, draw, one_legend, plane
+from medis_compare import GRID, INK, INK2, MUTED, thesis_rc  # noqa: E402  (the thesis colour scheme and fonts)
 from daughter_ratio import SECTION_DEPTHS, contour_diameter, merge, section, surface
 
 MAX_VERTICES = 6000  # surface vertices drawn per panel (a random subset when more lie within ZOOM)
@@ -43,71 +47,89 @@ def sections(surf, b):
     return out
 
 
-def panel(ax, name, b, surf, secs, c, axes, rng):
+def panel(ax, name, b, surf, secs, c, axes, rng, k=1.0):
+    """One tree; k scales lines and markers (thesis figure 0.6)."""
     O = b["O"]
     V = surf[0][np.linalg.norm(surf[0] - O, axis=1) <= ZOOM]
     if len(V) > MAX_VERTICES:
         V = V[rng.choice(len(V), MAX_VERTICES, replace=False)]
     if len(V):
-        draw(ax, V, c, axes, marker=".", ms=1, color="0.6", alpha=0.25, ls="none")
+        draw(ax, V, c, axes, marker=".", ms=1 * k, color=MUTED, alpha=0.25, ls="none")
     if len(b["LM"]) > 1:
-        draw(ax, b["LM"], c, axes, color=COLOUR["LM"], lw=1.5, label="LM")
+        draw(ax, b["LM"], c, axes, color=COLOUR["LM"], lw=1.5 * k, label="LM")
     for a in ("LAD", "CX"):
         Y, s, *_ = b[a]
-        draw(ax, Y[s <= ZOOM], c, axes, color=COLOUR[a], lw=1.2, label="LCx" if a == "CX" else a)
+        draw(ax, Y[s <= ZOOM], c, axes, color=COLOUR[a], lw=1.2 * k, label="LCx" if a == "CX" else a)
         for loop, p in secs[a]:
             if loop is not None:
-                draw(ax, np.r_[loop, loop[:1]], c, axes, color=COLOUR[a], lw=0.9)
+                draw(ax, np.r_[loop, loop[:1]], c, axes, color=COLOUR[a], lw=0.9 * k)
             elif p is not None:
-                draw(ax, [p], c, axes, marker="x", ms=6, mew=1.5, color="red", ls="none")
-    draw(ax, [O], c, axes, marker="o", ms=7, color="k", ls="none", label="O")
-    ax.set_title(name, fontsize=10)
+                draw(ax, [p], c, axes, marker="x", ms=6 * k, mew=1.5 * k, color=INK, ls="none")
+    draw(ax, [O], c, axes, marker="o", ms=7 * k, color=INK, ls="none", label="O")
+    ax.set_title(name.capitalize(), fontsize=10)
     ax.set_aspect("equal")
-    ax.set_xlabel("mm")
-    ax.legend(fontsize=7, loc="best")
+    ax.set_xlabel("Position (mm)")
+    ax.legend(fontsize=7, loc="best", frameon=False)
+    style(ax)
 
 
-def profile(ax, secs):
+def style(ax):
+    ax.spines[["top", "right"]].set_visible(False)
+    ax.tick_params(colors=INK2, labelsize=8)
+    ax.grid(color=GRID, lw=0.5)
+
+
+def profile(ax, secs, k=1.0):
     """Diameter at each depth, both trees, with each daughter's median."""
     for name, ls, mk in (("tracer", "-", "o"), ("Medis", "--", "s")):
         for a in ("LAD", "CX"):
             D = np.array([np.nan if lp is None else contour_diameter(lp) for lp, _ in secs[name][a]])
-            lab = f"{name} {'LCx' if a == 'CX' else a}"
-            ax.plot(SECTION_DEPTHS, D, ls=ls, marker=mk, ms=3, color=COLOUR[a], label=lab)
+            lab = f"{name.capitalize()} {'LCx' if a == 'CX' else a}"
+            ax.plot(SECTION_DEPTHS, D, ls=ls, lw=1.5 * k, marker=mk, ms=3 * k, color=COLOUR[a], label=lab)
             if np.isfinite(D).all():
                 ax.axhline(np.median(D), ls=ls, lw=0.6, color=COLOUR[a], alpha=0.6)
-    ax.set_xlabel("depth from O (mm)")
-    ax.set_ylabel("lumen diameter (mm)")
-    ax.set_title("diameter per cut (lines: medians)", fontsize=10)
-    ax.legend(fontsize=7, loc="best")
+    ax.set_xlabel("Depth from O (mm)")
+    ax.set_ylabel("Lumen diameter (mm)")
+    ax.set_title("Diameter per cut", fontsize=10)  # thin lines: the medians (caption)
+    ax.legend(fontsize=7, loc="best", frameon=False)
+    style(ax)
 
 
-def figure(cases, out):
-    """cases: [(row title, {"tracer": (bifurcation, surface), "Medis": (...)}), ...], one row each."""
+def figure(cases, out, name=None, thesis=False):
+    """cases: [(row title, {"tracer": (bifurcation, surface), "Medis": (...)}), ...], one row each. thesis: at the
+    thesis text width, no row title (the caption gives the numbers), one legend below (--examples)."""
     import matplotlib
     matplotlib.use("Agg")
     from matplotlib.figure import Figure
+    thesis_rc()
 
     rng = np.random.default_rng(0)
-    fig = Figure(figsize=(16, 5.6 * len(cases)))
+    k = 0.6 if thesis else 1.0
+    fig = Figure(figsize=(6.3, 2.8) if thesis else (16, 5.6 * len(cases)))
     grid = fig.subplots(len(cases), 3, squeeze=False)
     for row, (title, trees) in zip(grid, cases):
         secs = {m: sections(surf, b) for m, (b, surf) in trees.items()}
         pts = [p for m in secs for a in secs[m] for _, p in secs[m][a] if p is not None]
         c, axes = plane(np.r_[[b["O"] for b, _ in trees.values()], pts])
         for ax, m in zip(row[:2], ("tracer", "Medis")):
-            panel(ax, m, *trees[m], secs[m], c, axes, rng)
-        row[0].set_ylabel("mm")
+            panel(ax, m, *trees[m], secs[m], c, axes, rng, k)
+        row[0].set_ylabel("Position (mm)")
         lim = [(min(a.get_xlim()[0] for a in row[:2]), max(a.get_xlim()[1] for a in row[:2])),
                (min(a.get_ylim()[0] for a in row[:2]), max(a.get_ylim()[1] for a in row[:2]))]
         for ax in row[:2]:
             ax.set_xlim(lim[0])
             ax.set_ylim(lim[1])
-        profile(row[2], secs)
-        row[0].annotate(title, xy=(0, 1.1), xycoords="axes fraction", fontsize=9, va="bottom")
-    fig.tight_layout()
-    path = out / "asymmetry_view.png"
-    fig.savefig(path, dpi=130)
+        profile(row[2], secs, k)
+        if not thesis:
+            row[0].annotate(title, xy=(0, 1.1), xycoords="axes fraction", fontsize=9, va="bottom")
+    if thesis:
+        # the LAD and LCx centrelines share their colour with the profile entries (Tracer LAD, ...), so they go
+        one_legend(fig, grid.flat, ncol=6, drop=("LAD", "LCx"))
+        fig.tight_layout(rect=(0, 0.1, 1, 1))
+    else:
+        fig.tight_layout()
+    path = out / (name or "asymmetry_view.png")
+    fig.savefig(path, dpi=300)
     return path
 
 
@@ -119,17 +141,24 @@ def main():
 
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--n", type=int, default=6, help="number of worst cases (largest |asymmetry difference|)")
+    ap.add_argument("--examples", action="store_true",
+                    help="for the thesis: one bad and one good example, each its own figure (see the docstring)")
     ap.add_argument("--rows", default=str(Path(OUT_DIR) / "medis_compare"), help="medis_compare --rows folder")
     ap.add_argument("--src", default=tracer_io.TRACER_DIR)
     ap.add_argument("--lumen", default=tracer_io.LUMEN_DIR)
     ap.add_argument("--medis", default=None, help="Medis contour folder (default <ROOT>/<MEDIS_DIR>)")
     args = ap.parse_args()
+    if args.examples:
+        args.n = 1
     rows = Path(args.rows)
     P = pd.read_csv(rows / "medis_compare_participants.csv", dtype={"id": str})
     if "asym_reason" not in P:
         ap.error("the CSV has no asymmetry columns: rerun medis_compare.py")
     P = P[P["asym_reason"] == "ok"]
-    P = P.assign(diff=P["asym_tracer"] - P["asym_medis"])
+    if "aligned" in P:  # the pairs of the main asymmetry rows of medis_compare (main_rows), 2026-11-25
+        P = P[P["aligned"].astype(bool)]
+    # ranked by the difference in |a|, the model feature, as in the Bland-Altman figure (2026-11-25)
+    P = P.assign(diff=P["asym_tracer"].abs() - P["asym_medis"].abs()).dropna(subset=["diff"])
     worst = P.loc[P["diff"].abs().sort_values(ascending=False).index[:args.n]]
     picks = [(f"worst {k} of {len(P)}", r) for k, (_, r) in enumerate(worst.iterrows(), 1)]
     picks.append(("closest agreement (reference)", P.loc[P["diff"].abs().idxmin()]))
@@ -143,13 +172,17 @@ def main():
         trees = {"tracer": (bifurcation(tracer_io.tracer_tree(pid, args.src), tracer_io.tracer_ostia(pid, args.src)),
                             surface(tracer_io.tracer_lumen(pid, args.lumen))),
                  "Medis": (bifurcation(hq.tree_points(medis[pid])), merge([surface(f) for f in lumen[pid]]))}
-        text = (f"{label}: a tracer {r['asym_tracer']:+.2f}, Medis {r['asym_medis']:+.2f}, difference {r['diff']:+.2f}; "
+        text = (f"{label}: a tracer {r['asym_tracer']:+.2f}, Medis {r['asym_medis']:+.2f}, difference in abs(a) {r['diff']:+.2f}; "
                 f"abs(a) {abs(r['asym_tracer']):.2f} / {abs(r['asym_medis']):.2f}\n"
                 f"D LAD {r['D_LAD_tracer']:.2f} / {r['D_LAD_medis']:.2f} mm, "
                 f"D LCx {r['D_CX_tracer']:.2f} / {r['D_CX_medis']:.2f} mm (tracer / Medis)")
         cases.append((text, trees))
         print(f"id {pid}: {text.replace(chr(10), '; ')}")
-    print(f"-> {figure(cases, rows)}")
+    if args.examples:  # the largest difference and the closest agreement, one figure each
+        print(f"-> {figure(cases[:1], rows, 'asymmetry_bad.png', thesis=True)}")
+        print(f"-> {figure(cases[-1:], rows, 'asymmetry_good.png', thesis=True)}")
+    else:
+        print(f"-> {figure(cases, rows)}")
 
 
 if __name__ == "__main__":

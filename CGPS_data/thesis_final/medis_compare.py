@@ -52,9 +52,9 @@ feature value is still the whole-artery value of each tree on its own.
 Stored beside it (descriptive, 2026-11-19): T_shared_tracer and T_shared_medis, each tree's curvature averaged over
 only the stretch both lines cover, less CHORD mm at each end (shared_curvature), and one report row with their
 difference on the main pairs: agreement per artery and for all arteries, the whole-artery row on exactly the
-pairs that have a shared value, reliability rows and a Bland-Altman plot (bland_altman_curvature_shared.png). It
-shows how much of the whole-artery difference comes from the stretches only one line covers. The Bland-Altman plots
-use the pairs of the main rows (main_rows).
+pairs that have a shared value, reliability rows and a Bland-Altman panel (bland_altman_curvature.png). It
+shows how much of the whole-artery difference comes from the stretches only one line covers. The Bland-Altman figure
+uses the pairs of the main rows (main_rows).
 
 Agreement per feature: difference tracer - Medis in the feature's own unit, bias, SD of the differences, 95% limits
 of agreement (bias +- 1.96 SD) and 95% intervals from a bootstrap over participants. Reliability per feature, on the
@@ -77,6 +77,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from bifurcation_angle import DEPTHS, angle_with_reason
 from curvature_feature import CHORD, artery_curvature, curvature_profile, segment_mean
 from daughter_ratio import SECTION_DEPTHS, merge, surface, tree_asymmetry
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "Thesis_coronary" / "setup"))
+from figure_colours import GRID, INK, INK2, MUTED, PALETTE  # noqa: E402  (the thesis colour scheme)
 
 MAX_OFFSET = 2.0  # mm: 90th percentile of the point distances, both ways, above this = not the same vessel
 MIN_SHARED = 10.0  # mm: shortest stretch both centerlines cover on which the same-vessel check is made
@@ -569,33 +572,84 @@ def report(flow, A, P, boot):
     return "\n".join(L) + "\n"
 
 
+def darken(hex_, a=0.3):
+    """A colour mixed towards INK (as Thesis_coronary/content/methodology/figures/angle_steps_figure.py)."""
+    from matplotlib.colors import to_rgb
+    return tuple((1 - a) * np.array(to_rgb(hex_)) + a * np.array(to_rgb(INK)))
+
+
+def artery_colours():
+    """LAD purple, LCx dark pink, LM grey: the colours of the Methods figures (angle_steps_figure.py); the RCA,
+    which they do not show, dark yellow. Used by the Bland-Altman figure and the *_view.py scripts."""
+    return {"LAD": PALETTE[3], "CX": darken(PALETTE[1]), "RCA": darken(PALETTE[0]), "LM": INK2}
+
+
+def thesis_rc():
+    """Fonts of the thesis figures (as dominance_check.thesis_rc)."""
+    import matplotlib as mpl
+    mpl.rcParams.update({"font.family": "serif", "font.serif": ["cmr10"], "mathtext.fontset": "cm",
+                         "axes.unicode_minus": False, "axes.formatter.use_mathtext": True, "font.size": 9,
+                         "text.color": INK, "pdf.fonttype": 42})
+
+
+def ba_panel(ax, title, D, ct, cm, unit):
+    """One Bland-Altman panel: difference tracer - Medis against the mean of the two, bias solid, limits of agreement
+    (bias +- 1.96 SD) dashed, zero dotted. Dots coloured by artery when D has one (artery_colours), else grey."""
+    ax.set_title(title, fontsize=10, color=INK)
+    ax.spines[["top", "right"]].set_visible(False)
+    ax.tick_params(colors=INK2, labelsize=8)
+    ax.grid(color=GRID, lw=0.5)
+    if not len(D) or ct not in D or cm not in D:
+        return
+    D = D[np.isfinite(D[ct].astype(float)) & np.isfinite(D[cm].astype(float))]
+    if len(D) < 3:
+        return
+    t, m = D[ct].to_numpy(float), D[cm].to_numpy(float)
+    d, mu = t - m, (t + m) / 2
+    if "artery" in D:
+        colour = artery_colours()
+        for a in ARTERIES:
+            k = (D["artery"] == a).to_numpy()
+            ax.scatter(mu[k], d[k], s=7, alpha=0.6, linewidths=0, color=colour[a], label=NAME[a])
+    else:
+        ax.scatter(mu, d, s=10, alpha=0.7, linewidths=0, color=INK2)  # not an artery colour
+    b, sd = d.mean(), d.std(ddof=1)
+    for y, ls in ((b, "-"), (b - 1.96 * sd, "--"), (b + 1.96 * sd, "--")):
+        ax.axhline(y, ls=ls, lw=1, color=INK)
+    ax.axhline(0, lw=0.8, color=MUTED, ls=":")
+    ax.text(0.98, 0.98, f"$n$ = {len(d)}", transform=ax.transAxes, ha="right", va="top", fontsize=8, color=INK,
+            bbox=dict(facecolor="white", edgecolor="none", alpha=0.85, pad=1.5))
+    u = f" ({unit})" if unit else ""
+    ax.set_xlabel("Mean of tracer and Medis" + u, fontsize=8.5)
+    ax.set_ylabel("Tracer $-$ Medis" + u, fontsize=8.5)
+
+
 def plots(A, P, out):
+    """One Bland-Altman figure per feature in the thesis colours (2026-11-25, user: per feature, beside a bad and a
+    good example from the *_view.py scripts): bland_altman_curvature.png (whole artery and shared stretch, the
+    latter on the pairs of its report rows), bland_altman_angle.png and bland_altman_asymmetry.png (|a|, the model
+    feature, as in the ICC row). One dot per pair, no ids."""
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
+    thesis_rc()
 
-    sets = [("curvature", A.get("T_tracer"), A.get("T_medis"), "average curvature per artery (1/mm)"),
-            ("curvature_shared", A.get("T_shared_tracer"), A.get("T_shared_medis"),
-             "average curvature over the shared stretch (1/mm)"),
-            ("angle", P.get("theta_tracer"), P.get("theta_medis"), "bifurcation angle (degrees)"),
-            ("asymmetry", P.get("asym_tracer"), P.get("asym_medis"), "asymmetry ln(D_LCx / D_LAD)")]
-    for name, t, m, lab in sets:
-        if t is None:
-            continue
-        t, m = np.asarray(t, float), np.asarray(m, float)
-        ok = np.isfinite(t) & np.isfinite(m)
-        if ok.sum() < 3:
-            continue
-        d, mu = t[ok] - m[ok], (t[ok] + m[ok]) / 2
-        b, s = d.mean(), d.std(ddof=1)
-        fig, ax = plt.subplots(figsize=(5, 4))
-        ax.scatter(mu, d, s=8, alpha=0.5)
-        for y, ls in ((b, "-"), (b - 1.96 * s, "--"), (b + 1.96 * s, "--")):
-            ax.axhline(y, ls=ls, lw=1, color="k")
-        ax.set_xlabel(f"mean of tracer and Medis, {lab}")
-        ax.set_ylabel("tracer - Medis")
-        fig.tight_layout()
-        fig.savefig(out / f"bland_altman_{name}.png", dpi=150)
+    absa = P.assign(abs_t=P["asym_tracer"].abs(), abs_m=P["asym_medis"].abs()) if "asym_tracer" in P else P
+    figures = {"curvature": [("Whole artery", A, "T_tracer", "T_medis", r"mm$^{-1}$"),
+                             ("Shared stretch", shared_pairs(A), "T_shared_tracer", "T_shared_medis", r"mm$^{-1}$")],
+               "angle": [("Bifurcation angle", P, "theta_tracer", "theta_medis", "degrees")],
+               "asymmetry": [(r"LAD/LCx asymmetry $|a|$", absa, "abs_t", "abs_m", "")]}
+    for name, panels in figures.items():
+        fig, axes = plt.subplots(1, len(panels), figsize=(3.4 * len(panels), 3.2), squeeze=False)
+        for ax, panel in zip(axes.flat, panels):
+            ba_panel(ax, *panel)
+        h, l = axes.flat[0].get_legend_handles_labels()
+        if h:
+            fig.legend(h, l, loc="lower center", ncol=3, frameon=False, fontsize=8, markerscale=1.8)
+            fig.tight_layout(rect=(0, 0.07, 1, 1))
+        else:
+            fig.tight_layout()
+        fig.savefig(out / f"bland_altman_{name}.png", dpi=300)
         plt.close(fig)
 
 

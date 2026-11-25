@@ -2,7 +2,12 @@
 says it should?
 
     python CGPS_data/thesis_final/dominance_check.py [--cohort clean|all] [--limit N] [--boot 2000] [--out MD]
+                                                     [--workers 8] [--from-rows]
     python CGPS_data/thesis_final/dominance_check.py --check   # synthetic numbers, needs no data
+
+Speed (2026-11-25): the participants run in parallel (--workers, 1 = no pool), and the rows of the run are saved
+in --rows (dominance_rows_<cohort>.csv with ids, and the flow as .json; individual data, they stay on the server),
+so --from-rows redoes the report and the plot without reading the meshes again.
 
 The check needs no reference: it asks whether the cohort feature carries the one difference that is known in
 advance. In a left-dominant heart the LCx supplies the inferior wall and the posterior descending artery, so it is
@@ -29,14 +34,16 @@ shuffled; user, 2026-11-25, as in the plot). The difference is also given in
 units of the SD of a over all participants with a value, the scale of the model feature.
 
 Plot (one dot per participant, allowed off the server: user, 2026-11-25; thesis colours): a by dominance group
-with each group's mean and 95% interval and the one-sided permutation p of left - right (expected > 0), and D_LCx
-against D_LAD coloured by group, the line of equal daughters (a = 0) drawn. With --cohort all the participants with
-plaque at baseline are hollow. Written to --rows (default <OUT_DIR>/dominance_check).
+with each group's median and interquartile range, the line a = 0, and the one-sided permutation p of left - right
+(expected > 0). One panel (2026-11-25); the D_LCx-against-D_LAD panel was dropped. With --cohort all the participants
+with plaque at baseline are hollow. Written to --rows (default <OUT_DIR>/dominance_check).
 
 Writes dominance_check.md next to this script: aggregates only, counts 1-4 shown as <5, statistics only from groups
 of MIN_CELL, medians only from QUARTILE_MIN (cgps_stats).
 """
 import argparse
+import json
+import os
 import sys
 from collections import Counter
 from pathlib import Path
@@ -78,12 +85,25 @@ def diff_ci(x, y, boot=2000, seed=0):
 
 # ---------------------------------------------------------------- data run (server)
 
-def run(cohort="clean", limit=None):
+def participant(pid):
+    """The asymmetry of one participant (dict of daughter_ratio.tree_asymmetry, or only a reason); one task of the pool."""
+    import tracer_io
+    from daughter_ratio import surface, tree_asymmetry
+
+    f = tracer_io.tracer_lumen(pid)
+    if not f.exists():
+        return {"reason": "no lumen surface"}
+    try:
+        return tree_asymmetry(tracer_io.tracer_tree(pid), surface(f), tracer_io.tracer_ostia(pid))
+    except Exception as ex:  # noqa: BLE001 - counted
+        return {"reason": f"error:{type(ex).__name__}"}
+
+
+def run(cohort="clean", limit=None, workers=1):
     """(flow, one row per participant with a tracer pair: id, dominance group, plaque_free, asym, D_LAD, D_CX, reason, raw levels)."""
     import hoe10y_qc as hq
     import tracer_io
     from cgps_stats import BL_PATH, load, num
-    from daughter_ratio import surface, tree_asymmetry
 
     bl = load(BL_PATH)
     bl = bl.assign(id=bl["study_id"].map(hq.norm_id)).drop_duplicates("id").set_index("id")
@@ -97,19 +117,30 @@ def run(cohort="clean", limit=None):
     have = tracer_io.tracer_ids()
     ids = sorted((i for i in bl.index[keep] if i in have), key=int)[:limit]
     flow["with tracer centerlines"] = len(ids)
-    rows = []
-    for pid in ids:
-        row = {"id": pid, "group": group.get(pid), "raw": raw.get(pid), "plaque_free": bool(clean.get(pid))}
-        f = tracer_io.tracer_lumen(pid)
-        if not f.exists():
-            rows.append(row | {"reason": "no lumen surface"})
-            continue
-        try:
-            res = tree_asymmetry(tracer_io.tracer_tree(pid), surface(f), tracer_io.tracer_ostia(pid))
-        except Exception as ex:  # noqa: BLE001 - counted
-            res = {"reason": f"error:{type(ex).__name__}"}
-        rows.append(row | res)
+    if workers > 1:
+        from multiprocessing import Pool
+        with Pool(workers) as pool:
+            results = pool.map(participant, ids, chunksize=4)  # in the order of ids
+    else:
+        results = [participant(pid) for pid in ids]
+    rows = [{"id": pid, "group": group.get(pid), "raw": raw.get(pid), "plaque_free": bool(clean.get(pid))} | res
+            for pid, res in zip(ids, results)]
     return flow, pd.DataFrame(rows)
+
+
+def save_rows(flow, R, folder, cohort):
+    """The rows and flow of a run, for --from-rows (individual data: only on the server)."""
+    folder = Path(folder)
+    folder.mkdir(parents=True, exist_ok=True)
+    R.to_csv(folder / f"dominance_rows_{cohort}.csv", index=False)
+    (folder / f"dominance_flow_{cohort}.json").write_text(json.dumps(dict(flow)), encoding="utf-8")
+
+
+def load_rows(folder, cohort):
+    """(flow, rows) saved by save_rows."""
+    folder = Path(folder)
+    R = pd.read_csv(folder / f"dominance_rows_{cohort}.csv", dtype={"id": str, "raw": str})
+    return Counter(json.loads((folder / f"dominance_flow_{cohort}.json").read_text(encoding="utf-8"))), R
 
 
 # ---------------------------------------------------------------- report
@@ -214,58 +245,47 @@ def thesis_rc():
 
 def plot(R, path, boot=2000):
     """Strip plot of a by dominance group (median and interquartile range beside each group, as in
-    hypertension_curvature.py) and D_LCx against D_LAD by group, with the one-sided permutation p of mean a left - right."""
+    hypertension_curvature.py) with the one-sided permutation p of mean a left - right. One panel since 2026-11-25
+    (user): the D_LCx-against-D_LAD panel was dropped, the diameter differences are in the text."""
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
     thesis_rc()
 
     R = R.copy()
-    for c in ("asym", "D_LAD", "D_CX"):
-        R[c] = pd.to_numeric(R[c], errors="coerce") if c in R else np.nan
+    R["asym"] = pd.to_numeric(R["asym"], errors="coerce") if "asym" in R else np.nan
     ok = R[R["asym"].notna() & R["group"].isin(GROUPS)]
     free = ok["plaque_free"].astype(bool) if "plaque_free" in ok else pd.Series(True, index=ok.index)
     split = free.nunique() > 1
     rng = np.random.default_rng(0)
 
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(11, 4.6), gridspec_kw={"width_ratios": [1, 1.15]})
+    fig, ax = plt.subplots(figsize=(5.6, 4.4))
     for i, g in enumerate(ORDER):
         d, f = ok[ok["group"] == g], free[ok["group"] == g]
         x = i + rng.uniform(-0.18, 0.18, len(d))
         for m, hollow in ((f, False), (~f, True)):
             if m.any():
-                ax1.scatter(x[m.to_numpy()], d.loc[m, "asym"], s=16, alpha=0.7, linewidths=1,
-                            facecolors="none" if hollow else COLOR[g], edgecolors=COLOR[g])
-                ax2.scatter(d.loc[m, "D_LAD"], d.loc[m, "D_CX"], s=16, alpha=0.7, linewidths=1,
-                            facecolors="none" if hollow else COLOR[g], edgecolors=COLOR[g],
-                            label=None if hollow else f"{GROUP_LABEL[g]} ($n$ = {len(d)})")
+                ax.scatter(x[m.to_numpy()], d.loc[m, "asym"], s=12, alpha=0.7, linewidths=1,
+                           facecolors="none" if hollow else COLOR[g], edgecolors=COLOR[g])
         if len(d) >= 2:
             q1, med, q3 = np.percentile(d["asym"].to_numpy(float), [25, 50, 75])
-            ax1.errorbar(i + 0.3, med, yerr=[[med - q1], [q3 - med]], fmt="o", color=INK, ms=6, capsize=3, lw=1.5)
-    ax1.axhline(0, color=INK2, lw=1, ls="--")
-    ax1.set_xticks(range(len(ORDER)), [f"{GROUP_LABEL[g]}\n($n$ = {int((ok['group'] == g).sum())})" for g in ORDER])
-    ax1.set_xlim(-0.6, len(ORDER) - 0.4)
-    ax1.set_ylabel(r"Asymmetry, $a = \ln(D_{\mathrm{LCx}} / D_{\mathrm{LAD}})$")  # cmr10 has no underscore
-    ax1.set_title("LAD/LCx asymmetry by dominance", fontsize=10, color=INK)  # black marker (median, IQR): caption
+            ax.errorbar(i + 0.3, med, yerr=[[med - q1], [q3 - med]], fmt="o", color=INK, ms=6, capsize=3, lw=1.5)
+    ax.axhline(0, color=INK2, lw=1, ls="--")
+    ax.set_xticks(range(len(ORDER)), [f"{GROUP_LABEL[g]}\n($n$ = {int((ok['group'] == g).sum())})" for g in ORDER])
+    ax.set_xlim(-0.6, len(ORDER) - 0.4)
+    ax.set_ylabel(r"Asymmetry, $a = \ln(D_{\mathrm{LCx}} / D_{\mathrm{LAD}})$")  # cmr10 has no underscore
+    ax.set_title("LAD/LCx asymmetry by dominance", fontsize=10, color=INK)  # black marker (median, IQR): caption
     x, y = (ok.loc[ok["group"] == g, "asym"].to_numpy(float) for g in ("left", "right"))
     if min(len(x), len(y)) >= 2:
-        ax1.text(0.02, 0.98, "Left vs right: " + p_text(diff_ci(x, y, boot)[2]), transform=ax1.transAxes,
-                 ha="left", va="top", fontsize=8.5, color=INK,
-                 bbox=dict(facecolor="white", edgecolor="none", alpha=0.85, pad=1.5))
-
-    lim = [np.nanmin(ok[["D_LAD", "D_CX"]].to_numpy()), np.nanmax(ok[["D_LAD", "D_CX"]].to_numpy())] if len(ok) else [0, 1]
-    ax2.plot(lim, lim, color=INK2, lw=1, ls="--", label="equal diameters ($a$ = 0)")
-    ax2.set_xlabel(r"LAD diameter, $D_{\mathrm{LAD}}$ (mm)")
-    ax2.set_ylabel(r"LCx diameter, $D_{\mathrm{LCx}}$ (mm)")
-    ax2.set_aspect("equal", adjustable="datalim")
-    ax2.set_title("LAD and LCx diameters by dominance", fontsize=10, color=INK)
+        ax.text(0.02, 0.98, "Left vs right: " + p_text(diff_ci(x, y, boot)[2]), transform=ax.transAxes,
+                ha="left", va="top", fontsize=8.5, color=INK,
+                bbox=dict(facecolor="white", edgecolor="none", alpha=0.85, pad=1.5))
     if split:
-        ax2.scatter([], [], s=16, facecolors="none", edgecolors=INK2, label="hollow: plaque at baseline")
-    ax2.legend(frameon=False, fontsize=8, loc="upper left")
-    for ax in (ax1, ax2):
-        ax.spines[["top", "right"]].set_visible(False)
-        ax.tick_params(colors=INK2, labelsize=8)
-        ax.grid(color=GRID, lw=0.5)
+        ax.scatter([], [], s=12, facecolors="none", edgecolors=INK2, label="hollow: plaque at baseline")
+        ax.legend(frameon=False, fontsize=8, loc="lower right")
+    ax.spines[["top", "right"]].set_visible(False)
+    ax.tick_params(colors=INK2, labelsize=8)
+    ax.grid(color=GRID, lw=0.5)
     fig.tight_layout()
     fig.savefig(path, dpi=300)
     plt.close(fig)
@@ -302,6 +322,11 @@ def check():
     with tempfile.TemporaryDirectory() as tmp:
         plot(R, Path(tmp) / "p.png", 100)
         assert (Path(tmp) / "p.png").stat().st_size > 0
+        flow = Counter({"BL participants": 60, "with tracer centerlines": 60})
+        R.loc[0, "raw"] = None
+        save_rows(flow, R, tmp, "all")
+        flow2, R2 = load_rows(tmp, "all")
+        assert flow2 == flow and report(flow2, R2, "all", 200) == report(flow, R, "all", 200), "rows round trip"
     print("dominance_check: all checks passed")
 
 
@@ -312,18 +337,23 @@ def main():
     ap.add_argument("--limit", type=int, default=None, help="only the first N participants")
     ap.add_argument("--boot", type=int, default=2000)
     ap.add_argument("--out", default=str(Path(__file__).resolve().parent / "dominance_check.md"))
-    ap.add_argument("--rows", default=None, help="folder for the plot")
+    ap.add_argument("--rows", default=None, help="folder for the plot and the saved rows")
+    ap.add_argument("--workers", type=int, default=min(8, os.cpu_count() or 1), help="parallel participants (1: no pool)")
+    ap.add_argument("--from-rows", action="store_true", help="report and plot from the rows of an earlier run")
     args = ap.parse_args()
     if args.check:
         check()
         return
     from cgps_stats import OUT_DIR
 
-    flow, R = run(args.cohort, args.limit)
+    rows = Path(args.rows or Path(OUT_DIR) / "dominance_check")
+    if args.from_rows:
+        flow, R = load_rows(rows, args.cohort)
+    else:
+        flow, R = run(args.cohort, args.limit, args.workers)
+        save_rows(flow, R, rows, args.cohort)
     text = report(flow, R, args.cohort, args.boot)
     Path(args.out).write_text(text, encoding="utf-8")
-    rows = Path(args.rows or Path(OUT_DIR) / "dominance_check")
-    rows.mkdir(parents=True, exist_ok=True)
     png = rows / f"dominance_scatter_{args.cohort}.png"
     plot(R, png, args.boot)
     print(text)

@@ -118,12 +118,30 @@ def surface(path):
     unrolled; ValueError when the file has neither (a contour file of rings or lines, not a surface)."""
     import centerline_qc as cq
 
-    v = cq.read_vtk_legacy(Path(path).read_bytes())
-    tris = [(c[0], c[k], c[k + 1]) for c in v["cells"].get("POLYGONS", []) for k in range(1, len(c) - 1)]
-    tris += [(c[k], c[k + 1], c[k + 2]) for c in v["cells"].get("TRIANGLE_STRIPS", []) for k in range(len(c) - 2)]
-    if not tris:
+    v = cq.read_vtk_legacy(Path(path).read_bytes(), arrays=True)
+    return np.asarray(v["points"], float), triangles(v["cells"])
+
+
+def triangles(cells):
+    """(m, 3) triangles from the cells of read_vtk_legacy: POLYGONS fan-triangulated, then TRIANGLE_STRIPS
+    unrolled, in cell order. A cell type read as one (n, k) array is split without a loop over the cells."""
+    fans = lambda w: [(0, k, k + 1) for k in range(1, w - 1)]  # noqa: E731
+    strips = lambda w: [(k, k + 1, k + 2) for k in range(w - 2)]  # noqa: E731
+    out = []
+    for name, pick in (("POLYGONS", fans), ("TRIANGLE_STRIPS", strips)):
+        c = cells.get(name, [])
+        if isinstance(c, np.ndarray):
+            idx = pick(c.shape[1])
+            if idx:
+                out.append(np.stack([c[:, list(i)] for i in idx], axis=1).reshape(-1, 3))
+        elif name == "POLYGONS":
+            out.append([(p[0], p[k], p[k + 1]) for p in c for k in range(1, len(p) - 1)])
+        else:
+            out.append([(p[k], p[k + 1], p[k + 2]) for p in c for k in range(len(p) - 2)])
+    tris = np.concatenate([np.asarray(t, int).reshape(-1, 3) for t in out])
+    if not len(tris):
         raise ValueError("no POLYGONS or TRIANGLE_STRIPS: not a surface")
-    return np.asarray(v["points"], float), np.asarray(tris, int)
+    return tris
 
 
 def merge(surfaces):
@@ -366,7 +384,56 @@ def check():
     s_crowd = np.r_[np.linspace(0, 5, 11), np.linspace(5, 6, 200), np.linspace(6.5, 20, 28)]
     assert abs(reference_diameter(s_crowd, taper(s_crowd)) - taper(7.5)) < 1e-9, "crowded points must not count more"
     check_surface()
+    check_reader()
     print("all checks passed")
+
+
+def _vtk_bytes(V, cells, layout="5.1", binary=False, kind="POLYGONS"):
+    """A legacy VTK POLYDATA file of points V and one block of cells (index lists), for check_reader."""
+    def block(a, dt):
+        a = np.asarray(a)
+        return a.astype(">" + dt).tobytes() + b"\n" if binary else (" ".join(map(str, a.tolist())) + "\n").encode()
+    head = f"# vtk DataFile Version {'5.1' if layout == '5.1' else '4.2'}\ncheck\n{'BINARY' if binary else 'ASCII'}\n"
+    out = (head + f"DATASET POLYDATA\nPOINTS {len(V)} double\n").encode() + block(np.ravel(V), "f8")
+    if layout == "5.1":
+        offs = np.r_[0, np.cumsum([len(c) for c in cells])]
+        out += f"{kind} {len(offs)} {offs[-1]}\nOFFSETS vtktypeint64\n".encode() + block(offs, "i8")
+        out += b"CONNECTIVITY vtktypeint64\n" + block(np.concatenate(cells), "i8")
+    else:
+        flat = np.concatenate([np.r_[len(c), c] for c in cells])
+        out += f"{kind} {len(cells)} {len(flat)}\n".encode() + block(flat, "i4")
+    return out
+
+
+def check_reader():
+    """surface() reads the triangles of the arrays fast path exactly as the list path did (same triangles, same
+    order), in both VTK layouts, ASCII and binary, for triangles, mixed polygons and triangle strips."""
+    import tempfile
+
+    import centerline_qc as cq
+
+    def slow(data):  # the list path of surface() before 2026-11-25
+        v = cq.read_vtk_legacy(data)
+        tris = [(c[0], c[k], c[k + 1]) for c in v["cells"].get("POLYGONS", []) for k in range(1, len(c) - 1)]
+        tris += [(c[k], c[k + 1], c[k + 2]) for c in v["cells"].get("TRIANGLE_STRIPS", []) for k in range(len(c) - 2)]
+        return np.asarray(v["points"], float), np.asarray(tris, int)
+
+    V, F = _tube_mesh(np.zeros(3), [1, 0.4, 0], 2.5, 3)
+    meshes = {"triangles": ("POLYGONS", [list(f) for f in F]),
+              "mixed": ("POLYGONS", [list(f) for f in F[:10]] + [[0, 1, 2, 3], [4, 5, 6, 7, 8]]),
+              "quads": ("POLYGONS", [[0, 1, 65, 64], [1, 2, 66, 65]]),
+              "strips": ("TRIANGLE_STRIPS", [[0, 64, 1, 65, 2, 66], [3, 67, 4, 68, 5, 69]])}
+    with tempfile.TemporaryDirectory() as tmp:
+        for name, (kind, cells) in meshes.items():
+            for layout in ("5.1", "4.2"):
+                for binary in (False, True):
+                    data = _vtk_bytes(V, cells, layout, binary, kind)
+                    f = Path(tmp) / f"{name}_{layout}_{binary}.vtk"
+                    f.write_bytes(data)
+                    (V1, F1), (V2, F2) = surface(f), slow(data)
+                    assert np.array_equal(V1, V2) and np.array_equal(F1, F2), (name, layout, binary)
+        assert cq.read_vtk_legacy(_vtk_bytes(V, meshes["triangles"][1]))["cells"]["POLYGONS"][0] == list(F[0])  # default unchanged
+    print("surface reader: arrays fast path equals the list path (2 layouts, ASCII and binary, 4 meshes)")
 
 
 def _tube_mesh(origin, direction, D, length, step=0.25, m=64):

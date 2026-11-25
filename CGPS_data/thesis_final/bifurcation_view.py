@@ -12,7 +12,7 @@ first (the N worst cases, 2026-11-19; before, only the largest tracer - Medis). 
 |theta_tracer - theta_medis|. Both trees are read again and divided with split_trunks.split.
 
 Each row has the tracer left and Medis right, with: the LM from the ostium to the bifurcation point O
-(green), O, the LAD and LCx up to ZOOM mm from O, the side branches near O in grey (so a trifurcation or a
+(grey), O, the LAD (purple) and LCx (dark pink) up to ZOOM mm from O, the side branches near O in grey (so a trifurcation or a
 misplaced O shows), the points 5 to 10 mm along each daughter (bifurcation_angle.DEPTHS), the fitted line
 through them (artery_direction, drawn through the points' centre over their extent), the same direction drawn
 dashed from O, and the angle between the two directions as an arc between the dashed rays. The feature is the
@@ -24,6 +24,9 @@ distance between the two O, the near-O check of the LAD and LCx (medis_compare.n
 whole-artery alignment check (reason and offset).
 Figure: bifurcation_view.png in --rows. The study ids are printed to the terminal with each row's numbers,
 not in the figure.
+
+--examples (2026-11-25, user: Bland-Altman, a bad and a good example per feature in the thesis): the largest
+difference and the closest agreement, one row each, as bifurcation_bad.png and bifurcation_good.png in --rows.
 """
 import argparse
 import sys
@@ -36,7 +39,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # the shared modul
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from bifurcation_angle import DEPTHS, angle_with_reason, artery_direction, point_at_depth
 
-COLOUR = {"LM": "tab:green", "LAD": "tab:blue", "CX": "tab:orange"}
+from medis_compare import GRID, INK, INK2, MUTED, PALETTE, artery_colours, thesis_rc  # noqa: E402
+
+COLOUR = artery_colours()  # LAD purple, LCx dark pink, LM grey, as the Methods figures
 ZOOM = 15.0  # mm from O shown in each panel
 ARC = 4.0  # mm: radius of the angle arc
 
@@ -70,7 +75,8 @@ def bifurcation(tree, roots=None):
     return out
 
 
-def panel(ax, m, b, tree, c, axes):
+def panel(ax, m, b, tree, c, axes, k=1.0):
+    """One tree; k scales lines and markers (thesis figure 0.6)."""
     if b is None:
         ax.set_title(f"{m}: no LAD and LCx")
         return
@@ -78,57 +84,82 @@ def panel(ax, m, b, tree, c, axes):
     for P, _ in tree:
         near = np.linalg.norm(P - O, axis=1) <= ZOOM
         if near.sum() > 1:
-            draw(ax, P[near], c, axes, color="0.75", lw=1)
+            draw(ax, P[near], c, axes, color=MUTED, lw=1 * k)
     if len(b["LM"]) > 1:
-        draw(ax, b["LM"], c, axes, color=COLOUR["LM"], lw=1.8, label="LM")
+        draw(ax, b["LM"], c, axes, color=COLOUR["LM"], lw=1.8 * k, label="LM")
     for a in ("LAD", "CX"):
         Y, s, pts, u = b[a]
-        draw(ax, Y[s <= ZOOM], c, axes, color=COLOUR[a], lw=1.6, label="LCx" if a == "CX" else a)
+        draw(ax, Y[s <= ZOOM], c, axes, color=COLOUR[a], lw=1.6 * k, label="LCx" if a == "CX" else a)
         if len(pts):
-            draw(ax, pts, c, axes, marker="o", ms=4, color=COLOUR[a], ls="none")
+            draw(ax, pts, c, axes, marker="o", ms=4 * k, color=COLOUR[a], ls="none")
         if u is not None:
             mid, t = pts.mean(axis=0), (pts - pts.mean(axis=0)) @ u  # the fitted line passes through the points' centre
-            draw(ax, [mid + (t.min() - 1) * u, mid + (t.max() + 1) * u], c, axes, color=COLOUR[a], lw=3, alpha=0.4)
-            draw(ax, [O, O + (ARC + 3) * u], c, axes, color=COLOUR[a], lw=1.2, ls="--")  # the same direction from O
-    draw(ax, [O], c, axes, marker="o", ms=9, color="k", ls="none", label="O")
-    draw(ax, [b["ostium"]], c, axes, marker="x", ms=9, mew=2, color=COLOUR["LM"], ls="none", label="ostium")
+            draw(ax, [mid + (t.min() - 1) * u, mid + (t.max() + 1) * u], c, axes, color=COLOUR[a], lw=3 * k, alpha=0.4)
+            draw(ax, [O, O + (ARC + 3) * u], c, axes, color=COLOUR[a], lw=1.2 * k, ls="--")  # the same direction from O
+    draw(ax, [O], c, axes, marker="o", ms=9 * k, color=INK, ls="none", label="O")
+    draw(ax, [b["ostium"]], c, axes, marker="x", ms=9 * k, mew=2 * k, color=COLOUR["LM"], ls="none", label="Ostium")
     ul, uc = b["LAD"][3], b["CX"][3]
     if ul is not None and uc is not None:
         w = np.linspace(0, 1, 50)[:, None]
         arc = ul * (1 - w) + uc * w
-        draw(ax, O + ARC * arc / np.linalg.norm(arc, axis=1, keepdims=True), c, axes, color="k", lw=1)
-    ax.set_title(f"{m}: angle {b['theta']:.0f} deg" if np.isfinite(b["theta"]) else f"{m}: no angle (no LM label)",
+        draw(ax, O + ARC * arc / np.linalg.norm(arc, axis=1, keepdims=True), c, axes, color=PALETTE[2], lw=1.2 * k)  # the angle in green, as angle_steps_figure.py
+    ax.set_title(f"{m.capitalize()}, angle {b['theta']:.0f}$^\\circ$" if np.isfinite(b["theta"])
+                 else f"{m.capitalize()}, no angle (no LM label)",
                  fontsize=10)
     ax.set_aspect("equal")
-    ax.legend(fontsize=7, loc="best")
+    ax.legend(fontsize=7, loc="best", frameon=False)
+    ax.spines[["top", "right"]].set_visible(False)
+    ax.tick_params(colors=INK2, labelsize=8)
+    ax.grid(color=GRID, lw=0.5)
 
 
-def figure(cases, out):
+def one_legend(fig, axes, ncol, drop=()):
+    """Thesis figure: the legends of all panels as one row below the figure, each label once, without the
+    labels in drop."""
+    seen = {}
+    for ax in axes:
+        for h, l in zip(*ax.get_legend_handles_labels()):
+            if l not in drop:
+                seen.setdefault(l, h)
+        if ax.get_legend():
+            ax.get_legend().remove()
+    fig.legend(list(seen.values()), list(seen), loc="lower center", ncol=ncol, frameon=False, fontsize=7.5)
+
+
+def figure(cases, out, name=None, thesis=False):
     """cases: [(row title, trees {"tracer": tree, "Medis": tree}, alignment text, tracer roots), ...], one row
-    each."""
+    each. thesis: at the thesis text width, no row title (the caption gives the numbers), one legend below
+    (--examples)."""
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
+    thesis_rc()
 
-    fig, grid = plt.subplots(len(cases), 2, figsize=(11, 5.8 * len(cases)), squeeze=False)
+    size = (6.3, 3.6) if thesis else (11, 5.8 * len(cases))
+    fig, grid = plt.subplots(len(cases), 2, figsize=size, squeeze=False)
     for row, (title, trees, check, roots) in zip(grid, cases):
         bif = {m: bifurcation(t, roots if m == "tracer" else None) for m, t in trees.items()}
         zoom = np.concatenate([np.r_[[b["O"]], b["LAD"][2], b["CX"][2]] for b in bif.values() if b])
         c, axes = plane(zoom)
         for ax, m in zip(row, ("tracer", "Medis")):
-            panel(ax, m, bif[m], trees[m], c, axes)
-            ax.set_xlabel("mm")
-        row[0].set_ylabel("mm")
+            panel(ax, m, bif[m], trees[m], c, axes, k=0.6 if thesis else 1.0)
+            ax.set_xlabel("Position (mm)")
+        row[0].set_ylabel("Position (mm)")
         lim = [(min(a.get_xlim()[0] for a in row), max(a.get_xlim()[1] for a in row)),
                (min(a.get_ylim()[0] for a in row), max(a.get_ylim()[1] for a in row))]
         for ax in row:
             ax.set_xlim(lim[0])
             ax.set_ylim(lim[1])
-        row[0].annotate(f"{title}\nalignment check: {check}", xy=(0, 1.12), xycoords="axes fraction",
-                        fontsize=9, va="bottom")
-    fig.tight_layout()
-    path = out / "bifurcation_view.png"
-    fig.savefig(path, dpi=150)
+        if not thesis:
+            row[0].annotate(f"{title}\nalignment check: {check}", xy=(0, 1.12), xycoords="axes fraction",
+                            fontsize=9, va="bottom")
+    if thesis:
+        one_legend(fig, grid.flat, ncol=5)
+        fig.tight_layout(rect=(0, 0.08, 1, 1))
+    else:
+        fig.tight_layout()
+    path = out / (name or "bifurcation_view.png")
+    fig.savefig(path, dpi=300)
     plt.close(fig)
     return path
 
@@ -148,9 +179,13 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--n", type=int, default=6, help="number of worst cases (largest |angle difference|)")
     ap.add_argument("--all", action="store_true", help="choose among all participants, not only aligned ones")
+    ap.add_argument("--examples", action="store_true",
+                    help="for the thesis: one bad and one good example, each its own figure (see the docstring)")
     ap.add_argument("--rows", default=str(Path(OUT_DIR) / "medis_compare"), help="medis_compare --rows folder")
     ap.add_argument("--src", default=tracer_io.TRACER_DIR)
     args = ap.parse_args()
+    if args.examples:
+        args.n = 1
     rows = Path(args.rows)
     P = pd.read_csv(rows / "medis_compare_participants.csv", dtype={"id": str})
     A = pd.read_csv(rows / "medis_compare_arteries.csv", dtype={"id": str})
@@ -176,7 +211,11 @@ def main():
         cases.append((f"{label}: tracer - Medis = {r['diff']:+.0f} deg{o}{near}", trees, alignment(A, r["id"]),
                       tracer_io.tracer_ostia(r["id"], args.src)))
         print(f"{label}: id {r['id']}, difference {r['diff']:+.1f} deg{o}{near.replace(chr(10), '; ')}")
-    print(f"-> {figure(cases, rows)}")
+    if args.examples:  # the largest difference and the closest agreement, one figure each
+        print(f"-> {figure(cases[:1], rows, 'bifurcation_bad.png', thesis=True)}")
+        print(f"-> {figure(cases[-1:], rows, 'bifurcation_good.png', thesis=True)}")
+    else:
+        print(f"-> {figure(cases, rows)}")
 
 
 if __name__ == "__main__":

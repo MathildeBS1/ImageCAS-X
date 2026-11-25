@@ -426,16 +426,17 @@ class _VtkCursor:
         return a if code[0] == "f" else a.astype(np.int64)
 
 
-def read_vtk_legacy(data):
+def read_vtk_legacy(data, arrays=False):
     """Legacy .vtk POLYDATA, ASCII or BINARY, old (4.x) or new (5.1, OFFSETS/CONNECTIVITY) layout.
     Returns {points, cells: {LINES/POLYGONS/...: [index lists]}, point_data, cell_data, field_data,
-    header, keywords}."""
+    header, keywords}. arrays=True: a cell type whose cells all have the same length k is returned as one
+    (n, k) int array instead of n lists (a triangle mesh without building a list per triangle)."""
     r = _VtkCursor(data)
     head = [r.raw_line() for _ in range(3)]  # version, title (may be empty), ASCII/BINARY
     if not head[0].lower().startswith("# vtk"):
         raise ValueError(f"not a legacy VTK file (first line {head[0][:40]!r})")
     binary = head[2].upper().startswith("BINARY")
-    points, cells_by_type, pa, ca, fd = None, defaultdict(list), {}, {}, {}
+    points, blocks, pa, ca, fd = None, defaultdict(list), {}, {}, {}  # blocks: cell blocks per type, in file order
     target, n_mode, keywords = fd, 0, Counter()
     while (s := r.line()) is not None:
         w = s.split()
@@ -452,14 +453,22 @@ def read_vtk_legacy(data):
             if (r.peek() or "").upper().startswith("OFFSETS"):  # VTK 5.1 layout
                 offs = r.values(n, r.line().split()[1], binary).astype(int)
                 conn = r.values(size, r.line().split()[1], binary).astype(int)
-                cells = [list(conn[o0:o1]) for o0, o1 in zip(offs[:-1], offs[1:])]
+                lengths = np.diff(offs)
+                if arrays and len(lengths) and (lengths == lengths[0]).all():
+                    cells = conn[offs[0]:offs[-1]].reshape(len(lengths), lengths[0])
+                else:
+                    cells = [list(conn[o0:o1]) for o0, o1 in zip(offs[:-1], offs[1:])]
             else:
                 flat = r.values(size, "int", binary).astype(int)
-                cells, j = [], 0
-                while j < len(flat):
-                    cells.append(list(flat[j + 1:j + 1 + flat[j]]))
-                    j += flat[j] + 1
-            cells_by_type[t] += cells
+                k = flat[0] if len(flat) else 0
+                if arrays and n and len(flat) == n * (k + 1) and (flat.reshape(n, k + 1)[:, 0] == k).all():
+                    cells = flat.reshape(n, k + 1)[:, 1:]
+                else:
+                    cells, j = [], 0
+                    while j < len(flat):
+                        cells.append(list(flat[j + 1:j + 1 + flat[j]]))
+                        j += flat[j] + 1
+            blocks[t].append(cells)
         elif t in ("POINT_DATA", "CELL_DATA"):
             target, n_mode = (pa if t == "POINT_DATA" else ca), int(w[1])
         elif t == "SCALARS":
@@ -493,7 +502,13 @@ def read_vtk_legacy(data):
             raise ValueError(f"unexpected line in VTK file: {s[:60]!r}")
     if points is None:
         raise ValueError("no POINTS in VTK file")
-    return {"points": points, "cells": dict(cells_by_type), "point_data": pa, "cell_data": ca,
+    cells = {}
+    for t, bs in blocks.items():
+        if all(isinstance(b, np.ndarray) for b in bs) and len({b.shape[1] for b in bs}) == 1:
+            cells[t] = np.concatenate(bs)
+        else:  # lists, or array blocks of different lengths: index lists as without arrays
+            cells[t] = [c if isinstance(c, list) else list(c) for b in bs for c in b]
+    return {"points": points, "cells": cells, "point_data": pa, "cell_data": ca,
             "field_data": fd, "header": head, "keywords": dict(keywords)}
 
 
